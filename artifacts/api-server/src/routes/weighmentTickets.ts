@@ -1,0 +1,55 @@
+import { Router, type IRouter } from "express";
+import { connectMongo, WeighmentTicket } from "@workspace/mongo-db";
+import { z } from "zod";
+
+const router: IRouter = Router();
+
+// Zod schema for validation
+const createTicketSchema = z.object({
+  ticketNo: z.string(),
+  plant: z.string(),
+  vehicleNo: z.string(),
+  weightType: z.string(),
+  weight: z.string().or(z.number()),
+  createdBy: z.string().optional(),
+});
+
+router.get("/weighment-tickets", async (_req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const tickets = await WeighmentTicket.find().sort({ createdAt: -1 });
+    res.json(tickets);
+  } catch (error) {
+    console.error("Failed to fetch tickets from MongoDB:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/weighment-tickets", async (req, res): Promise<void> => {
+  try {
+    const parsed = createTicketSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+
+    await connectMongo();
+    const ticket = new WeighmentTicket({
+      ...parsed.data,
+      weight: Number(parsed.data.weight),
+      createdBy: parsed.data.createdBy || "Super Admin",
+    });
+
+    await ticket.save();
+    console.log("✅ Ticket saved successfully:", ticket._id);
+    res.status(201).json(ticket);
+  } catch (error: any) {
+    console.error("❌ Failed to save ticket to MongoDB:");
+    console.error("Error Name:", error.name);
+    console.error("Error Message:", error.message);
+    if (error.errors) console.error("Validation Errors:", JSON.stringify(error.errors, null, 2));
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+export default router;

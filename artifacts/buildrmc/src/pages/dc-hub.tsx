@@ -1,0 +1,59 @@
+import { Link } from "wouter";
+import { ChevronRight, Truck, Scale, BarChart3 } from "lucide-react";
+
+export default function DCHub() {
+  const actions = [
+    {
+      href: "/dc/delivery-challan",
+      label: "Delivery Challan",
+      icon: Truck,
+      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+    },
+    {
+      href: "/dc/weighment",
+      label: "Weighment",
+      icon: Scale,
+      color: "bg-cyan-600 hover:bg-cyan-700",
+    },
+    {
+      href: "/dc/report",
+      label: "DC Report",
+      icon: BarChart3,
+      color: "bg-orange-400 hover:bg-orange-500",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">DC Dashboard</h2>
+        <nav className="text-sm text-muted-foreground flex items-center gap-1">
+          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
+          <ChevronRight className="h-3 w-3" />
+          <span className="text-foreground">DC</span>
+        </nav>
+      </div>
+
+      <div className="bg-white rounded-lg p-12 shadow-sm border border-gray-100">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {actions.map((action) => (
+            <Link 
+              key={action.href} 
+              href={action.href}
+              className={`${action.color} text-white rounded-xl p-8 text-center flex flex-col items-center justify-center transition-all transform hover:scale-105 shadow-md group`}
+            >
+              <div className="bg-white/20 p-4 rounded-full mb-4 group-hover:bg-white/30 transition-colors">
+                <action.icon className="h-10 w-10" />
+              </div>
+              <div className="text-xl font-bold leading-tight">{action.label}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center text-gray-400 text-sm italic">
+        Select a category to manage your delivery operations
+      </div>
+    </div>
+  );
+}

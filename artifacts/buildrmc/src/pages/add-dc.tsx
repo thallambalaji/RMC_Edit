@@ -1,22 +1,22 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "../components/ui/dialog";
 import { ChevronRight, ListPlus, ChevronDown, ChevronUp, Search } from "lucide-react";
 import { 
   useGetCustomers, 
@@ -24,8 +24,8 @@ import {
   useGetMasters, 
   useGetSalesOrders,
   useCreateDC 
-} from "@workspace/api-client-react";
-import { useToast } from "@/hooks/use-toast";
+} from "../../../lib/api-client-react/src";
+import { useToast } from "../hooks/use-toast";
 
 export default function AddDC() {
   const [, setLocation] = useLocation();
@@ -68,8 +68,8 @@ export default function AddDC() {
   const { data: sites } = useGetMasters("site");
   const { data: allSalesOrders } = useGetSalesOrders();
 
-  const selectedCustomer = useMemo(() => customers?.find(c => c.id === customerId), [customers, customerId]);
-  const selectedVehicle = useMemo(() => vehicles?.find(v => v.id === vehicleId), [vehicles, vehicleId]);
+  const selectedCustomer = useMemo(() => customers?.find(c => String(c.id) === customerId), [customers, customerId]);
+  const selectedVehicle = useMemo(() => vehicles?.find(v => String(v.id) === vehicleId), [vehicles, vehicleId]);
 
   // Totals Calculation
   const totals = useMemo(() => {
@@ -230,7 +230,7 @@ export default function AddDC() {
               <Select value={customerId} onValueChange={setCustomerId}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Customer" /></SelectTrigger>
                 <SelectContent>
-                  {customers?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {customers?.map(c => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -240,7 +240,7 @@ export default function AddDC() {
               <Select value={vehicleId} onValueChange={setVehicleId}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Vehicle" /></SelectTrigger>
                 <SelectContent>
-                  {vehicles?.map(v => <SelectItem key={v.id} value={v.id}>{v.registrationNo}</SelectItem>)}
+                  {vehicles?.map(v => <SelectItem key={v.id} value={String(v.id)}>{v.registrationNo}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -286,7 +286,7 @@ export default function AddDC() {
                   <DialogContent className="max-w-2xl">
                     <DialogHeader><DialogTitle>Select Sales Order / PO</DialogTitle></DialogHeader>
                     <div className="space-y-4">
-                      {allSalesOrders?.filter(o => o.customerId === customerId).map(order => (
+                      {allSalesOrders?.filter(o => String(o.customerId) === customerId).map(order => (
                         <div key={order.id} className="p-4 border rounded hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                              onClick={() => {
                                if (order.items && order.items.length > 0) {

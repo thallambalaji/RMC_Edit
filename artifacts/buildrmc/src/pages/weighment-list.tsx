@@ -41,25 +41,68 @@ export default function WeighmentList() {
     toast({ title: "Filters Cleared", description: "Showing all weighment records." });
   };
 
+  const handleCopy = () => {
+    const headers = ["Delivery No", "Customer", "Site", "Date", "Vehicle", "Loaded", "Empty", "Net"];
+    const rows = mockData.map(d => [
+      d.deliveryNo,
+      d.customer,
+      d.site,
+      d.date,
+      d.vehicle,
+      d.loaded,
+      d.empty,
+      d.net
+    ]);
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard" });
+  };
+
+  const handleExportCSV = () => {
+    const headers = ["Delivery No", "Customer", "Site", "Date", "Vehicle", "Loaded", "Empty", "Net"];
+    const rows = mockData.map(d => [
+      `"${d.deliveryNo}"`,
+      `"${d.customer}"`,
+      `"${d.site}"`,
+      `"${d.date}"`,
+      `"${d.vehicle}"`,
+      `"${d.loaded}"`,
+      `"${d.empty}"`,
+      `"${d.net}"`
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `weighment_export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Export Successful" });
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-4 animate-in fade-in duration-500">
       {/* Header & Breadcrumbs */}
-      <div className="flex items-center justify-between bg-white/40 p-4 rounded-xl backdrop-blur-md border border-white/60 shadow-sm">
-        <div>
-          <h2 className="text-2xl font-black tracking-tight text-slate-800">Weighment List</h2>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">View and manage historical vehicle weighment records</p>
-        </div>
-        <nav className="text-[10px] font-bold text-slate-400 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-          <Link href="/dashboard" className="hover:text-cyan-500 transition-colors">HOME</Link>
-          <ChevronRight className="h-3 w-3 opacity-30" />
-          <Link href="/dc" className="hover:text-cyan-500 transition-colors">DC</Link>
-          <ChevronRight className="h-3 w-3 opacity-30" />
-          <span className="text-slate-800">LIST</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Weighment List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/dc" className="hover:text-[#1e40af] transition-colors">DC</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Weighment List</span>
         </nav>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-2">
-        <Button className="bg-[#3DB9C1] text-white hover:bg-[#2ea4ac] px-6 h-10 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-cyan-500/10">
+        <Button className="bg-[#1e40af] text-white hover:bg-[#1d4ed8] px-6 h-10 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-cyan-500/10">
           WEIGHMENT LIST
         </Button>
         <Button className="bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 px-6 h-10 font-black uppercase tracking-widest text-[10px] transition-all">
@@ -133,9 +176,10 @@ export default function WeighmentList() {
             </Select>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><FileText className="h-3 w-3" /> CSV</Button>
-            <Button variant="outline" size="sm" className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Download className="h-3 w-3" /> PDF</Button>
-            <Button variant="outline" size="sm" className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Printer className="h-3 w-3" /> Print</Button>
+            <Button variant="outline" size="sm" onClick={handleCopy} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm">Copy</Button>
+            <Button variant="outline" size="sm" onClick={handleExportCSV} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><FileText className="h-3 w-3" /> CSV</Button>
+            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Download className="h-3 w-3" /> PDF</Button>
+            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Printer className="h-3 w-3" /> Print</Button>
           </div>
         </div>
 

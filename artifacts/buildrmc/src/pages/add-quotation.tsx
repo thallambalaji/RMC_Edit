@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, Plus, Trash2, FileText, Sparkles, ListPlus } from "lucide-react";
+import { ChevronRight, Plus, Trash2, FileText, Sparkles, ListPlus, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GradeRow { id: number; grade: string; qty: string; rate: string; recipe: string; cement: string; }
@@ -20,7 +20,6 @@ interface GradeRow { id: number; grade: string; qty: string; rate: string; recip
 export default function AddQuotation() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const [mounted, setMounted] = useState(false);
 
   // Form state
   const [customerName, setCustomerName] = useState("");
@@ -39,8 +38,6 @@ export default function AddQuotation() {
   const [rows, setRows] = useState<GradeRow[]>([
     { id: 1, grade: "", qty: "", rate: "", recipe: "", cement: "opc" },
   ]);
-
-  useEffect(() => { setMounted(true); }, []);
 
   const addRow = () =>
     setRows(prev => [...prev, { id: Date.now(), grade: "", qty: "", rate: "", recipe: "", cement: "opc" }]);
@@ -65,313 +62,167 @@ export default function AddQuotation() {
       toast({ title: "Please fill in the customer name and phone", variant: "destructive" });
       return;
     }
-    if (!siteAddress || !paymentTerms) {
-      toast({ title: "Please fill in site address and payment terms", variant: "destructive" });
-      return;
-    }
-    if (!marketingPerson) {
-      toast({ title: "Please select a marketing person", variant: "destructive" });
-      return;
-    }
-    toast({ title: "Quotation submitted successfully!", description: `Quotation for ${customerName} has been saved.` });
+    toast({ title: "Quotation submitted successfully!" });
     navigate("/customer-po/quotation/list");
   };
 
-  const handleCancel = () => navigate("/customer-po/quotation");
+  const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
+  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2";
+  const tableHeaderStyle = "bg-[#1e40af] text-white text-[8px] font-black uppercase py-1.5 px-2 border-r border-white/10 last:border-0 text-center tracking-tighter";
 
   return (
-    <div
-      className="space-y-6"
-      style={{
-        opacity: mounted ? 1 : 0,
-        transform: mounted ? "translateY(0)" : "translateY(16px)",
-        transition: "opacity 0.4s ease, transform 0.4s ease",
-      }}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-200">
-            <FileText className="h-6 w-6 text-white" />
+    <div className="bg-[#f8fafc] h-full overflow-hidden flex flex-col">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-white shadow-sm overflow-hidden border-t-2 border-[#1e40af]">
+        {/* Top Header */}
+        <div className="flex items-center justify-between px-3 py-1.5 border-b bg-white shrink-0">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">Add Quotation</h2>
+            <div className="h-4 w-px bg-gray-300 mx-0.5" />
+            <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
+              <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+              <ChevronRight className="h-2 w-2" />
+              <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+              <ChevronRight className="h-2 w-2" />
+              <span className="text-[#1e40af]">New Quotation</span>
+            </nav>
           </div>
-          <div>
-            <h2 className="text-2xl font-extrabold text-gray-800 tracking-tight">Add Customer Quotation</h2>
-            <p className="text-sm text-gray-400">Create a new pricing quote for your client</p>
+          <div className="flex gap-1.5">
+             <Link href="/customer-po/quotation">
+               <Button type="button" variant="outline" className="border-cyan-100 text-[#1e40af] hover:bg-cyan-50 font-black text-[9px] px-3 h-6 uppercase tracking-wider whitespace-nowrap">Customer Quotation List</Button>
+             </Link>
+             <Button type="submit" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0">Submit Quotation</Button>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <nav className="text-xs text-muted-foreground flex items-center gap-1">
-            <Link href="/dashboard" className="hover:text-orange-500 transition-colors">Home</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link href="/customer-po" className="hover:text-orange-500 transition-colors">Customer PO</Link>
-            <ChevronRight className="h-3 w-3" />
-            <Link href="/customer-po/quotation" className="hover:text-orange-500 transition-colors">Quotation</Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-gray-700 font-medium">Add</span>
-          </nav>
-          <Link href="/customer-po/quotation/list">
-            <Button className="bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100">
-              <ListPlus className="h-4 w-4" />+ Customer Quotation List
-            </Button>
-          </Link>
-        </div>
-      </div>
 
-      <form onSubmit={handleSubmit}>
-        {/* Main Form Card */}
-        <div className="bg-white rounded-2xl p-7 shadow-sm border border-gray-100 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-orange-50 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        {/* Main Body */}
+        <div className="flex-1 overflow-hidden p-3 flex flex-col gap-3 min-h-0">
+          {/* Top Form Grid */}
+          <div className="grid grid-cols-4 gap-x-3 gap-y-2 shrink-0 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+             <div>
+               <Label className={labelStyle}>Customer Name <span className="text-rose-500">*</span></Label>
+               <Input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full Name" className={inputStyle} />
+             </div>
+             <div>
+               <Label className={labelStyle}>Quotation No</Label>
+               <Input readOnly value="QUOT/2027/001" className={`${inputStyle} bg-gray-100/50 text-gray-500 border-dashed`} />
+             </div>
+             <div>
+               <Label className={labelStyle}>Phone Number <span className="text-rose-500">*</span></Label>
+               <Input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="Contact No" className={inputStyle} />
+             </div>
+             <div>
+               <Label className={labelStyle}>Date</Label>
+               <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className={inputStyle} />
+             </div>
+             
+             <div>
+               <Label className={labelStyle}>Pump Charges</Label>
+               <div className="flex gap-1">
+                  <Input value={pumpCharges} onChange={e => setPumpCharges(e.target.value)} placeholder="Amount" className={`${inputStyle} flex-1`} />
+                  <Input value={minPumpQty} onChange={e => setMinPumpQty(e.target.value)} placeholder="Min Qty" className={`${inputStyle} w-16`} />
+               </div>
+             </div>
+             <div>
+               <Label className={labelStyle}>Email Address</Label>
+               <Input value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="Email" className={inputStyle} />
+             </div>
+             <div>
+               <Label className={labelStyle}>Marketing Person <span className="text-rose-500">*</span></Label>
+               <Select value={marketingPerson} onValueChange={setMarketingPerson}>
+                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Select" /></SelectTrigger>
+                 <SelectContent>
+                   <SelectItem value="fortune" className="text-[10px]">Fortune Concrete</SelectItem>
+                 </SelectContent>
+               </Select>
+             </div>
+             <div>
+               <Label className={labelStyle}>Payment Terms</Label>
+               <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} placeholder="Ex: 30 Days" className={inputStyle} />
+             </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-5 relative z-10">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Customer Name <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Enter Customer Name"
-                className="h-11 border-gray-200 rounded-lg bg-white hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Quotation No <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                readOnly
-                defaultValue="STARQUOT/2027/0001"
-                className="h-11 border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Minimum Qty For Pump Charge</Label>
-              <Input
-                value={minPumpQty}
-                onChange={(e) => setMinPumpQty(e.target.value)}
-                placeholder="Enter Pump Quantity"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Customer Phone <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                value={customerPhone}
-                onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Enter Customer Phone"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Quotation Date</Label>
-              <Input
-                type="date"
-                defaultValue="2026-05-09"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Pump Charges</Label>
-              <Input
-                value={pumpCharges}
-                onChange={(e) => setPumpCharges(e.target.value)}
-                placeholder="Enter Pump Charge"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Customer Email</Label>
-              <Input
-                value={customerEmail}
-                onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="Enter Customer Email"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            {/* Site Address spans 2 rows */}
-            <div className="space-y-1.5 row-span-2">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Site Address <span className="text-rose-500">*</span>
-              </Label>
-              <Textarea
-                value={siteAddress}
-                onChange={(e) => setSiteAddress(e.target.value)}
-                placeholder="Enter Site Address..."
-                className="h-[96px] border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200 resize-none"
-              />
-              <div className="flex items-center space-x-2 pt-1">
-                <Checkbox
-                  id="rate-tax"
-                  checked={rateIncludeTax}
-                  onCheckedChange={(v) => setRateIncludeTax(!!v)}
-                  className="border-orange-300 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                />
-                <label htmlFor="rate-tax" className="text-sm font-medium text-gray-600 cursor-pointer select-none">
-                  Rate Include Tax?
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Payment Terms <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                value={paymentTerms}
-                onChange={(e) => setPaymentTerms(e.target.value)}
-                placeholder="Ex : 80 days"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Customer GSTIN</Label>
-              <Input
-                value={customerGstin}
-                onChange={(e) => setCustomerGstin(e.target.value)}
-                placeholder="Enter Customer GSTIN"
-                className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus-visible:ring-2 focus-visible:ring-orange-300 transition-all duration-200"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Marketing Person <span className="text-rose-500">*</span>
-              </Label>
-              <Select value={marketingPerson} onValueChange={setMarketingPerson}>
-                <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-orange-300 focus:ring-2 focus:ring-orange-300 transition-all duration-200">
-                  <SelectValue placeholder="Choose Marketing Person" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="fortune">FORTUNE CONCRETE</SelectItem>
-                  <SelectItem value="person2">Person 2</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+             <div className="col-span-2">
+               <Label className={labelStyle}>Site Address <span className="text-rose-500">*</span></Label>
+               <Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} placeholder="Delivery location details..." className={inputStyle} />
+             </div>
+             <div>
+               <Label className={labelStyle}>GSTIN Number</Label>
+               <Input value={customerGstin} onChange={e => setCustomerGstin(e.target.value)} placeholder="GST Number" className={inputStyle} />
+             </div>
+             <div className="flex items-end pb-1 gap-2">
+                <Checkbox id="tax" checked={rateIncludeTax} onCheckedChange={v => setRateIncludeTax(!!v)} className="h-3 w-3" />
+                <label htmlFor="tax" className="text-[9px] font-black text-gray-700 uppercase cursor-pointer">Rate includes Tax</label>
+             </div>
           </div>
 
-          {/* Notes */}
-          <div className="mt-7">
-            <div className="flex gap-0 rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-              <Input
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addNote())}
-                placeholder="Add any additional note here..."
-                className="border-0 rounded-none h-11 focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 bg-white"
-              />
-              <Button
-                type="button"
-                onClick={addNote}
-                className="bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] hover:opacity-90 text-white h-11 rounded-none px-6 font-semibold"
-              >
-                Add Note
-              </Button>
-            </div>
-          </div>
-          {notes.length > 0 && (
-            <div className="mt-2 mb-3 space-y-1">
-              <Label className="font-extrabold text-sm text-gray-700 tracking-wide">Notes:</Label>
-              {notes.map((n, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm text-gray-600 bg-orange-50 px-3 py-1.5 rounded-lg">
-                  <span className="text-orange-400 font-bold">{i + 1}.</span> {n}
-                  <button type="button" onClick={() => setNotes(prev => prev.filter((_, idx) => idx !== i))} className="ml-auto text-rose-400 hover:text-rose-600">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Dynamic Grade Table */}
-          <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm mt-4">
-            <div className="grid grid-cols-12 bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] text-white">
-              {["S/L No", "Grade", "Quantity", "Rate", "Recipe Code", "Cement Type"].map((h, i) => (
-                <div
-                  key={h}
-                  className={`p-3 font-bold text-xs uppercase tracking-wider text-center ${
-                    i === 0 ? "col-span-1" : i === 1 ? "col-span-3" : i === 2 ? "col-span-2" : i === 3 ? "col-span-2" : i === 4 ? "col-span-2" : "col-span-2"
-                  } ${i < 5 ? "border-r border-white/20" : ""}`}
-                >
-                  {h}
-                </div>
-              ))}
-            </div>
-
-            {rows.map((row, idx) => (
-              <div key={row.id} className="grid grid-cols-12 bg-white border-b border-gray-50 hover:bg-orange-50/30 transition-colors duration-150 group">
-                <div className="col-span-1 p-2 flex items-center justify-center text-sm font-semibold text-gray-500 border-r border-gray-100">{idx + 1}</div>
-                <div className="col-span-3 p-2 border-r border-gray-100">
-                  <Select value={row.grade} onValueChange={(v) => updateRow(row.id, "grade", v)}>
-                    <SelectTrigger className="h-9 border-gray-200 bg-white text-sm focus:ring-1 focus:ring-orange-300">
-                      <SelectValue placeholder="Choose Grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["M10", "M15", "M20", "M25", "M30", "M35", "M40"].map(g => (
-                        <SelectItem key={g} value={g}>{g}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-2 p-2 border-r border-gray-100">
-                  <Input value={row.qty} onChange={(e) => updateRow(row.id, "qty", e.target.value)} placeholder="Quantity" className="h-9 border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-orange-300" />
-                </div>
-                <div className="col-span-2 p-2 border-r border-gray-100">
-                  <Input value={row.rate} onChange={(e) => updateRow(row.id, "rate", e.target.value)} placeholder="Rate" className="h-9 border-gray-200 text-sm focus-visible:ring-1 focus-visible:ring-orange-300" />
-                </div>
-                <div className="col-span-2 p-2 border-r border-gray-100">
-                  <Select value={row.recipe} onValueChange={(v) => updateRow(row.id, "recipe", v)}>
-                    <SelectTrigger className="h-9 border-dashed border-gray-200 bg-white text-sm focus:ring-1 focus:ring-orange-300">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="r1">Code 1</SelectItem>
-                      <SelectItem value="r2">Code 2</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="col-span-2 p-2 flex items-center gap-1">
-                  <Select value={row.cement} onValueChange={(v) => updateRow(row.id, "cement", v)}>
-                    <SelectTrigger className="h-9 border-gray-200 bg-white text-sm flex-1 focus:ring-1 focus:ring-orange-300">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="opc">OPC</SelectItem>
-                      <SelectItem value="ppc">PPC</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <button type="button" onClick={() => removeRow(row.id)} className="opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-1 rounded-md hover:bg-rose-100 text-rose-400 hover:text-rose-600">
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            <div className="bg-gray-50/50 p-2 flex justify-end border-t border-gray-100">
-              <button type="button" onClick={addRow} className="flex items-center gap-1.5 text-xs font-semibold text-orange-500 hover:text-orange-700 px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-all duration-150">
-                <Plus className="h-3.5 w-3.5" /> Add Row
-              </button>
-            </div>
+          {/* Grade Selection Table */}
+          <div className="flex-1 border border-gray-100 rounded overflow-hidden flex flex-col bg-white min-h-[150px]">
+             <div className="flex bg-[#1e40af] shrink-0">
+                <div className={tableHeaderStyle + " w-10"}>S/L</div>
+                <div className={tableHeaderStyle + " flex-1 text-left"}>Grade / Concrete Type</div>
+                <div className={tableHeaderStyle + " w-24 text-right"}>Quantity</div>
+                <div className={tableHeaderStyle + " w-24 text-right"}>Rate</div>
+                <div className={tableHeaderStyle + " w-32 text-left"}>Recipe Code</div>
+                <div className={tableHeaderStyle + " w-24 text-left"}>Cement</div>
+                <div className={tableHeaderStyle + " w-8"}></div>
+             </div>
+             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-100">
+                {rows.map((row, idx) => (
+                  <div key={row.id} className="flex border-b items-center hover:bg-cyan-50/20 group">
+                    <div className="w-10 text-center text-[10px] font-bold text-gray-300 border-r py-1">{idx + 1}</div>
+                    <div className="flex-1 border-r h-full">
+                       <Select value={row.grade} onValueChange={v => updateRow(row.id, "grade", v)}>
+                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
+                         <SelectContent>
+                           {["M10", "M20", "M25", "M30"].map(g => <SelectItem key={g} value={g} className="text-[10px]">{g}</SelectItem>)}
+                         </SelectContent>
+                       </Select>
+                    </div>
+                    <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-cyan-600 shadow-none px-2" /></div>
+                    <div className="w-24 border-r h-full"><Input value={row.rate} onChange={e => updateRow(row.id, "rate", e.target.value)} className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-bold shadow-none px-2" /></div>
+                    <div className="w-32 border-r h-full">
+                       <Select value={row.recipe} onValueChange={v => updateRow(row.id, "recipe", v)}>
+                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none"><SelectValue placeholder="Recipe" /></SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="r1" className="text-[10px]">CODE_2026_A</SelectItem>
+                         </SelectContent>
+                       </Select>
+                    </div>
+                    <div className="w-24 border-r h-full">
+                       <Select value={row.cement} onValueChange={v => updateRow(row.id, "cement", v)}>
+                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue /></SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="opc" className="text-[10px]">OPC</SelectItem>
+                           <SelectItem value="ppc" className="text-[10px]">PPC</SelectItem>
+                         </SelectContent>
+                       </Select>
+                    </div>
+                    <div className="w-8 text-center">
+                       <Button type="button" variant="ghost" onClick={() => removeRow(row.id)} className="h-6 w-6 p-0 text-rose-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></Button>
+                    </div>
+                  </div>
+                ))}
+             </div>
+             <div className="p-1 border-t bg-slate-50 flex justify-end shrink-0">
+                <Button type="button" variant="ghost" onClick={addRow} className="h-6 text-[9px] font-black text-[#1e40af] uppercase tracking-wider px-3 hover:bg-white"><Plus className="h-3 w-3 mr-1" /> Add Grade Row</Button>
+             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 mt-8 justify-center">
-            <Button type="submit" className="bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] hover:opacity-90 text-white px-10 h-11 font-bold rounded-xl shadow-md shadow-cyan-100 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Submit
-            </Button>
-            <Button type="button" variant="outline" onClick={handleCancel} className="px-10 h-11 rounded-xl border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold text-gray-600">
-              Cancel
-            </Button>
+          {/* Quick Notes Section */}
+          <div className="shrink-0 bg-slate-900 rounded-lg p-2 flex flex-col gap-2">
+             <div className="flex gap-2">
+                <Input value={note} onChange={e => setNote(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addNote())} placeholder="Add specific terms or conditions..." className="h-7 bg-white/5 border-white/10 text-white text-[10px] flex-1 focus-visible:ring-[#1e40af]" />
+                <Button type="button" onClick={addNote} className="h-7 bg-[#1e40af] hover:bg-[#1d4ed8] text-white text-[9px] font-black px-4 uppercase">Add Term</Button>
+             </div>
+             {notes.length > 0 && (
+               <div className="flex flex-wrap gap-1.5 max-h-[40px] overflow-y-auto scrollbar-hide">
+                 {notes.map((n, i) => (
+                   <div key={i} className="bg-white/10 text-white text-[9px] px-2 py-0.5 rounded flex items-center gap-1.5 border border-white/5 font-medium">
+                      <span className="opacity-40">{i+1}.</span> {n}
+                      <Trash2 onClick={() => setNotes(prev => prev.filter((_, idx) => idx !== i))} className="h-2.5 w-2.5 text-rose-400 cursor-pointer hover:text-rose-500" />
+                   </div>
+                 ))}
+               </div>
+             )}
           </div>
         </div>
       </form>

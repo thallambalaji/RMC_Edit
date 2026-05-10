@@ -83,7 +83,7 @@ export default function DCReport() {
         </div>
 
         <div className="flex gap-2 mt-8">
-          <Button className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white px-8 h-10">Generate</Button>
+          <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-10">Generate</Button>
           <Button className="bg-rose-500 hover:bg-rose-600 text-white px-8 h-10">Clear</Button>
         </div>
       </div>

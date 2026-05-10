@@ -88,23 +88,22 @@ export default function Godowns() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Godowns</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po" className="hover:text-primary transition-colors">Customer & PO</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po/customer" className="hover:text-primary transition-colors">Customer</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">Godowns</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Godowns Management</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Godowns</span>
         </nav>
       </div>
 
       <div className="flex justify-center mb-8">
         <Button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white gap-2 px-8 h-10 font-bold uppercase tracking-wider shadow-md"
+          className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white gap-2 px-8 h-10 font-bold uppercase tracking-wider shadow-md"
         >
           <Plus className="h-4 w-4" />
           New Items
@@ -114,13 +113,13 @@ export default function Godowns() {
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-[#3DB9C1]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
             <p className="text-sm text-gray-500 font-medium">Loading Items...</p>
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-[#3DB9C1] hover:bg-[#3DB9C1]">
+              <TableRow className="bg-[#1e40af] hover:bg-[#1e40af]">
                 <TableHead className="text-white font-bold py-4 text-center border-r border-white/20 w-24">S/L No</TableHead>
                 <TableHead className="text-white font-bold text-center border-r border-white/20">Godown / Item Name</TableHead>
                 <TableHead className="text-white font-bold text-center w-32 border-r border-white/20">Unit</TableHead>
@@ -159,50 +158,50 @@ export default function Godowns() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl">
-          <div className="bg-[#3DB9C1] py-6 text-center">
-            <h2 className="text-3xl font-black text-white tracking-tighter uppercase">Add New Item</h2>
+        <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
+          <div className="bg-[#1e40af] py-3 text-center border-b border-white/10">
+            <h2 className="text-sm font-black text-white tracking-wider uppercase">Add New Item</h2>
           </div>
-          <form onSubmit={handleSubmit} className="p-8 space-y-8 bg-white">
-            <div className="space-y-3">
-              <Label className="text-sm font-bold text-gray-700 flex items-center gap-1">
-                Item Name <span className="text-rose-500 text-lg">*</span>
+          <form onSubmit={handleSubmit} className="p-5 space-y-4 bg-white">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                Item Name <span className="text-rose-500">*</span>
               </Label>
               <Input 
                 placeholder="Enter Item Name" 
-                className="h-12 border-gray-200 focus:border-[#3DB9C1] focus:ring-[#3DB9C1]/20 text-lg"
+                className="h-9 border-gray-200 focus:border-[#1e40af] focus:ring-[#1e40af]/10 text-xs font-semibold"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 required
               />
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-sm font-bold text-gray-700 flex items-center gap-1">
-                Stock Unit <span className="text-rose-500 text-lg">*</span>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider flex items-center gap-1">
+                Stock Unit <span className="text-rose-500">*</span>
               </Label>
               <Select value={stockUnit} onValueChange={setStockUnit}>
-                <SelectTrigger className="h-12 border-gray-200 focus:border-[#3DB9C1] focus:ring-[#3DB9C1]/20 text-lg">
+                <SelectTrigger className="h-9 border-gray-200 focus:border-[#1e40af] focus:ring-[#1e40af]/10 text-xs font-semibold">
                   <SelectValue placeholder="Choose Unit" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="KG">KG</SelectItem>
-                  <SelectItem value="LITRES">LITRES</SelectItem>
-                  <SelectItem value="M3">M3</SelectItem>
-                  <SelectItem value="MT">MT</SelectItem>
-                  <SelectItem value="NOS">NOS</SelectItem>
-                  <SelectItem value="TONNS">TONNS</SelectItem>
+                  <SelectItem value="KG" className="text-xs">KG</SelectItem>
+                  <SelectItem value="LITRES" className="text-xs">LITRES</SelectItem>
+                  <SelectItem value="M3" className="text-xs">M3</SelectItem>
+                  <SelectItem value="MT" className="text-xs">MT</SelectItem>
+                  <SelectItem value="NOS" className="text-xs">NOS</SelectItem>
+                  <SelectItem value="TONNS" className="text-xs">TONNS</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-end pt-2">
               <Button 
                 type="submit" 
                 disabled={isPending}
-                className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white px-12 h-12 text-lg font-bold uppercase tracking-widest shadow-lg shadow-[#3DB9C1]/30 transition-all active:scale-95"
+                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-6 h-9 text-[11px] font-black uppercase tracking-widest shadow-md transition-all active:scale-95"
               >
-                {isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                {isPending ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : null}
                 Save Item
               </Button>
             </div>

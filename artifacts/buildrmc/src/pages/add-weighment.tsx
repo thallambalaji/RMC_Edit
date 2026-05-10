@@ -83,7 +83,7 @@ export default function AddWeighment() {
       </div>
 
       <div className="flex justify-start">
-        <Link href="/dc/weighment/list" className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-6 py-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+        <Link href="/dc/weighment/list" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-6 py-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
           <ListPlus className="h-4 w-4" />
           + WEIGHMENT LIST
         </Link>

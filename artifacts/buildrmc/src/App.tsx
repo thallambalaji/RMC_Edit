@@ -106,18 +106,18 @@ function Router() {
       <Route path="/login" component={() => user ? <Redirect to="/dashboard" /> : <Login />} />
       <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
       <Route path="/customer-po/customer/new"><ProtectedRoute component={AddCustomer} /></Route>
-      <Route path="/customer-po/customer/list"><ProtectedRoute component={CustomerList} /></Route>
+      <Route path="/customer-po/customer/list"><ProtectedRoute component={() => <Redirect to="/customer-po/customer" />} /></Route>
       <Route path="/customer-po/customer/godowns"><ProtectedRoute component={Godowns} /></Route>
       <Route path="/customer-po/customer"><ProtectedRoute component={CustomerSubHub} /></Route>
       <Route path="/customer-po/sales-order/new"><ProtectedRoute component={AddSalesOrder} /></Route>
-      <Route path="/customer-po/sales-order/list"><ProtectedRoute component={SalesOrderList} /></Route>
+      <Route path="/customer-po/sales-order/list"><ProtectedRoute component={() => <Redirect to="/customer-po/sales-order" />} /></Route>
       <Route path="/customer-po/sales-order/report"><ProtectedRoute component={SalesOrderReport} /></Route>
       <Route path="/customer-po/sales-order"><ProtectedRoute component={SalesOrderSubHub} /></Route>
       <Route path="/customer-po/scheduling/new"><ProtectedRoute component={AddScheduling} /></Route>
-      <Route path="/customer-po/scheduling/list"><ProtectedRoute component={SchedulingList} /></Route>
+      <Route path="/customer-po/scheduling/list"><ProtectedRoute component={() => <Redirect to="/customer-po/scheduling" />} /></Route>
       <Route path="/customer-po/scheduling"><ProtectedRoute component={SchedulingSubHub} /></Route>
       <Route path="/customer-po/quotation/new"><ProtectedRoute component={AddQuotation} /></Route>
-      <Route path="/customer-po/quotation/list"><ProtectedRoute component={QuotationList} /></Route>
+      <Route path="/customer-po/quotation/list"><ProtectedRoute component={() => <Redirect to="/customer-po/quotation" />} /></Route>
       <Route path="/customer-po/quotation"><ProtectedRoute component={QuotationSubHub} /></Route>
       <Route path="/customer-po"><ProtectedRoute component={CustomerPOHub} /></Route>
       <Route path="/billing/new"><ProtectedRoute component={AddInvoice} /></Route>
@@ -150,7 +150,7 @@ function Router() {
       <Route path="/sales/payment-follow-up"><ProtectedRoute component={PaymentFollowUpHub} /></Route>
       <Route path="/sales/settings/master"><ProtectedRoute component={SalesMaster} /></Route>
       <Route path="/sales/settings"><ProtectedRoute component={SalesSettingsHub} /></Route>
-      <Route path="/sales"><ProtectedRoute component={SalesHub} /></Route>
+      <Route path="/sales"><ProtectedRoute component={Sales} /></Route>
       <Route path="/qc"><ProtectedRoute component={QC} /></Route>
       <Route path="/accounts"><ProtectedRoute component={Accounts} /></Route>
       <Route path="/store"><ProtectedRoute component={Store} /></Route>

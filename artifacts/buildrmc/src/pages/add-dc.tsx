@@ -24,7 +24,7 @@ import {
   useGetMasters, 
   useGetSalesOrders,
   useCreateDC 
-} from "../../../lib/api-client-react/src";
+} from "@workspace/api-client-react";
 import { useToast } from "../hooks/use-toast";
 
 export default function AddDC() {
@@ -286,7 +286,7 @@ export default function AddDC() {
                   <DialogContent className="max-w-2xl">
                     <DialogHeader><DialogTitle>Select Sales Order / PO</DialogTitle></DialogHeader>
                     <div className="space-y-4">
-                      {allSalesOrders?.filter(o => String(o.customerId) === customerId).map(order => (
+                      {allSalesOrders?.filter(o => String(o.customerId) === customerId).map((order: any) => (
                         <div key={order.id} className="p-4 border rounded hover:bg-gray-50 cursor-pointer flex justify-between items-center"
                              onClick={() => {
                                if (order.items && order.items.length > 0) {
@@ -302,7 +302,7 @@ export default function AddDC() {
                           <Button size="sm">Select</Button>
                         </div>
                       ))}
-                      {(!allSalesOrders || allSalesOrders.filter(o => o.customerId === customerId).length === 0) && (
+                      {customerId && (!allSalesOrders || allSalesOrders.filter(o => String(o.customerId) === customerId).length === 0) && (
                         <p className="text-center text-gray-500 py-8">No matching Sales Orders found for this customer.</p>
                       )}
                     </div>
@@ -427,7 +427,7 @@ export default function AddDC() {
         </div>
 
         <div className="w-full lg:w-80 bg-white shadow-sm border border-gray-100 rounded-lg overflow-hidden flex flex-col">
-          <div className="h-2 bg-gradient-to-r from-[#3DB9C1] to-cyan-600" />
+          <div className="h-2 bg-gradient-to-r from-[#1e40af] to-cyan-600" />
           <div className="p-2 bg-gray-50 border-b border-gray-100">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">DC Information Panel</p>
           </div>

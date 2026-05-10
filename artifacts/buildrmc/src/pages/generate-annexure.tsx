@@ -72,7 +72,7 @@ export default function GenerateAnnexure() {
           </div>
 
           <div className="pt-8 text-gray-500 text-sm">
-            2018 © BUILD RMC
+            2026 © FORTUNE MIX
           </div>
         </div>
       </div>

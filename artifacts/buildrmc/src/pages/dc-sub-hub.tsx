@@ -13,7 +13,7 @@ export default function DCSubHub() {
       href: "/dc/list",
       label: "DC List",
       icon: List,
-      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
     },
   ];
 

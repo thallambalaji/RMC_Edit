@@ -43,12 +43,12 @@ export default function AddScheduling() {
   // Filter sales orders by selected customer
   const customerOrders = useMemo(() => {
     if (!allOrders || !customerId) return [];
-    return allOrders.filter((o) => o.customerId === customerId);
+    return allOrders.filter((o) => String(o.customerId) === customerId);
   }, [allOrders, customerId]);
 
   // Get items of selected order
   const selectedOrder = useMemo(
-    () => allOrders?.find((o) => o.id === salesOrderId),
+    () => allOrders?.find((o) => String(o.id) === salesOrderId),
     [allOrders, salesOrderId]
   );
 
@@ -57,7 +57,7 @@ export default function AddScheduling() {
       onSuccess: () => {
         toast({ title: "Success", description: "Scheduling saved successfully!" });
         queryClient.invalidateQueries({ queryKey: ["/api/schedules"] });
-        navigate("/customer-po/scheduling/list");
+        navigate("/customer-po/scheduling");
       },
       onError: (err: any) => {
         console.error("Schedule error:", err);
@@ -115,29 +115,24 @@ export default function AddScheduling() {
 
   return (
     <div className="space-y-4 pb-10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <CalendarClock className="h-6 w-6 text-[#3DB9C1]" />
-          Add Scheduling
-        </h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po" className="hover:text-primary transition-colors">Customer & PO</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po/scheduling" className="hover:text-primary transition-colors">Scheduling</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">Add Scheduling</span>
-        </nav>
-      </div>
-
-      {/* Quick nav button */}
-      <div className="flex justify-start">
-        <Link href="/customer-po/scheduling/list">
-          <Button className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white gap-2 h-9">
-            <ListPlus className="h-4 w-4" />
-            + Scheduling List
+      <div className="flex items-center justify-between px-3 py-1.5 border-b bg-white rounded-t-lg">
+        <div className="flex items-center gap-3">
+          <div className="bg-[#1e40af]/10 p-1 rounded">
+             <CalendarClock className="h-3 w-3 text-[#1e40af]" />
+          </div>
+          <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">New Vehicle Scheduling</h2>
+          <div className="h-4 w-px bg-gray-300" />
+          <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
+            <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+            <ChevronRight className="h-2 w-2" />
+            <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+            <ChevronRight className="h-2 w-2" />
+            <span className="text-[#1e40af]">Vehicle Scheduling</span>
+          </nav>
+        </div>
+        <Link href="/customer-po/scheduling">
+          <Button variant="outline" size="sm" className="h-6 text-[9px] font-black uppercase border-[#1e40af] text-[#1e40af] hover:bg-cyan-50 gap-2">
+            <ListPlus className="h-3 w-3" /> View Schedule List
           </Button>
         </Link>
       </div>
@@ -167,7 +162,7 @@ export default function AddScheduling() {
                 </SelectTrigger>
                 <SelectContent>
                   {customers?.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                   ))}
                   {customers?.length === 0 && (
                     <div className="p-2 text-sm text-gray-400 italic text-center">No customers found</div>
@@ -204,8 +199,8 @@ export default function AddScheduling() {
                   <SelectValue placeholder={!customerId ? "Select a customer first" : "Choose PO"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {customerOrders.map((o) => (
-                    <SelectItem key={o.id} value={o.id}>
+                  {customerOrders.map((o: any) => (
+                    <SelectItem key={o.id} value={String(o.id)}>
                       {o.poNumber} — {o.poDate}
                     </SelectItem>
                   ))}
@@ -303,13 +298,13 @@ export default function AddScheduling() {
 
           {/* Grade table from selected order */}
           <div className="mt-8 border border-gray-200 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-4 bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] text-white">
+            <div className="grid grid-cols-4 bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] text-white">
               {["Grade", "Quantity", "PO Quantity", "Rem. Quantity"].map((h) => (
                 <div key={h} className="p-3 font-bold text-center text-xs uppercase border-r border-white/20 last:border-0">{h}</div>
               ))}
             </div>
-            {selectedOrder?.items && selectedOrder.items.length > 0 ? (
-              selectedOrder.items.map((item, i) => (
+            {(selectedOrder as any)?.items && (selectedOrder as any).items.length > 0 ? (
+              (selectedOrder as any).items.map((item: any, i: number) => (
                 <div key={i} className="grid grid-cols-4 text-center text-sm border-t border-gray-100">
                   <div className="p-3 border-r border-gray-100 font-semibold text-gray-700">{item.grade}</div>
                   <div className="p-3 border-r border-gray-100 text-gray-600">{item.quantity}</div>
@@ -331,7 +326,7 @@ export default function AddScheduling() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white px-8 h-11 font-bold shadow-md shadow-[#3DB9C1]/20"
+              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-11 font-bold shadow-md shadow-[#1e40af]/20"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Start Scheduling
@@ -355,9 +350,9 @@ export default function AddScheduling() {
             {customerId && salesOrderId ? (
               <div className="w-full space-y-4">
                 <div className="text-center text-sm text-gray-500 font-medium mb-4">
-                  Order: <span className="text-[#3DB9C1] font-bold">{selectedOrder?.poNumber}</span>
+                  Order: <span className="text-[#1e40af] font-bold">{(selectedOrder as any)?.poNumber}</span>
                 </div>
-                {selectedOrder?.items?.map((item, i) => (
+                {(selectedOrder as any)?.items?.map((item: any, i: number) => (
                   <div key={i} className="space-y-1">
                     <div className="flex justify-between text-xs text-gray-500">
                       <span className="font-semibold">{item.grade}</span>
@@ -365,7 +360,7 @@ export default function AddScheduling() {
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-3">
                       <div
-                        className="bg-gradient-to-r from-[#3DB9C1] to-emerald-400 h-3 rounded-full transition-all"
+                        className="bg-gradient-to-r from-[#1e40af] to-emerald-400 h-3 rounded-full transition-all"
                         style={{
                           width: `${item.quantity > 0 ? Math.max(5, ((item.remainingQty ?? item.quantity) / item.quantity) * 100) : 0}%`
                         }}

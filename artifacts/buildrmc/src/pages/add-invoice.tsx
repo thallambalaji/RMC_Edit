@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronRight, Settings2 } from "lucide-react";
+import { ChevronRight, Settings2, User, MapPin, Package, Calculator, ReceiptText, Wallet } from "lucide-react";
 
 const PLANTS = ["FORTUNE CONCRETE", "NARVAL RMC"];
 const BLOCKS = ["Block A", "Block B", "Block C", "Block D", "Tower 1", "Tower 2"];
@@ -170,24 +170,24 @@ export default function AddInvoice() {
   };
 
   const labelStyle = "text-[11px] font-bold text-gray-700 mb-1 block";
-  const inputStyle = "h-8 text-xs border-gray-300 focus:ring-[#3DB9C1] focus:border-[#3DB9C1] rounded-sm shadow-sm";
+  const inputStyle = "h-8 text-xs border-gray-300 focus:ring-[#1e40af] focus:border-[#1e40af] rounded-sm shadow-sm";
   const summaryLabel = "bg-[#4e9fa5] text-white px-2 py-1.5 text-[10px] font-bold border-r border-white/10 flex items-center";
   const summaryValue = "bg-[#dbe7e8] text-gray-800 px-2 py-1.5 text-[10px] font-semibold flex items-center min-h-[28px]";
 
   return (
     <div className="bg-[#f8fafc] min-h-screen">
-      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-sm border-t-2 border-[#3DB9C1]">
+      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-sm border-t-2 border-[#1e40af]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
           <h2 className="text-lg font-bold text-gray-800">Add Invoice</h2>
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase tracking-tight font-bold">
-            <Link href="/dashboard" className="hover:text-[#3DB9C1]">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
             <ChevronRight className="h-2 w-2" />
-            <Link href="/billing" className="hover:text-[#3DB9C1]">Billing</Link>
+            <Link href="/billing" className="hover:text-[#1e40af]">Billing</Link>
             <ChevronRight className="h-2 w-2" />
             <span>Invoice</span>
             <ChevronRight className="h-2 w-2" />
-            <span className="text-[#3DB9C1]">Add Invoice</span>
+            <span className="text-[#1e40af]">Add Invoice</span>
           </nav>
         </div>
 
@@ -324,61 +324,115 @@ export default function AddInvoice() {
           </div>
         </div>
 
-        {/* Summary Section Grid */}
-        <div className="border-t mt-6 overflow-hidden bg-gray-100 p-[1px]">
-          <div className="grid grid-cols-[180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>Customer Name :</div>
-            <div className={summaryValue}>{selectedCustomer?.name || "\u00A0"}</div>
-            <div className={summaryLabel}>Customer Address :</div>
-            <div className={summaryValue}>{selectedCustomer?.address || "\u00A0"}</div>
+        {/* Summary Section Redesign */}
+        <div className="mt-8 px-6 pb-6">
+          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <ReceiptText className="w-4 h-4 text-[#1e40af]"/> Invoice Summary
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            
+            {/* Customer & Site Details */}
+            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                <User className="w-3.5 h-3.5" /> Customer Details
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Customer Name</p>
+                  <p className="text-sm font-bold text-gray-800">{selectedCustomer?.name || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Customer Address</p>
+                  <p className="text-xs font-medium text-gray-600 leading-relaxed">{selectedCustomer?.address || "—"}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Site Info</p>
+                  <p className="text-xs font-medium text-gray-600 flex items-start gap-1.5 mt-0.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#1e40af] shrink-0 mt-0.5" /> {siteName || "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Details */}
+            <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+                <Package className="w-3.5 h-3.5" /> Order Specs
+              </h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Grade</p>
+                  <p className="text-base font-black text-[#1e40af]">{grade}</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Quantity</p>
+                  <p className="text-base font-bold text-gray-800">{quantity} <span className="text-[10px] font-normal text-gray-500">m³</span></p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Rate / m³</p>
+                  <p className="text-sm font-bold text-gray-800">₹{totals.rate.toLocaleString("en-IN", {minimumFractionDigits: 2})}</p>
+                </div>
+                <div className="bg-orange-50 rounded-lg p-3 border border-orange-100">
+                  <p className="text-[10px] text-orange-400 font-semibold uppercase mb-1">Balance Qty</p>
+                  <p className="text-sm font-bold text-orange-600">{totals.balanceQty.toFixed(2)} <span className="text-[10px] font-normal opacity-70">m³</span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Summary */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100/80 border border-gray-200/60 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-200/60 pb-2">
+                <Calculator className="w-3.5 h-3.5" /> Financials
+              </h4>
+              <div className="space-y-2.5 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-500 font-semibold">Gross Price</span>
+                  <span className="font-bold text-gray-800">₹{totals.gross.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                </div>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-gray-500">CGST ({cgstRate}%)</span>
+                  <span className="font-medium text-gray-700">₹{totals.cgstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                </div>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-gray-500">SGST ({sgstRate}%)</span>
+                  <span className="font-medium text-gray-700">₹{totals.sgstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                </div>
+                {Number(igstRate) > 0 && (
+                  <div className="flex justify-between items-center text-[11px]">
+                    <span className="text-gray-500">IGST ({igstRate}%)</span>
+                    <span className="font-medium text-gray-700">₹{totals.igstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-gray-500">Round Off</span>
+                  <span className="font-medium text-gray-700">{totals.roundOff > 0 ? "+" : ""}₹{totals.roundOff.toFixed(2)}</span>
+                </div>
+                
+                <div className="pt-3 mt-3 border-t border-dashed border-gray-300">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-extrabold text-gray-800">Net Price</span>
+                    <span className="text-xl font-black text-[#1e40af]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-[180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>Site Name :</div>
-            <div className={summaryValue}>{siteName || "\u00A0"}</div>
-            <div className={summaryLabel}>Site Address :</div>
-            <div className={summaryValue}>{siteName || "\u00A0"}</div>
-          </div>
-          <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>Grade :</div>
-            <div className={summaryValue}>{grade}</div>
-            <div className={summaryLabel}>Rate :</div>
-            <div className={summaryValue}>{totals.rate.toFixed(2)}</div>
-            <div className={summaryLabel}>Quantity :</div>
-            <div className={summaryValue}>{quantity}</div>
-          </div>
-          <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>Gross Price :</div>
-            <div className={summaryValue}>{totals.gross.toFixed(2)}</div>
-            <div className={summaryLabel}>Tax Price :</div>
-            <div className={summaryValue}>{totals.tax.toFixed(2)}</div>
-            <div className={summaryLabel}>Net Price :</div>
-            <div className={summaryValue}>{totals.net.toFixed(2)}</div>
-          </div>
-          <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>CSGT % :</div>
-            <div className={summaryValue}>{cgstRate}% (₹{totals.cgstAmt.toFixed(2)})</div>
-            <div className={summaryLabel}>SGST % :</div>
-            <div className={summaryValue}>{sgstRate}% (₹{totals.sgstAmt.toFixed(2)})</div>
-            <div className={summaryLabel}>IGST % :</div>
-            <div className={summaryValue}>{igstRate}% (₹{totals.igstAmt.toFixed(2)})</div>
-          </div>
-          <div className="grid grid-cols-[180px_1fr_180px_1fr_180px_1fr] border-b border-gray-100 gap-[1px]">
-            <div className={summaryLabel}>TCS Amount : :</div>
-            <div className={summaryValue}>0.00</div>
-            <div className={summaryLabel}>Round Off :</div>
-            <div className={summaryValue}>{totals.roundOff.toFixed(2)}</div>
-            <div className={summaryLabel}>Balance Quantity :</div>
-            <div className={summaryValue}>{totals.balanceQty.toFixed(2)}</div>
-          </div>
-          <div className="grid grid-cols-[180px_1fr] gap-[1px]">
-            <div className={summaryLabel}>IN WORDS :</div>
-            <div className={`${summaryValue} uppercase italic`}>{numberToWordsINR(totals.net)}</div>
+          
+          {/* Amount In Words (Full Width) */}
+          <div className="mt-5 bg-[#1e40af]/10 border border-[#1e40af]/20 rounded-xl p-4 flex items-center gap-4">
+            <div className="p-2.5 bg-white rounded-full shadow-sm">
+              <Wallet className="w-5 h-5 text-[#1e40af]" />
+            </div>
+            <div>
+              <p className="text-[10px] text-[#2a8f95] font-bold uppercase tracking-wider mb-1">Amount in words</p>
+              <p className="text-sm font-bold text-gray-800 capitalize">{numberToWordsINR(totals.net)}</p>
+            </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="p-6 flex justify-center gap-4 bg-[#f8fafc]">
-          <Button type="submit" className="bg-[#3DB9C1] hover:bg-[#2A8F95] text-white px-10 h-8 font-extrabold text-[11px] rounded-sm uppercase tracking-wider" disabled={createInvoice.isPending}>
+          <Button type="submit" className="bg-[#1e40af] hover:bg-[#2A8F95] text-white px-10 h-8 font-extrabold text-[11px] rounded-sm uppercase tracking-wider" disabled={createInvoice.isPending}>
             {createInvoice.isPending ? "Submitting..." : "Submit"}
           </Button>
           <Button type="button" variant="outline" className="px-10 h-8 font-extrabold text-[11px] border-gray-300 text-gray-600 rounded-sm uppercase tracking-wider" onClick={() => setLocation("/billing")}>

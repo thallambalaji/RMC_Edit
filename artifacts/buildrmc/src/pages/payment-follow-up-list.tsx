@@ -21,16 +21,15 @@ import {
 export default function PaymentFollowUpList() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Payment FollowUp List</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <span className="text-xs">&gt;</span>
-          <Link href="/sales" className="hover:text-primary transition-colors">Sales</Link>
-          <span className="text-xs">&gt;</span>
-          <Link href="/sales/payment-follow-up" className="hover:text-primary transition-colors">Payment FollowUp</Link>
-          <span className="text-xs">&gt;</span>
-          <span className="text-foreground">Payment FollowUp List</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Payment FollowUp List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Payment FollowUp</span>
         </nav>
       </div>
 
@@ -44,7 +43,7 @@ export default function PaymentFollowUpList() {
             <Button className="bg-[#10B981] hover:bg-[#059669] text-white h-10 px-6 font-medium">Search</Button>
             <Button className="bg-[#EF4444] hover:bg-[#DC2626] text-white h-10 px-6 font-medium">Clear</Button>
             <Link href="/sales/payment-follow-up/new">
-              <Button className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white h-10 px-6 font-medium">Add Payment FollowUp</Button>
+              <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white h-10 px-6 font-medium">Add Payment FollowUp</Button>
             </Link>
           </div>
         </div>

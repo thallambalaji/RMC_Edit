@@ -8,7 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClipboardEdit, Plus, Sparkles, ListPlus, ChevronRight } from "lucide-react";
+import { ClipboardEdit, Plus, Sparkles, ListPlus, ChevronRight, List } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 
 /* ── Reusable compact field components ── */
 function Field({
@@ -34,9 +36,9 @@ function Field({
 
 const inputCls =
   "w-full h-8 px-3 text-[13px] border border-gray-200 rounded-md bg-white outline-none transition-all duration-150 " +
-  "hover:border-[#3DB9C1] focus:border-[#3DB9C1] focus:ring-1 focus:ring-[#3DB9C1]/30";
+  "hover:border-[#1e40af] focus:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/30";
 
-const selectTriggerCls = "h-8 text-[13px] border-gray-200 rounded-md hover:border-[#3DB9C1] focus:ring-1 focus:ring-[#3DB9C1]/30";
+const selectTriggerCls = "h-8 text-[13px] border-gray-200 rounded-md hover:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/30";
 
 /* ── Section Card ── */
 function SectionCard({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
@@ -98,31 +100,23 @@ export default function AddEnquiry() {
       style={{ opacity: mounted ? 1 : 0, transform: mounted ? "none" : "translateY(12px)", transition: "all 0.4s ease" }}
       className="space-y-3"
     >
-      {/* ── Page Header ── */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "10px", borderBottom: "2px solid #e8f4f6" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ padding: "7px", borderRadius: "9px", background: "linear-gradient(135deg,#10b981,#059669)", boxShadow: "0 3px 10px rgba(16,185,129,0.3)" }}>
-            <ClipboardEdit size={16} color="#fff" />
-          </div>
-          <div>
-            <div style={{ fontSize: "16px", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>Add Enquiry Form</div>
-            <div style={{ fontSize: "10px", color: "#94a3b8", fontWeight: 500 }}>Capture new sales lead requirements</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <nav style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "10px", color: "#94a3b8", fontWeight: 600 }}>
-            <Link href="/dashboard"><span className="hover:text-emerald-500 cursor-pointer transition-colors">Home</span></Link>
-            <ChevronRight size={10} />
-            <Link href="/sales"><span className="hover:text-emerald-500 cursor-pointer transition-colors">Sales</span></Link>
-            <ChevronRight size={10} />
-            <span style={{ color: "#374151" }}>Add Enquiry</span>
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Add Enquiry</h2>
+          <div className="h-4 w-px bg-gray-300" />
+          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <span className="text-[#1e40af]">Add Enquiry</span>
           </nav>
-          <Link href="/sales/enquiry/list">
-            <button className="btn-primary" style={{ background: "linear-gradient(135deg,#3DB9C1,#2299a6)" }}>
-              <ListPlus size={12} /> Enquiry List
-            </button>
-          </Link>
         </div>
+        <Link href="/sales/enquiry/list">
+          <Button variant="outline" size="sm" className="h-8 border-[#1e40af] text-[#1e40af] hover:bg-[#1e40af] hover:text-white font-bold uppercase text-[10px] tracking-wider">
+            <List className="h-3.5 w-3.5 mr-1.5" /> Enquiry List
+          </Button>
+        </Link>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -154,12 +148,16 @@ export default function AddEnquiry() {
         </SectionCard>
 
         {/* ── Requirement Details ── */}
-        <SectionCard title="Requirement Details" accent="#3DB9C1">
+        <SectionCard title="Requirement Details" accent="#1e40af">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
             <span style={{ fontSize: "10px", color: "#94a3b8" }}>Fill in the project requirement information</span>
-            <button type="button" style={{ display: "inline-flex", alignItems: "center", gap: "4px", padding: "4px 10px", fontSize: "10px", fontWeight: 700, color: "#fff", background: "#3b82f6", border: "none", borderRadius: "6px", cursor: "pointer" }}>
-              <Plus size={10} /> Add Another Requirement
-            </button>
+            <Button 
+              type="button" 
+              size="sm" 
+              className="h-7 bg-blue-500 hover:bg-blue-600 text-white font-bold text-[9px] uppercase tracking-wider px-3"
+            >
+              <Plus className="h-3 w-3 mr-1" /> Add Another Requirement
+            </Button>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
             <Field label="Project Name" required>
@@ -229,14 +227,18 @@ export default function AddEnquiry() {
           </div>
         </SectionCard>
 
-        {/* ── Action Buttons ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", paddingTop: "4px" }}>
-          <button type="submit" className="btn-primary" style={{ gap: "6px" }}>
-            <Sparkles size={12} /> Submit Enquiry
-          </button>
-          <button type="button" className="btn-ghost" onClick={() => navigate("/sales/enquiry")}>
+        <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+          <Button type="submit" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold h-10 px-8 uppercase text-[11px] tracking-wider">
+            <Sparkles className="h-3.5 w-3.5 mr-2" /> Submit Enquiry
+          </Button>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            className="text-gray-500 hover:text-gray-700 font-bold h-10 px-6 uppercase text-[11px] tracking-wider"
+            onClick={() => navigate("/sales/enquiry")}
+          >
             Cancel
-          </button>
+          </Button>
         </div>
       </form>
     </div>

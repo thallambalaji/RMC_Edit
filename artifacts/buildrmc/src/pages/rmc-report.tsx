@@ -7,7 +7,7 @@ export default function RMCReportHub() {
       href: "/billing/invoice-report",
       label: "Invoice Report",
       icon: FileSearch,
-      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
     },
     {
       href: "/billing/consolidate-invoice-list",
@@ -19,7 +19,7 @@ export default function RMCReportHub() {
       href: "/billing/generate-annexure",
       label: "Generate Annexure",
       icon: FileText,
-      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
     },
     {
       href: "/billing/debit-credit-note-list",

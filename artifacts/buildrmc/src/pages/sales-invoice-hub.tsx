@@ -13,7 +13,7 @@ export default function SalesInvoiceHub() {
       href: "/billing/sales-document",
       label: "Sales Document List",
       icon: FileText,
-      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
     },
     {
       href: "/billing/sales-document-report",
@@ -25,7 +25,7 @@ export default function SalesInvoiceHub() {
       href: "/billing/consolidate-sales-document-list",
       label: "Consolidate Sales Document List",
       icon: Files,
-      color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]",
+      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
     },
   ];
 

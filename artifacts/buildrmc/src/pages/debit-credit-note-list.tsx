@@ -37,16 +37,15 @@ export default function DebitCreditNoteList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Debit Credit Note List</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span>Billing</span>
-          <ChevronRight className="h-3 w-3" />
-          <span>Reports</span>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">Debit Credit Note List</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Debit/Credit Note List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/billing" className="hover:text-[#1e40af] transition-colors">Billing</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Debit/Credit Notes</span>
         </nav>
       </div>
 

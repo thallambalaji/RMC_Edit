@@ -119,7 +119,7 @@ export default function AddPaymentFollowUp() {
             <span className="text-gray-700 font-medium">Add</span>
           </nav>
           <Link href="/sales/payment-follow-up/list">
-            <Button className="bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
+            <Button className="bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
               <ListPlus className="h-4 w-4" />
               + Payment Follow Up List
             </Button>
@@ -285,7 +285,7 @@ export default function AddPaymentFollowUp() {
           </Label>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             {/* Colour band */}
-            <div className="h-2 bg-gradient-to-r from-[#3DB9C1] to-blue-500" />
+            <div className="h-2 bg-gradient-to-r from-[#1e40af] to-blue-500" />
 
             {selectedCustomer ? (
               <div className="p-5 space-y-4">
@@ -330,7 +330,7 @@ export default function AddPaymentFollowUp() {
                 <div className="border-t border-gray-50">
                   {["Customer Name", "Phone Number", "Email", "Pending Balance"].map((label, i) => (
                     <div key={label} className="grid grid-cols-5 border-b border-white last:border-0">
-                      <div className="col-span-2 bg-gradient-to-r from-[#3DB9C1] to-[#2ea4ac] text-white p-3 text-xs font-semibold">
+                      <div className="col-span-2 bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] text-white p-3 text-xs font-semibold">
                         {label}:
                       </div>
                       <div className="col-span-3 bg-gray-50 p-3">

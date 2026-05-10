@@ -39,14 +39,15 @@ export default function SalesDocumentReport() {
   return (
     <div className="space-y-4">
       {/* Header with breadcrumbs */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Sales Document Report</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/billing" className="hover:text-primary transition-colors">Billing</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">Sales Document Report</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Document Report</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/billing" className="hover:text-[#1e40af] transition-colors">Billing</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Sales Document Report</span>
         </nav>
       </div>
 

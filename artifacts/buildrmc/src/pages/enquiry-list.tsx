@@ -21,16 +21,15 @@ import {
 export default function EnquiryList() {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Sales Enquiry List</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <span className="text-xs">&gt;</span>
-          <Link href="/sales-enquiry" className="hover:text-primary transition-colors">Sales</Link>
-          <span className="text-xs">&gt;</span>
-          <Link href="/sales-enquiry" className="hover:text-primary transition-colors">Sales Enquiry</Link>
-          <span className="text-xs">&gt;</span>
-          <span className="text-foreground">Enquiry List</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Enquiry List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Enquiry List</span>
         </nav>
       </div>
 
@@ -45,10 +44,10 @@ export default function EnquiryList() {
             <Input placeholder="Enter Contact Name/Phone/Email" className="bg-white h-10 border-gray-300" />
           </div>
           <div className="flex gap-2 flex-1">
-            <Button className="bg-[#10B981] hover:bg-[#059669] text-white h-10 px-6 font-medium">Search</Button>
-            <Button className="bg-[#EF4444] hover:bg-[#DC2626] text-white h-10 px-6 font-medium">Clear</Button>
-            <Link href="/sales-enquiry/new">
-              <Button className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white h-10 px-6 font-medium">Add Enquiry</Button>
+            <Button className="bg-[#10B981] hover:bg-[#059669] text-white h-10 px-6 font-medium uppercase text-[11px] tracking-wider font-bold">Search</Button>
+            <Button className="bg-[#EF4444] hover:bg-[#DC2626] text-white h-10 px-6 font-medium uppercase text-[11px] tracking-wider font-bold">Clear</Button>
+            <Link href="/sales/enquiry/new">
+              <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white h-10 px-6 font-medium uppercase text-[11px] tracking-wider font-bold">+ Add Enquiry</Button>
             </Link>
           </div>
         </div>
@@ -62,10 +61,10 @@ export default function EnquiryList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex bg-gray-400 rounded overflow-hidden">
-            <Button variant="ghost" className="h-8 rounded-none px-4 text-white hover:bg-gray-500 text-xs">Copy</Button>
-            <Button variant="ghost" className="h-8 rounded-none px-4 text-white hover:bg-gray-500 border-l border-gray-300 text-xs">CSV</Button>
-            <Button variant="ghost" className="h-8 rounded-none px-4 text-white hover:bg-gray-500 border-l border-gray-300 text-xs">PDF</Button>
+          <div className="flex gap-1">
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4 font-bold text-[10px] uppercase tracking-wider">Copy</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4 font-bold text-[10px] uppercase tracking-wider">CSV</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4 font-bold text-[10px] uppercase tracking-wider">PDF</Button>
           </div>
         </div>
 

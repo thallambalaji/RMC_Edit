@@ -109,11 +109,11 @@ export default function SchedulingList() {
   }, [schedules, today]);
 
   const tabs: { id: TabId; label: string; color: string }[] = [
-    { id: "today", label: "Today Scheduled", color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]" },
-    { id: "today-gen", label: "Today Generated", color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]" },
-    { id: "tomorrow", label: "Tomorrow Scheduled", color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]" },
-    { id: "this-week", label: "This Week Scheduled", color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]" },
-    { id: "next-week", label: "Next Week Scheduled", color: "bg-[#3DB9C1] hover:bg-[#2ea4ac]" },
+    { id: "today", label: "Today Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
+    { id: "today-gen", label: "Today Generated", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
+    { id: "tomorrow", label: "Tomorrow Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
+    { id: "this-week", label: "This Week Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
+    { id: "next-week", label: "Next Week Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
     { id: "new", label: "New Scheduling", color: "bg-emerald-500 hover:bg-emerald-600" },
   ];
 
@@ -167,6 +167,61 @@ export default function SchedulingList() {
     setSearchText("");
   };
 
+  const handleCopy = () => {
+    if (!filtered.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["Customer", "PO Number", "Plant", "Start Time", "End Time", "Pump 1", "Status"];
+    const rows = filtered.map(s => [
+      s.customerName || "—",
+      s.poNumber || "—",
+      s.plant,
+      formatTime(s.fromTime),
+      formatTime(s.toTime),
+      s.pump1,
+      s.status
+    ]);
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard", description: "Table data has been copied to your clipboard." });
+  };
+
+  const handleExportCSV = () => {
+    if (!filtered.length) {
+      toast({ title: "No data to export", variant: "destructive" });
+      return;
+    }
+    const headers = ["Customer", "PO Number", "Plant", "Start Time", "End Time", "Pump 1", "Status"];
+    const rows = filtered.map(s => [
+      `"${s.customerName || "—"}"`,
+      `"${s.poNumber || "—"}"`,
+      `"${s.plant}"`,
+      `"${formatTime(s.fromTime)}"`,
+      `"${formatTime(s.toTime)}"`,
+      `"${s.pump1}"`,
+      `"${s.status}"`
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `scheduling_export_${format(new Date(), "dd_MM_yyyy")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Export Successful", description: "Scheduling list has been downloaded as CSV." });
+  };
+
+  const handlePrintPDF = () => {
+    if (!filtered.length) {
+      toast({ title: "No data to print", variant: "destructive" });
+      return;
+    }
+    window.print();
+  };
+
   const handleDelete = (id: string) => {
     if (!window.confirm("Delete this schedule?")) return;
     deleteSchedule(id, {
@@ -184,19 +239,18 @@ export default function SchedulingList() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <CalendarClock className="h-6 w-6 text-[#3DB9C1]" />
-          Scheduling List
-        </h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po" className="hover:text-primary transition-colors">Customer & PO</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/customer-po/scheduling" className="hover:text-primary transition-colors">Scheduling</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">Scheduling List</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <div className="bg-[#1e40af]/10 p-1 rounded">
+           <CalendarClock className="h-4 w-4 text-[#1e40af]" />
+        </div>
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Scheduling Management List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">Scheduling List</span>
         </nav>
       </div>
 
@@ -269,7 +323,7 @@ export default function SchedulingList() {
           <div className="flex gap-2">
             <Button 
               type="button"
-              className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white h-9 flex-1 font-bold text-sm"
+              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white h-9 flex-1 font-bold text-sm"
             >
               <Search className="h-3.5 w-3.5 mr-1" /> Search
             </Button>
@@ -294,15 +348,17 @@ export default function SchedulingList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="text-sm text-gray-500">
-            {filtered.length} record{filtered.length !== 1 ? "s" : ""}
+          <div className="flex gap-1">
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleCopy}>Copy</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleExportCSV}>CSV</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handlePrintPDF}>PDF</Button>
           </div>
         </div>
 
         <div className="overflow-x-auto min-h-[200px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#3DB9C1]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
               <p className="text-sm text-gray-500">Loading schedules...</p>
             </div>
           ) : (
@@ -325,7 +381,7 @@ export default function SchedulingList() {
                   <TableRow key={s.id} className="hover:bg-gray-50/60 border-b border-gray-100">
                     <TableCell className="text-center text-xs px-3 py-2">{i + 1}</TableCell>
                     <TableCell className="text-center text-xs px-3 py-2 font-medium">{s.customerName ?? "—"}</TableCell>
-                    <TableCell className="text-center text-xs px-3 py-2 font-semibold text-[#3DB9C1]">{s.poNumber ?? "—"}</TableCell>
+                    <TableCell className="text-center text-xs px-3 py-2 font-semibold text-[#1e40af]">{s.poNumber ?? "—"}</TableCell>
                     <TableCell className="text-center text-xs px-3 py-2">{s.plant}</TableCell>
                     <TableCell className="text-center text-xs px-3 py-2 whitespace-nowrap">{formatTime(s.fromTime)}</TableCell>
                     <TableCell className="text-center text-xs px-3 py-2 whitespace-nowrap">{formatTime(s.toTime)}</TableCell>
@@ -364,7 +420,7 @@ export default function SchedulingList() {
           </div>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" className="h-8 text-gray-400" disabled>Previous</Button>
-            <div className="bg-[#3DB9C1] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
+            <div className="bg-[#1e40af] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
             <Button variant="outline" size="sm" className="h-8 text-gray-600">Next</Button>
           </div>
         </div>

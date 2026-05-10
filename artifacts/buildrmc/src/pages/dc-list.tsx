@@ -53,18 +53,56 @@ export default function DCList() {
     setSite("all");
   };
 
+  const handleCopy = () => {
+    const headers = ["DC No", "Customer", "Site", "Date", "Quantity", "Vehicle"];
+    const rows = mockData.map(d => [
+      d.dcNo,
+      d.customer,
+      d.site,
+      d.date,
+      d.quantity,
+      d.vehicle
+    ]);
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ["DC No", "Customer", "Site", "Date", "Quantity", "Vehicle"];
+    const rows = mockData.map(d => [
+      `"${d.dcNo}"`,
+      `"${d.customer}"`,
+      `"${d.site}"`,
+      `"${d.date}"`,
+      `"${d.quantity}"`,
+      `"${d.vehicle}"`
+    ]);
+    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `dc_export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrintPDF = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">DC List</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/dc" className="hover:text-primary transition-colors">DC</Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/dc/delivery-challan" className="hover:text-primary transition-colors">Delivery Challan</Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">DC List</span>
+      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Delivery Challan List</h2>
+        <div className="h-4 w-px bg-gray-300" />
+        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <Link href="/dc" className="hover:text-[#1e40af] transition-colors">DC</Link>
+          <ChevronRight className="h-2.5 w-2.5" />
+          <span className="text-[#1e40af]">DC List</span>
         </nav>
       </div>
 
@@ -116,9 +154,9 @@ export default function DCList() {
             <span>entries</span>
           </div>
           <div className="flex gap-1">
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4">Copy</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4">CSV</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4">PDF</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleCopy}>Copy</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleExportCSV}>CSV</Button>
+            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handlePrintPDF}>PDF</Button>
           </div>
         </div>
 

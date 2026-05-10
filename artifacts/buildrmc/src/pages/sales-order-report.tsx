@@ -109,7 +109,7 @@ export default function SalesOrderReport() {
             <Button 
               onClick={handleGenerate}
               disabled={isLoading}
-              className="bg-[#3DB9C1] hover:bg-[#2ea4ac] text-white flex-1 h-10 font-bold uppercase tracking-wide shadow-sm"
+              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white flex-1 h-10 font-bold uppercase tracking-wide shadow-sm"
             >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <FileText className="h-4 w-4 mr-2" />}
               Generate
@@ -127,7 +127,7 @@ export default function SalesOrderReport() {
 
       {showReport && (
         <div className="bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-[#3DB9C1] p-4 flex items-center justify-between text-white">
+          <div className="bg-[#1e40af] p-4 flex items-center justify-between text-white">
             <h3 className="font-bold uppercase tracking-wider flex items-center gap-2">
               <FileText className="h-5 w-5" />
               Report Preview ({type})
@@ -166,7 +166,7 @@ export default function SalesOrderReport() {
                   filteredData.map((order, idx) => (
                     <TableRow key={order.id} className="hover:bg-gray-50/50">
                       <TableCell className="text-center font-medium border-r border-gray-100">{idx + 1}</TableCell>
-                      <TableCell className="text-center font-bold text-[#3DB9C1] border-r border-gray-100">{order.poNumber}</TableCell>
+                      <TableCell className="text-center font-bold text-[#1e40af] border-r border-gray-100">{order.poNumber}</TableCell>
                       <TableCell className="text-center border-r border-gray-100">{order.poDate}</TableCell>
                       <TableCell className="text-center font-medium border-r border-gray-100">{order.customerName}</TableCell>
                       <TableCell className="p-0 border-r border-gray-100">

@@ -1,0 +1,7 @@
+[build]
+  command = "pnpm build"
+  publish = "artifacts/buildrmc/dist/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_FLAGS = "--no-frozen-lockfile"

@@ -48,8 +48,8 @@ router.post("/auth/login", async (req, res): Promise<void> => {
       role: user.role,
     }));
   } catch (err) {
-    console.error("Login failed:", err);
-    res.status(401).json({ error: "Invalid credentials" });
+    console.error("Critical login error (check MONGODB_URI):", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 

@@ -1,9 +1,9 @@
 import { connectMongo, Customer, Vehicle, User, Master } from "./index";
 
 const mockCustomers = [
-  { name: "CLOUDSWOOD CONSTRUCTIONS PRIVATE LIMITED", phone: "9876543210", email: "info@cloudswood.com", address: "UPSIDE AVENUES, Site 4", gstin: "36AAAAA0000A1Z5" },
-  { name: "RADHEY CONSTRUCTIONS INDIA PRIVATE LIMITED", phone: "9123456789", email: "contact@radhey.in", address: "Raaga, Hyderabad", gstin: "36BBBBB1111B2Z6" },
-  { name: "SREE CHAITANYA CONSTRUCTIONS", phone: "9000012345", email: "sree@chaitanya.com", address: "VELIMELA, Site A", gstin: "36CCCCC2222C3Z7" },
+  { name: "CLOUDSWOOD CONSTRUCTIONS PRIVATE LIMITED", contact: "9876543210", email: "info@cloudswood.com", address: "UPSIDE AVENUES, Site 4", gstNumber: "36AAAAA0000A1Z5", marketingPerson: "Fortune Concrete" },
+  { name: "RADHEY CONSTRUCTIONS INDIA PRIVATE LIMITED", contact: "9123456789", email: "contact@radhey.in", address: "Raaga, Hyderabad", gstNumber: "36BBBBB1111B2Z6", marketingPerson: "Fortune Concrete" },
+  { name: "SREE CHAITANYA CONSTRUCTIONS", contact: "9000012345", email: "sree@chaitanya.com", address: "VELIMELA, Site A", gstNumber: "36CCCCC2222C3Z7", marketingPerson: "Fortune Concrete" },
 ];
 
 const mockVehicles = [

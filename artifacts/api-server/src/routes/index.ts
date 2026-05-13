@@ -16,6 +16,9 @@ import reportsRouter from "./reports";
 import mastersRouter from "./masters";
 import weighmentTicketsRouter from "./weighmentTickets";
 import schedulingRouter from "./scheduling";
+import enquiriesRouter from "./enquiries";
+import paymentFollowUpsRouter from "./paymentFollowUps";
+import quotationsRouter from "./quotations";
 
 const router: IRouter = Router();
 
@@ -36,5 +39,8 @@ router.use(reportsRouter);
 router.use(mastersRouter);
 router.use(weighmentTicketsRouter);
 router.use(schedulingRouter);
+router.use(enquiriesRouter);
+router.use(paymentFollowUpsRouter);
+router.use(quotationsRouter);
 
 export default router;

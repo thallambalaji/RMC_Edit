@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,63 +19,135 @@ import {
   Phone,
   Mail,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// ----- Mock customer database -----
-const CUSTOMERS: Record<
-  string,
-  { name: string; phone: string; email: string; balance: string }
-> = {
-  ramesh: {
-    name: "Ramesh Constructions Pvt Ltd",
-    phone: "+91 98765 43210",
-    email: "ramesh@constructions.com",
-    balance: "₹ 2,45,800",
-  },
-  kumar: {
-    name: "Kumar Builders",
-    phone: "+91 91234 56789",
-    email: "kumar@builders.com",
-    balance: "₹ 98,500",
-  },
-};
-
 export default function AddPaymentFollowUp() {
-  const [, navigate] = useLocation();
   const { toast } = useToast();
 
   const [mounted, setMounted] = useState(false);
-  const [customer, setCustomer] = useState("");
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
+
+  // Form Fields State
+  const [customerId, setCustomerId] = useState("");
   const [status, setStatus] = useState("");
-  const [followupDate, setFollowupDate] = useState("2026-05-09");
-  const [followupTime, setFollowupTime] = useState("14:49:15");
+  const [followupDate, setFollowupDate] = useState("");
+  const [followupTime, setFollowupTime] = useState("");
   const [nextDate, setNextDate] = useState("");
   const [nextTime, setNextTime] = useState("");
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Set default date and time on mount
   useEffect(() => {
     setMounted(true);
+    setFollowupDate(new Date().toISOString().split("T")[0]);
+    setFollowupTime(new Date().toTimeString().split(" ")[0]);
+
+    // Fetch real customer data
+    const fetchCustomers = async () => {
+      try {
+        setIsLoadingCustomers(true);
+        const res = await fetch("/api/customers");
+        if (!res.ok) throw new Error("Failed to load customers");
+        const data = await res.json();
+        setCustomers(data);
+      } catch (err: any) {
+        toast({
+          title: "Error fetching customers",
+          description: err.message,
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingCustomers(false);
+      }
+    };
+    fetchCustomers();
   }, []);
 
-  const selectedCustomer = customer ? CUSTOMERS[customer] : null;
+  // Find selected customer details dynamically from the list
+  const selectedCustomer = useMemo(() => {
+    if (!customerId) return null;
+    return customers.find(
+      (c) => String(c.id || c._id) === String(customerId)
+    );
+  }, [customerId, customers]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customer) {
-      toast({ title: "Please select a customer", variant: "destructive" });
+    if (!customerId) {
+      toast({ title: "Validation Error", description: "Please select a Customer (*)", variant: "destructive" });
       return;
     }
     if (!status) {
-      toast({ title: "Please select a FollowUp Status", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Please select a FollowUp Status (*)", variant: "destructive" });
       return;
     }
-    toast({ title: "Follow-up successfully added!", description: `Follow-up for ${selectedCustomer?.name} saved.` });
-    navigate("/sales/payment-follow-up");
+    if (!followupTime) {
+      toast({ title: "Validation Error", description: "Please specify a FollowUp Time (*)", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const res = await fetch("/api/payment-follow-ups", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId,
+          followupDate,
+          followupTime,
+          status,
+          nextDate: nextDate || undefined,
+          nextTime: nextTime || undefined,
+          description,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to submit follow-up details");
+      }
+
+      toast({
+        title: "Success",
+        description: `Follow-up for ${selectedCustomer?.name || "Customer"} successfully added!`,
+      });
+
+      // Clear Form Fields on success (staying on page, no redirect!)
+      setCustomerId("");
+      setStatus("");
+      setFollowupDate(new Date().toISOString().split("T")[0]);
+      setFollowupTime(new Date().toTimeString().split(" ")[0]);
+      setNextDate("");
+      setNextTime("");
+      setDescription("");
+    } catch (err: any) {
+      toast({
+        title: "Submission Failed",
+        description: err.message || "An error occurred during submission",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
-    navigate("/sales/payment-follow-up");
+    // Reset Form Fields back to defaults (no redirect!)
+    setCustomerId("");
+    setStatus("");
+    setFollowupDate(new Date().toISOString().split("T")[0]);
+    setFollowupTime(new Date().toTimeString().split(" ")[0]);
+    setNextDate("");
+    setNextTime("");
+    setDescription("");
+    toast({
+      title: "Form Cleared",
+      description: "All inputs have been reset successfully.",
+    });
   };
 
   return (
@@ -112,16 +184,12 @@ export default function AddPaymentFollowUp() {
               Sales
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link href="/sales/payment-follow-up" className="hover:text-blue-500 transition-colors">
-              Payment Follow Up
-            </Link>
-            <ChevronRight className="h-3 w-3" />
-            <span className="text-gray-700 font-medium">Add</span>
+            <span className="text-gray-700 font-medium">Payment Follow Up</span>
           </nav>
           <Link href="/sales/payment-follow-up/list">
             <Button className="bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
               <ListPlus className="h-4 w-4" />
-              + Payment Follow Up List
+              Payment Follow Up List
             </Button>
           </Link>
         </div>
@@ -129,7 +197,6 @@ export default function AddPaymentFollowUp() {
 
       {/* Content Grid */}
       <div className="flex flex-col lg:flex-row gap-5">
-
         {/* ── Form Card ── */}
         <form
           onSubmit={handleSubmit}
@@ -149,21 +216,29 @@ export default function AddPaymentFollowUp() {
 
           <div className="p-7">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-              {/* Customer — full width */}
+              {/* Customer Select — full width */}
               <div className="space-y-1.5 md:col-span-3">
                 <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
                   Customer <span className="text-rose-500">*</span>
                 </Label>
-                <Select value={customer} onValueChange={setCustomer}>
-                  <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200 bg-white">
-                    <SelectValue placeholder="Choose Customer" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ramesh">Ramesh Constructions Pvt Ltd</SelectItem>
-                    <SelectItem value="kumar">Kumar Builders</SelectItem>
-                  </SelectContent>
-                </Select>
+                {isLoadingCustomers ? (
+                  <div className="flex items-center gap-2 text-xs text-slate-400">
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" /> Loading customer list...
+                  </div>
+                ) : (
+                  <Select value={customerId} onValueChange={setCustomerId}>
+                    <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200 bg-white">
+                      <SelectValue placeholder="Choose Customer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {customers.map((c) => (
+                        <SelectItem key={c.id || c._id} value={String(c.id || c._id)}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* FollowUp Date */}
@@ -199,12 +274,14 @@ export default function AddPaymentFollowUp() {
                   FollowUp Status <span className="text-rose-500">*</span>
                 </Label>
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200">
+                  <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200 bg-white">
                     <SelectValue placeholder="Choose Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="success">Success</SelectItem>
-                    <SelectItem value="closed">Closed</SelectItem>
+                    <SelectItem value="Success">Success</SelectItem>
+                    <SelectItem value="Closed">Closed</SelectItem>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Postponed">Postponed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -225,7 +302,7 @@ export default function AddPaymentFollowUp() {
               {/* Next FollowUp Time */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                  Next FollowUp Time <span className="text-rose-500">*</span>
+                  Next FollowUp Time
                 </Label>
                 <Input
                   type="time"
@@ -254,10 +331,18 @@ export default function AddPaymentFollowUp() {
             <div className="flex gap-3 mt-8">
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-10 h-11 font-bold rounded-xl shadow-md shadow-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Submit
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" /> Submit
+                  </>
+                )}
               </Button>
               <Button
                 type="button"
@@ -281,7 +366,7 @@ export default function AddPaymentFollowUp() {
           }}
         >
           <Label className="font-bold text-sm text-gray-700 px-1 block">
-            Customer Details
+            Selected Customer Details
           </Label>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             {/* Colour band */}
@@ -291,9 +376,15 @@ export default function AddPaymentFollowUp() {
               <div className="p-5 space-y-4">
                 {[
                   { icon: User, label: "Customer Name", value: selectedCustomer.name, color: "text-blue-500" },
-                  { icon: Phone, label: "Phone Number", value: selectedCustomer.phone, color: "text-emerald-500" },
-                  { icon: Mail, label: "Email", value: selectedCustomer.email, color: "text-orange-500" },
-                  { icon: AlertCircle, label: "Pending Balance", value: selectedCustomer.balance, color: "text-rose-500", highlight: true },
+                  { icon: Phone, label: "Phone Number", value: selectedCustomer.phone || "No phone added", color: "text-emerald-500" },
+                  { icon: Mail, label: "Email", value: selectedCustomer.email || "No email added", color: "text-orange-500" },
+                  {
+                    icon: AlertCircle,
+                    label: "Pending Balance",
+                    value: selectedCustomer.creditLimit ? `₹ ${selectedCustomer.creditLimit.toLocaleString()}` : "₹ 0",
+                    color: "text-rose-500",
+                    highlight: true,
+                  },
                 ].map((item, i) => (
                   <div
                     key={item.label}
@@ -344,14 +435,6 @@ export default function AddPaymentFollowUp() {
                 </div>
               </>
             )}
-          </div>
-
-          {/* Quick tip card */}
-          <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
-            <p className="text-xs font-semibold text-blue-700 mb-1">💡 Quick Tip</p>
-            <p className="text-xs text-blue-600/80 leading-relaxed">
-              Set a "Next FollowUp Date" to automatically get reminded about pending payments.
-            </p>
           </div>
         </div>
       </div>

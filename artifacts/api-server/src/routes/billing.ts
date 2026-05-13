@@ -83,4 +83,49 @@ router.get("/invoices/:id", async (req, res): Promise<void> => {
   }
 });
 
+router.put("/invoices/:id", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const rawData = req.body.data || req.body;
+    
+    // Convert object IDs if updating reference fields
+    if (rawData.customerId && Types.ObjectId.isValid(String(rawData.customerId))) {
+      rawData.customerId = new Types.ObjectId(String(rawData.customerId));
+    }
+    if (rawData.vehicleId && Types.ObjectId.isValid(String(rawData.vehicleId))) {
+      rawData.vehicleId = new Types.ObjectId(String(rawData.vehicleId));
+    }
+
+    const updated = await Invoice.findByIdAndUpdate(
+      req.params.id,
+      { $set: rawData },
+      { new: true }
+    ).populate("customerId");
+
+    if (!updated) {
+      res.status(404).json({ error: "Invoice not found" });
+      return;
+    }
+    res.json(toApi(updated));
+  } catch (error: any) {
+    console.error("Error updating invoice:", error);
+    res.status(400).json({ error: error.message || "Error updating invoice" });
+  }
+});
+
+router.delete("/invoices/:id", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const deleted = await Invoice.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      res.status(404).json({ error: "Invoice not found" });
+      return;
+    }
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(400).json({ error: "Invalid ID format or error deleting invoice" });
+  }
+});
+
 export default router;
+

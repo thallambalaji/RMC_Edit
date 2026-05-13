@@ -123,7 +123,7 @@ export default function Godowns() {
                 <TableHead className="text-white font-bold py-4 text-center border-r border-white/20 w-24">S/L No</TableHead>
                 <TableHead className="text-white font-bold text-center border-r border-white/20">Godown / Item Name</TableHead>
                 <TableHead className="text-white font-bold text-center w-32 border-r border-white/20">Unit</TableHead>
-                <TableHead className="text-white font-bold text-center w-24">Option</TableHead>
+                <TableHead className="text-white font-bold text-center w-24">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

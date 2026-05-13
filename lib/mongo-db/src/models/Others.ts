@@ -140,3 +140,141 @@ const ScheduleSchema = new Schema({
 }, { timestamps: true });
 
 export const Schedule = mongoose.models.Schedule || mongoose.model<ISchedule>("Schedule", ScheduleSchema);
+
+// Sales Enquiry
+export interface ISalesEnquiryRequirement {
+  projectName: string;
+  locality: string;
+  sourceOfLead: string;
+  materialType: string;
+  paymentTerms: string;
+  estimatedRate?: number;
+  constructionStage: string;
+  estimatedQty: number;
+  unit: string;
+  projectAddress: string;
+}
+
+export interface ISalesEnquiry extends Document {
+  enquiryId: string;
+  contactPerson: string;
+  mobile: string;
+  altNumber?: string;
+  email?: string;
+  companyName?: string;
+  designation: string;
+  customerAddress: string;
+  requirements: ISalesEnquiryRequirement[];
+  createdBy?: string;
+  followedBy?: string;
+  status?: string;
+}
+
+const SalesEnquirySchema = new Schema({
+  enquiryId: { type: String, required: true, unique: true },
+  contactPerson: { type: String, required: true },
+  mobile: { type: String, required: true },
+  altNumber: { type: String },
+  email: { type: String },
+  companyName: { type: String },
+  designation: { type: String, required: true },
+  customerAddress: { type: String, required: true },
+  requirements: [{
+    projectName: { type: String, required: true },
+    locality: { type: String, required: true },
+    sourceOfLead: { type: String, required: true },
+    materialType: { type: String, required: true },
+    paymentTerms: { type: String, required: true },
+    estimatedRate: { type: Number },
+    constructionStage: { type: String, required: true },
+    estimatedQty: { type: Number, required: true },
+    unit: { type: String, required: true },
+    projectAddress: { type: String, required: true }
+  }],
+  createdBy: { type: String, default: "Admin" },
+  followedBy: { type: String, default: "Not Assigned" },
+  status: { type: String, default: "pending" }
+}, { timestamps: true });
+
+export const SalesEnquiry = mongoose.models.SalesEnquiry || mongoose.model<ISalesEnquiry>("SalesEnquiry", SalesEnquirySchema);
+
+// Payment FollowUp
+export interface IPaymentFollowUp extends Document {
+  followupId: string;
+  customerId: mongoose.Types.ObjectId;
+  followupDate: string;
+  followupTime: string;
+  status: string;
+  nextDate?: string;
+  nextTime?: string;
+  description?: string;
+  createdBy?: string;
+}
+
+const PaymentFollowUpSchema = new Schema({
+  followupId: { type: String, required: true, unique: true },
+  customerId: { type: Schema.Types.ObjectId, ref: "Customer", required: true },
+  followupDate: { type: String, required: true },
+  followupTime: { type: String, required: true },
+  status: { type: String, required: true },
+  nextDate: { type: String },
+  nextTime: { type: String },
+  description: { type: String },
+  createdBy: { type: String, default: "Admin" }
+}, { timestamps: true });
+
+export const PaymentFollowUp = mongoose.models.PaymentFollowUp || mongoose.model<IPaymentFollowUp>("PaymentFollowUp", PaymentFollowUpSchema);
+
+// Quotation Item Interface
+export interface IQuotationItem {
+  grade: string;
+  quantity: number;
+  rate: number;
+  recipeCode?: string;
+  cementType?: string;
+}
+
+// Quotation Interface
+export interface IQuotation extends Document {
+  quotationNo: string;
+  date: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  customerGstin?: string;
+  siteAddress: string;
+  paymentTerms?: string;
+  pumpCharges?: number;
+  minPumpQty?: number;
+  marketingPerson: string;
+  rateIncludeTax: boolean;
+  notes?: string[];
+  items: IQuotationItem[];
+  createdBy?: string;
+}
+
+const QuotationSchema = new Schema({
+  quotationNo: { type: String, required: true, unique: true },
+  date: { type: String, required: true },
+  customerName: { type: String, required: true },
+  customerPhone: { type: String, required: true },
+  customerEmail: { type: String },
+  customerGstin: { type: String },
+  siteAddress: { type: String, required: true },
+  paymentTerms: { type: String },
+  pumpCharges: { type: Number },
+  minPumpQty: { type: Number },
+  marketingPerson: { type: String, required: true },
+  rateIncludeTax: { type: Boolean, default: true },
+  notes: [{ type: String }],
+  items: [{
+    grade: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    rate: { type: Number, required: true },
+    recipeCode: { type: String },
+    cementType: { type: String, default: "OPC" }
+  }],
+  createdBy: { type: String, default: "Admin" }
+}, { timestamps: true });
+
+export const Quotation = mongoose.models.Quotation || mongoose.model<IQuotation>("Quotation", QuotationSchema);

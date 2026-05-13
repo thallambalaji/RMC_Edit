@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IVehicle extends Document {
+export interface IVehicle {
   registrationNo: string;
   model: string;
   capacity: number;

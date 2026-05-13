@@ -5,6 +5,7 @@
 .env.local
 .env.production
 .env.*
+!.env.example
 
 # compiled output
 dist

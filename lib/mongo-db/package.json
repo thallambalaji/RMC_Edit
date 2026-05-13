@@ -8,5 +8,8 @@
   },
   "dependencies": {
     "mongoose": "^9.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
   }
 }

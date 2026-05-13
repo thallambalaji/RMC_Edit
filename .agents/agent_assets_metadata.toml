@@ -1,8 +1,0 @@
-uploads = []
-generated = []
-
-[[outputs]]
-id = "2QEu2iaQoHu_EnqlzCbns"
-uri = "file://exports/buildrmc-database-dump.tar.gz"
-type = "unspecified"
-title = "BuildRMC Database Dump (compressed)"

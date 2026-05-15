@@ -2,11 +2,6 @@ import "./dotenv-config";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { seedMongo } from "@workspace/mongo-db";
-import dotenv from "dotenv";
-import path from "path";
-
-// Load .env from project root
-dotenv.config({ path: path.resolve(process.cwd(), "..", "..", ".env") });
 
 const rawPort = process.env["PORT"] || "3000";
 const port = Number(rawPort);

@@ -15,9 +15,10 @@ router.get("/customers", async (_req, res): Promise<void> => {
     await connectMongo();
     const customers = await Customer.find().sort({ createdAt: 1 });
     res.json(customers.map(c => ({ ...c.toObject(), id: String(c._id) })));
-  } catch (error) {
-    console.error("Failed to fetch customers from MongoDB:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+  } catch (error: any) {
+    const msg = error?.message || String(error);
+    console.error("Failed to fetch customers from MongoDB:", msg);
+    res.status(500).json({ error: "Internal Server Error", detail: msg });
   }
 });
 
@@ -33,9 +34,10 @@ router.post("/customers", async (req, res): Promise<void> => {
     const customer = new Customer(parsed.data);
     await customer.save();
     res.status(201).json({ ...customer.toObject(), id: String(customer._id) });
-  } catch (error) {
-    console.error("Failed to save customer to MongoDB:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+  } catch (error: any) {
+    const msg = error?.message || String(error);
+    console.error("Failed to save customer to MongoDB:", msg);
+    res.status(500).json({ error: "Internal Server Error", detail: msg });
   }
 });
 

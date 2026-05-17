@@ -17,6 +17,9 @@ const VehicleSchema: Schema = new Schema(
     capacity: { type: Number, required: true },
     status: { type: String, default: "available" },
     driverName: { type: String },
+    vehicleType: { type: String, default: "Own" },
+    vehicleCategory: { type: String, default: "KM Basis" },
+    transporter: { type: String, default: "N/A" },
   },
   { timestamps: true }
 );

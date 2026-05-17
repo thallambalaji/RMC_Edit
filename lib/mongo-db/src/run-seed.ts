@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { seedMongo } from "./seed";
 
 async function run() {

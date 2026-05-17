@@ -24,33 +24,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { ChevronRight, Search, RotateCcw, Plus, Copy, FileText, FileCode, Edit, Trash2, Layers } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
-import { 
-  ChevronRight, 
-  Search, 
-  RotateCcw, 
-  Plus, 
-  Copy, 
-  FileText, 
-  FileCode, 
-  Edit, 
-  Trash2, 
-  Layers,
-  CheckCircle2,
-  TestTube,
-  FlaskConical,
-  Settings,
-  Activity,
-  TrendingUp
-} from "lucide-react";
 
 interface MixDesignItem {
   id: number;
@@ -82,7 +59,7 @@ const INITIAL_DATA: MixDesignItem[] = [
   { id: 10, recipeCode: "M35 SAADCRETE", recipeName: "M35", grade: "M-35", aggr1: "20MM : 632", aggr2: "12MM : 422", aggr3: "M SAND : 749", aggr4: "R SAND : 0", cem1: "CEM1 : 285", cem2: "GGBS : 135", cem3: "CEM3 : 0", water: "WATER : 177", admix1: "ADMIX1 : 1.3", admix2: "Admix2 : 0" },
 ];
 
-export default function QC() {
+export default function MixDesignList() {
   const { toast } = useToast();
   const [items, setItems] = useState<MixDesignItem[]>([]);
 
@@ -125,13 +102,6 @@ export default function QC() {
     return filtered.slice(start, start + pageSize);
   }, [filtered, currentPage, pageSize]);
 
-  // Mini Stats
-  const stats = useMemo(() => {
-    const totalMixes = items.length;
-    const activeGrades = new Set(items.map(i => i.grade)).size;
-    return { totalMixes, activeGrades };
-  }, [items]);
-
   const handleClear = () => {
     setSearchCode("");
     setSearchGrade("all");
@@ -152,24 +122,14 @@ export default function QC() {
     }
   };
 
-  const handleSaveEdit = async (e: React.FormEvent) => {
+  const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItem) return;
-    try {
-      const res = await fetch(`/api/mix-designs/${editingItem.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingItem),
-      });
-      if (res.ok) {
-        const updatedItem = await res.json();
-        setItems(items.map(i => i.id === updatedItem.id ? updatedItem : i));
-        setEditingItem(null);
-        toast({ title: "Updated Successfully", description: `Recipe ${editingItem.recipeCode} saved to database.` });
-      }
-    } catch (error) {
-      toast({ title: "Update Failed", description: "Could not save changes to database.", variant: "destructive" });
-    }
+    const updated = items.map(i => i.id === editingItem.id ? editingItem : i);
+    setItems(updated);
+    localStorage.setItem("qc_mix_design_list_v2", JSON.stringify(updated));
+    setEditingItem(null);
+    toast({ title: "Updated Successfully", description: `Recipe ${editingItem.recipeCode} updated.` });
   };
 
   const handleExport = (type: string, specificItem?: MixDesignItem) => {
@@ -193,9 +153,6 @@ export default function QC() {
       setPrintingItem(specificItem || null);
       setTimeout(() => {
         window.print();
-        // The print dialog is blocking in most browsers, but we can't reliably know when it's done
-        // to reset the state immediately without affecting the print content.
-        // However, for single page apps, it's usually fine to keep it until the next action.
       }, 100);
     }
   };
@@ -284,7 +241,7 @@ export default function QC() {
                   <td className="border border-gray-300 p-2 font-bold text-blue-900">{item.recipeCode}</td>
                   <td className="border border-gray-300 p-2">{item.grade}</td>
                   <td className="border border-gray-300 p-2">{item.aggr1}</td>
-                  <td className="border border-gray-300 p-2">{item.aggr2}</td>
+                  <td className="border border-gray-300 p-2">{item.grade}</td>
                   <td className="border border-gray-300 p-2 font-bold">{item.cem1}</td>
                   <td className="border border-gray-300 p-2 text-blue-600 font-bold">{item.water}</td>
                   <td className="border border-gray-300 p-2 font-bold text-emerald-600">{item.admix1}</td>
@@ -312,257 +269,225 @@ export default function QC() {
         </div>
       </div>
 
+      {/* Top Header & Breadcrumbs & Sidebar unified via QcLayout */}
       <QcLayout
-        breadcrumbs={[]}
-        title="QC DASHBOARD"
-        activePath="/qc"
+        breadcrumbs={[{ label: "Mix Design List" }]}
+        title="Mix Design List"
+        activePath="/qc/mix-design/list"
       >
+        <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
+        
+        {/* Filters Row matching screenshot */}
+        <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5 min-w-[220px] flex-1">
+            <Label className="text-xs font-black uppercase text-slate-700">Recipe Code</Label>
+            <Input
+              value={searchCode}
+              onChange={e => { setSearchCode(e.target.value); setCurrentPage(1); }}
+              placeholder="Enter Recipe Code"
+              className="h-10 text-xs font-semibold bg-white border-slate-300"
+            />
+          </div>
 
-        {/* Mini Stats Grid */}
-        <div className="grid grid-cols-4 gap-3 print:hidden">
-          <div className="bg-white border rounded-lg p-2.5 flex items-center gap-3 shadow-sm">
-            <div className="p-2 bg-blue-50 rounded-full"><Layers className="h-4 w-4 text-blue-600" /></div>
-            <div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Total Mix Designs</p>
-              <p className="text-sm font-bold text-gray-800">{stats.totalMixes}</p>
-            </div>
+          <div className="space-y-1.5 min-w-[200px]">
+            <Label className="text-xs font-black uppercase text-slate-700">Grade</Label>
+            <Select value={searchGrade} onValueChange={v => { setSearchGrade(v); setCurrentPage(1); }}>
+              <SelectTrigger className="h-10 text-xs font-bold bg-white border-slate-300">
+                <SelectValue placeholder="All Item" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="font-bold">All Item</SelectItem>
+                {["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50", "M-55", "M-60"].map(g => (
+                  <SelectItem key={g} value={g} className="font-bold">{g}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <div className="bg-white border rounded-lg p-2.5 flex items-center gap-3 shadow-sm">
-            <div className="p-2 bg-emerald-50 rounded-full"><CheckCircle2 className="h-4 w-4 text-emerald-600" /></div>
-            <div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Active Grades</p>
-              <p className="text-sm font-bold text-gray-800">{stats.activeGrades}</p>
-            </div>
-          </div>
-          <div className="bg-white border rounded-lg p-2.5 flex items-center gap-3 shadow-sm">
-            <div className="p-2 bg-amber-50 rounded-full"><Activity className="h-4 w-4 text-amber-600" /></div>
-            <div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Avg W/C Ratio</p>
-              <p className="text-sm font-bold text-gray-800">0.45</p>
-            </div>
-          </div>
-          <div className="bg-[#1e40af] rounded-lg p-2.5 flex items-center gap-3 shadow-sm text-white">
-            <div className="p-2 bg-white/20 rounded-full"><TrendingUp className="h-4 w-4 text-white" /></div>
-            <div>
-              <p className="text-[10px] font-bold text-white/80 uppercase tracking-tight">Top Grade</p>
-              <p className="text-sm font-bold">M-35</p>
-            </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setCurrentPage(1)}
+              className="bg-[#10b981] hover:bg-[#059669] text-white font-black px-6 h-10 shadow-sm shadow-emerald-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
+            >
+              <Search className="h-4 w-4 mr-2" /> Search
+            </Button>
+            <Button
+              onClick={handleClear}
+              className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-black px-5 h-10 shadow-sm shadow-red-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
+            >
+              <RotateCcw className="h-4 w-4 mr-1.5" /> Clear
+            </Button>
+            <Link href="/qc/mix-design/new">
+              <Button
+                className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-black px-6 h-10 shadow-sm shadow-sky-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
+              >
+                <Plus className="h-4 w-4 mr-2" /> Add Mix Design
+              </Button>
+            </Link>
           </div>
         </div>
 
-        {/* Embedded Mix Design List Table Card matching screenshot */}
-        <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
-          {/* Filters Row */}
-          <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4">
-            <div className="space-y-1.5 min-w-[220px] flex-1">
-              <Label className="text-xs font-black uppercase text-slate-700">Recipe Code</Label>
-              <Input
-                value={searchCode}
-                onChange={e => { setSearchCode(e.target.value); setCurrentPage(1); }}
-                placeholder="Enter Recipe Code"
-                className="h-10 text-xs font-semibold bg-white border-slate-300"
-              />
-            </div>
-
-            <div className="space-y-1.5 min-w-[200px]">
-              <Label className="text-xs font-black uppercase text-slate-700">Grade</Label>
-              <Select value={searchGrade} onValueChange={v => { setSearchGrade(v); setCurrentPage(1); }}>
-                <SelectTrigger className="h-10 text-xs font-bold bg-white border-slate-300">
-                  <SelectValue placeholder="All Item" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all" className="font-bold">All Item</SelectItem>
-                  {["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50", "M-55", "M-60"].map(g => (
-                    <SelectItem key={g} value={g} className="font-bold">{g}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setCurrentPage(1)}
-                className="bg-[#10b981] hover:bg-[#059669] text-white font-black px-6 h-10 shadow-sm shadow-emerald-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
-              >
-                <Search className="h-4 w-4 mr-2" /> Search
-              </Button>
-              <Button
-                onClick={handleClear}
-                className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-black px-5 h-10 shadow-sm shadow-red-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
-              >
-                <RotateCcw className="h-4 w-4 mr-1.5" /> Clear
-              </Button>
-              <Link href="/qc/mix-design/new">
-                <Button
-                  className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-black px-6 h-10 shadow-sm shadow-sky-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
-                >
-                  <Plus className="h-4 w-4 mr-2" /> Add Mix Design
-                </Button>
-              </Link>
-            </div>
+        {/* Toolbar Row matching screenshot */}
+        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white flex-wrap gap-4">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+            <span>Show</span>
+            <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setCurrentPage(1); }}>
+              <SelectTrigger className="w-16 h-8 text-xs font-black bg-slate-50 border-slate-200">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 25, 50, 100].map(n => <SelectItem key={n} value={String(n)} className="font-bold">{n}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <span>entries</span>
           </div>
 
-          {/* Toolbar Row */}
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white flex-wrap gap-4">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-              <span>Show</span>
-              <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setCurrentPage(1); }}>
-                <SelectTrigger className="w-16 h-8 text-xs font-black bg-slate-50 border-slate-200">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[10, 25, 50, 100].map(n => <SelectItem key={n} value={String(n)} className="font-bold">{n}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <span>entries</span>
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              <Button variant="outline" size="sm" onClick={() => handleExport("copy")} className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm">
-                <Copy className="h-3 w-3 mr-1.5" /> Copy
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm">
-                <FileCode className="h-3 w-3 mr-1.5" /> CSV
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm">
-                <FileText className="h-3 w-3 mr-1.5" /> PDF
-              </Button>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => handleExport("copy")} className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm">
+              <Copy className="h-3 w-3 mr-1.5" /> Copy
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm">
+              <FileCode className="h-3 w-3 mr-1.5" /> CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm">
+              <FileText className="h-3 w-3 mr-1.5" /> PDF
+            </Button>
           </div>
+        </div>
 
-          {/* Data Grid Table */}
-          <div className="flex-1 overflow-auto">
-            <Table>
-              <TableHeader className="sticky top-0 bg-slate-100/80 z-10">
-                <TableRow className="border-b border-slate-200">
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 whitespace-nowrap">Recipe Code</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Recipe Name</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr1</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr2</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr3</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr4</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem1</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem2</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem3</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Water</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix1</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix2</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center whitespace-nowrap">ACTION</TableHead>
+        {/* Data Grid Table matching screenshot */}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-100/80">
+              <TableRow className="border-b border-slate-200">
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 whitespace-nowrap">Recipe Code</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Recipe Name</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr1</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr2</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr3</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr4</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem1</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem2</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem3</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Water</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix1</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix2</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center whitespace-nowrap">ACTION</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pageRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={13} className="text-center py-12 text-xs font-semibold text-slate-500">
+                    No mix designs found matching your search criteria.
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pageRows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={13} className="text-center py-12 text-xs font-semibold text-slate-500">
-                      No mix designs found matching your search criteria.
+              ) : (
+                pageRows.map((item, index) => (
+                  <TableRow key={item.id} className={`hover:bg-slate-50/80 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
+                    <TableCell className="font-extrabold text-[#1e40af] text-xs py-3 px-4 whitespace-nowrap">{item.recipeCode}</TableCell>
+                    <TableCell className="font-bold text-slate-700 text-xs px-3 whitespace-nowrap">{item.recipeName}</TableCell>
+                    <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr1}</TableCell>
+                    <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr2}</TableCell>
+                    <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr3}</TableCell>
+                    <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr4}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem1}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem2}</TableCell>
+                    <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem3}</TableCell>
+                    <TableCell className="text-xs font-bold text-blue-600 px-3 whitespace-nowrap">{item.water}</TableCell>
+                    <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix1}</TableCell>
+                    <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix2}</TableCell>
+                    <TableCell className="px-4 py-3 text-center whitespace-nowrap print:hidden">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <Button
+                          variant="ghost" size="icon"
+                          onClick={() => handleExport("copy", item)}
+                          className="h-7 w-7 text-slate-500 hover:bg-slate-100"
+                          title="Copy Row"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost" size="icon"
+                          onClick={() => handleExport("csv", item)}
+                          className="h-7 w-7 text-emerald-600 hover:bg-emerald-50"
+                          title="Download CSV"
+                        >
+                          <FileCode className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost" size="icon"
+                          onClick={() => handleExport("pdf", item)}
+                          className="h-7 w-7 text-rose-600 hover:bg-rose-50"
+                          title="Print Record"
+                        >
+                          <FileText className="h-3.5 w-3.5" />
+                        </Button>
+
+                        <div className="w-px h-4 bg-gray-200 mx-1" />
+
+                        <Button
+                          variant="ghost" size="icon"
+                          onClick={() => setEditingItem(item)}
+                          className="h-7 w-7 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                          title="Edit"
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost" size="icon"
+                          onClick={() => handleDelete(item.id)}
+                          className="h-7 w-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  pageRows.map((item, index) => (
-                    <TableRow key={item.id} className={`hover:bg-slate-50/80 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
-                      <TableCell className="font-extrabold text-[#1e40af] text-xs py-3 px-4 whitespace-nowrap">{item.recipeCode}</TableCell>
-                      <TableCell className="font-bold text-slate-700 text-xs px-3 whitespace-nowrap">{item.recipeName}</TableCell>
-                      <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr1}</TableCell>
-                      <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr2}</TableCell>
-                      <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr3}</TableCell>
-                      <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr4}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem1}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem2}</TableCell>
-                      <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem3}</TableCell>
-                      <TableCell className="text-xs font-bold text-blue-600 px-3 whitespace-nowrap">{item.water}</TableCell>
-                      <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix1}</TableCell>
-                      <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix2}</TableCell>
-                      <TableCell className="px-4 py-3 text-center whitespace-nowrap print:hidden">
-                        <div className="flex items-center justify-center gap-1.5">
-                          {/* New Export Icons in Action Column */}
-                          <Button
-                            variant="ghost" size="icon"
-                            onClick={() => handleExport("copy", item)}
-                            className="h-7 w-7 text-slate-500 hover:bg-slate-100"
-                            title="Copy Row"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost" size="icon"
-                            onClick={() => handleExport("csv", item)}
-                            className="h-7 w-7 text-emerald-600 hover:bg-emerald-50"
-                            title="Download CSV"
-                          >
-                            <FileCode className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost" size="icon"
-                            onClick={() => handleExport("pdf", item)}
-                            className="h-7 w-7 text-rose-600 hover:bg-rose-50"
-                            title="Print Record"
-                          >
-                            <FileText className="h-3.5 w-3.5" />
-                          </Button>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
-                          <div className="w-px h-4 bg-gray-200 mx-1" />
-
-                          <Button
-                            variant="ghost" size="icon"
-                            onClick={() => setEditingItem(item)}
-                            className="h-7 w-7 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                            title="Edit"
-                          >
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost" size="icon"
-                            onClick={() => handleDelete(item.id)}
-                            className="h-7 w-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+        {/* Pagination Footer matching screenshot */}
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 flex-wrap gap-4">
+          <div className="text-xs font-bold text-slate-600">
+            Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
           </div>
-
-          {/* Pagination Footer */}
-          <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 flex-wrap gap-4 shrink-0">
-            <div className="text-xs font-bold text-slate-600">
-              Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
-            </div>
-            <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+            <Button
+              variant="ghost" size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+              className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
               <Button
-                variant="ghost" size="sm"
-                disabled={currentPage <= 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+                key={pageNum}
+                variant={currentPage === pageNum ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setCurrentPage(pageNum)}
+                className={`text-xs font-black w-8 h-8 ${currentPage === pageNum ? "bg-[#0ea5e9] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
               >
-                Previous
+                {pageNum}
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`text-xs font-black w-8 h-8 ${currentPage === pageNum ? "bg-[#0ea5e9] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
-                >
-                  {pageNum}
-                </Button>
-              ))}
-              <Button
-                variant="ghost" size="sm"
-                disabled={currentPage >= totalPages}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
-              >
-                Next
-              </Button>
-            </div>
+            ))}
+            <Button
+              variant="ghost" size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+            >
+              Next
+            </Button>
           </div>
         </div>
+
+      </Card>
 
       {/* Edit Recipe Modal */}
       <Dialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>

@@ -7,9 +7,11 @@ const router = Router();
 router.get("/masters", async (req, res) => {
   try {
     const { type } = req.query;
+    console.log(`📥 GET /api/masters?type=${type}`);
     await connectMongo();
     const filter = type ? { type: String(type) } : {};
     const results = await Master.find(filter).sort({ name: 1 });
+    console.log(`✅ Found ${results.length} masters`);
     res.json(results.map(r => ({ ...r.toObject(), id: String(r._id) })));
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });

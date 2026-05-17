@@ -61,6 +61,28 @@ import Tickets from "@/pages/tickets";
 import AddWeighment from "@/pages/add-weighment";
 import WeighmentList from "@/pages/weighment-list";
 import WeighmentReport from "@/pages/weighment-report";
+import AddMixDesign from "@/pages/add-mix-design";
+import MixDesignList from "@/pages/mix-design-list";
+import AddRecipe from "@/pages/add-recipe";
+import RecipeList from "@/pages/recipe-list";
+import AddCubeTest from "@/pages/add-cube-test";
+import CubeTestList from "@/pages/cube-test-list";
+import BatchList from "@/pages/batch-list";
+import BatchReport from "@/pages/batch-report";
+import QcSettings from "@/pages/qc-settings";
+import VehicleList from "@/pages/vehicle-list";
+import AddVehicle from "@/pages/add-vehicle";
+import AddDriver from "@/pages/add-driver";
+import DriverList from "@/pages/driver-list";
+import AddPumpDg from "@/pages/add-pump-dg";
+import PumpDgList from "@/pages/pump-dg-list";
+import AddDiesel from "@/pages/add-diesel";
+import DieselList from "@/pages/diesel-list";
+import DieselReport from "@/pages/diesel-report";
+import TransportSettings from "@/pages/transport-settings";
+import AddSecurityCheck from "@/pages/add-security";
+import SecurityCheckList from "@/pages/security-list";
+import SecurityCheckReport from "@/pages/security-report";
 import { Layout } from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -69,7 +91,8 @@ function ProtectedRoute({ component: Component, ...rest }: any) {
   const { data: user, isLoading, isError } = useGetMe({
     query: {
       queryKey: getGetMeQueryKey(),
-      retry: false
+      retry: false,
+      staleTime: 5 * 60 * 1000,
     }
   });
 
@@ -92,7 +115,8 @@ function Router() {
   const { data: user, isLoading } = useGetMe({
     query: {
       queryKey: getGetMeQueryKey(),
-      retry: false
+      retry: false,
+      staleTime: 5 * 60 * 1000,
     }
   });
 
@@ -102,8 +126,8 @@ function Router() {
 
   return (
     <Switch>
-      <Route path="/" component={() => user ? <Redirect to="/dashboard" /> : <Login />} />
-      <Route path="/login" component={() => user ? <Redirect to="/dashboard" /> : <Login />} />
+      <Route path="/">{user ? <Redirect to="/dashboard" /> : <Login />}</Route>
+      <Route path="/login">{user ? <Redirect to="/dashboard" /> : <Login />}</Route>
       <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
       <Route path="/customer-po/customer/new"><ProtectedRoute component={AddCustomer} /></Route>
       <Route path="/customer-po/customer/list"><ProtectedRoute component={() => <Redirect to="/customer-po/customer" />} /></Route>
@@ -151,10 +175,34 @@ function Router() {
       <Route path="/sales/settings/master"><ProtectedRoute component={SalesMaster} /></Route>
       <Route path="/sales/settings"><ProtectedRoute component={SalesSettingsHub} /></Route>
       <Route path="/sales"><ProtectedRoute component={Sales} /></Route>
+      <Route path="/qc/mix-design/new"><ProtectedRoute component={AddMixDesign} /></Route>
+      <Route path="/qc/mix-design/list"><ProtectedRoute component={MixDesignList} /></Route>
+      <Route path="/qc/recipe/new"><ProtectedRoute component={AddRecipe} /></Route>
+      <Route path="/qc/recipe/list"><ProtectedRoute component={RecipeList} /></Route>
+      <Route path="/qc/cube-test/new"><ProtectedRoute component={AddCubeTest} /></Route>
+      <Route path="/qc/cube-test/list"><ProtectedRoute component={CubeTestList} /></Route>
+      <Route path="/qc/cube-test/report"><ProtectedRoute component={() => <div className="p-8 bg-white rounded-lg border shadow-sm"><h2 className="text-xl font-bold mb-4 text-[#1e40af]">Cube Test Report</h2><p className="text-gray-500 text-sm">Statistical analysis of concrete compressive strength across all grades.</p></div>} /></Route>
+      <Route path="/qc/batch/list"><ProtectedRoute component={BatchList} /></Route>
+      <Route path="/qc/batch/report"><ProtectedRoute component={BatchReport} /></Route>
+      <Route path="/qc/settings"><ProtectedRoute component={QcSettings} /></Route>
       <Route path="/qc"><ProtectedRoute component={QC} /></Route>
       <Route path="/accounts"><ProtectedRoute component={Accounts} /></Route>
       <Route path="/store"><ProtectedRoute component={Store} /></Route>
-      <Route path="/transport"><ProtectedRoute component={Transport} /></Route>
+      <Route path="/transport/vehicle/new"><ProtectedRoute component={AddVehicle} /></Route>
+      <Route path="/transport/vehicle/edit/:id"><ProtectedRoute component={AddVehicle} /></Route>
+      <Route path="/transport/vehicle/list"><ProtectedRoute component={VehicleList} /></Route>
+      <Route path="/transport/driver/new"><ProtectedRoute component={AddDriver} /></Route>
+      <Route path="/transport/driver/list"><ProtectedRoute component={DriverList} /></Route>
+      <Route path="/transport/pump-dg/new"><ProtectedRoute component={AddPumpDg} /></Route>
+      <Route path="/transport/pump-dg/list"><ProtectedRoute component={PumpDgList} /></Route>
+      <Route path="/transport/diesel/new"><ProtectedRoute component={AddDiesel} /></Route>
+      <Route path="/transport/diesel/list"><ProtectedRoute component={DieselList} /></Route>
+      <Route path="/transport/diesel/report"><ProtectedRoute component={DieselReport} /></Route>
+      <Route path="/transport/settings"><ProtectedRoute component={TransportSettings} /></Route>
+      <Route path="/transport/security/new"><ProtectedRoute component={AddSecurityCheck} /></Route>
+      <Route path="/transport/security/list"><ProtectedRoute component={SecurityCheckList} /></Route>
+      <Route path="/transport/security/report"><ProtectedRoute component={SecurityCheckReport} /></Route>
+      <Route path="/transport"><ProtectedRoute component={() => <Redirect to="/transport/vehicle/list" />} /></Route>
       <Route path="/hrm"><ProtectedRoute component={HRM} /></Route>
       <Route path="/reports"><ProtectedRoute component={Reports} /></Route>
       

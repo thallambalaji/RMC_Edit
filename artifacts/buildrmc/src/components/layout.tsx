@@ -29,10 +29,10 @@ const navItems = [
   { href: "/billing",     label: "Billing",       icon: FileText },
   { href: "/dc",          label: "DC",            icon: Truck },
   { href: "/sales",       label: "Sales",         icon: BarChart3 },
-  { href: "/qc",          label: "QC",            icon: CheckSquare, comingSoon: true },
+  { href: "/qc",          label: "QC",            icon: CheckSquare },
   { href: "/accounts",    label: "Accounts",      icon: BookOpen,    comingSoon: true },
   { href: "/store",       label: "Store",         icon: Package,     comingSoon: true },
-  { href: "/transport",   label: "Transport",     icon: Bus,         comingSoon: true },
+  { href: "/transport",   label: "Transport",     icon: Bus },
   { href: "/hrm",         label: "HRM",           icon: Users2,      comingSoon: true },
   { href: "/reports",     label: "Reports",       icon: FileBarChart, comingSoon: true },
 ];

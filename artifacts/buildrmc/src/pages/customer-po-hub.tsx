@@ -12,7 +12,7 @@ export default function CustomerPOHub() {
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm">Customer & PO Nav</h3>
         </div>

@@ -13,7 +13,8 @@ import {
   Download,
   MoreHorizontal,
   FileText,
-  Calendar
+  Calendar,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,62 +46,125 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useGetDCs, useGetCustomers, customFetch } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DCHub() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
-  // DC List State (Mocking dc-list.tsx logic)
+  // Live API States
   const [dcNo, setDcNo] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [customer, setCustomer] = useState("all");
   const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(true);
+  const [selectedDC, setSelectedDC] = useState<any>(null);
 
-  const mockData = [
-    {
-      id: 1,
-      dcNo: "DC/23-24/0001",
-      customer: "PRANEETH PRANAV GROVE PARK",
-      site: "CHETLAPOTHARAM",
-      date: "2023-10-31",
-      time: "13:12:30",
-      grade: "M10",
-      quantity: "7.00",
-      rate: "3600",
-      amount: "25200",
-      vehicle: "TS07UM4479",
-      plant: "FORTUNE CONCRETE",
-    },
-    {
-      id: 2,
-      dcNo: "DC/23-24/0002",
-      customer: "KUMAR BUILDERS",
-      site: "GACHIBOWLI",
-      date: "2023-11-01",
-      time: "10:45:00",
-      grade: "M25",
-      quantity: "6.50",
-      rate: "4200",
-      amount: "27300",
-      vehicle: "TS08ER1234",
-      plant: "FORTUNE CONCRETE",
-    },
-  ];
+  const queryClient = useQueryClient();
+  const { data: dcs, isLoading: dcsLoading } = useGetDCs();
+  const { data: customers } = useGetCustomers();
+
+  const customerMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    customers?.forEach((c: any) => {
+      map[String(c.id || c._id)] = c;
+    });
+    return map;
+  }, [customers]);
+
+  const availableCustomers = useMemo(() => {
+    if (!customers) return [];
+    return customers.map((c: any) => ({
+      id: String(c.id || c._id),
+      name: c.name
+    })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }, [customers]);
+
+  const filteredData = useMemo(() => {
+    if (!dcs) return [];
+    let filtered = dcs.filter((dc: any) => {
+      if (dcNo && !dc.dcNumber?.toLowerCase().includes(dcNo.toLowerCase())) return false;
+      if (fromDate) {
+        if (new Date(dc.dcDate) < new Date(fromDate)) return false;
+      }
+      if (toDate) {
+        const to = new Date(toDate);
+        to.setHours(23, 59, 59, 999);
+        if (new Date(dc.dcDate) > to) return false;
+      }
+      const dcCustomerId = String(dc.customerId?._id || dc.customerId);
+      if (customer !== "all" && dcCustomerId !== customer) return false;
+      return true;
+    });
+    filtered.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return filtered;
+  }, [dcs, dcNo, fromDate, toDate, customer]);
 
   const handleClear = () => {
     setDcNo("");
     setFromDate("");
     setToDate("");
     setCustomer("all");
+    setCurrentPage(1);
+  };
+
+  const handleSearch = () => {
+    setCurrentPage(1);
+    if (filteredData.length === 0) {
+      toast({ title: "No Records Found", description: "No DCs matched filters.", variant: "destructive" });
+    }
+  };
+
+  const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+  const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this DC?")) return;
+    try {
+      await customFetch(`/api/delivery-challans/${id}`, { method: "DELETE" });
+      toast({ title: "Deleted", description: "Delivery Challan deleted successfully." });
+      queryClient.invalidateQueries({ queryKey: ["getDeliveryChallans"] });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete DC", variant: "destructive" });
+    }
+  };
+
+  const handleExportCSV = () => {
+    const headers = ["DC No", "Customer", "Site", "Date", "Quantity", "Vehicle"];
+    const rows = filteredData.map((d: any) => {
+      const cust = d.customerName || customerMap[String(d.customerId?._id || d.customerId)]?.name || "-";
+      const site = d.siteName || customerMap[String(d.customerId?._id || d.customerId)]?.address || "-";
+      return [ `"${d.dcNumber}"`, `"${cust}"`, `"${site}"`, `"${d.dcDate ? new Date(d.dcDate).toLocaleDateString("en-IN") : "-"}"`, `"${d.quantity}"`, `"${d.vehicleReg}"` ];
+    });
+    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `dc_hub_export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider">DC Navigation</h3>
         </div>
@@ -145,7 +209,7 @@ export default function DCHub() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col space-y-3 min-w-0">
         {/* Header / Breadcrumb */}
-        <div className="flex items-center justify-between px-1">
+        <div className="flex items-center justify-between px-1 print:hidden">
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-gray-800">DC List</h2>
             <div className="h-4 w-px bg-gray-300 mx-1" />
@@ -169,7 +233,7 @@ export default function DCHub() {
 
         {/* Filters Section */}
         {showFilters && (
-          <div className="bg-white rounded-lg border shadow-sm p-4 grid grid-cols-1 md:grid-cols-5 gap-3 items-end transition-all">
+          <div className="bg-white rounded-lg border shadow-sm p-4 grid grid-cols-1 md:grid-cols-5 gap-3 items-end transition-all print:hidden">
             <div className="space-y-1">
               <Label className="text-[10px] font-bold uppercase text-gray-500">DC No</Label>
               <Input placeholder="Search DC..." className="h-8 text-xs" value={dcNo} onChange={e => setDcNo(e.target.value)} />
@@ -194,20 +258,42 @@ export default function DCHub() {
                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Customers</SelectItem>
+                  {availableCustomers.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold">Search</Button>
+              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold" onClick={handleSearch}>Search</Button>
               <Button size="sm" variant="outline" onClick={handleClear} className="h-8 w-8 p-0"><RotateCcw className="h-3 w-3" /></Button>
             </div>
           </div>
         )}
 
         {/* Table Container */}
-        <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
+        <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden print:border-none print:shadow-none">
+          
+          {/* Printable Header (Only visible during print) */}
+          <div className="hidden print:block mb-6 border-b-2 border-gray-800 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">BM</div>
+                <div>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
+                  <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
+                  <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <h2 className="text-2xl font-bold text-[#1e40af] uppercase">DC Hub List</h2>
+                <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+
           {/* Toolbar */}
-          <div className="px-4 py-2 border-b flex items-center justify-between bg-gray-50/30">
+          <div className="px-4 py-2 border-b flex items-center justify-between bg-gray-50/30 print:hidden">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5 text-xs text-gray-500">
                 <span>Show</span>
@@ -220,79 +306,110 @@ export default function DCHub() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3">
+              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handleExportCSV}>
                 <Download className="h-3 w-3 mr-1.5" /> Export
               </Button>
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3">
+              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handlePrint}>
                 <Printer className="h-3 w-3 mr-1.5" /> Print
               </Button>
             </div>
           </div>
 
           {/* Table Body */}
-          <div className="flex-1 overflow-auto">
-            <Table>
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
-                <TableRow className="hover:bg-transparent border-b">
-                  <TableHead className="w-[100px] text-[10px] font-bold uppercase text-gray-400 py-3 text-center">DC No</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400">Customer & Site</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center">Date</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center">Grade</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right">Quantity</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center">Vehicle</TableHead>
-                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 text-center">Action</TableHead>
+          <div className="flex-1 overflow-auto print:overflow-visible">
+            <Table className="print:text-[10px]">
+              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm print:shadow-none">
+                <TableRow className="hover:bg-transparent border-b print:border-gray-800 print:border-b-2">
+                  <TableHead className="w-[100px] text-[10px] font-bold uppercase text-gray-400 py-3 text-center print:text-black">DC No</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Customer & Site</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Date</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Grade</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right print:text-black">Quantity</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Vehicle</TableHead>
+                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {mockData.map((row) => (
-                  <TableRow key={row.id} className="group hover:bg-gray-50/80 transition-colors">
-                    <TableCell className="text-center py-3 font-bold text-[#1e40af] text-xs">{row.dcNo}</TableCell>
-                    <TableCell className="py-3">
-                      <div className="text-xs font-semibold text-gray-800">{row.customer}</div>
-                      <div className="text-[10px] text-gray-400">{row.site}</div>
-                    </TableCell>
-                    <TableCell className="text-center text-[11px] font-medium py-3 text-gray-600">
-                      {row.date.split("-").reverse().join("/")}
-                      <div className="text-[10px] opacity-50">{row.time}</div>
-                    </TableCell>
-                    <TableCell className="text-center py-3">
-                      <span className="text-[10px] font-bold border border-[#1e40af]/30 text-[#1e40af] px-1.5 py-0.5 rounded-full">{row.grade}</span>
-                    </TableCell>
-                    <TableCell className="text-right font-bold text-xs py-3">{row.quantity} <span className="text-[9px] font-normal text-gray-400 ml-0.5">m³</span></TableCell>
-                    <TableCell className="text-center py-3 font-medium text-[11px] text-gray-700">{row.vehicle}</TableCell>
-                    <TableCell className="text-center py-3">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="text-xs">
-                          <DropdownMenuItem onClick={() => setLocation(`/dc/report?id=${row.id}`)}>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Print DC</DropdownMenuItem>
-                          <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {dcsLoading ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-10"><Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-400" /></TableCell></TableRow>
+                ) : paginatedData.length === 0 ? (
+                  <TableRow><TableCell colSpan={7} className="text-center py-10 text-gray-500">No Delivery Challans found.</TableCell></TableRow>
+                ) : (
+                  (document.body.classList.contains("print-mode") ? filteredData : paginatedData).map((row: any) => {
+                    const custName = row.customerName || customerMap[String(row.customerId?._id || row.customerId)]?.name || "-";
+                    const siteName = row.siteName || customerMap[String(row.customerId?._id || row.customerId)]?.address || "-";
+                    return (
+                      <TableRow key={row.id || row._id} className="group hover:bg-gray-50/80 transition-colors print:border-b print:border-gray-200">
+                        <TableCell className="text-center py-3 font-bold text-[#1e40af] text-xs print:text-black">{row.dcNumber}</TableCell>
+                        <TableCell className="py-3">
+                          <div className="text-xs font-semibold text-gray-800 max-w-[200px] truncate print:whitespace-normal print:max-w-none">{custName}</div>
+                          <div className="text-[10px] text-gray-400 truncate max-w-[200px] print:whitespace-normal print:max-w-none print:text-black">{siteName}</div>
+                        </TableCell>
+                        <TableCell className="text-center text-[11px] font-medium py-3 text-gray-600 print:text-black">
+                          {row.dcDate ? new Date(row.dcDate).toLocaleDateString("en-IN") : "-"}
+                          <div className="text-[10px] opacity-50 print:opacity-100">{row.dcTime || "-"}</div>
+                        </TableCell>
+                        <TableCell className="text-center py-3">
+                          <span className="text-[10px] font-bold border border-[#1e40af]/30 text-[#1e40af] px-1.5 py-0.5 rounded-full print:border-none print:text-black print:p-0">{row.grade}</span>
+                        </TableCell>
+                        <TableCell className="text-right font-bold text-xs py-3 print:text-black">{Number(row.quantity || 0).toFixed(2)} <span className="text-[9px] font-normal text-gray-400 ml-0.5 print:text-black">m³</span></TableCell>
+                        <TableCell className="text-center py-3 font-medium text-[11px] text-gray-700 print:text-black">{row.vehicleReg}</TableCell>
+                        <TableCell className="text-center py-3 print:hidden">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="text-xs">
+                              <DropdownMenuItem onClick={() => setSelectedDC(row)}>View Details</DropdownMenuItem>
+                              <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(row.id || row._id)}>Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t bg-gray-50/30 flex items-center justify-between">
+          <div className="px-4 py-2 border-t bg-gray-50/30 flex items-center justify-between print:hidden">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-              Showing 1 to 2 of 2 entries
+              Showing {filteredData.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length} entries
             </p>
             <div className="flex items-center gap-1">
-              <Button size="sm" variant="outline" disabled className="h-7 text-[10px] font-bold px-2 uppercase">Prev</Button>
-              <Button size="sm" className="h-7 w-7 p-0 text-[10px] font-bold bg-[#1e40af] hover:bg-[#1d4ed8]">1</Button>
-              <Button size="sm" variant="outline" disabled className="h-7 text-[10px] font-bold px-2 uppercase">Next</Button>
+              <Button size="sm" variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} className="h-7 text-[10px] font-bold px-2 uppercase">Prev</Button>
+              <Button size="sm" className="h-7 w-7 p-0 text-[10px] font-bold bg-[#1e40af] hover:bg-[#1d4ed8] text-white">{currentPage}</Button>
+              <Button size="sm" variant="outline" disabled={currentPage >= totalPages || totalPages === 0} onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} className="h-7 text-[10px] font-bold px-2 uppercase">Next</Button>
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={!!selectedDC} onOpenChange={(open) => !open && setSelectedDC(null)}>
+        <DialogContent className="max-w-xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-black text-xl border-b border-slate-100 pb-2">DC Hub View Details</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100 mt-2">
+            <div className="space-y-3">
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">DC Number:</span> <div className="font-medium text-slate-800">{selectedDC?.dcNumber}</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Date & Time:</span> <div className="font-medium text-slate-800">{selectedDC?.dcDate ? new Date(selectedDC.dcDate).toLocaleDateString("en-IN") : "-"} {selectedDC?.dcTime || ""}</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedDC?.customerName || customerMap[String(selectedDC?.customerId?._id || selectedDC?.customerId)]?.name || "-"}</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Site:</span> <div className="font-medium text-slate-800">{selectedDC?.siteName || customerMap[String(selectedDC?.customerId?._id || selectedDC?.customerId)]?.address || "-"}</div></div>
+            </div>
+            <div className="space-y-3">
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Vehicle No:</span> <div className="font-medium text-slate-800">{selectedDC?.vehicleReg || "-"}</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Grade & Qty:</span> <div className="font-medium text-slate-800">{selectedDC?.grade} - {selectedDC?.quantity} m³</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Rate & Amount:</span> <div className="font-medium text-slate-800">₹{selectedDC?.rate || 0} (Net: ₹{Number(selectedDC?.netAmount || 0).toLocaleString("en-IN")})</div></div>
+              <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Plant:</span> <div className="font-medium text-slate-800">{selectedDC?.plant || "-"}</div></div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 // v1.0.2 - Fixed typos and verified logic
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { useGetCustomers, useCreateSalesOrder } from "@workspace/api-client-react";
+import { useGetCustomers, useCreateSalesOrder, useGetEmployees } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +25,17 @@ export default function AddSalesOrder() {
   const queryClient = useQueryClient();
 
   const { data: customers, isLoading: customersLoading } = useGetCustomers();
+  const { data: employees } = useGetEmployees();
+  
+  const salesStaff = useMemo(() => {
+    if (!employees) return [];
+    return employees.filter((e: any) => 
+      e.designation?.toLowerCase().includes("sales") || 
+      e.designation?.toLowerCase().includes("marketing") ||
+      true // fallback to all employees
+    );
+  }, [employees]);
+
   const { mutate: createOrder, isPending: isSubmitting } = useCreateSalesOrder({
     mutation: {
       onSuccess: () => {
@@ -63,6 +74,22 @@ export default function AddSalesOrder() {
   };
   const updateRow = (id: number, field: keyof GradeRow, value: string) => {
     setGradeRows(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
+  const handleCancel = () => {
+    setCustomerId("");
+    setPoNumber("");
+    setPoDate(new Date().toISOString().split('T')[0]);
+    setValidity("");
+    setPlant("All Plant");
+    setSiteName("");
+    setSiteAddress("");
+    setTaxInclude(true);
+    setGstPercent("18.0");
+    setOrderType("OPEN ORDER");
+    setMarketingPerson("FORTUNE CONCRETE");
+    setGradeRows([{ id: 1, grade: "", qty: "", rate: "" }]);
+    toast({ title: "Form Cleared", description: "All inputs have been reset successfully." });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -142,8 +169,8 @@ export default function AddSalesOrder() {
                   <SelectValue placeholder={customersLoading ? "Loading..." : "Choose Customer"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {customers?.map(c => (
-                    <SelectItem key={c.id} value={String(c.id)} className="text-xs">{c.name}</SelectItem>
+                  {customers?.map((c: any) => (
+                    <SelectItem key={c.id || c._id} value={String(c.id || c._id)} className="text-xs">{c.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -203,7 +230,14 @@ export default function AddSalesOrder() {
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Plant <span className="text-rose-500">*</span></Label>
               <Select value={plant} onValueChange={setPlant}>
                 <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="All Plant" className="text-xs">All Plant</SelectItem></SelectContent>
+                <SelectContent>
+                  <SelectItem value="All Plant" className="text-xs">All Plant</SelectItem>
+                  <SelectItem value="Plant A" className="text-xs">Plant A</SelectItem>
+                  <SelectItem value="Plant B" className="text-xs">Plant B</SelectItem>
+                  <SelectItem value="Plant C" className="text-xs">Plant C</SelectItem>
+                  <SelectItem value="Whitefield Plant" className="text-xs">Whitefield Plant</SelectItem>
+                  <SelectItem value="Yelahanka Plant" className="text-xs">Yelahanka Plant</SelectItem>
+                </SelectContent>
               </Select>
             </div>
 
@@ -234,7 +268,12 @@ export default function AddSalesOrder() {
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Marketing Person</Label>
               <Select value={marketingPerson} onValueChange={setMarketingPerson}>
                 <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="FORTUNE CONCRETE" className="text-xs">FORTUNE CONCRETE</SelectItem></SelectContent>
+                <SelectContent>
+                  <SelectItem value="FORTUNE CONCRETE" className="text-xs">FORTUNE CONCRETE</SelectItem>
+                  {salesStaff?.map((e: any) => (
+                    <SelectItem key={e.id || e._id} value={e.name} className="text-xs">{e.name}</SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
             </div>
 
@@ -308,7 +347,7 @@ export default function AddSalesOrder() {
           <div className="flex gap-4 mt-6 justify-end">
             <Button 
               type="button" 
-              onClick={() => navigate("/customer-po/sales-order")} 
+              onClick={handleCancel} 
               variant="outline"
               size="sm"
               className="px-6 h-9 text-xs font-bold uppercase tracking-wider text-gray-500 border-gray-200"

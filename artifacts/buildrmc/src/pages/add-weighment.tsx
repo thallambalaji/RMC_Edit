@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,14 +12,20 @@ import {
 } from "@/components/ui/select";
 import { ChevronRight, ListPlus, Save, RotateCcw, Truck, Info, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  useGetCustomers, 
+  useGetVehicles, 
+  useGetProducts, 
+  useGetEmployees 
+} from "@workspace/api-client-react";
 
 export default function AddWeighment() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
   const [deliveryNo] = useState("DEL1/2627/0257");
-  const [date] = useState("2026-05-09");
-  const [time] = useState("13:28:00");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [plant, setPlant] = useState("FORTUNE CONCRETE");
   
   // Form State
@@ -31,17 +37,99 @@ export default function AddWeighment() {
   const [vehicleNo, setVehicleNo] = useState("");
   const [driver, setDriver] = useState("");
   const [billNo, setBillNo] = useState("");
-  const [emptyWeight] = useState("12040");
+  const [emptyWeight, setEmptyWeight] = useState("");
   const [loadedWeight, setLoadedWeight] = useState("");
 
+  // Live Data
+  const { data: customers } = useGetCustomers();
+  const { data: vehicles } = useGetVehicles();
+  const { data: products } = useGetProducts();
+  const { data: employees } = useGetEmployees();
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setDate(now.toISOString().split('T')[0]);
+      setTime(now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update site and mobile number when customer changes
+  const selectedCustomerData = useMemo(() => {
+    if (!customers || !customer) return null;
+    return customers.find((c: any) => String(c.id || c._id) === customer) as any;
+  }, [customers, customer]);
+
+  useEffect(() => {
+    if (selectedCustomerData) {
+      setMobileNo(selectedCustomerData.contactNumber || selectedCustomerData.phone || selectedCustomerData.mobile || "");
+      if (selectedCustomerData.address) {
+        setSite(selectedCustomerData.address);
+      } else {
+        setSite("");
+      }
+    }
+  }, [selectedCustomerData]);
+
+  const availableCustomers = useMemo(() => {
+    return (customers || []).map((c: any) => ({
+      id: String(c.id || c._id),
+      name: c.name
+    })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  }, [customers]);
+
+  const availableSites = useMemo(() => {
+    if (selectedCustomerData?.address) {
+      return [selectedCustomerData.address];
+    }
+    const sites = new Set<string>();
+    customers?.forEach((c: any) => {
+      if (c.address) sites.add(c.address);
+    });
+    return Array.from(sites).sort();
+  }, [customers, selectedCustomerData]);
+
+  const availableVehicles = useMemo(() => {
+    return (vehicles || []).map((v: any) => {
+      const reg = v.registrationNumber || v.registrationNo || v.vehicleReg || v.vehicleNumber || v.regNo || v.number || v.name || String(v.id || v._id);
+      return {
+        id: String(v.id || v._id),
+        reg: reg
+      };
+    });
+  }, [vehicles]);
+
+  const availableProducts = useMemo(() => {
+    return (products || []).map((p: any) => ({
+      id: String(p.id || p._id),
+      name: p.name || p.grade || String(p.id || p._id)
+    }));
+  }, [products]);
+
+  const availableDrivers = useMemo(() => {
+    return (employees || []).filter((e: any) => !e.role || e.role.toLowerCase() === 'driver' || e.designation?.toLowerCase() === 'driver').map((e: any) => ({
+      id: String(e.id || e._id),
+      name: e.name || e.fullName || String(e.id || e._id)
+    }));
+  }, [employees]);
+
+  const customerName = selectedCustomerData?.name || "-";
+  const customerPhone = mobileNo || "-";
+  const siteAddress = site || "-";
+
+  const selectedProductName = availableProducts.find(p => p.id === grade)?.name || (grade ? grade.toUpperCase() : "-");
+
   const ticketDetails = [
-    { label: "Customer Name", value: customer || "-" },
-    { label: "Customer Phone", value: mobileNo || "-" },
-    { label: "Site Name", value: site || "-" },
-    { label: "Site Address", value: "-" },
-    { label: "Grade", value: grade || "-" },
+    { label: "Customer Name", value: customerName },
+    { label: "Customer Phone", value: customerPhone },
+    { label: "Site Name", value: siteAddress },
+    { label: "Site Address", value: siteAddress },
+    { label: "Grade", value: selectedProductName },
     { label: "Ticket No", value: "TKT-9921" },
-    { label: "Ticket Time", value: "10:30 AM" },
+    { label: "Ticket Time", value: time },
   ];
 
   const handleSave = () => {
@@ -49,7 +137,14 @@ export default function AddWeighment() {
       toast({ title: "Validation Error", description: "Please fill all required fields.", variant: "destructive" });
       return;
     }
-    toast({ title: "Weighment Saved", description: `Record for ${vehicleNo} has been saved successfully.` });
+    const net = (Number(loadedWeight) || 0) - (Number(emptyWeight) || 0);
+    if (net < 0) {
+      toast({ title: "Validation Error", description: "Loaded weight cannot be less than empty weight.", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Weighment Saved", description: `Record has been saved successfully with Net Weight: ${net} KG.` });
+    navigate("/dc/weighment/list");
   };
 
   const handleClear = () => {
@@ -61,6 +156,7 @@ export default function AddWeighment() {
     setVehicleNo("");
     setDriver("");
     setBillNo("");
+    setEmptyWeight("");
     setLoadedWeight("");
     toast({ title: "Form Cleared", description: "All inputs have been reset." });
   };
@@ -108,12 +204,12 @@ export default function AddWeighment() {
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Date</Label>
-                <Input type="date" value={date} readOnly className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
+                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Time</Label>
-                <Input type="time" value={time} readOnly className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
+                <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
               </div>
 
               <div className="space-y-1.5">
@@ -142,8 +238,9 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Customer" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="c1">PRANEETH PRANAV GROVE PARK</SelectItem>
-                    <SelectItem value="c2">ALIENS DEVELOPERS PVT LTD</SelectItem>
+                    {availableCustomers.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -155,8 +252,9 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Site" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="s1">Phase 1 - Hyderabad</SelectItem>
-                    <SelectItem value="s2">Phase 2 - Gachibowli</SelectItem>
+                    {availableSites.map((s, idx) => (
+                      <SelectItem key={idx} value={s}>{s}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -170,9 +268,15 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Product" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="m10">M10</SelectItem>
-                    <SelectItem value="m20">M20</SelectItem>
-                    <SelectItem value="m30">M30</SelectItem>
+                    {availableProducts.length > 0 ? availableProducts.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    )) : (
+                      <>
+                        <SelectItem value="m10">M10</SelectItem>
+                        <SelectItem value="m20">M20</SelectItem>
+                        <SelectItem value="m30">M30</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -191,8 +295,14 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Vehicle" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="v1">TS07UP 1459</SelectItem>
-                    <SelectItem value="v2">TS07UP 1789</SelectItem>
+                    {availableVehicles.length > 0 ? availableVehicles.map(v => (
+                      <SelectItem key={v.id} value={v.id}>{v.reg}</SelectItem>
+                    )) : (
+                      <>
+                        <SelectItem value="v1">TS07UP 1459</SelectItem>
+                        <SelectItem value="v2">TS07UP 1789</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -204,8 +314,14 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Driver" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="d1">Rajesh Kumar</SelectItem>
-                    <SelectItem value="d2">Suresh Singh</SelectItem>
+                    {availableDrivers.length > 0 ? availableDrivers.map(d => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    )) : (
+                      <>
+                        <SelectItem value="d1">Rajesh Kumar</SelectItem>
+                        <SelectItem value="d2">Suresh Singh</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -217,7 +333,13 @@ export default function AddWeighment() {
 
               <div className="space-y-1.5">
                 <Label className="f-label text-amber-600">Empty Weight (KG)</Label>
-                <Input value={emptyWeight} readOnly className="f-input bg-amber-50 border-amber-200 text-amber-700 font-mono font-bold" />
+                <Input 
+                  type="number"
+                  value={emptyWeight} 
+                  onChange={(e) => setEmptyWeight(e.target.value)}
+                  placeholder="Enter Empty Weight"
+                  className="f-input bg-amber-50 border-amber-200 text-amber-700 placeholder:text-amber-300 font-mono font-bold" 
+                />
               </div>
 
               <div className="space-y-1.5">
@@ -226,7 +348,7 @@ export default function AddWeighment() {
                   type="number"
                   value={loadedWeight}
                   onChange={(e) => setLoadedWeight(e.target.value)}
-                  placeholder="Enter Weight" 
+                  placeholder="Enter Loaded Weight" 
                   className="f-input bg-white border-emerald-200 text-emerald-700 placeholder:text-emerald-300 font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.05)]" 
                 />
               </div>
@@ -234,9 +356,9 @@ export default function AddWeighment() {
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-400">Net Weight (KG)</Label>
                 <Input 
-                  value={loadedWeight ? Number(loadedWeight) - Number(emptyWeight) : "0"} 
+                  value={Math.max(0, (Number(loadedWeight) || 0) - (Number(emptyWeight) || 0))} 
                   readOnly 
-                  className="f-input bg-slate-50 border-slate-200 text-slate-400 font-mono" 
+                  className="f-input bg-slate-50 border-slate-200 text-slate-400 font-mono font-bold" 
                 />
               </div>
             </div>

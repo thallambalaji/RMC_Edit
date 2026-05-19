@@ -14,7 +14,7 @@ export default function CustomerSubHub() {
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm">Customer & PO Nav</h3>
         </div>
@@ -76,7 +76,7 @@ export default function CustomerSubHub() {
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 pr-2 overflow-auto pb-10">
-        <div className="mb-4 flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <div className="mb-4 flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Customer Management</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">

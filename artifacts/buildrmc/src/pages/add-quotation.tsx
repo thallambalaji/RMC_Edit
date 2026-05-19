@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -12,8 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, Plus, Trash2, FileText, Sparkles, ListPlus, Send } from "lucide-react";
+import { ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateQuotation } from "@workspace/api-client-react";
+import { format, parseISO } from "date-fns";
 
 interface GradeRow { id: number; grade: string; qty: string; rate: string; recipe: string; cement: string; }
 
@@ -21,7 +22,12 @@ export default function AddQuotation() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
-  // Form state
+  // Suggest a beautiful, unique quotation number by default
+  const [quotationNo, setQuotationNo] = useState(() => {
+    return `QUOT/${format(new Date(), "yyyyMMdd")}/${Math.floor(100 + Math.random() * 900)}`;
+  });
+
+  // Form states
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
@@ -34,10 +40,23 @@ export default function AddQuotation() {
   const [rateIncludeTax, setRateIncludeTax] = useState(true);
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
+  const [dateVal, setDateVal] = useState(format(new Date(), "yyyy-MM-dd"));
 
   const [rows, setRows] = useState<GradeRow[]>([
     { id: 1, grade: "", qty: "", rate: "", recipe: "", cement: "opc" },
   ]);
+
+  const { mutate: createQuotation, isPending } = useCreateQuotation({
+    mutation: {
+      onSuccess: () => {
+        toast({ title: "Quotation Saved! 💾", description: "Your customer quotation has been registered successfully." });
+        navigate("/customer-po/quotation");
+      },
+      onError: (err: any) => {
+        toast({ title: "Submission Failed", description: err.message || "Failed to save quotation to Atlas.", variant: "destructive" });
+      }
+    }
+  });
 
   const addRow = () =>
     setRows(prev => [...prev, { id: Date.now(), grade: "", qty: "", rate: "", recipe: "", cement: "opc" }]);
@@ -58,16 +77,59 @@ export default function AddQuotation() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName || !customerPhone) {
-      toast({ title: "Please fill in the customer name and phone", variant: "destructive" });
+    if (!customerName.trim()) {
+      toast({ title: "Validation Error", description: "Please enter the customer name.", variant: "destructive" });
       return;
     }
-    toast({ title: "Quotation submitted successfully!" });
-    navigate("/customer-po/quotation/list");
+    if (!customerPhone.trim()) {
+      toast({ title: "Validation Error", description: "Please enter a valid phone number.", variant: "destructive" });
+      return;
+    }
+    if (!siteAddress.trim()) {
+      toast({ title: "Validation Error", description: "Please specify the site delivery address.", variant: "destructive" });
+      return;
+    }
+    if (!marketingPerson) {
+      toast({ title: "Validation Error", description: "Please assign a marketing sales person.", variant: "destructive" });
+      return;
+    }
+
+    // Map rows
+    const items = rows.map(r => ({
+      grade: r.grade,
+      quantity: Number(r.qty) || 0,
+      rate: Number(r.rate) || 0,
+      recipeCode: r.recipe || undefined,
+      cementType: r.cement || "OPC"
+    }));
+
+    if (items.some(item => !item.grade || item.quantity <= 0 || item.rate <= 0)) {
+      toast({ title: "Validation Error", description: "Please specify a valid grade, quantity, and rate for all concrete rows.", variant: "destructive" });
+      return;
+    }
+
+    const payload = {
+      quotationNo: quotationNo.trim(),
+      date: format(parseISO(dateVal), "dd/MM/yyyy"),
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
+      customerEmail: customerEmail.trim() || null,
+      customerGstin: customerGstin.trim() || null,
+      siteAddress: siteAddress.trim(),
+      paymentTerms: paymentTerms.trim() || null,
+      pumpCharges: Number(pumpCharges) || null,
+      minPumpQty: Number(minPumpQty) || null,
+      marketingPerson,
+      rateIncludeTax,
+      notes,
+      items
+    };
+
+    createQuotation(payload);
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2";
+  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
   const tableHeaderStyle = "bg-[#1e40af] text-white text-[8px] font-black uppercase py-1.5 px-2 border-r border-white/10 last:border-0 text-center tracking-tighter";
 
   return (
@@ -88,9 +150,11 @@ export default function AddQuotation() {
           </div>
           <div className="flex gap-1.5">
              <Link href="/customer-po/quotation">
-               <Button type="button" variant="outline" className="border-cyan-100 text-[#1e40af] hover:bg-cyan-50 font-black text-[9px] px-3 h-6 uppercase tracking-wider whitespace-nowrap">Customer Quotation List</Button>
+               <Button type="button" variant="outline" className="border-cyan-100 text-[#1e40af] hover:bg-cyan-50 font-black text-[9px] px-3 h-6 uppercase tracking-wider whitespace-nowrap cursor-pointer">Customer Quotation List</Button>
              </Link>
-             <Button type="submit" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0">Submit Quotation</Button>
+             <Button type="submit" disabled={isPending} className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center gap-1">
+               {isPending ? "Saving..." : "Submit Quotation"}
+             </Button>
           </div>
         </div>
 
@@ -99,58 +163,60 @@ export default function AddQuotation() {
           {/* Top Form Grid */}
           <div className="grid grid-cols-4 gap-x-3 gap-y-2 shrink-0 bg-slate-50/50 p-3 rounded-lg border border-slate-100">
              <div>
-               <Label className={labelStyle}>Customer Name <span className="text-rose-500">*</span></Label>
-               <Input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full Name" className={inputStyle} />
+                <Label className={labelStyle}>Customer Name <span className="text-rose-500">*</span></Label>
+                <Input value={customerName} onChange={e => setCustomerName(e.target.value)} placeholder="Full Name" autoComplete="off" className={inputStyle} />
              </div>
              <div>
-               <Label className={labelStyle}>Quotation No</Label>
-               <Input readOnly value="QUOT/2027/001" className={`${inputStyle} bg-gray-100/50 text-gray-500 border-dashed`} />
+                <Label className={labelStyle}>Quotation No <span className="text-rose-500">*</span></Label>
+                <Input value={quotationNo} onChange={e => setQuotationNo(e.target.value)} placeholder="QUOT/YYYYMMDD/123" className={`${inputStyle} text-[#1e40af] font-black border-[#1e40af]/20 focus:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/20`} />
              </div>
              <div>
-               <Label className={labelStyle}>Phone Number <span className="text-rose-500">*</span></Label>
-               <Input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="Contact No" className={inputStyle} />
+                <Label className={labelStyle}>Phone Number <span className="text-rose-500">*</span></Label>
+                <Input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="Contact No" autoComplete="off" className={inputStyle} />
              </div>
              <div>
-               <Label className={labelStyle}>Date</Label>
-               <Input type="date" defaultValue={new Date().toISOString().slice(0, 10)} className={inputStyle} />
+                <Label className={labelStyle}>Date</Label>
+                <Input type="date" value={dateVal} onChange={e => setDateVal(e.target.value)} className={inputStyle} />
              </div>
              
              <div>
-               <Label className={labelStyle}>Pump Charges</Label>
-               <div className="flex gap-1">
-                  <Input value={pumpCharges} onChange={e => setPumpCharges(e.target.value)} placeholder="Amount" className={`${inputStyle} flex-1`} />
-                  <Input value={minPumpQty} onChange={e => setMinPumpQty(e.target.value)} placeholder="Min Qty" className={`${inputStyle} w-16`} />
-               </div>
+                <Label className={labelStyle}>Pump Charges</Label>
+                <div className="flex gap-1">
+                   <Input value={pumpCharges} onChange={e => setPumpCharges(e.target.value)} placeholder="Amount" className={`${inputStyle} flex-1`} />
+                   <Input value={minPumpQty} onChange={e => setMinPumpQty(e.target.value)} placeholder="Min Qty" className={`${inputStyle} w-16`} />
+                </div>
              </div>
              <div>
-               <Label className={labelStyle}>Email Address</Label>
-               <Input value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="Email" className={inputStyle} />
+                <Label className={labelStyle}>Email Address</Label>
+                <Input value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} placeholder="Email" autoComplete="off" className={inputStyle} />
              </div>
              <div>
-               <Label className={labelStyle}>Marketing Person <span className="text-rose-500">*</span></Label>
-               <Select value={marketingPerson} onValueChange={setMarketingPerson}>
-                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Select" /></SelectTrigger>
-                 <SelectContent>
-                   <SelectItem value="fortune" className="text-[10px]">Fortune Concrete</SelectItem>
-                 </SelectContent>
-               </Select>
+                <Label className={labelStyle}>Marketing Person <span className="text-rose-500">*</span></Label>
+                <Select value={marketingPerson} onValueChange={setMarketingPerson}>
+                  <SelectTrigger className={inputStyle}><SelectValue placeholder="Select" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
+                    <SelectItem value="Karan Kumar" className="text-[10px] font-bold">Karan Kumar</SelectItem>
+                    <SelectItem value="Aravind S" className="text-[10px] font-bold">Aravind S</SelectItem>
+                  </SelectContent>
+                </Select>
              </div>
              <div>
-               <Label className={labelStyle}>Payment Terms</Label>
-               <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} placeholder="Ex: 30 Days" className={inputStyle} />
+                <Label className={labelStyle}>Payment Terms</Label>
+                <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} placeholder="Ex: 30 Days" className={inputStyle} />
              </div>
 
              <div className="col-span-2">
-               <Label className={labelStyle}>Site Address <span className="text-rose-500">*</span></Label>
-               <Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} placeholder="Delivery location details..." className={inputStyle} />
+                <Label className={labelStyle}>Site Address <span className="text-rose-500">*</span></Label>
+                <Input value={siteAddress} onChange={e => setSiteAddress(e.target.value)} placeholder="Delivery location details..." autoComplete="off" className={inputStyle} />
              </div>
              <div>
-               <Label className={labelStyle}>GSTIN Number</Label>
-               <Input value={customerGstin} onChange={e => setCustomerGstin(e.target.value)} placeholder="GST Number" className={inputStyle} />
+                <Label className={labelStyle}>GSTIN Number</Label>
+                <Input value={customerGstin} onChange={e => setCustomerGstin(e.target.value)} placeholder="GST Number" autoComplete="off" className={inputStyle} />
              </div>
              <div className="flex items-end pb-1 gap-2">
-                <Checkbox id="tax" checked={rateIncludeTax} onCheckedChange={v => setRateIncludeTax(!!v)} className="h-3 w-3" />
-                <label htmlFor="tax" className="text-[9px] font-black text-gray-700 uppercase cursor-pointer">Rate includes Tax</label>
+                 <Checkbox id="tax" checked={rateIncludeTax} onCheckedChange={v => setRateIncludeTax(!!v)} className="h-3.5 w-3.5 cursor-pointer" />
+                 <label htmlFor="tax" className="text-[9px] font-black text-gray-700 uppercase cursor-pointer select-none">Rate includes Tax</label>
              </div>
           </div>
 
@@ -166,62 +232,68 @@ export default function AddQuotation() {
                 <div className={tableHeaderStyle + " w-8"}></div>
              </div>
              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-100">
-                {rows.map((row, idx) => (
-                  <div key={row.id} className="flex border-b items-center hover:bg-cyan-50/20 group">
-                    <div className="w-10 text-center text-[10px] font-bold text-gray-300 border-r py-1">{idx + 1}</div>
-                    <div className="flex-1 border-r h-full">
-                       <Select value={row.grade} onValueChange={v => updateRow(row.id, "grade", v)}>
-                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                         <SelectContent>
-                           {["M10", "M20", "M25", "M30"].map(g => <SelectItem key={g} value={g} className="text-[10px]">{g}</SelectItem>)}
-                         </SelectContent>
-                       </Select>
-                    </div>
-                    <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-cyan-600 shadow-none px-2" /></div>
-                    <div className="w-24 border-r h-full"><Input value={row.rate} onChange={e => updateRow(row.id, "rate", e.target.value)} className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-bold shadow-none px-2" /></div>
-                    <div className="w-32 border-r h-full">
-                       <Select value={row.recipe} onValueChange={v => updateRow(row.id, "recipe", v)}>
-                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none"><SelectValue placeholder="Recipe" /></SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="r1" className="text-[10px]">CODE_2026_A</SelectItem>
-                         </SelectContent>
-                       </Select>
-                    </div>
-                    <div className="w-24 border-r h-full">
-                       <Select value={row.cement} onValueChange={v => updateRow(row.id, "cement", v)}>
-                         <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue /></SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="opc" className="text-[10px]">OPC</SelectItem>
-                           <SelectItem value="ppc" className="text-[10px]">PPC</SelectItem>
-                         </SelectContent>
-                       </Select>
-                    </div>
-                    <div className="w-8 text-center">
-                       <Button type="button" variant="ghost" onClick={() => removeRow(row.id)} className="h-6 w-6 p-0 text-rose-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="h-3 w-3" /></Button>
-                    </div>
-                  </div>
-                ))}
+                 {rows.map((row, idx) => (
+                   <div key={row.id} className="flex border-b items-center hover:bg-cyan-50/20 group">
+                     <div className="w-10 text-center text-[10px] font-bold text-gray-400 border-r py-1">{idx + 1}</div>
+                     <div className="flex-1 border-r h-full">
+                        <Select value={row.grade} onValueChange={v => updateRow(row.id, "grade", v)}>
+                          <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
+                          <SelectContent>
+                            {["M7.5", "M10", "M15", "M20", "M25", "M30", "M35", "M40"].map(g => <SelectItem key={g} value={g} className="text-[10px] font-bold">{g}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                     </div>
+                     <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} placeholder="0" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-cyan-600 shadow-none px-2" /></div>
+                     <div className="w-24 border-r h-full"><Input value={row.rate} onChange={e => updateRow(row.id, "rate", e.target.value)} placeholder="0.00" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-bold shadow-none px-2 text-emerald-600" /></div>
+                     <div className="w-32 border-r h-full">
+                        <Select value={row.recipe} onValueChange={v => updateRow(row.id, "recipe", v)}>
+                          <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none"><SelectValue placeholder="Recipe" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CODE_2026_A" className="text-[10px] font-bold">CODE_2026_A</SelectItem>
+                            <SelectItem value="CODE_2026_B" className="text-[10px] font-bold">CODE_2026_B</SelectItem>
+                            <SelectItem value="CODE_2026_C" className="text-[10px] font-bold">CODE_2026_C</SelectItem>
+                          </SelectContent>
+                        </Select>
+                     </div>
+                     <div className="w-24 border-r h-full">
+                        <Select value={row.cement} onValueChange={v => updateRow(row.id, "cement", v)}>
+                          <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="opc" className="text-[10px] font-bold">OPC</SelectItem>
+                            <SelectItem value="ppc" className="text-[10px] font-bold">PPC</SelectItem>
+                          </SelectContent>
+                        </Select>
+                     </div>
+                     <div className="w-8 text-center">
+                        <Button type="button" variant="ghost" onClick={() => removeRow(row.id)} className="h-6 w-6 p-0 text-rose-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"><Trash2 className="h-3.5 w-3.5" /></Button>
+                     </div>
+                   </div>
+                 ))}
              </div>
              <div className="p-1 border-t bg-slate-50 flex justify-end shrink-0">
-                <Button type="button" variant="ghost" onClick={addRow} className="h-6 text-[9px] font-black text-[#1e40af] uppercase tracking-wider px-3 hover:bg-white"><Plus className="h-3 w-3 mr-1" /> Add Grade Row</Button>
+                <Button type="button" variant="ghost" onClick={addRow} className="h-6 text-[9px] font-black text-[#1e40af] uppercase tracking-wider px-3 hover:bg-white cursor-pointer"><Plus className="h-3 w-3 mr-1" /> Add Grade Row</Button>
              </div>
           </div>
 
-          {/* Quick Notes Section */}
-          <div className="shrink-0 bg-slate-900 rounded-lg p-2 flex flex-col gap-2">
+          {/* Terms & Conditions Section */}
+          <div className="shrink-0 bg-slate-50 border border-gray-200 rounded-lg p-3 flex flex-col gap-2">
+             <div className="flex flex-col gap-0.5">
+                <Label className="text-[10px] font-black text-gray-700 uppercase tracking-wider">Terms & Conditions (Printed on PDF)</Label>
+                <span className="text-[9px] text-gray-400 font-medium">Add custom terms such as "Validity", "Supply capacity", "Cement brand override", or specific credit clauses that will render on the official proposal PDF layout.</span>
+             </div>
              <div className="flex gap-2">
-                <Input value={note} onChange={e => setNote(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addNote())} placeholder="Add specific terms or conditions..." className="h-7 bg-white/5 border-white/10 text-white text-[10px] flex-1 focus-visible:ring-[#1e40af]" />
-                <Button type="button" onClick={addNote} className="h-7 bg-[#1e40af] hover:bg-[#1d4ed8] text-white text-[9px] font-black px-4 uppercase">Add Term</Button>
+                <Input value={note} onChange={e => setNote(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addNote())} placeholder="Enter specific term details here..." className="h-8 bg-white border-gray-200 text-gray-800 text-[11px] flex-1 font-semibold focus-visible:ring-[#1e40af]" />
+                <Button type="button" onClick={addNote} className="h-8 bg-[#1e40af] hover:bg-blue-800 text-white text-[10px] font-bold px-5 uppercase cursor-pointer tracking-wider shrink-0 shadow-sm">Add Term</Button>
              </div>
              {notes.length > 0 && (
-               <div className="flex flex-wrap gap-1.5 max-h-[40px] overflow-y-auto scrollbar-hide">
-                 {notes.map((n, i) => (
-                   <div key={i} className="bg-white/10 text-white text-[9px] px-2 py-0.5 rounded flex items-center gap-1.5 border border-white/5 font-medium">
-                      <span className="opacity-40">{i+1}.</span> {n}
-                      <Trash2 onClick={() => setNotes(prev => prev.filter((_, idx) => idx !== i))} className="h-2.5 w-2.5 text-rose-400 cursor-pointer hover:text-rose-500" />
-                   </div>
-                 ))}
-               </div>
+                <div className="flex flex-wrap gap-1.5 max-h-[70px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 pt-1">
+                  {notes.map((n, i) => (
+                    <div key={i} className="bg-white text-gray-800 text-[10px] px-2.5 py-1 rounded-md flex items-center gap-2 border border-gray-200/80 font-bold shadow-sm">
+                       <span className="text-[#1e40af] font-black">{i+1}.</span> {n}
+                       <Trash2 onClick={() => setNotes(prev => prev.filter((_, idx) => idx !== i))} className="h-3 w-3 text-red-400 cursor-pointer hover:text-red-600 transition-colors shrink-0" />
+                    </div>
+                  ))}
+                </div>
              )}
           </div>
         </div>

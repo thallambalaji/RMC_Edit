@@ -52,4 +52,19 @@ router.post("/weighment-tickets", async (req, res): Promise<void> => {
   }
 });
 
+router.delete("/weighment-tickets/:id", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const result = await WeighmentTicket.findByIdAndDelete(req.params.id);
+    if (!result) {
+      res.status(404).json({ error: "Ticket not found" });
+      return;
+    }
+    res.json({ message: "Ticket deleted successfully" });
+  } catch (error) {
+    console.error("Failed to delete ticket from MongoDB:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 export default router;

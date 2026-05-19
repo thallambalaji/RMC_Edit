@@ -29,10 +29,10 @@ const navItems = [
   { href: "/billing",     label: "Billing",       icon: FileText },
   { href: "/dc",          label: "DC",            icon: Truck },
   { href: "/sales",       label: "Sales",         icon: BarChart3 },
-  { href: "/qc",          label: "QC",            icon: CheckSquare, comingSoon: true },
+  { href: "/qc",          label: "QC",            icon: CheckSquare },
   { href: "/accounts",    label: "Accounts",      icon: BookOpen,    comingSoon: true },
   { href: "/store",       label: "Store",         icon: Package,     comingSoon: true },
-  { href: "/transport",   label: "Transport",     icon: Bus,         comingSoon: true },
+  { href: "/transport",   label: "Transport",     icon: Bus },
   { href: "/hrm",         label: "HRM",           icon: Users2,      comingSoon: true },
   { href: "/reports",     label: "Reports",       icon: FileBarChart, comingSoon: true },
 ];
@@ -152,9 +152,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f4f7fb" }}>
+    <div className="print:bg-white" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f4f7fb" }}>
       {/* ═══ HEADER ═══════════════════════════════ */}
-      <header style={s.header}>
+      <header className="print:hidden" style={s.header}>
         <div style={s.brandBar}>
           
           <div style={{ display: "flex", alignItems: "center", gap: "16px", flex: 1, minWidth: 0 }}>
@@ -334,7 +334,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* ═══ MAIN CONTENT ══════════════════════════════ */}
-      <main style={{ flex: 1, padding: "16px 28px 28px", maxWidth: "1680px", width: "100%", margin: "0 auto" }}>
+      <main className="print:p-0 print:block" style={{ flex: 1, padding: "16px 28px 28px", maxWidth: "1680px", width: "100%", margin: "0 auto" }}>
         {children}
       </main>
     </div>

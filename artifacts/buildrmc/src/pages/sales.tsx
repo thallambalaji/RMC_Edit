@@ -3,7 +3,9 @@ import { Link } from "wouter";
 import {
   useGetSalesOrders,
   useGetCustomers,
+  customFetch,
 } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +22,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Accordion,
   AccordionContent,
@@ -49,7 +57,9 @@ import {
   Settings,
   TrendingUp,
   Users,
-  CheckCircle2
+  CheckCircle2,
+  Printer,
+  Loader2
 } from "lucide-react";
 import { parse, startOfDay, isValid } from "date-fns";
 
@@ -88,6 +98,9 @@ export default function Sales() {
   const [pageSize, setPageSize] = useState<number>(10);
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+
+  const queryClient = useQueryClient();
 
   // KPI calculations
   const kpis = useMemo(() => {
@@ -147,6 +160,28 @@ export default function Sales() {
     setPage(1);
   };
 
+  const handleSearch = () => {
+    setPage(1);
+    if (filtered.length === 0) {
+      toast({ title: "No Records Found", description: "No sales orders matched filters.", variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: any) => {
+    if (!confirm("Are you sure you want to delete this sales order?")) return;
+    try {
+      await customFetch(`/api/sales-orders/${id}`, { method: "DELETE" });
+      toast({ title: "Deleted", description: "Sales order deleted successfully." });
+      queryClient.invalidateQueries({ queryKey: ["getSalesOrders"] });
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to delete sales order", variant: "destructive" });
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
   const handleExport = (type: "csv" | "copy") => {
     const headers = ["ID", "PO Number", "Customer", "Date", "Items Count", "Status"];
     const rows = filtered.map(o => [
@@ -170,7 +205,7 @@ export default function Sales() {
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm">Sales Navigation</h3>
         </div>
@@ -226,7 +261,7 @@ export default function Sales() {
 
       <div className="flex-1 flex flex-col space-y-3 min-w-0">
         {/* Top Breadcrumb & Actions Row */}
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
+        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
           <div className="flex items-center gap-3">
             <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Dashboard</h2>
             <div className="h-4 w-px bg-gray-300" />
@@ -251,7 +286,7 @@ export default function Sales() {
         </div>
 
         {/* Mini Stats Bar */}
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-4 gap-3 print:hidden">
           <div className="bg-white border rounded-lg p-2 flex items-center gap-3 shadow-sm">
             <div className="p-2 bg-blue-50 rounded-full"><ShoppingCart className="h-4 w-4 text-blue-600" /></div>
             <div>
@@ -286,7 +321,7 @@ export default function Sales() {
         <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
           {/* Table Header / Filters Row */}
           {showFilters && (
-            <div className="p-3 border-b bg-gray-50/50 grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <div className="p-3 border-b bg-gray-50/50 grid grid-cols-1 md:grid-cols-5 gap-3 items-end print:hidden">
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold uppercase text-gray-500">PO Number</Label>
                 <Input 
@@ -297,6 +332,18 @@ export default function Sales() {
                 />
               </div>
               <div className="space-y-1">
+                <Label className="text-[10px] font-bold uppercase text-gray-500">Customer</Label>
+                <Select value={customerFilter} onValueChange={v => {setCustomerFilter(v); setPage(1);}}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Customers</SelectItem>
+                    {customers?.map((c: any) => (
+                      <SelectItem key={c.id || c._id} value={String(c.id || c._id)}>{c.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
                 <Label className="text-[10px] font-bold uppercase text-gray-500">From Date</Label>
                 <Input type="date" className="h-8 text-xs" value={fromDate} onChange={e => {setFromDate(e.target.value); setPage(1);}} />
               </div>
@@ -305,7 +352,7 @@ export default function Sales() {
                 <Input type="date" className="h-8 text-xs" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold">Search</Button>
+                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold" onClick={handleSearch}>Search</Button>
                 <Button size="sm" variant="outline" onClick={handleClear} className="h-8 w-8 p-0"><RotateCcw className="h-3 w-3" /></Button>
               </div>
             </div>
@@ -340,54 +387,54 @@ export default function Sales() {
           </div>
 
           {/* Table Body */}
-          <div className="flex-1 overflow-auto">
-            <Table>
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
-                <TableRow className="hover:bg-transparent border-b">
-                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 py-2">ID</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400">PO Number</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400">Customer</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400">Date</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center">Items</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right">Total Qty</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center">Status</TableHead>
-                  <TableHead className="w-[80px] text-[10px] font-bold uppercase text-gray-400 text-center">Action</TableHead>
+          <div className="flex-1 overflow-auto print:overflow-visible">
+            <Table className="print:text-[10px]">
+              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm print:shadow-none">
+                <TableRow className="hover:bg-transparent border-b print:border-gray-800 print:border-b-2">
+                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 py-2 print:text-black">ID</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">PO Number</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Customer</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Date</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Items</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right print:text-black">Total Qty</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Status</TableHead>
+                  <TableHead className="w-[80px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-10 text-xs">Loading...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={8} className="text-center py-10"><Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-400" /></TableCell></TableRow>
                 ) : pageRows.length === 0 ? (
                   <TableRow><TableCell colSpan={8} className="text-center py-10 text-xs text-gray-500 font-medium">No records matching your filters</TableCell></TableRow>
                 ) : (
-                  pageRows.map((order) => (
-                    <TableRow key={order.id} className="group hover:bg-gray-50/80 transition-colors">
-                      <TableCell className="py-2"><span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{order.id}</span></TableCell>
-                      <TableCell className="font-bold text-[#1e40af] text-xs py-2">{order.poNumber}</TableCell>
+                  (document.body.classList.contains("print-mode") ? filtered : pageRows).map((order) => (
+                    <TableRow key={order.id} className="group hover:bg-gray-50/80 transition-colors print:border-b print:border-gray-200">
+                      <TableCell className="py-2"><span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded print:bg-transparent print:text-black">{order.id}</span></TableCell>
+                      <TableCell className="font-bold text-[#1e40af] text-xs py-2 print:text-black">{order.poNumber}</TableCell>
                       <TableCell className="text-xs py-2">
-                        <div className="font-semibold text-gray-800">{order.customerName}</div>
-                        <div className="text-[10px] text-gray-400 truncate max-w-[200px]">{order.siteAddress || "No site specified"}</div>
+                        <div className="font-semibold text-gray-800 max-w-[200px] truncate print:whitespace-normal print:max-w-none">{order.customerName}</div>
+                        <div className="text-[10px] text-gray-400 truncate max-w-[200px] print:whitespace-normal print:max-w-none print:text-black">{order.siteAddress || "No site specified"}</div>
                       </TableCell>
-                      <TableCell className="text-[11px] font-medium py-2">{order.poDate}</TableCell>
+                      <TableCell className="text-[11px] font-medium py-2 print:text-black">{order.poDate}</TableCell>
                       <TableCell className="text-center py-2">
-                        <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full">{order.items?.length || 0} items</span>
+                        <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full print:border-none print:text-black print:p-0">{order.items?.length || 0} items</span>
                       </TableCell>
-                      <TableCell className="text-right font-bold text-xs py-2">
+                      <TableCell className="text-right font-bold text-xs py-2 print:text-black">
                         {(order.items?.reduce((sum: number, i) => sum + Number(i.quantity), 0) || 0).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-center py-2">
-                        <span className="text-[10px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full uppercase tracking-tighter">Active</span>
+                        <span className="text-[10px] font-bold bg-green-50 text-green-600 px-2 py-0.5 rounded-full uppercase tracking-tighter print:bg-transparent print:text-black print:p-0">Active</span>
                       </TableCell>
-                      <TableCell className="text-center py-2">
+                      <TableCell className="text-center py-2 print:hidden">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 transition-opacity">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="text-xs">
-                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Edit Order</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setSelectedOrder(order)}>View Details</DropdownMenuItem>
+                            <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(order.id)}>Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -399,7 +446,7 @@ export default function Sales() {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2 border-t bg-gray-50/30 flex items-center justify-between">
+          <div className="px-4 py-2 border-t bg-gray-50/30 flex items-center justify-between print:hidden">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
               {totalRows > 0 ? `Showing ${startIdx + 1} to ${Math.min(startIdx + pageSize, totalRows)} of ${totalRows}` : "No records to show"}
             </p>
@@ -408,8 +455,68 @@ export default function Sales() {
               <Button size="sm" variant="outline" disabled={currentPage >= totalPages} onClick={() => setPage(page + 1)} className="h-7 text-[10px] font-bold px-2 uppercase">Next</Button>
             </div>
           </div>
+
+          {/* Printable Footer (Only visible during print) */}
+          <div className="hidden print:flex justify-between items-end mt-12 pt-8 border-t-2 border-gray-800">
+            <div className="text-sm font-bold text-gray-600">
+              Total Sales Orders: {filtered.length} <br/>
+              Total Quantity: {kpis.totalQty.toFixed(2)} m³ <br/>
+              Pending Quantity: {kpis.pendingQty.toFixed(2)} m³
+            </div>
+            <div className="text-center space-y-8">
+              <div className="w-48 border-b border-gray-400"></div>
+              <p className="text-sm font-bold text-gray-800 uppercase">Authorized Signatory</p>
+            </div>
+          </div>
         </div>
       </div>
+
+      <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-black text-xl border-b border-slate-100 pb-2">Sales Order Details - PO: {selectedOrder?.poNumber}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">PO Number:</span> <div className="font-medium text-slate-800">{selectedOrder?.poNumber}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">PO Date:</span> <div className="font-medium text-slate-800">{selectedOrder?.poDate}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedOrder?.customerName}</div></div>
+              </div>
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Site Address:</span> <div className="font-medium text-slate-800">{selectedOrder?.siteAddress || "No site specified"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Status:</span> <div className="font-medium text-emerald-600 font-bold uppercase tracking-wider text-xs">{selectedOrder?.status || "Active"}</div></div>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Order Items</h4>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="font-bold text-xs">Grade</TableHead>
+                      <TableHead className="font-bold text-xs text-right">Quantity</TableHead>
+                      <TableHead className="font-bold text-xs text-right">Rate</TableHead>
+                      <TableHead className="font-bold text-xs text-right">Remaining</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedOrder?.items?.map((item: any, idx: number) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-bold text-blue-700 text-xs">{item.grade}</TableCell>
+                        <TableCell className="text-right text-xs">{item.quantity} m³</TableCell>
+                        <TableCell className="text-right text-xs">₹{item.rate}</TableCell>
+                        <TableCell className="text-right text-xs text-cyan-700 font-semibold">{item.remainingQty} m³</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

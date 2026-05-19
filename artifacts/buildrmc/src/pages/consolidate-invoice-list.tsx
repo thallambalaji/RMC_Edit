@@ -53,9 +53,7 @@ import {
   RotateCcw,
   Printer,
   Download,
-  Eye,
   X,
-  MoreHorizontal,
   FileBarChart,
   Copy,
   Trash2,
@@ -544,27 +542,7 @@ export default function ConsolidateInvoiceList() {
                     </td>
                     <td className="py-2.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        {/* 1. View (Eye Icon) */}
-                        <Button 
-                          onClick={() => setViewInv(inv)}
-                          title="View Details" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-
-                        {/* 2. Edit (Pencil Icon) */}
-                        <Button 
-                          onClick={() => handleEditRow(inv)}
-                          title="Edit Record" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        {/* 3. Print (Printer Icon) */}
+                        {/* 1. Print (Printer Icon) */}
                         <Button 
                           onClick={() => handleRowPrint(inv)}
                           title="Print Invoice" 
@@ -574,7 +552,7 @@ export default function ConsolidateInvoiceList() {
                           <Printer className="h-4 w-4" />
                         </Button>
 
-                        {/* 4. CSV (Download Icon) */}
+                        {/* 2. CSV (Download Icon) */}
                         <Button 
                           onClick={() => handleRowCSV(inv)}
                           title="Download CSV" 
@@ -584,7 +562,7 @@ export default function ConsolidateInvoiceList() {
                           <Download className="h-4 w-4" />
                         </Button>
 
-                        {/* 5. Copy (Copy Icon) */}
+                        {/* 3. Copy (Copy Icon) */}
                         <Button 
                           onClick={() => handleRowCopy(inv)}
                           title="Copy Details" 
@@ -594,7 +572,17 @@ export default function ConsolidateInvoiceList() {
                           <Copy className="h-4 w-4" />
                         </Button>
 
-                        {/* 6. Delete (Trash Icon) */}
+                        {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                        <Button 
+                          onClick={() => setViewInv(inv)}
+                          title="Edit Record" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
                         <Button 
                           onClick={() => setDeleteId(inv.id)}
                           title="Delete Record" 

@@ -6,12 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Dialog,
   DialogContent,
@@ -43,7 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, Search, RotateCcw, Files, MoreHorizontal, Printer, Download, Copy, Trash2, Eye } from "lucide-react";
+import { ChevronRight, Search, RotateCcw, Files, Printer, Download, Copy, Trash2, Pencil } from "lucide-react";
 
 export default function ConsolidateSalesDocumentList() {
   const queryClient = useQueryClient();
@@ -301,27 +296,57 @@ export default function ConsolidateSalesDocumentList() {
                     <TableCell className="text-center text-slate-600">1</TableCell>
                     <TableCell className="text-center text-slate-600">{inv.plant || "—"}</TableCell>
                     <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-[#1e40af] hover:bg-blue-50 rounded-full">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-md rounded-xl">
-                          <DropdownMenuItem onClick={() => handleRowPrint(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-blue-50 focus:text-[#1e40af]">
-                            <Printer className="h-3.5 w-3.5 mr-2" /> PDF / Print
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCSVRow(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-emerald-50 focus:text-emerald-600">
-                            <Download className="h-3.5 w-3.5 mr-2" /> CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopyRow(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-amber-50 focus:text-amber-600">
-                            <Copy className="h-3.5 w-3.5 mr-2" /> Copy
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteId(inv.id)} className="text-xs font-semibold text-rose-600 cursor-pointer py-2 focus:bg-rose-50 focus:text-rose-700">
-                            <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handleRowPrint(inv)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleCSVRow(inv)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopyRow(inv)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens viewInv details */}
+                        <Button 
+                          onClick={() => setViewInv(inv)}
+                          title="Edit Document" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => setDeleteId(inv.id)}
+                          title="Delete Document" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

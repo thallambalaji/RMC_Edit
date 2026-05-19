@@ -49,7 +49,6 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ChevronRight, 
   Plus, 
-  MoreHorizontal, 
   Search, 
   RotateCcw, 
   Download, 
@@ -63,7 +62,8 @@ import {
   X,
   Copy,
   FileText,
-  Eye
+  Pencil,
+  Trash2
 } from "lucide-react";
 
 function startOfDay(d: Date) {
@@ -552,24 +552,57 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
                         </div>
                       </TableCell>
                       <TableCell className="text-center py-2.5 no-print">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <MoreHorizontal className="h-4 w-4 text-slate-500" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="text-xs">
-                            <DropdownMenuItem className="cursor-pointer font-semibold gap-1.5" onClick={() => setViewInv(inv)}>
-                              <Eye className="h-3.5 w-3.5" /> View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer text-slate-700 font-semibold gap-1.5" onClick={() => handleRowPrint(inv)}>
-                              <Printer className="h-3.5 w-3.5" /> Print / PDF
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 font-semibold cursor-pointer gap-1.5" onClick={() => handleDelete(inv.id)}>
-                              <AlertCircle className="h-3.5 w-3.5" /> Delete Invoice
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* 1. Print (Printer Icon) */}
+                          <Button 
+                            onClick={() => handleRowPrint(inv)}
+                            title="Print PDF" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+
+                          {/* 2. CSV (Download Icon) */}
+                          <Button 
+                            onClick={() => handleCSVSingle(inv)}
+                            title="Download CSV" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                          {/* 3. Copy (Copy Icon) */}
+                          <Button 
+                            onClick={() => handleCopySingle(inv)}
+                            title="Copy Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+
+                          {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                          <Button 
+                            onClick={() => setViewInv(inv)}
+                            title="Edit Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
+                          <Button 
+                            onClick={() => handleDelete(inv.id)}
+                            title="Delete Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

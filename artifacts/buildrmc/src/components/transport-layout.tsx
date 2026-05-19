@@ -44,7 +44,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
 
   // Determine default value for accordion based on current path
   const getDefaultAccordions = () => {
-    return ["master", "driver", "pump", "diesel", "setting", "security"];
+    return [];
   };
 
   return (
@@ -111,7 +111,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
                 <div className="flex flex-col space-y-1.5 px-2">
                   <Link href="/transport/driver/new">
                     <div className={getLinkClass("/transport/driver/new")}>
-                      <span>Drivers</span>
+                      <span>New Drivers</span>
                       <Plus className="h-3 w-3 opacity-60" />
                     </div>
                   </Link>
@@ -201,7 +201,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
                 <div className="flex flex-col space-y-1.5 px-2">
                   <Link href="/transport/settings">
                     <div className={getLinkClass("/transport/settings")}>
-                      <span>Transport Setting</span>
+                      <span>General setting</span>
                       <ChevronRight className="h-3 w-3 opacity-60" />
                     </div>
                   </Link>
@@ -223,7 +223,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
                 <div className="flex flex-col space-y-1.5 px-2">
                   <Link href="/transport/security/new">
                     <div className={getLinkClass("/transport/security/new")}>
-                      <span>Security Check</span>
+                      <span>Add Security Check</span>
                       <Plus className="h-3 w-3 opacity-60" />
                     </div>
                   </Link>
@@ -249,33 +249,65 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col space-y-3 min-w-0">
         {/* Header Breadcrumbs Row */}
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
-          <div className="flex items-center gap-3">
-            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">
+        <div className="flex items-center justify-between bg-white py-3.5 px-5 rounded-lg border border-slate-200 shadow-sm shrink-0 print:hidden">
+          <div className="flex items-center">
+            <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-wider select-none">
               {title}
             </h2>
-            <div className="h-4 w-px bg-gray-300" />
-            <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">
-                Home
+            <div className="h-4 w-px bg-slate-300 mx-4" />
+            <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
+              <Link href="/dashboard" className="hover:text-blue-600 transition-colors">
+                HOME
               </Link>
-              <ChevronRight className="h-2.5 w-2.5" />
-              <Link href="/transport/vehicle/list" className="hover:text-[#1e40af] transition-colors">
-                Transport
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <Link href="/transport/vehicle/list" className="hover:text-blue-600 transition-colors">
+                TRANSPORT
               </Link>
-              {breadcrumbs.map((b, index) => (
-                <div key={index} className="flex items-center gap-1">
-                  <ChevronRight className="h-2.5 w-2.5" />
-                  {b.href ? (
-                    <Link href={b.href} className="hover:text-[#1e40af] transition-colors">
-                      {b.label}
-                    </Link>
-                  ) : (
-                    <span className="text-[#1e40af]">{b.label}</span>
-                  )}
-                </div>
-              ))}
+              {breadcrumbs.map((b, index) => {
+                const isLast = index === breadcrumbs.length - 1;
+                return (
+                  <div key={index} className="flex items-center">
+                    <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+                    {isLast ? (
+                      <span className="text-blue-600 font-black">{b.label.toUpperCase()}</span>
+                    ) : (
+                      b.href ? (
+                        <Link href={b.href} className="hover:text-blue-600 transition-colors">
+                          {b.label.toUpperCase()}
+                        </Link>
+                      ) : (
+                        <span>{b.label.toUpperCase()}</span>
+                      )
+                    )}
+                  </div>
+                );
+              })}
             </nav>
+          </div>
+
+          {/* Filters Button matching the screenshot */}
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-slate-700"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+            </Button>
           </div>
         </div>
 

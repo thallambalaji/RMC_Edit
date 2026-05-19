@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
-  ChevronRight, Plus, Search, RotateCcw, Trash2, Eye,
-  Download, Printer, FileText, X,
+  ChevronRight, Plus, Search, RotateCcw, Trash2, Pencil,
+  Download, Printer, FileText, X, Copy,
 } from "lucide-react";
 
 export default function SalesDocumentList() {
@@ -159,6 +159,31 @@ export default function SalesDocumentList() {
     document.title = "Sales Document List - BuildRMC Enterprises";
     window.print();
     setTimeout(() => { document.title = prevTitle; }, 1000);
+  };
+
+  const handlePrintSingle = (inv: any) => {
+    setViewInv(inv);
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  };
+
+  const handleExportSingleCSV = (inv: any) => {
+    const rows = [["Field","Value"],["Invoice No", inv.invoiceNumber],["Date", inv.invoiceDate],
+      ["Customer", inv.customerName],["Site", inv.site],["Vehicle", inv.vehicleNo],
+      ["Plant", inv.plant],["Net Amount", inv.totalAmount]];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `${inv.invoiceNumber}.csv`;
+    a.click();
+    toast({ title: "CSV Downloaded" });
+  };
+
+  const handleCopySingle = (inv: any) => {
+    const text = `Invoice No: ${inv.invoiceNumber}\nDate: ${inv.invoiceDate}\nCustomer: ${inv.customerName}\nSite: ${inv.site || ""}\nVehicle: ${inv.vehicleNo || ""}\nNet Amount: ₹${inv.totalAmount}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Invoice details copied to clipboard." });
   };
 
   return (
@@ -361,14 +386,55 @@ export default function SalesDocumentList() {
                       <TableCell className="text-right font-black text-slate-900">₹{net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell className="text-slate-600">{inv.plant || "—"}</TableCell>
                       <TableCell className="text-center no-print">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button onClick={() => setViewInv(inv)} variant="ghost" size="icon"
-                            className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded-full" title="View Details">
-                            <Eye className="w-4 h-4" />
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* 1. Print (Printer Icon) */}
+                          <Button 
+                            onClick={() => handlePrintSingle(inv)}
+                            title="Print PDF" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Printer className="h-4 w-4" />
                           </Button>
-                          <Button onClick={() => handleDelete(inv.id)} variant="ghost" size="icon"
-                            className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded-full" title="Delete">
-                            <Trash2 className="w-4 h-4" />
+
+                          {/* 2. CSV (Download Icon) */}
+                          <Button 
+                            onClick={() => handleExportSingleCSV(inv)}
+                            title="Download CSV" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                          {/* 3. Copy (Copy Icon) */}
+                          <Button 
+                            onClick={() => handleCopySingle(inv)}
+                            title="Copy Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+
+                          {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                          <Button 
+                            onClick={() => setViewInv(inv)}
+                            title="Edit Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
+                          <Button 
+                            onClick={() => handleDelete(inv.id)}
+                            title="Delete Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

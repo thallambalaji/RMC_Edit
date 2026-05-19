@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,141 +11,824 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
-import { Flame, DollarSign, BarChart3, TrendingUp } from "lucide-react";
+import {
+  FileText,
+  Copy,
+  FileSpreadsheet,
+  Trash2,
+} from "lucide-react";
+
+interface EngineData {
+  engineType: string;
+  calculationType: string;
+  opening: number;
+  closing: number;
+}
 
 interface FuelData {
-  id?: string;
   _id?: string;
+  id?: string;
+  plant?: string;
   date: string;
   vehicleNo: string;
+  driverName?: string;
   litres: number;
+  takenFrom?: string;
+  dieselRate?: number;
   amount: number;
+  pumpOperator: string;
+  engines?: EngineData[];
 }
 
 export default function DieselReport() {
+  const { toast } = useToast();
   const [logs, setLogs] = useState<FuelData[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Form Filter State
+  const [reportType, setReportType] = useState("Date Wise Consumption Report");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [plant, setPlant] = useState("All plant");
+
+  // Display results state (only populated on Generate click)
+  const [reportResults, setReportResults] = useState<FuelData[]>([]);
+  const [hasGenerated, setHasGenerated] = useState(false);
+
+  const fetchLogs = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/diesel-consumptions");
+      if (res.ok) {
+        const data = await res.json();
+        setLogs(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await fetch("/api/diesel-consumptions");
-        if (res.ok) {
-          const data = await res.json();
-          setLogs(data);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
     fetchLogs();
   }, []);
 
-  // Compute Aggregates
-  const summary = useMemo(() => {
-    const totalLitres = logs.reduce((sum, l) => sum + l.litres, 0);
-    const totalAmount = logs.reduce((sum, l) => sum + l.amount, 0);
-    const avgCost = totalLitres > 0 ? totalAmount / totalLitres : 0;
+  const handleClear = () => {
+    setReportType("Date Wise Consumption Report");
+    setFromDate("");
+    setToDate("");
+    setPlant("All plant");
+    setReportResults([]);
+    setHasGenerated(false);
+  };
 
-    // Vehicle aggregation
-    const vehicleMap: Record<string, { litres: number; amount: number; count: number }> = {};
-    logs.forEach((l) => {
-      if (!vehicleMap[l.vehicleNo]) {
-        vehicleMap[l.vehicleNo] = { litres: 0, amount: 0, count: 0 };
+  const handleGenerate = () => {
+    setLoading(true);
+    // Filter logs based on selection
+    const filtered = logs.filter((l) => {
+      // Plant filter
+      if (plant !== "All plant") {
+        const itemPlant = l.plant || "Fortune Concrete";
+        if (itemPlant.toLowerCase() !== plant.toLowerCase()) {
+          return false;
+        }
       }
-      vehicleMap[l.vehicleNo].litres += l.litres;
-      vehicleMap[l.vehicleNo].amount += l.amount;
-      vehicleMap[l.vehicleNo].count += 1;
+      // From date filter
+      if (fromDate) {
+        const itemDate = new Date(l.date);
+        const fDate = new Date(fromDate);
+        if (itemDate < fDate) return false;
+      }
+      // To date filter
+      if (toDate) {
+        const itemDate = new Date(l.date);
+        const tDate = new Date(toDate);
+        if (itemDate > tDate) return false;
+      }
+      return true;
     });
 
-    const vehicleSummary = Object.entries(vehicleMap).map(([reg, data]) => ({
-      vehicleNo: reg,
-      totalLitres: data.litres,
-      totalAmount: data.amount,
-      avgRefuel: data.litres / data.count,
-    }));
+    // Apply sorting/grouping based on reportType
+    let processed = [...filtered];
+    if (reportType === "Date Wise Consumption Report") {
+      processed.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    } else if (reportType === "Date With Vehicle Wise Consumption Report") {
+      // Sort by Vehicle then by Date
+      processed.sort((a, b) => {
+        if (a.vehicleNo !== b.vehicleNo) {
+          return a.vehicleNo.localeCompare(b.vehicleNo);
+        }
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+    }
 
-    return { totalLitres, totalAmount, avgCost, vehicleSummary };
-  }, [logs]);
+    setReportResults(processed);
+    setHasGenerated(true);
+    setLoading(false);
+
+    toast({
+      title: "Report Generated",
+      description: `Found ${processed.length} matching entries.`,
+    });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this fuel record from the database?")) return;
+    try {
+      const res = await fetch(`/api/diesel-consumptions/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast({
+          title: "Log Deleted",
+          description: "Fuel record deleted successfully.",
+        });
+        // Remove from list & results
+        setLogs(prev => prev.filter(item => item._id !== id && item.id !== id));
+        setReportResults(prev => prev.filter(item => item._id !== id && item.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Helper date formatter: YYYY-MM-DD to DD/MM/YYYY
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    if (dateStr.includes("/")) return dateStr;
+    const parts = dateStr.split("-");
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  };
+
+  // Individual Actions
+  const printSingleLog = (item: FuelData) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const engineRowsHtml = item.engines && item.engines.length > 0
+      ? item.engines.map((eng, idx) => `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${idx + 1}</td>
+            <td style="padding: 8px; border: 1px solid #ddd;">${eng.engineType}</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${eng.calculationType}</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${eng.opening}</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${eng.closing}</td>
+            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${Number(eng.closing || 0) - Number(eng.opening || 0)}</td>
+          </tr>
+        `).join("")
+      : `<tr><td colspan="6" style="padding: 8px; border: 1px solid #ddd; text-align: center; color: #777;">No Engine Readings Registered</td></tr>`;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Diesel Log - ${item.vehicleNo}</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
+            .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+            .logo-container { margin-right: 20px; }
+            .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+            .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
+            .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 25px 0; letter-spacing: 1px; color: #222; }
+            .grid-info { display: grid; grid-template-cols: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+            .info-box { border: 1px solid #eee; padding: 12px; border-radius: 4px; background: #fafafa; }
+            .info-box p { margin: 6px 0; font-size: 12px; }
+            .info-box strong { color: #555; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
+            th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+            td { border: 1px solid #eee; padding: 8px; }
+            .footer-sigs { display: flex; justify-content: space-between; margin-top: 80px; }
+            .sig-line { width: 200px; border-top: 1px dashed #999; text-align: center; font-size: 11px; padding-top: 8px; color: #666; font-weight: 600; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo-container">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="company-details">
+              <h1>${(item.plant || "Fortune Concrete").toUpperCase()}</h1>
+              <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
+              <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+            </div>
+          </div>
+          <div class="doc-title">Diesel Consumption Log</div>
+          <div class="grid-info">
+            <div class="info-box">
+              <p><strong>Log ID:</strong> ${item._id || item.id || "N/A"}</p>
+              <p><strong>Consumption Date:</strong> ${formatDate(item.date)}</p>
+              <p><strong>Plant Name:</strong> ${item.plant || "Fortune Concrete"}</p>
+              <p><strong>Fuel Pump Source:</strong> ${item.takenFrom === "From Plant Stock" ? "Stock" : (item.takenFrom || "Stock")}</p>
+            </div>
+            <div class="info-box">
+              <p><strong>Vehicle Number:</strong> ${item.vehicleNo}</p>
+              <p><strong>Driver Name:</strong> ${item.driverName || item.pumpOperator || "Super Admin"}</p>
+              <p><strong>Quantity:</strong> ${item.litres} Liters</p>
+              <p><strong>Diesel Rate:</strong> ₹${item.dieselRate || 0} / L</p>
+              <p><strong>Total Amount:</strong> ₹${item.amount?.toLocaleString() || 0}</p>
+            </div>
+          </div>
+
+          <div style="font-weight: 800; font-size: 13px; margin-bottom: 8px; color: #222; text-transform: uppercase; letter-spacing: 0.5px;">Engine Readings Details</div>
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Engine Type</th>
+                <th>Calculation Type</th>
+                <th style="text-align: right;">Opening Reading</th>
+                <th style="text-align: right;">Closing Reading</th>
+                <th style="text-align: right;">Net Run</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${engineRowsHtml}
+            </tbody>
+          </table>
+
+          <div class="footer-sigs">
+            <div class="sig-line">Pump Operator / Prepared By</div>
+            <div class="sig-line">Authorized Signatory</div>
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() { window.close(); };
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const copySingleLog = (item: FuelData) => {
+    const text = `Date: ${formatDate(item.date)}\tVehicle No: ${item.vehicleNo}\tQuantity: ${item.litres} Ltrs\tRate: ₹${item.dieselRate || 0}\tAmount: ₹${item.amount}\tPlant: ${item.plant || "Fortune Concrete"}\tTaken From: ${item.takenFrom || "Stock"}\tDriver: ${item.driverName || item.pumpOperator || "Super Admin"}`;
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied Details",
+      description: "Single log details copied to clipboard.",
+    });
+  };
+
+  const downloadSingleCSV = (item: FuelData) => {
+    const headers = "Vehicle No,Date,Quantity,Rate,Amount,Driver,Plant,Taken From";
+    const row = `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || "Fortune Concrete"}","${item.takenFrom || "Stock"}"`;
+    const csvContent = "data:text/csv;charset=utf-8," + [headers, row].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `diesel_log_${item.vehicleNo}_${item.date}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Global Exports for all listed data
+  const printAllLogs = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    // Check if consolidation report
+    if (reportType === "Diesel Consolidate Report") {
+      const consolidated = getConsolidatedData();
+      const rowsHtml = consolidated.map((item, idx) => `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: center;">${idx + 1}</td>
+          <td style="padding: 8px; border: 1px solid #eee; font-weight: bold;">${item.vehicleNo}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right; font-weight: bold;">${item.totalVolume.toFixed(1)} Ltrs</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right; font-weight: bold;">₹${item.totalCost.toLocaleString()}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right;">${item.avgRefuel.toFixed(1)} Ltrs</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: center;">${item.tripCount}</td>
+        </tr>
+      `).join("");
+
+      const grandVolume = consolidated.reduce((sum, i) => sum + i.totalVolume, 0);
+      const grandCost = consolidated.reduce((sum, i) => sum + i.totalCost, 0);
+
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Diesel Consolidate Report</title>
+            <style>
+              body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
+              .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+              .logo-container { margin-right: 20px; }
+              .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+              .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
+              .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 20px 0; letter-spacing: 1px; color: #222; }
+              .report-meta { font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; background: #fafafa; padding: 12px; border: 1px solid #eee; }
+              table { width: 100%; border-collapse: collapse; font-size: 11px; }
+              th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+              td { border: 1px solid #eee; padding: 8px; }
+              .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #00c0a5; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="logo-container">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                  <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                  <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="company-details">
+                <h1>BUILD RMC REPORTS</h1>
+                <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
+                <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+              </div>
+            </div>
+            <div class="doc-title">Diesel Consolidate Report</div>
+            <div class="report-meta">
+              Report Generated: ${new Date().toLocaleDateString()} | 
+              Plant: ${plant} | 
+              From Date: ${fromDate || "Initial"} | To Date: ${toDate || "Latest"}
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Vehicle No</th>
+                  <th style="text-align: right;">Total Volume (Ltrs)</th>
+                  <th style="text-align: right;">Total Cost (₹)</th>
+                  <th style="text-align: right;">Avg Refuel Size</th>
+                  <th style="text-align: center;">Trip Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+                <tr class="summary-row">
+                  <td colspan="2" style="text-align: right;">TOTAL:</td>
+                  <td style="text-align: right;">${grandVolume.toFixed(1)} Ltrs</td>
+                  <td style="text-align: right;">₹${grandCost.toLocaleString()}</td>
+                  <td colspan="2"></td>
+                </tr>
+              </tbody>
+            </table>
+            <script>
+              window.onload = function() {
+                window.print();
+                window.onafterprint = function() { window.close(); };
+              }
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      return;
+    }
+
+    // Default Date Wise or Date with Vehicle Wise
+    const rowsHtml = reportResults.map((item, idx) => {
+      const enginesSummary = item.engines && item.engines.length > 0
+        ? item.engines.map(e => `${e.engineType} (${e.opening} - ${e.closing} ${e.calculationType})`).join("<br/>")
+        : "N/A";
+      return `
+        <tr>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: center;">${idx + 1}</td>
+          <td style="padding: 8px; border: 1px solid #eee;">${item.vehicleNo}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: center;">${formatDate(item.date)}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right; font-weight: bold;">${item.litres}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right;">₹${item.dieselRate || 0}</td>
+          <td style="padding: 8px; border: 1px solid #eee; text-align: right; font-weight: bold;">₹${item.amount?.toLocaleString() || 0}</td>
+          <td style="padding: 8px; border: 1px solid #eee;">${item.driverName || item.pumpOperator || "Super Admin"}</td>
+          <td style="padding: 8px; border: 1px solid #eee;">${item.plant || "Fortune Concrete"}</td>
+          <td style="padding: 8px; border: 1px solid #eee; font-size: 10px; color: #555;">${enginesSummary}</td>
+        </tr>
+      `;
+    }).join("");
+
+    const grandVolume = reportResults.reduce((sum, item) => sum + item.litres, 0);
+    const grandCost = reportResults.reduce((sum, item) => sum + (item.amount || 0), 0);
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Diesel Consumption Report</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
+            .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+            .logo-container { margin-right: 20px; }
+            .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+            .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
+            .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 20px 0; letter-spacing: 1px; color: #222; }
+            .report-meta { font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; background: #fafafa; padding: 12px; border: 1px solid #eee; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+            td { border: 1px solid #eee; padding: 8px; }
+            .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #00c0a5; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo-container">
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
+                <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="company-details">
+              <h1>BUILD RMC REPORTS</h1>
+              <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
+              <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+            </div>
+          </div>
+          <div class="doc-title">${reportType}</div>
+          <div class="report-meta">
+            Report Generated: ${new Date().toLocaleDateString()} | 
+            Plant: ${plant} | 
+            From Date: ${fromDate || "Initial"} | To Date: ${toDate || "Latest"}
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Vehicle No</th>
+                <th>Date</th>
+                <th style="text-align: right;">Quantity (Ltrs)</th>
+                <th style="text-align: right;">Rate (₹)</th>
+                <th style="text-align: right;">Total Amount</th>
+                <th>Driver/Operator</th>
+                <th>Plant</th>
+                <th>Engine Readings</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+              <tr class="summary-row">
+                <td colspan="3" style="text-align: right;">TOTAL:</td>
+                <td style="text-align: right;">${grandVolume.toFixed(1)} Ltrs</td>
+                <td></td>
+                <td style="text-align: right;">₹${grandCost.toLocaleString()}</td>
+                <td colspan="3"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              window.onafterprint = function() { window.close(); };
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const copyAllLogs = () => {
+    if (reportType === "Diesel Consolidate Report") {
+      const consolidated = getConsolidatedData();
+      const headers = "Vehicle No\tTotal Volume (Ltrs)\tTotal Cost (₹)\tAvg Refuel\tTrip Count";
+      const rows = consolidated.map(item =>
+        `${item.vehicleNo}\t${item.totalVolume.toFixed(1)}\t${item.totalCost}\t${item.avgRefuel.toFixed(1)}\t${item.tripCount}`
+      ).join("\n");
+      navigator.clipboard.writeText(`${headers}\n${rows}`);
+    } else {
+      const headers = "Vehicle No\tDate\tQuantity (Ltrs)\tRate (₹)\tAmount (₹)\tDriver\tPlant\tTaken From";
+      const rows = reportResults.map(item =>
+        `${item.vehicleNo}\t${formatDate(item.date)}\t${item.litres}\t${item.dieselRate || 0}\t${item.amount || 0}\t${item.driverName || item.pumpOperator || "Super Admin"}\t${item.plant || "Fortune Concrete"}\t${item.takenFrom || "Stock"}`
+      ).join("\n");
+      navigator.clipboard.writeText(`${headers}\n${rows}`);
+    }
+
+    toast({
+      title: "Copied All",
+      description: "All report logs copied to clipboard.",
+    });
+  };
+
+  const downloadAllCSV = () => {
+    let csvContent = "";
+    if (reportType === "Diesel Consolidate Report") {
+      const consolidated = getConsolidatedData();
+      const headers = "Vehicle No,Total Volume (Ltrs),Total Cost (₹),Avg Refuel,Trip Count";
+      const rows = consolidated.map(item =>
+        `"${item.vehicleNo}",${item.totalVolume.toFixed(1)},${item.totalCost},${item.avgRefuel.toFixed(1)},${item.tripCount}`
+      );
+      csvContent = [headers, ...rows].join("\n");
+    } else {
+      const headers = "Vehicle No,Date,Quantity (Ltrs),Rate (₹),Amount (₹),Driver,Plant,Taken From";
+      const rows = reportResults.map(item =>
+        `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || "Fortune Concrete"}","${item.takenFrom || "Stock"}"`
+      );
+      csvContent = [headers, ...rows].join("\n");
+    }
+
+    const encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `diesel_consumption_report.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export Completed",
+      description: "CSV file downloaded successfully.",
+    });
+  };
+
+  // Consolidation calculation helper
+  const getConsolidatedData = () => {
+    const map: Record<string, { totalVolume: number; totalCost: number; tripCount: number }> = {};
+    reportResults.forEach((l) => {
+      if (!map[l.vehicleNo]) {
+        map[l.vehicleNo] = { totalVolume: 0, totalCost: 0, tripCount: 0 };
+      }
+      map[l.vehicleNo].totalVolume += l.litres;
+      map[l.vehicleNo].totalCost += l.amount || 0;
+      map[l.vehicleNo].tripCount += 1;
+    });
+
+    return Object.entries(map).map(([vehicleNo, d]) => ({
+      vehicleNo,
+      totalVolume: d.totalVolume,
+      totalCost: d.totalCost,
+      tripCount: d.tripCount,
+      avgRefuel: d.totalVolume / d.tripCount,
+    }));
+  };
 
   return (
     <TransportLayout
-      breadcrumbs={[{ label: "Diesel Consumption" }, { label: "Consumption Report" }]}
+      breadcrumbs={[
+        { label: "Diesel Consumption" },
+        { label: "Diesel Consumption Report" }
+      ]}
       title="DIESEL CONSUMPTION REPORT"
       activePath="/transport/diesel/report"
     >
-      <div className="space-y-4 flex-1 overflow-auto max-h-full hide-scrollbar">
-        {/* KPI Cards */}
-        <div className="grid grid-cols-3 gap-4 shrink-0">
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-amber-50 rounded-full">
-              <Flame className="h-6 w-6 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Total Fuel Volume</p>
-              <p className="text-xl font-black text-slate-800">{summary.totalLitres.toFixed(1)} Ltrs</p>
-            </div>
-          </Card>
+      <div className="w-full flex-1 flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden min-h-[calc(100vh-140px)]">
+        
+        {/* Advanced Filters Panel */}
+        <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
+          <div className="space-y-1">
+            <Label className="text-xs font-bold text-slate-700">Report Type *</Label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+            >
+              <option value="Date Wise Consumption Report">Date Wise Consumption Report</option>
+              <option value="Date With Vehicle Wise Consumption Report">Date With Vehicle Wise Consumption Report</option>
+              <option value="Diesel Consolidate Report">Diesel Consolidate Report</option>
+            </select>
+          </div>
 
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-emerald-50 rounded-full">
-              <DollarSign className="h-6 w-6 text-emerald-600" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Total Fuel Cost</p>
-              <p className="text-xl font-black text-slate-800">₹ {summary.totalAmount.toLocaleString()}</p>
-            </div>
-          </Card>
+          <div className="space-y-1">
+            <Label className="text-xs font-bold text-slate-700">From Date</Label>
+            <Input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+            />
+          </div>
 
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-blue-50 rounded-full">
-              <TrendingUp className="h-6 w-6 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Avg Cost / Litre</p>
-              <p className="text-xl font-black text-slate-800">₹ {summary.avgCost.toFixed(2)}/L</p>
-            </div>
-          </Card>
+          <div className="space-y-1">
+            <Label className="text-xs font-bold text-slate-700">To Date</Label>
+            <Input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-xs font-bold text-slate-700">Plant *</Label>
+            <select
+              value={plant}
+              onChange={(e) => setPlant(e.target.value)}
+              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+            >
+              <option value="All plant">All plant</option>
+              <option value="Fortune Concrete">Fortune Concrete</option>
+              <option value="Marval RMC">Marval RMC</option>
+            </select>
+          </div>
+
+          <div className="md:col-span-4 flex justify-end gap-2 pt-2 border-t border-slate-100">
+            <Button
+              onClick={handleGenerate}
+              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-10 px-6 rounded border-none shadow-sm active:scale-95 transition-all"
+            >
+              Generate
+            </Button>
+            <Button
+              onClick={handleClear}
+              className="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs h-10 px-6 rounded border-none shadow-sm active:scale-95 transition-all"
+            >
+              Clear
+            </Button>
+          </div>
         </div>
 
-        {/* Aggregate breakdown */}
-        <Card className="border bg-white shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="bg-slate-50 border-b">
-            <CardTitle className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-blue-600" /> Vehicle-by-Vehicle Refuel Aggregates
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-slate-100/50">
-                <TableRow className="border-b">
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3 px-4">Vehicle Registration No</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">Total Fuel Refueled</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">Total Fuel Cost (₹)</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">Avg Refuel Size (Ltrs)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {summary.vehicleSummary.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center py-12 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      No refuel reports available.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  summary.vehicleSummary.map((item, idx) => (
-                    <TableRow key={idx} className="hover:bg-slate-50/50 border-b last:border-0">
-                      <TableCell className="font-extrabold text-[#1e40af] text-xs py-3 px-4">{item.vehicleNo}</TableCell>
-                      <TableCell className="font-bold text-slate-800 text-xs px-3 text-right">{item.totalLitres.toFixed(1)} L</TableCell>
-                      <TableCell className="font-black text-emerald-600 text-xs px-3 text-right">₹ {item.totalAmount.toLocaleString()}</TableCell>
-                      <TableCell className="font-medium text-slate-600 text-xs px-3 text-right">{item.avgRefuel.toFixed(1)} L / trip</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {/* Global actions and results list */}
+        <div className="flex-1 overflow-auto p-4 flex flex-col">
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
+              Generating report...
+            </div>
+          ) : !hasGenerated ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50/50 border border-dashed rounded-lg">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" className="text-slate-350 mb-3" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7A48.656 48.656 0 0012 4.5c-1.232 0-2.453.046-3.662.138a4.006 4.006 0 00-3.7 3.7C4.546 9.547 4.5 10.768 4.5 12s.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7c1.209.092 2.43.138 3.662.138 1.232 0 2.453-.046 3.662-.138a4.006 4.006 0 003.7-3.7C19.454 14.453 19.5 13.232 19.5 12z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">No Report Generated</h3>
+              <p className="text-[11px] text-slate-450 max-w-xs font-medium">Select report filters above and click Generate to view consumption data.</p>
+            </div>
+          ) : reportResults.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50/50 border border-dashed rounded-lg">
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">No matching logs found</h3>
+              <p className="text-[11px] text-slate-400 mt-1">Try modifying your date filters or plant selections.</p>
+            </div>
+          ) : (
+            <div className="space-y-4 flex-1 flex flex-col">
+              
+              {/* Export Toolbar */}
+              <div className="flex items-center justify-between border-b pb-3 border-slate-100 select-none">
+                <div className="text-xs font-bold text-slate-600 uppercase">
+                  Showing {reportResults.length} records matching criteria
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={printAllLogs}
+                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
+                  >
+                    <FileText className="h-3.5 w-3.5" /> PDF Report
+                  </Button>
+                  <Button
+                    onClick={downloadAllCSV}
+                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
+                  >
+                    <FileSpreadsheet className="h-3.5 w-3.5" /> CSV Report
+                  </Button>
+                  <Button
+                    onClick={copyAllLogs}
+                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
+                  >
+                    <Copy className="h-3.5 w-3.5" /> Copy Data
+                  </Button>
+                </div>
+              </div>
+
+              {/* Report Tables based on Type */}
+              {reportType === "Diesel Consolidate Report" ? (
+                <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
+                  <Table>
+                    <TableHeader className="bg-[#00c0a5] hover:bg-[#00c0a5]">
+                      <TableRow className="border-b border-[#00a890] hover:bg-transparent">
+                        <TableHead className="text-white text-[11px] font-black uppercase py-3.5 px-4 w-20">S.No</TableHead>
+                        <TableHead className="text-white text-[11px] font-black uppercase px-3">Vehicle No</TableHead>
+                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Total Volume (Ltrs)</TableHead>
+                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Total Cost (₹)</TableHead>
+                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Avg Refuel Size (Ltrs)</TableHead>
+                        <TableHead className="text-white text-[11px] font-black uppercase px-4 text-center w-32">Trip Count</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {getConsolidatedData().map((item, idx) => (
+                        <TableRow
+                          key={idx}
+                          className={`hover:bg-slate-50/80 transition-colors border-b border-slate-100 ${
+                            idx % 2 === 0 ? "bg-white" : "bg-slate-50/10"
+                          }`}
+                        >
+                          <TableCell className="font-bold text-slate-600 text-xs py-3 px-4">{idx + 1}</TableCell>
+                          <TableCell className="font-extrabold text-slate-700 text-xs px-3">{item.vehicleNo}</TableCell>
+                          <TableCell className="font-black text-slate-800 text-xs px-3 text-right">{item.totalVolume.toFixed(1)}</TableCell>
+                          <TableCell className="font-black text-[#00c0a5] text-xs px-3 text-right">₹{item.totalCost.toLocaleString()}</TableCell>
+                          <TableCell className="font-semibold text-slate-600 text-xs px-3 text-right">{item.avgRefuel.toFixed(1)}</TableCell>
+                          <TableCell className="font-bold text-slate-600 text-xs px-4 text-center">{item.tripCount}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
+                  <Table>
+                    <TableHeader className="bg-[#00c0a5] hover:bg-[#00c0a5]">
+                      <TableRow className="border-b border-[#00a890] hover:bg-transparent">
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase py-3.5 px-4 align-middle w-24">S.No</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Vehicle No</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Date</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Quantity</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Rate</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Amount</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Plant</TableHead>
+                        <TableHead colSpan={4} className="text-white text-[11px] font-black uppercase text-center border-b border-[#00a890]/40 py-2">Engine</TableHead>
+                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-4 text-center align-middle w-40">Actions</TableHead>
+                      </TableRow>
+                      <TableRow className="border-b border-[#00a890] hover:bg-transparent bg-[#00c0a5]">
+                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3">Engine Type</TableHead>
+                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3">Type</TableHead>
+                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3 text-right">Opening</TableHead>
+                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3 text-right">Closing</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {reportResults.map((item, idx) => (
+                        <TableRow
+                          key={item._id || item.id}
+                          className={`hover:bg-slate-50/80 transition-colors border-b border-slate-100 ${
+                            idx % 2 === 0 ? "bg-white" : "bg-slate-50/10"
+                          }`}
+                        >
+                          <TableCell className="font-bold text-slate-600 text-xs py-3 px-4">{idx + 1}</TableCell>
+                          <TableCell className="font-extrabold text-slate-700 text-xs px-3">{item.vehicleNo}</TableCell>
+                          <TableCell className="font-bold text-slate-600 text-xs px-3">{formatDate(item.date)}</TableCell>
+                          <TableCell className="font-black text-slate-800 text-xs px-3 text-right">{item.litres}</TableCell>
+                          <TableCell className="font-medium text-slate-500 text-xs px-3 text-right">₹{item.dieselRate || 0}</TableCell>
+                          <TableCell className="font-black text-slate-800 text-xs px-3 text-right">₹{item.amount?.toLocaleString() || 0}</TableCell>
+                          <TableCell className="font-semibold text-slate-650 text-xs px-3">{item.plant || "Fortune Concrete"}</TableCell>
+
+                          {/* Engine sub-rows span */}
+                          <TableCell className="p-0" colSpan={4}>
+                            {item.engines && item.engines.length > 0 ? (
+                              item.engines.map((eng, eIdx) => (
+                                <div
+                                  key={eIdx}
+                                  className={`grid grid-cols-4 text-xs font-semibold ${
+                                    eIdx > 0 ? "border-t border-slate-100" : ""
+                                  }`}
+                                >
+                                  <div className="p-3 border-r border-slate-100 text-slate-650 font-bold">{eng.engineType}</div>
+                                  <div className="p-3 border-r border-slate-100 text-slate-500">{eng.calculationType}</div>
+                                  <div className="p-3 border-r border-slate-100 text-slate-700 text-right">{eng.opening}</div>
+                                  <div className="p-3 text-slate-700 text-right">{eng.closing}</div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="grid grid-cols-4 text-xs font-semibold text-slate-400 p-3 text-center">
+                                <div className="col-span-4">N/A</div>
+                              </div>
+                            )}
+                          </TableCell>
+
+                          <TableCell className="px-4">
+                            <div className="flex items-center justify-center gap-1.5 select-none">
+                              <Button
+                                onClick={() => printSingleLog(item)}
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full border-none flex items-center justify-center"
+                                title="Print PDF"
+                              >
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={() => copySingleLog(item)}
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50 rounded-full border-none flex items-center justify-center"
+                                title="Copy"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={() => downloadSingleCSV(item)}
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full border-none flex items-center justify-center"
+                                title="CSV"
+                              >
+                                <FileSpreadsheet className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                onClick={() => handleDelete(item._id || item.id!)}
+                                variant="ghost"
+                                className="h-8 w-8 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-full border-none flex items-center justify-center"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </TransportLayout>
   );

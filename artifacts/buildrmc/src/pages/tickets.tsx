@@ -18,13 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronRight, MoreHorizontal, Plus, Save, Search, Ticket, X, Loader2, Trash2, Eye, Pencil, Copy, Printer, Download } from "lucide-react";
+import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch, useGetVehicles } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -347,27 +341,7 @@ export default function Tickets() {
                       <TableCell className="text-center py-3 text-slate-600 font-bold text-xs">{row.createdBy}</TableCell>
                       <TableCell className="text-center py-3 print:hidden">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* 1. View (Eye Icon) */}
-                          <Button 
-                            onClick={() => setSelectedTicket(row)}
-                            title="View Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-
-                          {/* 2. Edit (Pencil Icon) */}
-                          <Button 
-                            onClick={() => handleEditTicket(row)}
-                            title="Edit Ticket" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-
-                          {/* 3. Print (Printer Icon) */}
+                          {/* 1. Print (Printer Icon) */}
                           <Button 
                             onClick={() => handlePrintSingleTicket(row)}
                             title="Print Ticket" 
@@ -377,7 +351,7 @@ export default function Tickets() {
                             <Printer className="h-4 w-4" />
                           </Button>
 
-                          {/* 4. CSV (Download Icon) */}
+                          {/* 2. CSV (Download Icon) */}
                           <Button 
                             onClick={() => handleExportTicketCSV(row)}
                             title="Download CSV" 
@@ -387,7 +361,7 @@ export default function Tickets() {
                             <Download className="h-4 w-4" />
                           </Button>
 
-                          {/* 5. Copy (Copy Icon) */}
+                          {/* 3. Copy (Copy Icon) */}
                           <Button 
                             onClick={() => handleCopyTicket(row)}
                             title="Copy Details" 
@@ -397,7 +371,17 @@ export default function Tickets() {
                             <Copy className="h-4 w-4" />
                           </Button>
 
-                          {/* 6. Delete (Trash Icon) */}
+                          {/* 4. Edit (Pencil Icon) - opens details view */}
+                          <Button 
+                            onClick={() => setSelectedTicket(row)}
+                            title="Edit Ticket" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
                           <Button 
                             onClick={() => handleDelete(row._id || row.id)}
                             title="Delete Ticket" 

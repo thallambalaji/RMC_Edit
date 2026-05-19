@@ -20,6 +20,12 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   ChevronRight, 
   FlaskConical, 
@@ -36,7 +42,8 @@ import {
   Copy,
   FileCode,
   FileDown,
-  Printer
+  Printer,
+  Edit
 } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
 
@@ -54,6 +61,7 @@ export default function RecipeList() {
   
   const [printingItem, setPrintingItem] = useState<any | null>(null);
   const [isPrintingList, setIsPrintingList] = useState(false);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
 
   const fetchRecipes = async () => {
     setLoading(true);
@@ -98,6 +106,26 @@ export default function RecipeList() {
       }
     } catch (error) {
       toast({ title: "Error", description: "Delete failed.", variant: "destructive" });
+    }
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItem) return;
+    try {
+      const res = await fetch(`/api/recipes/${editingItem.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingItem)
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setRecipes(prev => prev.map(r => r.id === updated.id ? updated : r));
+        setEditingItem(null);
+        toast({ title: "Updated Successfully", description: `Recipe ${editingItem.recipeCode} saved.` });
+      }
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to update recipe.", variant: "destructive" });
     }
   };
 
@@ -390,13 +418,21 @@ export default function RecipeList() {
                         <TableCell className="text-[10px] font-black text-slate-600 px-4">{r.slump}</TableCell>
                         <TableCell className="px-4 text-center">
                           <div className="flex items-center justify-center gap-1">
+                            {/* 1. PDF/Print */}
+                            <Button variant="ghost" size="icon" onClick={() => handlePrint(r)} className="h-7 w-7 text-rose-600 hover:bg-rose-50" title="Print Recipe">
+                              <Printer className="h-3.5 w-3.5" />
+                            </Button>
+
+                            {/* 2. Copy */}
                             <Button variant="ghost" size="icon" onClick={() => {
                               const csv = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"].join(",") + "\n" + [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump].join(",");
                               navigator.clipboard.writeText(csv);
                               toast({ title: "Copied", description: "Recipe data copied." });
-                            }} className="h-7 w-7 text-slate-400 hover:text-emerald-600" title="Copy">
+                            }} className="h-7 w-7 text-cyan-600 hover:bg-cyan-50" title="Copy">
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
+
+                            {/* 3. CSV */}
                             <Button variant="ghost" size="icon" onClick={() => {
                               const headers = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"];
                               const row = [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump];
@@ -406,13 +442,17 @@ export default function RecipeList() {
                               link.href = URL.createObjectURL(blob);
                               link.download = `Recipe_${r.recipeCode}.csv`;
                               link.click();
-                            }} className="h-7 w-7 text-slate-400 hover:text-slate-600" title="CSV">
+                            }} className="h-7 w-7 text-emerald-600 hover:bg-emerald-50" title="CSV">
                               <FileCode className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handlePrint(r)} className="h-7 w-7 text-slate-400 hover:text-blue-600" title="Print Recipe">
-                              <Printer className="h-3.5 w-3.5" />
+
+                            {/* 4. Edit */}
+                            <Button variant="ghost" size="icon" onClick={() => setEditingItem(r)} className="h-7 w-7 text-blue-600 hover:bg-blue-50" title="Edit">
+                              <Edit className="h-3.5 w-3.5" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-slate-400 hover:text-red-600" title="Delete">
+
+                            {/* 5. Delete */}
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-rose-500 hover:bg-rose-50" title="Delete">
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           </div>
@@ -439,6 +479,49 @@ export default function RecipeList() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Recipe Modal */}
+        <Dialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>
+          <DialogContent className="max-w-xl bg-white border-slate-200">
+            <DialogHeader>
+              <DialogTitle className="text-slate-800 font-black text-lg border-b border-slate-100 pb-2">Edit Recipe formulation</DialogTitle>
+            </DialogHeader>
+            {editingItem && (
+              <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
+                <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Recipe Code</Label>
+                    <Input value={editingItem.recipeCode} onChange={e => setEditingItem({...editingItem, recipeCode: e.target.value})} className="bg-white h-9 text-xs font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Customer</Label>
+                    <Input value={editingItem.customer} onChange={e => setEditingItem({...editingItem, customer: e.target.value})} className="bg-white h-9 text-xs font-bold" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Site Name</Label>
+                    <Input value={editingItem.siteName} onChange={e => setEditingItem({...editingItem, siteName: e.target.value})} className="bg-white h-9 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Grade</Label>
+                    <Input value={editingItem.grade} onChange={e => setEditingItem({...editingItem, grade: e.target.value})} className="bg-white h-9 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Plant</Label>
+                    <Input value={editingItem.plant} onChange={e => setEditingItem({...editingItem, plant: e.target.value})} className="bg-white h-9 text-xs" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="font-bold text-slate-700 uppercase">Slump (mm)</Label>
+                    <Input value={editingItem.slump} onChange={e => setEditingItem({...editingItem, slump: e.target.value})} className="bg-white h-9 text-xs" />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                  <Button type="button" variant="outline" onClick={() => setEditingItem(null)} className="h-9 text-xs font-bold">Cancel</Button>
+                  <Button type="submit" className="bg-[#10b981] hover:bg-[#059669] text-white font-black h-9 text-xs px-5">Save Changes</Button>
+                </div>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </QcLayout>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Eye, MoreHorizontal, Printer } from "lucide-react";
+import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Printer, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -158,6 +158,34 @@ export default function PaymentFollowUpList() {
 
   const handlePrintPDF = () => {
     window.print();
+  };
+
+  const handlePrintSingle = (f: any) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const html = `
+      <html>
+        <head>
+          <title>Payment Follow-Up - ${f.followupId}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            h1 { color: #1e40af; }
+            .field { margin-bottom: 10px; }
+            .label { font-weight: bold; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <h1>Payment Follow-Up: ${f.followupId}</h1>
+          <div class="field"><span class="label">Customer Name:</span> ${f.customerName}</div>
+          <div class="field"><span class="label">Date:</span> ${f.followupDate} at ${f.followupTime}</div>
+          <div class="field"><span class="label">Next FollowUp:</span> ${f.nextDate ? `${f.nextDate} ${f.nextTime || ""}` : "N/A"}</div>
+          <div class="field"><span class="label">Description:</span> ${f.description || "N/A"}</div>
+          <div class="field"><span class="label">Status:</span> ${f.status || "pending"}</div>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
   };
 
   const handleCopySingle = (f: any) => {
@@ -340,42 +368,56 @@ export default function PaymentFollowUpList() {
                         {f.status || "pending"}
                       </span>
                     </TableCell>
-                    <TableCell className="text-center print:hidden">
-                      <div className="flex items-center justify-center gap-1">
+                     <TableCell className="text-center print:hidden">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
                         <Button 
-                          onClick={() => setSelectedFollowup(f)}
-                          title="View Details" 
+                          onClick={() => handlePrintSingle(f)}
+                          title="Print PDF" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
                         >
-                          <Eye className="h-3.5 w-3.5" />
+                          <Printer className="h-4 w-4" />
                         </Button>
 
-                        <Button 
-                          onClick={() => handleCopySingle(f)}
-                          title="Copy Details" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 cursor-pointer"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </Button>
-
+                        {/* 2. CSV (Download Icon) */}
                         <Button 
                           onClick={() => handleExportSingleCSV(f)}
                           title="Download CSV" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
                         >
-                          <Download className="h-3.5 w-3.5" />
+                          <Download className="h-4 w-4" />
                         </Button>
 
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(f)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens followup detail modal */}
+                        <Button 
+                          onClick={() => setSelectedFollowup(f)}
+                          title="Edit FollowUp" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
                         <Button 
                           onClick={() => handleDelete(f.id)}
                           title="Delete Entry" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-rose-50 text-rose-600 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

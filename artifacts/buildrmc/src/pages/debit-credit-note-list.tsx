@@ -19,12 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Dialog,
   DialogContent,
@@ -47,15 +42,14 @@ import {
   RotateCcw,
   Printer,
   Download,
-  Eye,
   X,
-  MoreHorizontal,
   FileBarChart,
   Copy,
   Trash2,
   Plus,
   Sparkles,
-  FileText
+  FileText,
+  Pencil
 } from "lucide-react";
 
 interface NoteRecord {
@@ -649,30 +643,57 @@ export default function DebitCreditNoteList() {
                     <td className="py-2.5 text-right text-xs font-semibold text-slate-600">₹{n.tcsAmount.toFixed(2)}</td>
                     <td className="py-2.5 text-right text-xs font-extrabold text-[#1e40af]">₹{n.netAmount.toLocaleString("en-IN")}</td>
                     <td className="py-2.5 text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="text-xs">
-                          <DropdownMenuItem className="cursor-pointer gap-1.5 font-semibold" onClick={() => setViewNote(n)}>
-                            <Eye className="h-3.5 w-3.5 text-slate-500" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer gap-1.5 font-semibold" onClick={() => handleRowPrint(n)}>
-                            <Printer className="h-3.5 w-3.5 text-slate-500" /> Print Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer gap-1.5 font-semibold" onClick={() => handleRowCSV(n)}>
-                            <FileText className="h-3.5 w-3.5 text-slate-500" /> Export CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer gap-1.5 font-semibold" onClick={() => handleRowCopy(n)}>
-                            <Copy className="h-3.5 w-3.5 text-slate-500" /> Copy Note
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="cursor-pointer gap-1.5 font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50" onClick={() => setDeleteId(n.id)}>
-                            <Trash2 className="h-3.5 w-3.5 text-rose-500" /> Delete Note
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handleRowPrint(n)}
+                          title="Print Note" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+
+                        {/* 2. CSV (Download/FileText Icon -> Download Icon) */}
+                        <Button 
+                          onClick={() => handleRowCSV(n)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleRowCopy(n)}
+                          title="Copy Note" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                        <Button 
+                          onClick={() => setViewNote(n)}
+                          title="View Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => setDeleteId(n.id)}
+                          title="Delete Note" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </td>
                   </TableRow>
                 ))}

@@ -192,10 +192,13 @@ function Router() {
       <Route path="/transport/vehicle/edit/:id"><ProtectedRoute component={AddVehicle} /></Route>
       <Route path="/transport/vehicle/list"><ProtectedRoute component={VehicleList} /></Route>
       <Route path="/transport/driver/new"><ProtectedRoute component={AddDriver} /></Route>
+      <Route path="/transport/driver/edit/:id"><ProtectedRoute component={AddDriver} /></Route>
       <Route path="/transport/driver/list"><ProtectedRoute component={DriverList} /></Route>
       <Route path="/transport/pump-dg/new"><ProtectedRoute component={AddPumpDg} /></Route>
+      <Route path="/transport/pump-dg/edit/:id"><ProtectedRoute component={AddPumpDg} /></Route>
       <Route path="/transport/pump-dg/list"><ProtectedRoute component={PumpDgList} /></Route>
       <Route path="/transport/diesel/new"><ProtectedRoute component={AddDiesel} /></Route>
+      <Route path="/transport/diesel/edit/:id"><ProtectedRoute component={AddDiesel} /></Route>
       <Route path="/transport/diesel/list"><ProtectedRoute component={DieselList} /></Route>
       <Route path="/transport/diesel/report"><ProtectedRoute component={DieselReport} /></Route>
       <Route path="/transport/settings"><ProtectedRoute component={TransportSettings} /></Route>

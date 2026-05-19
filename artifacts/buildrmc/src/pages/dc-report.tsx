@@ -31,6 +31,7 @@ import {
   Copy,
   Trash2,
   Download,
+  Home,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -199,20 +200,51 @@ export default function DCReport() {
     <div className="space-y-4 print:bg-white print:p-0 print:m-0">
       <div className={`space-y-4 ${printDC ? "print:hidden" : ""}`}>
         {/* Header */}
-      <div className="flex items-center justify-between print:hidden">
-        <h2 className="text-2xl font-bold">DC Report</h2>
-        <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">
-            Home
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <Link href="/dc" className="hover:text-primary transition-colors">
-            DC
-          </Link>
-          <ChevronRight className="h-3 w-3" />
-          <span className="text-foreground">DC Report</span>
-        </nav>
-      </div>
+        <div className="flex items-center justify-between bg-white py-3.5 px-5 rounded-lg border border-slate-200 shadow-sm shrink-0 print:hidden">
+          <div className="flex items-center">
+            <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-wider select-none">
+              DC Report
+            </h2>
+            <div className="h-4 w-px bg-slate-300 mx-4" />
+            <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
+              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <Home className="h-3.5 w-3.5 text-slate-500" />
+                <span>HOME</span>
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+                DC
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <span className="text-blue-600 font-black">DC REPORT</span>
+            </nav>
+          </div>
+
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+              onClick={handleGenerate}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-slate-700"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+            </Button>
+          </div>
+        </div>
 
       {/* Filter Panel */}
       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 print:hidden">
@@ -426,7 +458,11 @@ export default function DCReport() {
                       <TableCell className="text-center font-medium border-r border-gray-100 print:px-2">
                         {idx + 1}
                       </TableCell>
-                      <TableCell className="font-bold text-[#1e40af] border-r border-gray-100 print:text-black print:px-2">
+                      <TableCell 
+                        onClick={() => setSelectedDC(dc)} 
+                        className="font-bold text-[#1e40af] border-r border-gray-100 print:text-black print:px-2 cursor-pointer hover:underline hover:text-blue-800"
+                        title="Click to view details"
+                      >
                         {dc.dcNumber}
                       </TableCell>
                       <TableCell className="border-r border-gray-100 print:px-2">
@@ -469,27 +505,7 @@ export default function DCReport() {
                       </TableCell>
                       <TableCell className="text-center py-3 print:hidden">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* 1. View (Eye Icon) */}
-                          <Button 
-                            onClick={() => setSelectedDC(dc)}
-                            title="View Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-
-                          {/* 2. Edit (Pencil Icon) */}
-                          <Button 
-                            onClick={() => handleEditRow(dc)}
-                            title="Edit Record" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-
-                          {/* 3. Print (Printer Icon) */}
+                          {/* 1. Print (Printer Icon) */}
                           <Button 
                             onClick={() => handlePrintSingleRow(dc)}
                             title="Print DC Slip" 
@@ -499,7 +515,7 @@ export default function DCReport() {
                             <Printer className="h-4 w-4" />
                           </Button>
 
-                          {/* 4. CSV (Download Icon) */}
+                          {/* 2. CSV (Download Icon) */}
                           <Button 
                             onClick={() => handleExportRowCSV(dc)}
                             title="Download CSV" 
@@ -509,7 +525,7 @@ export default function DCReport() {
                             <Download className="h-4 w-4" />
                           </Button>
 
-                          {/* 5. Copy (Copy Icon) */}
+                          {/* 3. Copy (Copy Icon) */}
                           <Button 
                             onClick={() => handleCopyRow(dc)}
                             title="Copy Details" 
@@ -519,7 +535,17 @@ export default function DCReport() {
                             <Copy className="h-4 w-4" />
                           </Button>
 
-                          {/* 6. Delete (Trash Icon) */}
+                          {/* 4. Edit (Pencil Icon) */}
+                          <Button 
+                            onClick={() => handleEditRow(dc)}
+                            title="Edit Record" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
                           <Button 
                             onClick={() => handleDeleteRow(dc.id || dc._id)}
                             title="Delete Record" 

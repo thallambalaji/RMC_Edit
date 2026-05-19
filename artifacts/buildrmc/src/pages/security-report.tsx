@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -8,49 +11,219 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
-import { ShieldCheck, LogIn, LogOut, AlertOctagon } from "lucide-react";
 
 interface SecurityData {
   _id?: string;
   id?: string;
+  plant: string;
+  gatePassing: string;
+  gateNo: string;
+  typeOfMovement: string;
   date: string;
   time: string;
-  vehicleNo: string;
-  driverName: string;
-  gatePassNo: string;
-  checkType: string;
-  status: string;
+  vehicleNo?: string;
+  driverName?: string;
+}
+
+interface VehicleData {
+  _id?: string;
+  id?: string;
+  registrationNo: string;
 }
 
 export default function SecurityCheckReport() {
+  const { toast } = useToast();
   const [logs, setLogs] = useState<SecurityData[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState(false);
+
+  // Filters State
+  const [reportType, setReportType] = useState("Date Wise Check");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [vehicleNo, setVehicleNo] = useState("");
+
+  // Applied Filters State
+  const [appliedReportType, setAppliedReportType] = useState("Date Wise Check");
+  const [appliedFromDate, setAppliedFromDate] = useState("");
+  const [appliedToDate, setAppliedToDate] = useState("");
+  const [appliedVehicleNo, setAppliedVehicleNo] = useState("");
+
+  const fetchData = async () => {
+    try {
+      const resLogs = await fetch("/api/security-checks");
+      if (resLogs.ok) {
+        const data = await resLogs.json();
+        setLogs(data);
+      }
+      const resVehicles = await fetch("/api/vehicles");
+      if (resVehicles.ok) {
+        const data = await resVehicles.json();
+        setVehicles(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await fetch("/api/security-checks");
-        if (res.ok) {
-          const data = await res.json();
-          setLogs(data);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchLogs();
+    fetchData();
   }, []);
 
-  const stats = useMemo(() => {
-    const entries = logs.filter((l) => l.checkType === "In").length;
-    const exits = logs.filter((l) => l.checkType === "Out").length;
-    const hold = logs.filter((l) => l.status === "hold" || l.status === "violation").length;
-    return { entries, exits, hold };
-  }, [logs]);
+  const handleGenerate = () => {
+    setAppliedReportType(reportType);
+    setAppliedFromDate(fromDate);
+    setAppliedToDate(toDate);
+    setAppliedVehicleNo(vehicleNo);
+    setGenerated(true);
+    toast({
+      title: "Report Generated",
+      description: "Displaying matching security check logs.",
+    });
+  };
 
-  const activeHolds = useMemo(() => {
-    return logs.filter((l) => l.status === "hold" || l.status === "violation");
-  }, [logs]);
+  const handleClear = () => {
+    setReportType("Date Wise Check");
+    setFromDate("");
+    setToDate("");
+    setVehicleNo("");
+    setAppliedReportType("Date Wise Check");
+    setAppliedFromDate("");
+    setAppliedToDate("");
+    setAppliedVehicleNo("");
+    setGenerated(false);
+  };
+
+  // Report Filter Logic
+  const filteredLogs = useMemo(() => {
+    if (!generated) return [];
+    return logs.filter((l, idx) => {
+      // 1. Date Range filtering
+      if (appliedFromDate && l.date < appliedFromDate) return false;
+      if (appliedToDate && l.date > appliedToDate) return false;
+
+      // 2. Report Type specific filtering
+      if (appliedReportType === "Vehicle Wise Report" && appliedVehicleNo) {
+        if (l.vehicleNo !== appliedVehicleNo) return false;
+      }
+      if (appliedReportType === "Date With Unchecked Data") {
+        // e.g. entry without vehicle registered or custom logic, but let's show all matching date
+      }
+
+      return true;
+    });
+  }, [logs, generated, appliedReportType, appliedFromDate, appliedToDate, appliedVehicleNo]);
+
+  // PDF Print with company header
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const tableRows = filteredLogs
+      .map(
+        (item, idx) => `
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 8px; font-size: 10px; font-weight: bold; text-align: center;">SEC-${idx + 1}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center;">${item.gateNo}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center;">${item.gatePassing}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center;">${item.date}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center;">${item.time}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center; font-weight: bold;">${item.vehicleNo || "N/A"}</td>
+        <td style="padding: 8px; font-size: 10px;">${item.driverName || "N/A"}</td>
+        <td style="padding: 8px; font-size: 10px; text-align: center;">${item.typeOfMovement}</td>
+        <td style="padding: 8px; font-size: 10px; font-weight: 800; text-transform: uppercase;">${item.plant}</td>
+      </tr>`
+      )
+      .join("");
+
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Security Check Report</title>
+          <style>
+            body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 20px; }
+            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 15px; margin-bottom: 20px; }
+            .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #1e3a8a; }
+            .company-info p { margin: 3px 0 0 0; font-size: 10px; color: #64748b; font-weight: bold; }
+            .logo { height: 45px; width: 45px; }
+            .title { text-align: center; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { background-color: #f1f5f9; padding: 8px; font-size: 9px; font-weight: 900; text-transform: uppercase; text-align: center; border-bottom: 2px solid #cbd5e1; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <div class="header">
+            <div class="company-info">
+              <h1>BUILD RMC CORPORATION</h1>
+              <p>Plot No. 42, Ready Mix Compound, Industrial Zone</p>
+              <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
+            </div>
+            <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
+              <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
+            </svg>
+          </div>
+          <div class="title">Security Check Report (${appliedReportType})</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Security No</th>
+                <th>Gate No</th>
+                <th>Gate Passing</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Vehicle No</th>
+                <th>Driver Name</th>
+                <th>Type of movement</th>
+                <th>Plant</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
+  const handleExport = (type: "copy" | "csv") => {
+    if (filteredLogs.length === 0) return;
+    const headers = ["Security No", "Gate No", "Gate Passing", "Date", "Time", "Vehicle No", "Driver Name", "Type of movement", "Plant"];
+
+    if (type === "copy") {
+      const tsvContent = [
+        headers.join("\t"),
+        ...filteredLogs.map((l, idx) =>
+          [`SEC-${idx + 1}`, l.gateNo, l.gatePassing, l.date, l.time, l.vehicleNo || "N/A", l.driverName || "N/A", l.typeOfMovement, l.plant].join("\t")
+        ),
+      ].join("\n");
+      navigator.clipboard.writeText(tsvContent);
+      toast({ title: "Copied to Clipboard" });
+    } else if (type === "csv") {
+      const csvContent = [
+        headers.join(","),
+        ...filteredLogs.map((l, idx) =>
+          [`"SEC-${idx + 1}"`, `"${l.gateNo}"`, `"${l.gatePassing}"`, `"${l.date}"`, `"${l.time}"`, `"${l.vehicleNo || "N/A"}"`, `"${l.driverName || "N/A"}"`, `"${l.typeOfMovement}"`, `"${l.plant}"`].join(",")
+        ),
+      ].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "security_check_report.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({ title: "CSV Downloaded" });
+    }
+  };
 
   return (
     <TransportLayout
@@ -58,84 +231,174 @@ export default function SecurityCheckReport() {
       title="SECURITY CHECK REPORT"
       activePath="/transport/security/report"
     >
-      <div className="space-y-4 flex-1 overflow-auto max-h-full hide-scrollbar">
-        {/* Statistics KPI */}
-        <div className="grid grid-cols-3 gap-4 shrink-0">
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-blue-50 rounded-full">
-              <LogIn className="h-6 w-6 text-blue-600" />
+      <div className="w-full py-4 px-4 bg-[#f8fafc] min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
+        
+        {/* Filters Card matching Screenshot */}
+        <Card className="border border-slate-200/60 shadow-xs bg-white rounded-md p-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+            
+            {/* Report Type Dropdown */}
+            <div className="space-y-1">
+              <Label className="text-xs font-bold text-slate-700">
+                Report Type <span className="text-rose-500">*</span>
+              </Label>
+              <select
+                value={reportType}
+                onChange={(e) => setReportType(e.target.value)}
+                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+              >
+                <option value="Date Wise Check">Date Wise Check</option>
+                <option value="Date With Cycle Wise Check">Date With Cycle Wise Check</option>
+                <option value="Date With Unchecked Data">Date With Unchecked Data</option>
+                <option value="Vehicle Wise Report">Vehicle Wise Report</option>
+              </select>
             </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Total Gate Entries</p>
-              <p className="text-xl font-black text-slate-800">{stats.entries} Entries</p>
-            </div>
-          </Card>
 
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-indigo-50 rounded-full">
-              <LogOut className="h-6 w-6 text-indigo-600" />
+            {/* From Date selector */}
+            <div className="space-y-1">
+              <Label className="text-xs font-bold text-slate-700">From Date</Label>
+              <Input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="h-10 text-xs font-semibold bg-white border-slate-300 rounded"
+              />
             </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Total Gate Exits</p>
-              <p className="text-xl font-black text-slate-800">{stats.exits} Exits</p>
-            </div>
-          </Card>
 
-          <Card className="bg-white border p-4 rounded-lg shadow-sm flex items-center gap-3">
-            <div className="p-3 bg-rose-50 rounded-full">
-              <AlertOctagon className="h-6 w-6 text-rose-600" />
+            {/* To Date selector */}
+            <div className="space-y-1">
+              <Label className="text-xs font-bold text-slate-700">To Date</Label>
+              <Input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="h-10 text-xs font-semibold bg-white border-slate-300 rounded"
+              />
             </div>
-            <div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Hold / Violations</p>
-              <p className="text-xl font-black text-slate-800">{stats.hold} Logs Flagged</p>
-            </div>
-          </Card>
-        </div>
 
-        {/* Flagged Holds Panel */}
-        <Card className="border bg-white shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="bg-slate-50 border-b">
-            <CardTitle className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-blue-600" /> Active Gate Holds & Inspections
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="bg-slate-100/50">
-                <TableRow className="border-b">
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3 px-4">Flag Date & Time</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle No</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Driver Name</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Gate Pass No</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-center">Status Flag</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {activeHolds.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-12 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      No active gate holds or warning flags recorded.
-                    </TableCell>
+          </div>
+
+          {/* Conditional Vehicle Selection */}
+          {reportType === "Vehicle Wise Report" && (
+            <div className="mt-4 max-w-sm space-y-1 animate-in fade-in duration-100">
+              <Label className="text-xs font-bold text-slate-700">Select Vehicle *</Label>
+              <select
+                value={vehicleNo}
+                onChange={(e) => setVehicleNo(e.target.value)}
+                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+              >
+                <option value="">Choose Vehicle</option>
+                {vehicles.map((v) => (
+                  <option key={v.id || v._id} value={v.registrationNo}>
+                    {v.registrationNo}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Generate and Clear Buttons */}
+          <div className="mt-4 flex items-center gap-2 pt-3 border-t border-slate-100 select-none">
+            <Button
+              onClick={handleGenerate}
+              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
+            >
+              Generate
+            </Button>
+            <Button
+              onClick={handleClear}
+              className="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
+            >
+              Clear
+            </Button>
+          </div>
+        </Card>
+
+        {/* Results Area */}
+        {generated && (
+          <div className="space-y-4 animate-in fade-in duration-150">
+            
+            {/* Table Actions Bar */}
+            <div className="flex items-center justify-between bg-white p-3 rounded border border-slate-200/60 select-none">
+              <div className="text-xs font-bold text-slate-500 uppercase">
+                Generated {filteredLogs.length} matching report records
+              </div>
+              <div className="flex gap-1">
+                <Button
+                  onClick={() => handleExport("copy")}
+                  className="bg-slate-400 hover:bg-slate-500 text-white text-[10px] font-black h-8 px-4 border-none rounded"
+                >
+                  Copy
+                </Button>
+                <Button
+                  onClick={() => handleExport("csv")}
+                  className="bg-slate-500 hover:bg-slate-600 text-white text-[10px] font-black h-8 px-4 border-none rounded"
+                >
+                  CSV
+                </Button>
+                <Button
+                  onClick={handlePrint}
+                  className="bg-slate-600 hover:bg-slate-700 text-white text-[10px] font-black h-8 px-4 border-none rounded"
+                >
+                  PDF
+                </Button>
+              </div>
+            </div>
+
+            {/* Generated Data Table */}
+            <div className="border border-slate-200/60 rounded-md overflow-hidden bg-white shadow-xs">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow className="border-b border-slate-200">
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 py-3 px-3 text-center">Security No</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Gate No</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Gate Passing</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Date</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Time</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Vehicle No</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3">Driver Name</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Type of movement</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Plant</TableHead>
                   </TableRow>
-                ) : (
-                  activeHolds.map((item, idx) => (
-                    <TableRow key={idx} className="hover:bg-slate-50/50 border-b last:border-0 bg-rose-50/10">
-                      <TableCell className="font-bold text-slate-500 text-xs py-3 px-4">{item.date} at {item.time}</TableCell>
-                      <TableCell className="font-extrabold text-[#1e40af] text-xs px-3">{item.vehicleNo}</TableCell>
-                      <TableCell className="font-bold text-slate-700 text-xs px-3">{item.driverName}</TableCell>
-                      <TableCell className="font-black text-slate-800 text-xs px-3 uppercase">{item.gatePassNo}</TableCell>
-                      <TableCell className="text-xs px-3 text-center">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200">
-                          {item.status}
-                        </span>
+                </TableHeader>
+                <TableBody>
+                  {filteredLogs.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-12 text-xs font-bold text-slate-400 uppercase">
+                        No report entries found for the selected criteria.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                  ) : (
+                    filteredLogs.map((item, idx) => (
+                      <TableRow
+                        key={item._id || item.id}
+                        className={`hover:bg-slate-50/50 transition-colors border-b border-slate-100 ${
+                          idx % 2 === 0 ? "bg-white" : "bg-slate-50/10"
+                        }`}
+                      >
+                        <TableCell className="font-bold text-slate-500 text-xs py-3 px-3 text-center">SEC-{idx + 1}</TableCell>
+                        <TableCell className="font-bold text-slate-700 text-xs px-3 text-center">{item.gateNo}</TableCell>
+                        <TableCell className="text-xs px-3 text-center">
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                            {item.gatePassing}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.date}</TableCell>
+                        <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.time}</TableCell>
+                        <TableCell className="font-extrabold text-[#1e40af] text-xs px-3 text-center">{item.vehicleNo || "N/A"}</TableCell>
+                        <TableCell className="font-bold text-slate-700 text-xs px-3 uppercase">{item.driverName || "N/A"}</TableCell>
+                        <TableCell className="font-bold text-slate-700 text-xs px-3 text-center">{item.typeOfMovement}</TableCell>
+                        <TableCell className="font-extrabold text-slate-800 text-xs px-3 text-center uppercase">{item.plant}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+          </div>
+        )}
+
       </div>
     </TransportLayout>
   );

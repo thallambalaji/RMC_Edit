@@ -26,7 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronRight, Loader2, Search, RotateCcw, Copy, FileSpreadsheet, Printer, Trash2, MoreHorizontal, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download } from "lucide-react";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -430,55 +430,63 @@ export default function SalesOrderList() {
                     </TableCell>
 
                     <TableCell className="text-center align-middle py-1.5">
-                      {/* Fully updated Dropdown Actions menu */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 cursor-pointer hover:bg-slate-100">
-                            <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 bg-white font-bold text-xs p-1">
-                          
-                          <DropdownMenuItem onClick={() => handleToggleStatus(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            {order.status === 'completed' ? (
-                              <>
-                                <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
-                                <span>Set as Pending</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                                <span>Approve & Complete</span>
-                              </>
-                            )}
-                          </DropdownMenuItem>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handlePrintSingle(order)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleExportCSVResponseSingle(order)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handlePrintSingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Printer className="h-3.5 w-3.5 text-indigo-500" />
-                            <span>Print PDF</span>
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuItem onClick={() => handleExportCSVResponseSingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            <span>Export CSV</span>
-                          </DropdownMenuItem>
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(order)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handleCopySingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-500" />
-                            <span>Copy Details</span>
-                          </DropdownMenuItem>
+                        {/* 4. Edit (Pencil Icon) */}
+                        <Button 
+                          onClick={() => {
+                            toast({
+                              title: "Edit restricted",
+                              description: `Approved Sales Order ${order.poNumber} is locked.`,
+                              variant: "destructive"
+                            });
+                          }}
+                          title="Edit Order" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
-
-                          <DropdownMenuItem onClick={() => handleDelete(order.id)} className="flex items-center gap-2 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 cursor-pointer rounded">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span>Delete Order</span>
-                          </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => handleDelete(order.id)}
+                          title="Delete Order" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

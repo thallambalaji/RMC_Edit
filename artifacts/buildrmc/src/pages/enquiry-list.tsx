@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Eye, MoreHorizontal, Printer } from "lucide-react";
+import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Printer, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -161,6 +161,57 @@ export default function EnquiryList() {
     window.print();
   };
 
+  const handlePrintSingle = (e: any) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const html = `
+      <html>
+        <head>
+          <title>Enquiry Details - ${e.enquiryId}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            h1 { color: #1e40af; }
+            .field { margin-bottom: 10px; }
+            .label { font-weight: bold; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <h1>Enquiry details: ${e.enquiryId}</h1>
+          <div class="field"><span class="label">Contact Person:</span> ${e.contactPerson}</div>
+          <div class="field"><span class="label">Company Name:</span> ${e.companyName || "N/A"}</div>
+          <div class="field"><span class="label">Mobile:</span> ${e.mobile}</div>
+          <div class="field"><span class="label">Email:</span> ${e.email || "N/A"}</div>
+          <div class="field"><span class="label">Address:</span> ${e.customerAddress}</div>
+          <div class="field"><span class="label">Designation:</span> ${e.designation}</div>
+          <div class="field"><span class="label">Status:</span> ${e.status || "pending"}</div>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
+  const handleExportCSVSingle = (e: any) => {
+    const headers = ["Enquiry ID", "Name", "Phone", "Email", "Address", "Company", "Status"];
+    const row = [e.enquiryId, e.contactPerson, e.mobile, e.email || "", e.customerAddress, e.companyName || "", e.status || "pending"];
+    const content = [headers.join(","), row.map(val => `"${val}"`).join(",")].join("\n");
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `enquiry_${e.enquiryId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "CSV Downloaded", description: `Enquiry ${e.enquiryId} CSV file generated.` });
+  };
+
+  const handleCopySingle = (e: any) => {
+    const text = `Enquiry ID: ${e.enquiryId}\nName: ${e.contactPerson}\nPhone: ${e.mobile}\nEmail: ${e.email || ""}\nAddress: ${e.customerAddress}\nCompany: ${e.companyName || ""}\nStatus: ${e.status}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Enquiry details copied to clipboard." });
+  };
+
   return (
     <div className="space-y-4 pb-4 print:p-0">
       <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 print:hidden">
@@ -317,21 +368,57 @@ export default function EnquiryList() {
                       </span>
                     </TableCell>
                     <TableCell className="text-center print:hidden">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="text-xs">
-                          <DropdownMenuItem onClick={() => setSelectedEnquiry(enq)} className="gap-2">
-                            <Eye className="h-3.5 w-3.5 text-blue-600" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(enq.id)} className="text-red-600 gap-2">
-                            <Trash2 className="h-3.5 w-3.5" /> Delete Enquiry
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handlePrintSingle(enq)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleExportCSVSingle(enq)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(enq)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens Enquiry detail modal to view/manage */}
+                        <Button 
+                          onClick={() => setSelectedEnquiry(enq)}
+                          title="Edit Enquiry" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => handleDelete(enq.id)}
+                          title="Delete Enquiry" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

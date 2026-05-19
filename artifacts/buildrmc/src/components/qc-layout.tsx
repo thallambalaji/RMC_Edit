@@ -43,8 +43,12 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
 
   // Determine default value for accordion based on current path
   const getDefaultAccordions = () => {
-    const activeAccordions: string[] = ["mix-design", "recipe", "cube-test", "batch-list", "qc-settings"];
-    return activeAccordions;
+    if (currentPath.includes("/mix-design")) return ["mix-design"];
+    if (currentPath.includes("/recipe")) return ["recipe"];
+    if (currentPath.includes("/cube-test")) return ["cube-test"];
+    if (currentPath.includes("/batch")) return ["batch-list"];
+    if (currentPath.includes("/settings")) return ["qc-settings"];
+    return [];
   };
 
   return (
@@ -215,33 +219,66 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col space-y-3 min-w-0">
         {/* Unified Top Header & Breadcrumbs Row */}
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
-          <div className="flex items-center gap-3">
-            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">
+        <div className="flex items-center justify-between bg-white py-3.5 px-5 rounded-lg border border-slate-200 shadow-sm shrink-0 print:hidden">
+          <div className="flex items-center">
+            <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-wider select-none">
               {title}
             </h2>
-            <div className="h-4 w-px bg-gray-300" />
-            <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors flex items-center gap-1">
-                <Home className="h-3 w-3" /> Home
+            <div className="h-4 w-px bg-slate-300 mx-4" />
+            <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
+              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <Home className="h-3.5 w-3.5 text-slate-500" />
+                <span>HOME</span>
               </Link>
-              <ChevronRight className="h-2.5 w-2.5" />
-              <Link href="/qc" className="hover:text-[#1e40af] transition-colors">
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <Link href="/qc" className="hover:text-blue-600 transition-colors">
                 QC
               </Link>
-              {breadcrumbs.map((bc, idx) => (
-                <span key={idx} className="flex items-center gap-1">
-                  <ChevronRight className="h-2.5 w-2.5" />
-                  {bc.href ? (
-                    <Link href={bc.href} className="hover:text-[#1e40af] transition-colors">
-                      {bc.label}
-                    </Link>
-                  ) : (
-                    <span className="text-[#1e40af]">{bc.label}</span>
-                  )}
-                </span>
-              ))}
+              {breadcrumbs.map((bc, idx) => {
+                const isLast = idx === breadcrumbs.length - 1;
+                return (
+                  <div key={idx} className="flex items-center">
+                    <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+                    {isLast ? (
+                      <span className="text-blue-600 font-black">{bc.label.toUpperCase()}</span>
+                    ) : (
+                      bc.href ? (
+                        <Link href={bc.href} className="hover:text-blue-600 transition-colors">
+                          {bc.label.toUpperCase()}
+                        </Link>
+                      ) : (
+                        <span>{bc.label.toUpperCase()}</span>
+                      )
+                    )}
+                  </div>
+                );
+              })}
             </nav>
+          </div>
+
+          {/* Filters Button matching the screenshot */}
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-slate-700"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+            </Button>
           </div>
         </div>
 

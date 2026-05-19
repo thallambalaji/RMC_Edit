@@ -39,12 +39,10 @@ import {
   Trash2,
   CalendarClock,
   Plus,
-  MoreHorizontal,
   Printer,
-  FileSpreadsheet,
+  Pencil,
   Copy,
-  CheckCircle2,
-  AlertCircle
+  Download
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
@@ -534,55 +532,63 @@ export default function SchedulingList() {
                     </TableCell>
 
                     <TableCell className="text-center py-2">
-                      {/* Fully updated Actions Dropdown */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 cursor-pointer hover:bg-slate-100">
-                            <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 bg-white font-bold text-xs p-1">
-                          
-                          <DropdownMenuItem onClick={() => handleToggleStatus(s)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            {s.status === 'completed' ? (
-                              <>
-                                <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
-                                <span>Mark Scheduled</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                                <span>Mark Completed</span>
-                              </>
-                            )}
-                          </DropdownMenuItem>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handlePrintSingle(s)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleExportCSVSingle(s)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handlePrintSingle(s)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Printer className="h-3.5 w-3.5 text-indigo-500" />
-                            <span>Print PDF</span>
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuItem onClick={() => handleExportCSVSingle(s)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            <span>Export CSV</span>
-                          </DropdownMenuItem>
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(s)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handleCopySingle(s)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-500" />
-                            <span>Copy Details</span>
-                          </DropdownMenuItem>
+                        {/* 4. Edit (Pencil Icon) */}
+                        <Button 
+                          onClick={() => {
+                            toast({
+                              title: "Edit restricted",
+                              description: `Schedule for PO ${s.poNumber || s.id} is locked in the system.`,
+                              variant: "destructive"
+                            });
+                          }}
+                          title="Edit Schedule" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
-
-                          <DropdownMenuItem onClick={() => handleDelete(s.id)} className="flex items-center gap-2 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 cursor-pointer rounded">
-                            <Trash2 className="h-3.5 w-3.5 text-rose-500" />
-                            <span>Delete Schedule</span>
-                          </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => handleDelete(s.id)}
+                          title="Delete Schedule" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

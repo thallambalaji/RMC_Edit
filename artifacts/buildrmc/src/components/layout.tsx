@@ -24,17 +24,17 @@ import {
 import { useToast } from "../hooks/use-toast";
 
 const navItems = [
-  { href: "/dashboard",   label: "Dashboard",    icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/customer-po", label: "Customer & PO", icon: Users },
-  { href: "/billing",     label: "Billing",       icon: FileText },
-  { href: "/dc",          label: "DC",            icon: Truck },
-  { href: "/sales",       label: "Sales",         icon: BarChart3 },
-  { href: "/qc",          label: "QC",            icon: CheckSquare },
-  { href: "/accounts",    label: "Accounts",      icon: BookOpen,    comingSoon: true },
-  { href: "/store",       label: "Store",         icon: Package,     comingSoon: true },
-  { href: "/transport",   label: "Transport",     icon: Bus },
-  { href: "/hrm",         label: "HRM",           icon: Users2,      comingSoon: true },
-  { href: "/reports",     label: "Reports",       icon: FileBarChart, comingSoon: true },
+  { href: "/billing", label: "Billing", icon: FileText },
+  { href: "/dc", label: "DC", icon: Truck },
+  { href: "/sales", label: "Sales", icon: BarChart3 },
+  { href: "/qc", label: "QC", icon: CheckSquare },
+  { href: "/transport", label: "Transport", icon: Bus },
+  { href: "/accounts", label: "Accounts", icon: BookOpen, comingSoon: true },
+  { href: "/store", label: "Store", icon: Package, comingSoon: true },
+  { href: "/hrm", label: "HRM", icon: Users2, comingSoon: true },
+  { href: "/reports", label: "Reports", icon: FileBarChart, comingSoon: true },
 ];
 
 // Mock notifications
@@ -51,18 +51,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const logout = useLogout();
   const { toast } = useToast();
 
-  const [notifOpen, setNotifOpen]   = useState(false);
-  const [userOpen,  setUserOpen]    = useState(false);
-  const [notifList, setNotifList]   = useState(notifications);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
+  const [notifList, setNotifList] = useState(notifications);
 
   const notifRef = useRef<HTMLDivElement>(null);
-  const userRef  = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) setNotifOpen(false);
-      if (userRef.current  && !userRef.current.contains(e.target  as Node)) setUserOpen(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -156,7 +156,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       {/* ═══ HEADER ═══════════════════════════════ */}
       <header className="print:hidden" style={s.header}>
         <div style={s.brandBar}>
-          
+
           <div style={{ display: "flex", alignItems: "center", gap: "16px", flex: 1, minWidth: 0 }}>
             {/* Logo */}
             <Link href="/dashboard">
@@ -166,7 +166,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   <div style={{ fontSize: "16px", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>
                     FORTUNE<span style={{ color: "#1e40af" }}>MIX</span>
                   </div>
-                <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                  <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
                     ENTERPRISE PLATFORM
                   </div>
                 </div>
@@ -178,7 +178,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location === item.href || location.startsWith(item.href + "/");
-                
+
                 const content = (
                   <div style={s.navTab(isActive)} onClick={() => {
                     if (item.comingSoon) {
@@ -299,9 +299,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
                   {/* Menu items */}
                   {[
-                    { icon: User,     label: "My Profile",       href: "/dashboard" },
-                    { icon: Shield,   label: "Permissions",      href: "/dashboard" },
-                    { icon: KeyRound, label: "Change Password",  href: "/dashboard" },
+                    { icon: User, label: "My Profile", href: "/dashboard" },
+                    { icon: Shield, label: "Permissions", href: "/dashboard" },
+                    { icon: KeyRound, label: "Change Password", href: "/dashboard" },
                   ].map((item) => (
                     <Link key={item.label} href={item.href}>
                       <div

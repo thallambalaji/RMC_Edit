@@ -41,11 +41,23 @@ router.post("/sales-orders", async (req, res): Promise<void> => {
   
   try {
     await connectMongo();
+
+    // Check if PO Number already exists to prevent duplicate error
+    const existing = await SalesOrder.findOne({ poNumber: parsed.data.poNumber });
+    if (existing) {
+      res.status(400).json({ error: "PO Number already exists! Please use a unique PO number." });
+      return;
+    }
+
     const order = new SalesOrder(parsed.data);
     await order.save();
     const populated = await order.populate("customerId");
     res.status(201).json(toApi(populated));
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) {
+      res.status(400).json({ error: "PO Number already exists! Please use a unique PO number." });
+      return;
+    }
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

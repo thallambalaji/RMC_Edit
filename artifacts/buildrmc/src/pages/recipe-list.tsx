@@ -1,0 +1,445 @@
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  ChevronRight, 
+  FlaskConical, 
+  Plus, 
+  Search, 
+  RotateCcw, 
+  Trash2, 
+  Eye, 
+  FileText,
+  Building2,
+  MapPin,
+  ClipboardList,
+  User,
+  Copy,
+  FileCode,
+  FileDown,
+  Printer
+} from "lucide-react";
+import { QcLayout } from "@/components/qc-layout";
+
+export default function RecipeList() {
+  const { toast } = useToast();
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Filters
+  const [searchCode, setSearchCode] = useState("");
+  const [searchCustomer, setSearchCustomer] = useState("all");
+  const [searchSite, setSearchSite] = useState("all");
+  const [searchGrade, setSearchGrade] = useState("all");
+  const [pageSize, setPageSize] = useState(10);
+  
+  const [printingItem, setPrintingItem] = useState<any | null>(null);
+  const [isPrintingList, setIsPrintingList] = useState(false);
+
+  const fetchRecipes = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/recipes");
+      if (res.ok) {
+        const data = await res.json();
+        setRecipes(data);
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to fetch recipes.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRecipes();
+  }, []);
+
+  const uniqueCustomers = useMemo(() => Array.from(new Set(recipes.map(r => r.customer))), [recipes]);
+  const uniqueSites = useMemo(() => Array.from(new Set(recipes.map(r => r.siteName))), [recipes]);
+  const uniqueGrades = useMemo(() => Array.from(new Set(recipes.map(r => r.grade))), [recipes]);
+
+  const filtered = useMemo(() => {
+    return recipes.filter(r => {
+      if (searchCode && !r.recipeCode.toLowerCase().includes(searchCode.toLowerCase())) return false;
+      if (searchCustomer !== "all" && r.customer !== searchCustomer) return false;
+      if (searchSite !== "all" && r.siteName !== searchSite) return false;
+      if (searchGrade !== "all" && r.grade !== searchGrade) return false;
+      return true;
+    });
+  }, [recipes, searchCode, searchCustomer, searchSite, searchGrade]);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this recipe?")) return;
+    try {
+      const res = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setRecipes(prev => prev.filter(r => r.id !== id));
+        toast({ title: "Deleted", description: "Recipe removed from database." });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Delete failed.", variant: "destructive" });
+    }
+  };
+
+  const handlePrint = (recipe: any) => {
+    setPrintingItem(recipe);
+    setTimeout(() => {
+      window.print();
+      setPrintingItem(null);
+    }, 100);
+  };
+
+  const handleExport = (type: string) => {
+    const headers = ["S/L No", "Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump", "Total Density"];
+    const rows = filtered.map((r, idx) => [idx + 1, r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump, r.totalDensity]);
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+
+    if (type === "copy") {
+      navigator.clipboard.writeText(csvContent);
+      toast({ title: "Copied", description: "Table data copied to clipboard." });
+    } else if (type === "csv") {
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Recipe_List.csv";
+      link.click();
+    } else if (type === "pdf") {
+      setIsPrintingList(true);
+      setTimeout(() => {
+        window.print();
+        setIsPrintingList(false);
+      }, 100);
+    }
+  };
+
+  return (
+    <div className="space-y-6 bg-[#f8fafc] min-h-full pb-12 print:bg-white print:p-0">
+      
+      {/* ═══ LIST PRINT SECTION (Professional Layout) ═══ */}
+      {isPrintingList && (
+        <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-slate-900 overflow-y-auto">
+          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-xl">B</div>
+              <div className="space-y-0.5">
+                <h1 className="text-2xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
+                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
+                <p className="text-[8px] text-slate-400 font-bold uppercase">ISO 9001:2015 Certified Enterprise</p>
+              </div>
+            </div>
+            <div className="text-right space-y-1">
+              <h2 className="text-lg font-black uppercase text-slate-800 tracking-widest">Recipe Summary Report</h2>
+              <p className="text-[9px] font-bold text-slate-500">Date: {new Date().toLocaleDateString('en-GB')}</p>
+              <p className="text-[9px] font-bold text-slate-500">Total Records: {filtered.length}</p>
+            </div>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-800 text-[10px]">
+            <thead>
+              <tr className="bg-slate-100 uppercase">
+                <th className="border border-slate-800 p-2 text-center w-12">S/L</th>
+                <th className="border border-slate-800 p-2 text-left">Recipe Code</th>
+                <th className="border border-slate-800 p-2 text-left">Customer</th>
+                <th className="border border-slate-800 p-2 text-left">Site Name</th>
+                <th className="border border-slate-800 p-2 text-left">Grade</th>
+                <th className="border border-slate-800 p-2 text-left">Plant</th>
+                <th className="border border-slate-800 p-2 text-center w-16">Slump</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r, idx) => (
+                <tr key={idx} className="border border-slate-800">
+                  <td className="border border-slate-800 p-1.5 text-center">{idx + 1}</td>
+                  <td className="border border-slate-800 p-1.5 font-bold uppercase">{r.recipeCode}</td>
+                  <td className="border border-slate-800 p-1.5">{r.customer}</td>
+                  <td className="border border-slate-800 p-1.5">{r.siteName}</td>
+                  <td className="border border-slate-800 p-1.5 font-black">{r.grade}</td>
+                  <td className="border border-slate-800 p-1.5">{r.plant}</td>
+                  <td className="border border-slate-800 p-1.5 text-center font-bold">{r.slump}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="mt-12 flex justify-between">
+            <div className="text-center w-40 border-t border-slate-400 pt-1">
+              <p className="text-[8px] font-black uppercase">Prepared By</p>
+            </div>
+            <div className="text-center w-40 border-t border-slate-400 pt-1">
+              <p className="text-[8px] font-black uppercase">Verified By</p>
+            </div>
+            <div className="text-center w-40 border-t border-slate-400 pt-1">
+              <p className="text-[8px] font-black uppercase">Authorized Signatory</p>
+            </div>
+          </div>
+          
+          <div className="absolute bottom-6 left-8 right-8 text-center border-t border-slate-100 pt-2">
+            <p className="text-[7px] text-slate-400 uppercase font-black tracking-widest">Build RMC Enterprise Management System • Confidential</p>
+          </div>
+        </div>
+      )}
+      {printingItem && (
+        <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-slate-900">
+          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-inner">B</div>
+              <div className="space-y-0.5">
+                <h1 className="text-3xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
+                <p className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">ISO 9001:2015 Certified Enterprise</p>
+              </div>
+            </div>
+            <div className="text-right space-y-1">
+              <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Mix Recipe Report</h2>
+              <p className="text-[10px] font-bold text-slate-500">Date: {new Date().toLocaleDateString('en-GB')}</p>
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Doc ID: RMC/REC/{Math.floor(Math.random()*9000)+1000}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 mb-8 text-xs">
+            <div className="space-y-3">
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Recipe Code:</span> <span className="font-bold">{printingItem.recipeCode}</span></div>
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Grade:</span> <span className="font-bold">{printingItem.grade}</span></div>
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Slump:</span> <span className="font-bold">{printingItem.slump}</span></div>
+            </div>
+            <div className="space-y-3">
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Customer:</span> <span className="font-bold">{printingItem.customer}</span></div>
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Site Name:</span> <span className="font-bold">{printingItem.siteName}</span></div>
+              <div className="flex justify-between border-b pb-1"><span className="font-black text-slate-500 uppercase">Plant:</span> <span className="font-bold">{printingItem.plant}</span></div>
+            </div>
+          </div>
+
+          <table className="w-full border-collapse border border-slate-800 text-[11px] mb-12">
+            <thead>
+              <tr className="bg-slate-100 uppercase">
+                <th className="border border-slate-800 p-2 text-left">Mix Types</th>
+                <th className="border border-slate-800 p-2 text-left">Product</th>
+                <th className="border border-slate-800 p-2 text-right">Quantity (kg/m³)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {printingItem.ingredients?.map((ing: any) => (
+                <tr key={ing.sl}>
+                  <td className="border border-slate-800 p-2 font-bold">{ing.type}</td>
+                  <td className="border border-slate-800 p-2">{ing.product || "-"}</td>
+                  <td className="border border-slate-800 p-2 text-right font-black">{ing.qty || "0"}</td>
+                </tr>
+              ))}
+              <tr className="bg-slate-50 font-black text-sm">
+                <td colSpan={2} className="border border-slate-800 p-3 text-right uppercase">Total Density:</td>
+                <td className="border border-slate-800 p-3 text-right text-blue-800">{printingItem.totalDensity?.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="flex justify-between mt-24">
+            <div className="text-center w-48 border-t border-slate-400 pt-2">
+              <p className="text-[10px] font-black uppercase">Prepared By</p>
+            </div>
+            <div className="text-center w-48 border-t border-slate-400 pt-2">
+              <p className="text-[10px] font-black uppercase">Plant Incharge</p>
+            </div>
+            <div className="text-center w-48 border-t border-slate-400 pt-2">
+              <p className="text-[10px] font-black uppercase">Authorized Signatory</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ UI SECTION ═══ */}
+      <QcLayout
+        breadcrumbs={[{ label: "Recipe List" }]}
+        title="RECIPE LIST"
+        activePath="/qc/recipe/list"
+      >
+        <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
+          <CardContent className="p-6">
+            {/* Filters matching image */}
+            <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end mb-8">
+              <div className="space-y-1.5 lg:col-span-1">
+                <Label className="text-[10px] font-black uppercase text-slate-500">Recipe Code</Label>
+                <Input 
+                  value={searchCode} 
+                  onChange={e => setSearchCode(e.target.value)} 
+                  placeholder="Enter Recipe Code" 
+                  className="h-10 text-xs font-bold border-slate-300" 
+                />
+              </div>
+              <div className="space-y-1.5 lg:col-span-1">
+                <Label className="text-[10px] font-black uppercase text-slate-500">Customer :</Label>
+                <Select value={searchCustomer} onValueChange={setSearchCustomer}>
+                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
+                    <SelectValue placeholder="All Customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Customer</SelectItem>
+                    {uniqueCustomers.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 lg:col-span-1">
+                <Label className="text-[10px] font-black uppercase text-slate-500">Site :</Label>
+                <Select value={searchSite} onValueChange={setSearchSite}>
+                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
+                    <SelectValue placeholder="All Site" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Site</SelectItem>
+                    {uniqueSites.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5 lg:col-span-1">
+                <Label className="text-[10px] font-black uppercase text-slate-500">Grade</Label>
+                <Select value={searchGrade} onValueChange={setSearchGrade}>
+                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
+                    <SelectValue placeholder="All Product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Product</SelectItem>
+                    {uniqueGrades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 lg:col-span-3">
+                <Button className="bg-[#10b981] hover:bg-[#059669] text-white font-black h-10 px-6 text-xs uppercase tracking-widest flex-1">
+                  Search
+                </Button>
+                <Button variant="destructive" onClick={() => { setSearchCode(""); setSearchCustomer("all"); setSearchSite("all"); setSearchGrade("all"); }} className="font-black h-10 px-6 text-xs uppercase tracking-widest flex-1">
+                  Clear
+                </Button>
+                <Link href="/qc/recipe/new" className="flex-1">
+                  <Button className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-black h-10 px-6 text-xs uppercase tracking-widest w-full">
+                    Add Recipe
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Toolbar Row */}
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase">
+                <span>Show</span>
+                <Select value={String(pageSize)} onValueChange={v => setPageSize(Number(v))}>
+                  <SelectTrigger className="w-16 h-8 text-xs font-black border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50, 100].map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <span>entries</span>
+              </div>
+
+              <div className="flex gap-1">
+                <Button variant="outline" size="sm" onClick={() => handleExport("copy")} className="h-8 bg-slate-400 hover:bg-slate-500 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">Copy</Button>
+                <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="h-8 bg-slate-500 hover:bg-slate-600 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">CSV</Button>
+                <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} className="h-8 bg-slate-600 hover:bg-slate-700 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">PDF</Button>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto rounded-lg border border-slate-200">
+              <Table>
+                <TableHeader className="bg-slate-50">
+                  <TableRow>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 py-4 px-4 whitespace-nowrap">S/L No</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Recipe Code</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Customer</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Site Name</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Grade</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Plant</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Slump</TableHead>
+                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 text-center whitespace-nowrap">ACTION</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={8} className="text-center py-20 font-black text-slate-300 uppercase tracking-widest">Loading Database...</TableCell></TableRow>
+                  ) : filtered.length === 0 ? (
+                    <TableRow><TableCell colSpan={8} className="text-center py-20 font-black text-slate-300 uppercase tracking-widest">No Records Found</TableCell></TableRow>
+                  ) : (
+                    filtered.slice(0, pageSize).map((r, idx) => (
+                      <TableRow key={r.id} className="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
+                        <TableCell className="font-bold text-slate-400 text-[10px] px-4">{idx + 1}</TableCell>
+                        <TableCell className="font-black text-[#1e40af] text-[11px] px-4">{r.recipeCode}</TableCell>
+                        <TableCell className="text-[10px] font-bold text-slate-700 px-4">{r.customer}</TableCell>
+                        <TableCell className="text-[10px] font-bold text-slate-500 px-4">{r.siteName}</TableCell>
+                        <TableCell className="text-[10px] font-black text-slate-800 px-4">{r.grade}</TableCell>
+                        <TableCell className="text-[10px] font-bold text-slate-600 px-4">{r.plant}</TableCell>
+                        <TableCell className="text-[10px] font-black text-slate-600 px-4">{r.slump}</TableCell>
+                        <TableCell className="px-4 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => {
+                              const csv = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"].join(",") + "\n" + [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump].join(",");
+                              navigator.clipboard.writeText(csv);
+                              toast({ title: "Copied", description: "Recipe data copied." });
+                            }} className="h-7 w-7 text-slate-400 hover:text-emerald-600" title="Copy">
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => {
+                              const headers = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"];
+                              const row = [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump];
+                              const csvContent = [headers, row].map(e => e.join(",")).join("\n");
+                              const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                              const link = document.createElement("a");
+                              link.href = URL.createObjectURL(blob);
+                              link.download = `Recipe_${r.recipeCode}.csv`;
+                              link.click();
+                            }} className="h-7 w-7 text-slate-400 hover:text-slate-600" title="CSV">
+                              <FileCode className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handlePrint(r)} className="h-7 w-7 text-slate-400 hover:text-blue-600" title="Print Recipe">
+                              <Printer className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-slate-400 hover:text-red-600" title="Delete">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="mt-6 flex items-center justify-between flex-wrap gap-4">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+                Showing 1 to {Math.min(pageSize, filtered.length)} of {filtered.length} entries
+              </p>
+              <div className="flex items-center gap-1">
+                <Button variant="outline" disabled className="h-8 text-[10px] font-bold uppercase">Previous</Button>
+                <Button className="h-8 w-8 bg-[#0ea5e9] text-white text-[10px] font-bold">1</Button>
+                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold">2</Button>
+                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold">3</Button>
+                <Button variant="outline" className="h-8 text-[10px] font-bold uppercase">Next</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </QcLayout>
+    </div>
+  );
+}

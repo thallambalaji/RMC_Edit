@@ -11,7 +11,6 @@ async function connectMongo() {
   if (!MONGODB_URI) {
     throw new Error("MONGODB_URI environment variable is not set. Add it in Railway → Variables.");
   }
-
   if (cached.conn) {
     return cached.conn;
   }

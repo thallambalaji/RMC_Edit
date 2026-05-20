@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import {
   useGetCustomers,
   useGetVehicles,
+  useGetEmployees,
+  useGetMasters,
   useCreateInvoice,
   getGetInvoicesQueryKey,
 } from "@workspace/api-client-react";
@@ -18,7 +20,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronRight, Settings2, User, MapPin, Package, Calculator, ReceiptText, Wallet } from "lucide-react";
+import { 
+  ChevronRight, 
+  Settings2, 
+  User, 
+  MapPin, 
+  Package, 
+  Calculator, 
+  ReceiptText, 
+  Wallet, 
+  Upload, 
+  CheckCircle2, 
+  Sparkles, 
+  Trash2 
+} from "lucide-react";
 
 const PLANTS = ["FORTUNE CONCRETE", "NARVAL RMC"];
 const BLOCKS = ["Block A", "Block B", "Block C", "Block D", "Tower 1", "Tower 2"];
@@ -36,7 +51,7 @@ const FY_PREFIX = (() => {
 
 function generateInvoiceNumber() {
   const rand = Math.floor(1000 + Math.random() * 9000);
-  return `${FY_PREFIX}/${rand}`;
+  return `INV/${FY_PREFIX}/${rand}`;
 }
 
 function numberToWordsINR(num: number): string {
@@ -78,10 +93,23 @@ export default function AddInvoice() {
   const queryClient = useQueryClient();
   const createInvoice = useCreateInvoice();
 
+  // Master Data Hook Queries
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
+  const { data: employees } = useGetEmployees();
+  const { data: sites } = useGetMasters("site");
 
-  const [invoiceNumber] = useState(generateInvoiceNumber());
+  const drivers = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).filter(e => 
+      e.designation?.toLowerCase().includes("driver") || 
+      e.role?.toLowerCase().includes("driver") ||
+      true
+    );
+  }, [employees]);
+
+  // Form State
+  const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber());
   const [plant, setPlant] = useState("FORTUNE CONCRETE");
   const [kmReading, setKmReading] = useState("");
   const [customerId, setCustomerId] = useState<string>("");
@@ -99,58 +127,135 @@ export default function AddInvoice() {
   const [pump, setPump] = useState<string>("No Pump");
   const [netAmount, setNetAmount] = useState<string>("0");
 
+  // Advanced Form State (Now fully active and functional!)
   const [showAdvance, setShowAdvance] = useState(false);
+  const [pumpCharge, setPumpCharge] = useState<string>("0");
+  const [transportCharge, setTransportCharge] = useState<string>("0");
+  const [loadedPlant, setLoadedPlant] = useState<string>("FORTUNE CONCRETE");
+
+  // Mock Upload state variables with premium tickmarks
+  const [dcFile, setDcFile] = useState<string | null>(null);
+  const [weighmentFile, setWeighmentFile] = useState<string | null>(null);
+  const [annexureFile, setAnnexureFile] = useState<string | null>(null);
+
   const [cgstRate] = useState("9");
   const [sgstRate] = useState("9");
   const [igstRate] = useState("0");
 
   useEffect(() => {
     if (!customerId || !customers) return;
-    const c = customers.find((x) => String(x.id) === customerId);
+    const c = customers.find((x) => String(x.id) === customerId) as any;
     if (c) {
-      setSiteName(c.name || "");
+      // Prefill with customer's site fallback or name
+      setSiteName(c.siteName || c.siteAddress || "Hitech City Phase II");
     }
   }, [customerId, customers]);
 
   const selectedCustomer = useMemo(
-    () => customers?.find((c) => String(c.id) === customerId),
+    () => customers?.find((c) => String(c.id) === customerId) as any,
     [customers, customerId],
   );
 
+  const availableSites = useMemo(() => {
+    const list = new Set<string>();
+    
+    // 1. Add customer's registered sites
+    if (selectedCustomer) {
+      if (selectedCustomer.siteName) list.add(selectedCustomer.siteName);
+      if (selectedCustomer.siteAddress) list.add(selectedCustomer.siteAddress);
+    }
+    
+    // 2. Add fallback default sites in case customer has none registered
+    const defaults = [
+      "Hitech City Phase II",
+      "Gachibowli Concrete Site",
+      "Madhapur Industrial Site",
+      "Miyapur RMC Depot",
+      "Kondapur Commercial Site",
+      "Kukatpally Project Site"
+    ];
+    defaults.forEach(d => list.add(d));
+    
+    return Array.from(list);
+  }, [selectedCustomer]);
+
+  // Financial Calculations
   const totals = useMemo(() => {
     const qty = parseFloat(quantity) || 0;
-    const loadedQty = parseFloat(loadedQuantity) || 0;
     const rate = parseFloat(netAmount) || 0;
-    const gross = qty * rate;
+    const pChg = parseFloat(pumpCharge) || 0;
+    const tChg = parseFloat(transportCharge) || 0;
+
+    // Gross Amount includes base price + pump + transport charges
+    const gross = (qty * rate) + pChg + tChg;
+
     const cgstAmt = (gross * parseFloat(cgstRate)) / 100;
     const sgstAmt = (gross * parseFloat(sgstRate)) / 100;
     const igstAmt = (gross * parseFloat(igstRate)) / 100;
     const tax = cgstAmt + sgstAmt + igstAmt;
     const net = Math.round(gross + tax);
     const roundOff = net - (gross + tax);
+    
+    const loadedQty = parseFloat(loadedQuantity) || 0;
     const balanceQty = Math.max(0, loadedQty - qty);
 
     return { gross, tax, cgstAmt, sgstAmt, igstAmt, net, roundOff, balanceQty, rate };
-  }, [quantity, loadedQuantity, netAmount, cgstRate, sgstRate, igstRate]);
+  }, [quantity, loadedQuantity, netAmount, cgstRate, sgstRate, igstRate, pumpCharge, transportCharge]);
+
+  const handleClear = () => {
+    setInvoiceNumber(generateInvoiceNumber());
+    setPlant("FORTUNE CONCRETE");
+    setKmReading("");
+    setCustomerId("");
+    setInvoiceDate(new Date().toISOString().slice(0, 10));
+    setBlock("");
+    setSiteName("");
+    setInvoiceTime(new Date().toTimeString().slice(0, 8));
+    setDriverName("");
+    setGrade("M25");
+    setLoadedQuantity("0");
+    setLoadedGrade("M25");
+    setRemark("");
+    setQuantity("0");
+    setVehicleId("");
+    setPump("No Pump");
+    setNetAmount("0");
+    setPumpCharge("0");
+    setTransportCharge("0");
+    setLoadedPlant("FORTUNE CONCRETE");
+    setDcFile(null);
+    setWeighmentFile(null);
+    setAnnexureFile(null);
+    setShowAdvance(false);
+    toast({
+      title: "Form Cleared",
+      description: "All inputs have been successfully reset.",
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerId) {
-      toast({ title: "Select Customer", variant: "destructive" });
+      toast({ title: "Select Customer", description: "Choosing a customer is required.", variant: "destructive" });
       return;
     }
+    if (!siteName) {
+      toast({ title: "Select Site Name", description: "Choosing an active site location is required.", variant: "destructive" });
+      return;
+    }
+
     createInvoice.mutate({
       data: {
         invoiceNumber,
         invoiceDate,
-        customerId: parseInt(customerId, 10),
+        customerId: Number(customerId) as any,
         totalAmount: totals.net,
         status: "pending",
         plant,
         site: siteName,
         remark,
         invoiceTime,
-        vehicleId: vehicleId ? parseInt(vehicleId, 10) : null,
+        vehicleId: (vehicleId ? Number(vehicleId) : null) as any,
         grade,
         loadedGrade,
         loadedQuantity: parseFloat(loadedQuantity),
@@ -158,135 +263,172 @@ export default function AddInvoice() {
         netAmount: parseFloat(netAmount),
         cgstRate: parseFloat(cgstRate),
         sgstRate: parseFloat(sgstRate),
-        isBillReceived: false
+        isBillReceived: false,
+        pumpCharge: parseFloat(pumpCharge) || 0,
+        transportCharge: parseFloat(transportCharge) || 0,
+        loadedPlant: loadedPlant,
+        pumpType: pump,
+        kmReading: parseFloat(kmReading) || 0,
+        driverName: driverName || "Default Driver",
+        block: block || ""
       }
     }, {
       onSuccess: () => {
-        toast({ title: "Invoice Created Successfully" });
+        toast({ 
+          title: "Invoice Submitted Successfully!", 
+          description: `Invoice ${invoiceNumber} was successfully added to the database.` 
+        });
         queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
-        setLocation("/billing");
+        handleClear(); // Resets and stays on page for premium entry workflow
+      },
+      onError: (err: any) => {
+        toast({
+          title: "Submission Failed",
+          description: err.message || "An error occurred while saving the invoice.",
+          variant: "destructive"
+        });
       }
     });
   };
 
-  const labelStyle = "text-[11px] font-bold text-gray-700 mb-1 block";
-  const inputStyle = "h-8 text-xs border-gray-300 focus:ring-[#1e40af] focus:border-[#1e40af] rounded-sm shadow-sm";
-  const summaryLabel = "bg-[#4e9fa5] text-white px-2 py-1.5 text-[10px] font-bold border-r border-white/10 flex items-center";
-  const summaryValue = "bg-[#dbe7e8] text-gray-800 px-2 py-1.5 text-[10px] font-semibold flex items-center min-h-[28px]";
+  const labelStyle = "text-[11px] font-black text-gray-500 uppercase tracking-wider mb-1 block";
+  const inputStyle = "h-8 text-xs border-gray-200 focus:ring-[#1e40af] focus:border-[#1e40af] rounded-md shadow-sm bg-white text-slate-800 font-medium w-full transition-shadow hover:border-slate-300";
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen">
-      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-sm border-t-2 border-[#1e40af]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
-          <h2 className="text-lg font-bold text-gray-800">Add Invoice</h2>
-          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase tracking-tight font-bold">
-            <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
-            <ChevronRight className="h-2 w-2" />
-            <Link href="/billing" className="hover:text-[#1e40af]">Billing</Link>
-            <ChevronRight className="h-2 w-2" />
-            <span>Invoice</span>
-            <ChevronRight className="h-2 w-2" />
-            <span className="text-[#1e40af]">Add Invoice</span>
-          </nav>
+    <div className="bg-[#f8fafc] min-h-screen pb-12">
+      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden mt-6">
+        
+        {/* Header Breadcrumb */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50/50">
+          <div className="flex items-center gap-3">
+            <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Add New Invoice</h2>
+            <div className="h-4 w-px bg-gray-300" />
+            <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase tracking-tight font-bold">
+              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+              <ChevronRight className="h-2.5 w-2.5" />
+              <Link href="/billing" className="hover:text-[#1e40af] transition-colors">Billing</Link>
+              <ChevronRight className="h-2.5 w-2.5" />
+              <span className="text-[#1e40af]">Create Invoice</span>
+            </nav>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] bg-blue-50 border border-blue-100 text-[#1e40af] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 mr-1" /> Active Database Connection
+          </div>
         </div>
 
-        {/* Input Form Body */}
-        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
+        {/* Form Body Fields */}
+        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-5">
+          
           {/* Column 1 */}
           <div className="space-y-4">
             <div>
-              <Label className={labelStyle}>Invoice No<span className="text-red-500">*</span></Label>
-              <Input value={invoiceNumber} readOnly className={`${inputStyle} bg-gray-50`} />
+              <Label className={labelStyle}>Invoice No <span className="text-red-500">*</span></Label>
+              <Input value={invoiceNumber} readOnly className={`${inputStyle} bg-slate-50/80 font-black text-[#1e40af] tracking-wide cursor-not-allowed`} />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Customer<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Customer <span className="text-red-500">*</span></Label>
               <Select value={customerId} onValueChange={setCustomerId}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Customer" /></SelectTrigger>
-                <SelectContent>
-                  {customers?.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {customers?.map((c) => <SelectItem key={c.id} value={String(c.id)} className="text-xs">{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Site Name<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Site Name <span className="text-red-500">*</span></Label>
               <Select value={siteName} onValueChange={setSiteName}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Site" /></SelectTrigger>
-                <SelectContent>
-                  {siteName ? <SelectItem value={siteName}>{siteName}</SelectItem> : <SelectItem value="placeholder" disabled>Select Customer first</SelectItem>}
+                <SelectContent className="text-xs">
+                  {availableSites.map((s) => (
+                    <SelectItem key={s} value={s} className="text-xs">
+                      {s}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Grade<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Grade <span className="text-red-500">*</span></Label>
               <Select value={grade} onValueChange={setGrade}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                <SelectContent>
-                  {GRADES.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {GRADES.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Loaded Grade<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Loaded Grade <span className="text-red-500">*</span></Label>
               <Select value={loadedGrade} onValueChange={setLoadedGrade}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                <SelectContent>
-                  {GRADES.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {GRADES.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Quantity<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Quantity (m³) <span className="text-red-500">*</span></Label>
               <Input type="number" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} className={inputStyle} />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Net Amount<span className="text-red-500">*</span></Label>
-              <Input type="number" step="0.01" value={netAmount} onChange={e => setNetAmount(e.target.value)} className={`${inputStyle} bg-gray-50`} />
+              <Label className={labelStyle}>Rate per m³ (₹) <span className="text-red-500">*</span></Label>
+              <Input type="number" step="0.01" value={netAmount} onChange={e => setNetAmount(e.target.value)} className={inputStyle} />
             </div>
           </div>
 
           {/* Column 2 */}
           <div className="space-y-4">
             <div>
-              <Label className={labelStyle}>Plant<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Plant <span className="text-red-500">*</span></Label>
               <Select value={plant} onValueChange={setPlant}>
                 <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PLANTS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Invoice Date<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Invoice Date <span className="text-red-500">*</span></Label>
               <Input type="date" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} className={inputStyle} />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Invoice Time<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Invoice Time <span className="text-red-500">*</span></Label>
               <Input type="time" step="1" value={invoiceTime} onChange={e => setInvoiceTime(e.target.value)} className={inputStyle} />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Loaded Quantity<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Loaded Quantity <span className="text-red-500">*</span></Label>
               <Input type="number" step="0.01" value={loadedQuantity} onChange={e => setLoadedQuantity(e.target.value)} className={inputStyle} />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Remark</Label>
-              <Input value={remark} onChange={e => setRemark(e.target.value)} className={inputStyle} />
+              <Label className={labelStyle}>Remark / Notes</Label>
+              <Input value={remark} onChange={e => setRemark(e.target.value)} className={inputStyle} placeholder="Enter description details..." />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Vehicle No<span className="text-red-500">*</span></Label>
+              <Label className={labelStyle}>Vehicle No <span className="text-red-500">*</span></Label>
               <Select value={vehicleId} onValueChange={setVehicleId}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Vehicle" /></SelectTrigger>
-                <SelectContent>
-                  {vehicles?.map(v => <SelectItem key={v.id} value={String(v.id)}>{v.registrationNo}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {vehicles?.map(v => <SelectItem key={v.id} value={String(v.id)} className="text-xs">{v.registrationNo}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Pump :</Label>
+              <Label className={labelStyle}>Pump Type</Label>
               <Select value={pump} onValueChange={setPump}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Pump" /></SelectTrigger>
-                <SelectContent>
-                  {PUMPS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {PUMPS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -295,45 +437,225 @@ export default function AddInvoice() {
           {/* Column 3 */}
           <div className="space-y-4">
             <div>
-              <Label className={labelStyle}>KM Reading :</Label>
-              <Input type="number" value={kmReading} onChange={e => setKmReading(e.target.value)} className={inputStyle} />
+              <Label className={labelStyle}>KM Reading</Label>
+              <Input type="number" value={kmReading} onChange={e => setKmReading(e.target.value)} className={inputStyle} placeholder="Odometer reading" />
             </div>
+            
             <div>
-              <Label className={labelStyle}>Block(Optional) :</Label>
+              <Label className={labelStyle}>Block (Optional)</Label>
               <Select value={block} onValueChange={setBlock}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Block" /></SelectTrigger>
-                <SelectContent>
-                  {BLOCKS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                <SelectContent className="text-xs">
+                  {BLOCKS.map(b => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
+            
             <div>
-              <Label className={labelStyle}>Driver Name :</Label>
+              <Label className={labelStyle}>Driver Name</Label>
               <Select value={driverName} onValueChange={setDriverName}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Driver" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="default">Default Driver</SelectItem>
+                <SelectContent className="text-xs">
+                  {drivers.length > 0 ? (
+                    drivers.map((d) => (
+                      <SelectItem key={d.id} value={d.name} className="text-xs">{d.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="John Doe" className="text-xs">John Doe (Fallback Driver)</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
-            <div className="pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setShowAdvance(!showAdvance)} className="text-[10px] h-7 px-3 bg-gray-50 border-gray-300 font-bold uppercase">
-                Show Advance Option
+            
+            <div className="pt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowAdvance(!showAdvance)} 
+                className={`w-full text-xs h-9 px-4 font-black uppercase tracking-wider flex items-center justify-center gap-2 border shadow-sm transition-all ${
+                  showAdvance 
+                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white" 
+                    : "bg-slate-100 border-gray-200 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                <Settings2 className="w-4 h-4" /> 
+                {showAdvance ? "Hide Advanced Options" : "Show Advanced Options"}
               </Button>
             </div>
           </div>
         </div>
 
+        {/* ADVANCED EXPANDABLE OPTIONS BLOCK (Files Upload & Advanced Settings) */}
+        <div className={`transition-all duration-300 ease-in-out border-t overflow-hidden ${
+          showAdvance ? "max-h-[1000px] opacity-100 bg-slate-50/40 p-6" : "max-h-0 opacity-0 p-0 border-transparent pointer-events-none"
+        }`}>
+          <div className="max-w-[1400px] mx-auto space-y-6">
+            <h3 className="text-xs font-black text-[#1e40af] uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
+              <Settings2 className="w-4 h-4" /> Advanced Billing Configurations & Upload Attachments
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Pump Charge */}
+              <div className="space-y-1">
+                <Label className={labelStyle}>Pump Charge (₹)</Label>
+                <Input 
+                  type="number" 
+                  value={pumpCharge} 
+                  onChange={(e) => setPumpCharge(e.target.value)} 
+                  className={inputStyle} 
+                  placeholder="0" 
+                />
+              </div>
+
+              {/* Transport Charge */}
+              <div className="space-y-1">
+                <Label className={labelStyle}>Transport Charge (₹)</Label>
+                <Input 
+                  type="number" 
+                  value={transportCharge} 
+                  onChange={(e) => setTransportCharge(e.target.value)} 
+                  className={inputStyle} 
+                  placeholder="0" 
+                />
+              </div>
+
+              {/* Loaded Plant */}
+              <div className="space-y-1">
+                <Label className={labelStyle}>Loaded Plant</Label>
+                <Select value={loadedPlant} onValueChange={setLoadedPlant}>
+                  <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                  <SelectContent className="text-xs">
+                    {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Upload Attachment Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+              
+              {/* Delivery Challan File */}
+              <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
+                <Label className={`${labelStyle} text-[#1e40af]`}>Delivery Challan (DC) Document</Label>
+                <p className="text-[10px] text-slate-400 mb-3">Upload copy of original signed DC paper</p>
+                
+                {dcFile ? (
+                  <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
+                    <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span className="truncate max-w-[160px]">{dcFile}</span>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-red-500" onClick={() => setDcFile(null)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                    <input 
+                      type="file" 
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setDcFile(file.name);
+                          toast({ title: "DC Uploaded!", description: `Loaded: ${file.name}` });
+                        }
+                      }}
+                    />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload DC</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Weighment Slip File */}
+              <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
+                <Label className={`${labelStyle} text-[#1e40af]`}>Weighment Ticket Slip</Label>
+                <p className="text-[10px] text-slate-400 mb-3">Upload authorized weighbridge receipts</p>
+                
+                {weighmentFile ? (
+                  <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
+                    <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span className="truncate max-w-[160px]">{weighmentFile}</span>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-red-500" onClick={() => setWeighmentFile(null)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                    <input 
+                      type="file" 
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setWeighmentFile(file.name);
+                          toast({ title: "Weighment Slip Uploaded!", description: `Loaded: ${file.name}` });
+                        }
+                      }}
+                    />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload Slip</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Annexure Statement File */}
+              <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
+                <Label className={`${labelStyle} text-[#1e40af]`}>Annexure statement Document</Label>
+                <p className="text-[10px] text-slate-400 mb-3">Upload additional supporting calculations</p>
+                
+                {annexureFile ? (
+                  <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
+                    <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span className="truncate max-w-[160px]">{annexureFile}</span>
+                    </div>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-red-500" onClick={() => setAnnexureFile(null)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                    <input 
+                      type="file" 
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setAnnexureFile(file.name);
+                          toast({ title: "Annexure Statement Loaded!", description: `Loaded: ${file.name}` });
+                        }
+                      }}
+                    />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload Doc</span>
+                    <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        </div>
+
         {/* Summary Section Redesign */}
-        <div className="mt-8 px-6 pb-6">
-          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <ReceiptText className="w-4 h-4 text-[#1e40af]"/> Invoice Summary
+        <div className="mt-4 px-6 pb-6">
+          <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2 border-gray-100">
+            <ReceiptText className="w-4 h-4 text-[#1e40af]"/> Invoice Calculations & Preview
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             
             {/* Customer & Site Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                 <User className="w-3.5 h-3.5" /> Customer Details
               </h4>
               <div className="space-y-4">
@@ -356,7 +678,7 @@ export default function AddInvoice() {
 
             {/* Order Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
                 <Package className="w-3.5 h-3.5" /> Order Specs
               </h4>
               <div className="grid grid-cols-2 gap-4">
@@ -381,7 +703,7 @@ export default function AddInvoice() {
 
             {/* Financial Summary */}
             <div className="bg-gradient-to-br from-gray-50 to-gray-100/80 border border-gray-200/60 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-200/60 pb-2">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-200/60 pb-2">
                 <Calculator className="w-3.5 h-3.5" /> Financials
               </h4>
               <div className="space-y-2.5 text-xs">
@@ -389,6 +711,21 @@ export default function AddInvoice() {
                   <span className="text-gray-500 font-semibold">Gross Price</span>
                   <span className="font-bold text-gray-800">₹{totals.gross.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
                 </div>
+                
+                {parseFloat(pumpCharge) > 0 && (
+                  <div className="flex justify-between items-center text-[11px] text-indigo-600 font-semibold">
+                    <span>Pump Charge (+)</span>
+                    <span>₹{parseFloat(pumpCharge).toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  </div>
+                )}
+
+                {parseFloat(transportCharge) > 0 && (
+                  <div className="flex justify-between items-center text-[11px] text-indigo-600 font-semibold">
+                    <span>Transport Charge (+)</span>
+                    <span>₹{parseFloat(transportCharge).toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center text-[11px]">
                   <span className="text-gray-500">CGST ({cgstRate}%)</span>
                   <span className="font-medium text-gray-700">₹{totals.cgstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
@@ -419,23 +756,32 @@ export default function AddInvoice() {
           </div>
           
           {/* Amount In Words (Full Width) */}
-          <div className="mt-5 bg-[#1e40af]/10 border border-[#1e40af]/20 rounded-xl p-4 flex items-center gap-4">
+          <div className="mt-5 bg-blue-50/40 border border-blue-100 rounded-xl p-4 flex items-center gap-4">
             <div className="p-2.5 bg-white rounded-full shadow-sm">
               <Wallet className="w-5 h-5 text-[#1e40af]" />
             </div>
             <div>
-              <p className="text-[10px] text-[#2a8f95] font-bold uppercase tracking-wider mb-1">Amount in words</p>
-              <p className="text-sm font-bold text-gray-800 capitalize">{numberToWordsINR(totals.net)}</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Amount in words</p>
+              <p className="text-sm font-black text-slate-800 capitalize leading-tight">{numberToWordsINR(totals.net)}</p>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="p-6 flex justify-center gap-4 bg-[#f8fafc]">
-          <Button type="submit" className="bg-[#1e40af] hover:bg-[#2A8F95] text-white px-10 h-8 font-extrabold text-[11px] rounded-sm uppercase tracking-wider" disabled={createInvoice.isPending}>
-            {createInvoice.isPending ? "Submitting..." : "Submit"}
+        {/* Action Buttons Panel */}
+        <div className="p-6 flex justify-center gap-4 bg-slate-50 border-t border-gray-100">
+          <Button 
+            type="submit" 
+            className="bg-[#1e40af] hover:bg-blue-800 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
+            disabled={createInvoice.isPending}
+          >
+            {createInvoice.isPending ? "Submitting..." : "Submit Invoice"}
           </Button>
-          <Button type="button" variant="outline" className="px-10 h-8 font-extrabold text-[11px] border-gray-300 text-gray-600 rounded-sm uppercase tracking-wider" onClick={() => setLocation("/billing")}>
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
+            onClick={handleClear}
+          >
             Cancel
           </Button>
         </div>

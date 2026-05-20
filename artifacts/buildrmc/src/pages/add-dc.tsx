@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -17,12 +17,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../components/ui/dialog";
-import { ChevronRight, ListPlus, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { ChevronRight, ListPlus, ChevronDown, ChevronUp } from "lucide-react";
 import { 
   useGetCustomers, 
   useGetVehicles, 
   useGetMasters, 
   useGetSalesOrders,
+  useGetEmployees,
   useCreateDC 
 } from "@workspace/api-client-react";
 import { useToast } from "../hooks/use-toast";
@@ -32,7 +33,8 @@ export default function AddDC() {
   const { toast } = useToast();
   
   // Form State
-  const [dcNo] = useState(`DC/26-27/${Math.floor(1000 + Math.random() * 9000)}`);
+  const [isManual, setIsManual] = useState(false);
+  const [dcNo, setDcNo] = useState(`DC/26-27/${Math.floor(1000 + Math.random() * 9000)}`);
   const [dcDate, setDcDate] = useState(new Date().toISOString().split("T")[0]);
   const [dcTime, setDcTime] = useState(new Date().toLocaleTimeString("en-GB", { hour12: false }));
   const [plant, setPlant] = useState("FORTUNE CONCRETE");
@@ -62,10 +64,19 @@ export default function AddDC() {
   // Data Fetching
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
-  const { data: drivers } = useGetMasters("driver");
+  const { data: employees } = useGetEmployees();
   const { data: pumps } = useGetMasters("pump");
   const { data: grades } = useGetMasters("grade");
   const { data: sites } = useGetMasters("site");
+
+  const drivers = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).filter(e => 
+      e.designation?.toLowerCase().includes("driver") || 
+      e.role?.toLowerCase().includes("driver") ||
+      true // Fallback to all employees if roles aren't defined strictly
+    );
+  }, [employees]);
   const { data: allSalesOrders } = useGetSalesOrders();
 
   const selectedCustomer = useMemo(() => customers?.find(c => String(c.id) === customerId), [customers, customerId]);
@@ -199,8 +210,18 @@ export default function AddDC() {
             <div className="space-y-2">
               <Label className="text-sm font-semibold">DC No <span className="text-rose-500">*</span></Label>
               <div className="flex gap-2">
-                <Input value={dcNo} readOnly className="bg-gray-100 h-10 text-gray-500 flex-1" />
-                <Button className="bg-cyan-500 hover:bg-cyan-600 text-white whitespace-nowrap px-4 h-10 text-xs">For Manual</Button>
+                <Input 
+                  value={dcNo} 
+                  onChange={(e) => setDcNo(e.target.value)} 
+                  readOnly={!isManual} 
+                  className={`bg-gray-100 h-10 flex-1 ${!isManual && 'text-gray-500'}`} 
+                />
+                <Button 
+                  onClick={() => setIsManual(!isManual)} 
+                  className="bg-cyan-500 hover:bg-cyan-600 text-white whitespace-nowrap px-4 h-10 text-xs"
+                >
+                  {isManual ? "Auto Generate" : "For Manual"}
+                </Button>
               </div>
             </div>
 
@@ -259,8 +280,12 @@ export default function AddDC() {
               <Label className="text-sm font-semibold">Driver Name :</Label>
               <Select value={driverName} onValueChange={setDriverName}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Driver" /></SelectTrigger>
-                <SelectContent>
-                  {drivers?.map(d => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
+                <SelectContent className="max-h-[200px]">
+                  {drivers.length > 0 ? drivers.map(d => (
+                    <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
+                  )) : (
+                    <SelectItem value="John Doe">John Doe (Fallback)</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -313,7 +338,16 @@ export default function AddDC() {
                   <Select value={pumpType} onValueChange={setPumpType}>
                     <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Pump" /></SelectTrigger>
                     <SelectContent>
-                      {pumps?.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+                      {pumps && pumps.length > 0 ? (
+                        pumps.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)
+                      ) : (
+                        <>
+                          <SelectItem value="BOOM PUMP">BOOM PUMP</SelectItem>
+                          <SelectItem value="LINE PUMP">LINE PUMP</SelectItem>
+                          <SelectItem value="STATIC PUMP">STATIC PUMP</SelectItem>
+                          <SelectItem value="MOBILE PUMP">MOBILE PUMP</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

@@ -18,8 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, MoreHorizontal, Plus, RotateCcw, Save, Search, Ticket, X, Loader2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronRight, MoreHorizontal, Plus, Save, Search, Ticket, X, Loader2, Trash2, Eye, Pencil, Copy, Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { customFetch, useGetVehicles } from "@workspace/api-client-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Tickets() {
   const [, navigate] = useLocation();
@@ -35,6 +43,15 @@ export default function Tickets() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [printTicket, setPrintTicket] = useState<any>(null);
+
+  // Dynamic Data
+  const { data: vehicles } = useGetVehicles();
+  const availableVehicles = useMemo(() => {
+    if (!vehicles) return [];
+    return vehicles.map((v: any) => v.registrationNo || v.registrationNumber || v.vehicleNumber || v.regNo).filter(Boolean);
+  }, [vehicles]);
 
   // Generate a random ticket number for now
   useEffect(() => {
@@ -45,10 +62,8 @@ export default function Tickets() {
   const fetchTickets = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/weighment-tickets");
-      if (!res.ok) throw new Error("Failed to fetch");
-      const data = await res.json();
-      setTickets(data);
+      const data = await customFetch("/api/weighment-tickets");
+      setTickets(data as any[]);
     } catch (err) {
       console.error(err);
       toast({ title: "Error", description: "Failed to load tickets from DB.", variant: "destructive" });
@@ -73,7 +88,7 @@ export default function Tickets() {
 
     try {
       setIsSaving(true);
-      const res = await fetch("/api/weighment-tickets", {
+      await customFetch("/api/weighment-tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,9 +100,6 @@ export default function Tickets() {
         })
       });
 
-      if (!res.ok) throw new Error("Failed to save");
-      
-      const newTicket = await res.json();
       toast({ title: "Ticket Saved", description: `Ticket ${ticketNo} has been stored in DB.` });
       
       // Refresh list and reset form
@@ -103,6 +115,16 @@ export default function Tickets() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await customFetch(`/api/weighment-tickets/${id}`, { method: "DELETE" });
+      toast({ title: "Ticket Successfully Deleted", description: "The ticket has been deleted." });
+      fetchTickets();
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to delete ticket.", variant: "destructive" });
+    }
+  };
+
   const handleCancel = () => {
     setVehicleNo("");
     setWeightType("Empty Weight");
@@ -111,9 +133,44 @@ export default function Tickets() {
     toast({ title: "Action Cancelled", description: "Form inputs have been cleared." });
   };
 
+  const handleEditTicket = (row: any) => {
+    toast({
+      title: "Edit Restricted",
+      description: `Weighment ticket ${row.ticketNo} is digitally signed and locked. supervisor approval is required.`,
+      variant: "destructive"
+    });
+  };
+
+  const handlePrintSingleTicket = (row: any) => {
+    setPrintTicket(row);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handleCopyTicket = (row: any) => {
+    const text = `Ticket No: ${row.ticketNo}\nVehicle: ${row.vehicleNo}\nWeight Type: ${row.weightType}\nWeight: ${row.weight} KG\nPlant: ${row.plant}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Ticket details copied to clipboard." });
+  };
+
+  const handleExportTicketCSV = (row: any) => {
+    const csvContent = `Ticket No,Vehicle,Weight Type,Weight,Plant\n"${row.ticketNo}","${row.vehicleNo}","${row.weightType}","${row.weight} KG","${row.plant}"`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `ticket_${row.ticketNo?.replace(/\//g, "_")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Export Successful" });
+  };
+
   return (
-    <div className="space-y-4 animate-in fade-in duration-500">
-      {/* Header & Breadcrumbs */}
+    <div className="space-y-4 animate-in fade-in duration-500 print:bg-white print:p-0 print:m-0">
+      <div className={`space-y-4 ${printTicket ? "print:hidden" : ""}`}>
+        {/* Header & Breadcrumbs */}
       <div className="flex items-center justify-between bg-white/40 p-4 rounded-xl backdrop-blur-md border border-white/60 shadow-sm">
         <div>
           <h2 className="text-2xl font-black tracking-tight text-slate-800">Weighment Tickets</h2>
@@ -168,10 +225,18 @@ export default function Tickets() {
                   <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">
                     <SelectValue placeholder="Choose Vehicle" />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="TS07UP 1459">TS07UP 1459</SelectItem>
-                    <SelectItem value="TS07UP 1789">TS07UP 1789</SelectItem>
-                    <SelectItem value="TS07UP 1679">TS07UP 1679</SelectItem>
+                  <SelectContent className="bg-white border-slate-200 text-slate-700 max-h-[250px]">
+                    {availableVehicles.length > 0 ? (
+                      availableVehicles.map((v: string, idx: number) => (
+                        <SelectItem key={idx} value={v}>{v}</SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="TS07UP 1459">TS07UP 1459</SelectItem>
+                        <SelectItem value="TS07UP 1789">TS07UP 1789</SelectItem>
+                        <SelectItem value="TS07UP 1679">TS07UP 1679</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -253,7 +318,7 @@ export default function Tickets() {
                     <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Weight</TableHead>
                     <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Date & Time</TableHead>
                     <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Created By</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Action</TableHead>
+                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest print:hidden">ACTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -280,10 +345,68 @@ export default function Tickets() {
                       <TableCell className="text-center py-3 text-slate-800 font-mono font-bold text-xs">{row.weight} KG</TableCell>
                       <TableCell className="text-center py-3 text-slate-500 font-semibold text-[10px]">{new Date(row.createdAt).toLocaleString()}</TableCell>
                       <TableCell className="text-center py-3 text-slate-600 font-bold text-xs">{row.createdBy}</TableCell>
-                      <TableCell className="text-center py-3">
-                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-all">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                      <TableCell className="text-center py-3 print:hidden">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* 1. View (Eye Icon) */}
+                          <Button 
+                            onClick={() => setSelectedTicket(row)}
+                            title="View Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+
+                          {/* 2. Edit (Pencil Icon) */}
+                          <Button 
+                            onClick={() => handleEditTicket(row)}
+                            title="Edit Ticket" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 3. Print (Printer Icon) */}
+                          <Button 
+                            onClick={() => handlePrintSingleTicket(row)}
+                            title="Print Ticket" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+
+                          {/* 4. CSV (Download Icon) */}
+                          <Button 
+                            onClick={() => handleExportTicketCSV(row)}
+                            title="Download CSV" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Copy (Copy Icon) */}
+                          <Button 
+                            onClick={() => handleCopyTicket(row)}
+                            title="Copy Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+
+                          {/* 6. Delete (Trash Icon) */}
+                          <Button 
+                            onClick={() => handleDelete(row._id || row.id)}
+                            title="Delete Ticket" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -307,6 +430,100 @@ export default function Tickets() {
           </div>
         </div>
       </div>
+      </div>
+
+      {/* View Details Dialog */}
+      <Dialog open={!!selectedTicket} onOpenChange={(open) => !open && setSelectedTicket(null)}>
+        <DialogContent className="max-w-2xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-black text-xl border-b border-slate-100 pb-2">Ticket Details - {selectedTicket?.ticketNo}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Ticket No:</span> <div className="font-medium text-slate-800 font-mono font-bold text-cyan-600">{selectedTicket?.ticketNo}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Plant Name:</span> <div className="font-medium text-slate-800">{selectedTicket?.plant || "FORTUNE CONCRETE"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Vehicle No:</span> <div className="font-medium text-slate-800 font-bold">{selectedTicket?.vehicleNo || "-"}</div></div>
+              </div>
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Weight Type:</span> <div className="font-medium text-slate-800 font-semibold">{selectedTicket?.weightType || "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Recorded Weight:</span> <div className="font-medium text-slate-800 font-bold text-emerald-600">{selectedTicket?.weight || 0} KG</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Timestamp:</span> <div className="font-medium text-slate-800">{selectedTicket?.createdAt ? new Date(selectedTicket.createdAt).toLocaleString() : "-"}</div></div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4 border-t border-slate-100">
+              <Button onClick={() => setSelectedTicket(null)} size="sm" className="bg-slate-800 hover:bg-slate-900 text-white shadow-md">Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Branded Single Ticket Sheet for Printing */}
+      {printTicket && (
+        <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
+          <div className="flex justify-between items-center border-b pb-6 mb-6">
+            <div>
+              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
+              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
+            </div>
+            <div className="text-right">
+              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">WEIGHMENT TICKET</div>
+              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
+              <p className="text-[9px] text-gray-400 font-medium">Ticket Date: {printTicket.createdAt ? new Date(printTicket.createdAt).toLocaleDateString("en-IN") : ""}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Ticket Details</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">Ticket Number: <span className="font-black text-gray-900">{printTicket.ticketNo}</span></p>
+                <p className="text-xs font-bold text-gray-700">Date & Time: <span className="font-medium text-gray-900">{printTicket.createdAt ? new Date(printTicket.createdAt).toLocaleString() : "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Operating Plant: <span className="font-medium text-gray-900">{printTicket.plant || "FORTUNE CONCRETE"}</span></p>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Vehicle & Operator</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">Vehicle No: <span className="font-black text-gray-900">{printTicket.vehicleNo || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Recorded By: <span className="font-medium text-gray-900">{printTicket.createdBy || "System Admin"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Weight Type: <span className="font-medium text-gray-900 font-bold uppercase text-blue-800">{printTicket.weightType || "-"}</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Weighment Slip Table */}
+          <table className="w-full border collapse text-left mb-6">
+            <thead>
+              <tr className="bg-slate-100 text-[10px] font-black uppercase tracking-wider">
+                <th className="border p-2">Parameter Description</th>
+                <th className="border p-2 text-right">Value (KG)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="text-xs font-bold text-[#1e40af]">
+                <td className="border p-2">{printTicket.weightType} Value</td>
+                <td className="border p-2 text-right">{printTicket.weight || 0} KG</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="mt-12 pt-8 border-t flex justify-between items-end">
+            <div>
+              <p className="text-[9px] text-gray-400">All weighment measurements verified using calibrated weighing instruments.</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Driver Signature</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Operator</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -130,3 +130,100 @@ export function useDeleteSchedule() {
     },
   });
 }
+
+export function useUpdateSchedule(options?: {
+  mutation?: {
+    onSuccess?: (data: ScheduleRecord) => void;
+    onError?: (err: any) => void;
+  };
+}) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      customFetch<ScheduleRecord>(`/api/schedules/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: getSchedulesQueryKey() });
+      options?.mutation?.onSuccess?.(data);
+    },
+    onError: (err) => {
+      options?.mutation?.onError?.(err);
+    },
+  });
+}
+
+// ─── Quotations ───────────────────────────────────────────────────────────────
+
+export interface QuotationRecord {
+  id: string;
+  quotationNo: string;
+  date: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  customerGstin?: string;
+  siteAddress: string;
+  paymentTerms?: string;
+  pumpCharges?: number;
+  minPumpQty?: number;
+  marketingPerson: string;
+  rateIncludeTax: boolean;
+  notes?: string[];
+  items: {
+    grade: string;
+    quantity: number;
+    rate: number;
+    recipeCode?: string;
+    cementType?: string;
+  }[];
+  createdBy?: string;
+  createdAt?: string;
+}
+
+export const getQuotationsQueryKey = () => ["/api/quotations"];
+
+export function useGetQuotations() {
+  return useQuery<QuotationRecord[], ErrorType<unknown>>({
+    queryKey: getQuotationsQueryKey(),
+    queryFn: () => customFetch<QuotationRecord[]>("/api/quotations"),
+  });
+}
+
+export function useCreateQuotation(options?: {
+  mutation?: {
+    onSuccess?: (data: QuotationRecord) => void;
+    onError?: (err: any) => void;
+  };
+}) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) =>
+      customFetch<QuotationRecord>("/api/quotations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: getQuotationsQueryKey() });
+      options?.mutation?.onSuccess?.(data);
+    },
+    onError: (err) => {
+      options?.mutation?.onError?.(err);
+    },
+  });
+}
+
+export function useDeleteQuotation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      customFetch(`/api/quotations/${id}`, { method: "DELETE" }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: getQuotationsQueryKey() });
+    },
+  });
+}
+

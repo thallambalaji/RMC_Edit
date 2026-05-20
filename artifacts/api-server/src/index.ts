@@ -3,13 +3,13 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { seedMongo } from "@workspace/mongo-db";
 
-const rawPort = process.env["PORT"] || "3000";
+const rawPort = process.env["PORT"] || "5000";
 const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
-  logger.warn(`Invalid PORT value: "${rawPort}", defaulting to 3000`);
+  logger.warn(`Invalid PORT value: "${rawPort}", defaulting to 5000`);
 }
-const finalPort = Number.isNaN(port) || port <= 0 ? 3000 : port;
+const finalPort = Number.isNaN(port) || port <= 0 ? 5000 : port;
 
 app.listen(finalPort, async (err) => {
   if (err) {

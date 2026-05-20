@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
+import { useGetDCs, useGetCustomers } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,87 +11,677 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronRight } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  ChevronRight,
+  Loader2,
+  FileText,
+  RotateCcw,
+  Printer,
+  TruckIcon,
+  Eye,
+  Pencil,
+  Copy,
+  Trash2,
+  Download,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const PLANTS = ["All Plant", "FORTUNE CONCRETE", "NARVAL RMC"];
+const GRADES = ["All Item", "M20", "M25", "M30", "M35", "M40", "M45"];
+const REPORT_TYPES = ["Date Wise", "Customer Wise", "Plant Wise", "Grade Wise"];
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+function parseDate(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  // Try ISO first
+  const iso = new Date(dateStr);
+  if (!isNaN(iso.getTime())) return iso;
+  return null;
+}
 
 export default function DCReport() {
-  const [category] = useState("DC Report");
-  const [type] = useState("Date Wise");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedDC, setSelectedDC] = useState<any>(null);
+  const [printDC, setPrintDC] = useState<any>(null);
+
+  const [reportType, setReportType] = useState("Date Wise");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [selectedItem, setSelectedItem] = useState("All Item");
+  const [selectedPlant, setSelectedPlant] = useState("All Plant");
+  const [showReport, setShowReport] = useState(false);
+
+  const { data: dcs, isLoading: dcsLoading } = useGetDCs();
+  const { data: customers } = useGetCustomers();
+
+  const customerMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    customers?.forEach((c: any) => {
+      map[String(c.id || c._id)] = c.name;
+    });
+    return map;
+  }, [customers]);
+
+  // Derive unique grades from live data + predefined
+  const availableGrades = useMemo(() => {
+    const grades = new Set(GRADES);
+    dcs?.forEach((dc: any) => {
+      if (dc.grade) grades.add(dc.grade);
+    });
+    return ["All Item", ...Array.from(grades).filter((g) => g !== "All Item")];
+  }, [dcs]);
+
+  const handleGenerate = () => {
+    if (!fromDate || !toDate) {
+      alert("Please select both From Date and To Date.");
+      return;
+    }
+    if (new Date(fromDate) > new Date(toDate)) {
+      alert("From Date cannot be after To Date.");
+      return;
+    }
+    setShowReport(true);
+  };
+
+  const handleClear = () => {
+    setReportType("Date Wise");
+    setFromDate("");
+    setToDate("");
+    setSelectedItem("All Item");
+    setSelectedPlant("All Plant");
+    setShowReport(false);
+  };
+
+  const handleEditRow = (row: any) => {
+    toast({
+      title: "Edit Restricted",
+      description: `Delivery challan ${row.dcNumber} is finalized. Modification requires supervisor override.`,
+      variant: "destructive"
+    });
+  };
+
+  const handlePrintSingleRow = (row: any) => {
+    setPrintDC(row);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handleDeleteRow = async (id: string) => {
+    if (!confirm("Are you sure you want to permanently delete this Delivery Challan?")) return;
+    try {
+      const res = await fetch(`/api/delivery-challans/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete Delivery Challan");
+      toast({ title: "Success", description: "Delivery Challan deleted successfully!" });
+      queryClient.invalidateQueries();
+    } catch (err: any) {
+      toast({ title: "Delete Failed", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleCopyRow = (row: any) => {
+    const text = `DC No: ${row.dcNumber}\nCustomer: ${row.customerName || "-"}\nPlant: ${row.plant}\nGrade: ${row.grade}\nQty: ${row.quantity} m³\nNet Amount: ₹${row.netAmount}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "DC details copied to clipboard." });
+  };
+
+  const handleExportRowCSV = (row: any) => {
+    const csvContent = `DC No,Customer,Plant,Grade,Qty,Net Amount\n"${row.dcNumber}","${row.customerName || "-"}","${row.plant}","${row.grade}","${row.quantity} m³","₹${row.netAmount}"`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `dc_${row.dcNumber?.replace(/\//g, "_")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "Export Successful" });
+  };
+
+  const filteredDCs = useMemo(() => {
+    if (!dcs) return [];
+    return dcs.filter((dc: any) => {
+      // Date filter
+      if (fromDate && toDate) {
+        const dcDate = parseDate(dc.dcDate);
+        const from = parseDate(fromDate);
+        const to = parseDate(toDate);
+        if (dcDate && from && to) {
+          // Set end-of-day for 'to'
+          const toEnd = new Date(to);
+          toEnd.setHours(23, 59, 59, 999);
+          if (dcDate < from || dcDate > toEnd) return false;
+        }
+      }
+      // Grade / Item filter
+      if (selectedItem !== "All Item" && dc.grade !== selectedItem) return false;
+      // Plant filter
+      if (selectedPlant !== "All Plant" && dc.plant !== selectedPlant) return false;
+      return true;
+    });
+  }, [dcs, fromDate, toDate, selectedItem, selectedPlant]);
+
+  const totalQty = useMemo(
+    () => filteredDCs.reduce((sum: number, dc: any) => sum + (Number(dc.quantity) || 0), 0),
+    [filteredDCs]
+  );
+  const totalAmount = useMemo(
+    () => filteredDCs.reduce((sum: number, dc: any) => sum + (Number(dc.netAmount) || 0), 0),
+    [filteredDCs]
+  );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 print:bg-white print:p-0 print:m-0">
+      <div className={`space-y-4 ${printDC ? "print:hidden" : ""}`}>
+        {/* Header */}
+      <div className="flex items-center justify-between print:hidden">
         <h2 className="text-2xl font-bold">DC Report</h2>
         <nav className="text-sm text-muted-foreground flex items-center gap-1">
-          <Link href="/dashboard" className="hover:text-primary transition-colors">Home</Link>
+          <Link href="/dashboard" className="hover:text-primary transition-colors">
+            Home
+          </Link>
           <ChevronRight className="h-3 w-3" />
-          <Link href="/dc" className="hover:text-primary transition-colors">DC</Link>
+          <Link href="/dc" className="hover:text-primary transition-colors">
+            DC
+          </Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-foreground">DC Report</span>
         </nav>
       </div>
 
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 items-end">
+      {/* Filter Panel */}
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100 print:hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end">
+          {/* Report Category (static) */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold">Report Category <span className="text-rose-500">*</span></Label>
-            <Select value={category}>
-              <SelectTrigger className="bg-white h-10 border-gray-300"><SelectValue /></SelectTrigger>
+            <Label className="text-sm font-semibold">
+              Report Category <span className="text-rose-500">*</span>
+            </Label>
+            <Select value="DC Report" onValueChange={() => {}}>
+              <SelectTrigger className="bg-white h-10 border-gray-300">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="DC Report">DC Report</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
+          {/* Report Type */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold">Report Type <span className="text-rose-500">*</span></Label>
-            <Select value={type}>
-              <SelectTrigger className="bg-white h-10 border-gray-300"><SelectValue /></SelectTrigger>
+            <Label className="text-sm font-semibold">
+              Report Type <span className="text-rose-500">*</span>
+            </Label>
+            <Select value={reportType} onValueChange={setReportType}>
+              <SelectTrigger className="bg-white h-10 border-gray-300">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Date Wise">Date Wise</SelectItem>
+                {REPORT_TYPES.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* From Date */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold">From Date</Label>
-            <Input type="date" className="bg-white h-10 border-gray-300" placeholder="yyyy-mm-dd" />
+            <Input
+              type="date"
+              className="bg-white h-10 border-gray-300"
+              value={fromDate}
+              onChange={(e) => { setFromDate(e.target.value); setShowReport(false); }}
+            />
           </div>
 
+          {/* To Date */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold">To Date</Label>
-            <Input type="date" className="bg-white h-10 border-gray-300" placeholder="yyyy-mm-dd" />
+            <Input
+              type="date"
+              className="bg-white h-10 border-gray-300"
+              value={toDate}
+              onChange={(e) => { setToDate(e.target.value); setShowReport(false); }}
+            />
           </div>
 
+          {/* Item / Grade */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold">Item <span className="text-rose-500">*</span></Label>
-            <Select defaultValue="all">
-              <SelectTrigger className="bg-white h-10 border-gray-300"><SelectValue /></SelectTrigger>
+            <Label className="text-sm font-semibold">
+              Item <span className="text-rose-500">*</span>
+            </Label>
+            <Select value={selectedItem} onValueChange={setSelectedItem}>
+              <SelectTrigger className="bg-white h-10 border-gray-300">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Item</SelectItem>
+                {availableGrades.map((g) => (
+                  <SelectItem key={g} value={g}>
+                    {g}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* Plant */}
           <div className="space-y-2">
-            <Label className="text-sm font-semibold">Plant <span className="text-rose-500">*</span></Label>
-            <Select defaultValue="all">
-              <SelectTrigger className="bg-white h-10 border-gray-300"><SelectValue /></SelectTrigger>
+            <Label className="text-sm font-semibold">
+              Plant <span className="text-rose-500">*</span>
+            </Label>
+            <Select value={selectedPlant} onValueChange={setSelectedPlant}>
+              <SelectTrigger className="bg-white h-10 border-gray-300">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All plant</SelectItem>
+                {PLANTS.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
 
-        <div className="flex gap-2 mt-8">
-          <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-10">Generate</Button>
-          <Button className="bg-rose-500 hover:bg-rose-600 text-white px-8 h-10">Clear</Button>
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-6">
+          <Button
+            onClick={handleGenerate}
+            disabled={dcsLoading}
+            className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-10 font-bold uppercase tracking-wide shadow-sm"
+          >
+            {dcsLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <FileText className="h-4 w-4 mr-2" />
+            )}
+            Generate
+          </Button>
+          <Button
+            onClick={handleClear}
+            className="bg-rose-500 hover:bg-rose-600 text-white px-8 h-10 font-bold uppercase tracking-wide shadow-sm"
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Clear
+          </Button>
         </div>
       </div>
 
-      <div className="h-64 flex items-center justify-center text-gray-300 italic border-2 border-dashed border-gray-100 rounded-lg">
-        Report preview will appear here after generation
-      </div>
+      {/* Report Output */}
+      {showReport ? (
+        <div className="bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 print:shadow-none print:border-none print:overflow-visible">
+          
+          {/* Printable Header (Only visible during print) */}
+          <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6 mt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
+                  BM
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
+                  <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
+                  <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <h2 className="text-2xl font-bold text-[#1e40af] uppercase">DC Report - {reportType}</h2>
+                <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
+                <p className="text-sm text-gray-500 font-medium">
+                  Period: {fromDate ? formatDate(fromDate) : "Start"} to {toDate ? formatDate(toDate) : "End"}
+                </p>
+                {(selectedPlant !== "All Plant" || selectedItem !== "All Item") && (
+                  <p className="text-xs text-gray-500 font-bold mt-1 uppercase">
+                    {selectedPlant !== "All Plant" && `Plant: ${selectedPlant}`} 
+                    {selectedPlant !== "All Plant" && selectedItem !== "All Item" && ` | `}
+                    {selectedItem !== "All Item" && `Item: ${selectedItem}`}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Report Header */}
+          <div className="bg-[#1e40af] p-4 flex items-center justify-between text-white print:hidden">
+            <div>
+              <h3 className="font-bold uppercase tracking-wider flex items-center gap-2">
+                <TruckIcon className="h-5 w-5" />
+                DC Report — {reportType}
+              </h3>
+              {fromDate && toDate && (
+                <p className="text-xs text-blue-200 mt-0.5">
+                  Period: {formatDate(fromDate)} to {formatDate(toDate)}
+                  {selectedPlant !== "All Plant" && `  ·  Plant: ${selectedPlant}`}
+                  {selectedItem !== "All Item" && `  ·  Item: ${selectedItem}`}
+                </p>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => window.print()}
+              className="bg-white/10 hover:bg-white/20 border-white/20 text-white gap-2"
+            >
+              <Printer className="h-4 w-4" />
+              Print
+            </Button>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto print:overflow-visible">
+            <Table className="print:text-xs">
+              <TableHeader>
+                <TableRow className="bg-gray-50/80 print:border-b-2 print:border-gray-800 print:bg-transparent">
+                  <TableHead className="font-bold text-gray-700 text-center w-12 print:text-black print:px-2">S/L</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC No</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC Date</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC Time</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Customer</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Plant</TableHead>
+                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Grade</TableHead>
+                  <TableHead className="font-bold text-gray-700 text-right print:text-black print:px-2">Qty (m³)</TableHead>
+                  <TableHead className="font-bold text-gray-700 text-right print:text-black print:px-2">Net Amount</TableHead>
+                  <TableHead className="font-bold text-gray-700 text-center print:text-black print:px-2">Status</TableHead>
+                  <TableHead className="font-bold text-gray-700 text-center print:hidden">ACTIONS</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredDCs.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={11} className="h-32 text-center text-gray-400 italic">
+                      No DC records found for the selected filters.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredDCs.map((dc: any, idx: number) => (
+                    <TableRow key={dc.id || dc._id} className="hover:bg-gray-50/50 print:border-b print:border-gray-200">
+                      <TableCell className="text-center font-medium border-r border-gray-100 print:px-2">
+                        {idx + 1}
+                      </TableCell>
+                      <TableCell className="font-bold text-[#1e40af] border-r border-gray-100 print:text-black print:px-2">
+                        {dc.dcNumber}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 print:px-2">
+                        {formatDate(dc.dcDate)}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 text-gray-500 text-sm print:text-black print:px-2">
+                        {dc.dcTime || "-"}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 font-medium print:px-2 max-w-[200px] truncate print:whitespace-normal">
+                        {dc.customerName ||
+                          customerMap[String(dc.customerId?._id || dc.customerId)] ||
+                          "-"}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 text-sm print:px-2">
+                        {dc.plant || "-"}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 print:px-2">
+                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-bold print:bg-transparent print:text-black print:p-0">
+                          {dc.grade || "-"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 text-right font-semibold text-cyan-700 print:text-black print:px-2">
+                        {Number(dc.quantity || 0).toFixed(2)}
+                      </TableCell>
+                      <TableCell className="border-r border-gray-100 text-right font-semibold print:px-2">
+                        ₹{Number(dc.netAmount || 0).toLocaleString("en-IN")}
+                      </TableCell>
+                      <TableCell className="text-center print:px-2 border-r border-gray-100">
+                        <span
+                          className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase print:bg-transparent print:text-black print:p-0 ${
+                            dc.status === "completed" || dc.status === "delivered"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : dc.status === "cancelled"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {dc.status || "pending"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-center py-3 print:hidden">
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* 1. View (Eye Icon) */}
+                          <Button 
+                            onClick={() => setSelectedDC(dc)}
+                            title="View Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+
+                          {/* 2. Edit (Pencil Icon) */}
+                          <Button 
+                            onClick={() => handleEditRow(dc)}
+                            title="Edit Record" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 3. Print (Printer Icon) */}
+                          <Button 
+                            onClick={() => handlePrintSingleRow(dc)}
+                            title="Print DC Slip" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+
+                          {/* 4. CSV (Download Icon) */}
+                          <Button 
+                            onClick={() => handleExportRowCSV(dc)}
+                            title="Download CSV" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Copy (Copy Icon) */}
+                          <Button 
+                            onClick={() => handleCopyRow(dc)}
+                            title="Copy Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+
+                          {/* 6. Delete (Trash Icon) */}
+                          <Button 
+                            onClick={() => handleDeleteRow(dc.id || dc._id)}
+                            title="Delete Record" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Summary Footer */}
+          <div className="p-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between print:hidden">
+            <p className="text-sm text-gray-500">
+              Total Records:{" "}
+              <span className="font-bold text-gray-800">{filteredDCs.length}</span>
+            </p>
+            <div className="flex gap-8">
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">
+                  Total Quantity
+                </p>
+                <p className="text-xl font-black text-cyan-700">
+                  {totalQty.toFixed(2)} m³
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">
+                  Total Amount
+                </p>
+                <p className="text-xl font-black text-[#1e40af]">
+                  ₹{totalAmount.toLocaleString("en-IN")}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Printable Footer (Only visible during print) */}
+          <div className="hidden print:flex justify-between items-end mt-12 pt-8 border-t-2 border-gray-800">
+            <div className="text-sm font-bold text-gray-600">
+              Total Records: {filteredDCs.length} <br/>
+              Total Quantity: {totalQty.toFixed(2)} m³ <br/>
+              Total Amount: ₹{totalAmount.toLocaleString("en-IN")}
+            </div>
+            <div className="text-center space-y-8">
+              <div className="w-48 border-b border-gray-400"></div>
+              <p className="text-sm font-bold text-gray-800 uppercase">Authorized Signatory</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="h-64 flex flex-col items-center justify-center text-gray-300 italic border-2 border-dashed border-gray-100 rounded-lg gap-4 bg-gray-50/30">
+          <TruckIcon className="h-12 w-12 text-gray-200" />
+          <p>Select filters and click "Generate" to view the DC report</p>
+        </div>
+      )}
+    </div>
+
+      {/* View Details Dialog */}
+      <Dialog open={!!selectedDC} onOpenChange={(open) => !open && setSelectedDC(null)}>
+        <DialogContent className="max-w-2xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-black text-xl border-b border-slate-100 pb-2">Delivery Challan Details - {selectedDC?.dcNumber}</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">DC Number:</span> <div className="font-medium text-slate-800 font-mono font-bold text-cyan-600">{selectedDC?.dcNumber}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Challan Date:</span> <div className="font-medium text-slate-800">{selectedDC?.dcDate ? formatDate(selectedDC.dcDate) : "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedDC?.customerName || customerMap[String(selectedDC?.customerId?._id || selectedDC?.customerId)] || "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Delivery Plant:</span> <div className="font-medium text-slate-800">{selectedDC?.plant || "-"}</div></div>
+              </div>
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Material Grade:</span> <div className="font-medium text-slate-800">{selectedDC?.grade || "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Quantity Supplied:</span> <div className="font-medium text-slate-800 font-bold text-slate-700">{selectedDC?.quantity || 0} m³</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Net Amount:</span> <div className="font-medium text-slate-800 font-bold text-emerald-600">₹{Number(selectedDC?.netAmount || 0).toLocaleString("en-IN")}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Active Status:</span> <div className="font-medium text-slate-800 uppercase font-bold text-[11px] text-amber-600">{selectedDC?.status || "pending"}</div></div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4 border-t border-slate-100">
+              <Button onClick={() => setSelectedDC(null)} size="sm" className="bg-slate-800 hover:bg-slate-900 text-white shadow-md">Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Branded Single Delivery Challan Sheet for Printing */}
+      {printDC && (
+        <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
+          <div className="flex justify-between items-center border-b pb-6 mb-6">
+            <div>
+              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
+              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
+            </div>
+            <div className="text-right">
+              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">DELIVERY CHALLAN</div>
+              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
+              <p className="text-[9px] text-gray-400 font-medium">Challan Date: {printDC.dcDate ? formatDate(printDC.dcDate) : ""}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">DC Number: <span className="font-black text-gray-900">{printDC.dcNumber}</span></p>
+                <p className="text-xs font-bold text-gray-700">Time of Dispatch: <span className="font-medium text-gray-900">{printDC.dcTime || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Supplied From: <span className="font-medium text-gray-900">{printDC.plant || "FORTUNE CONCRETE"}</span></p>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer Info</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printDC.customerName || customerMap[String(printDC.customerId?._id || printDC.customerId)] || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Material Grade: <span className="font-medium text-gray-900">{printDC.grade || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Status: <span className="font-medium text-gray-900 uppercase font-bold text-xs text-blue-800">{printDC.status || "completed"}</span></p>
+              </div>
+            </div>
+          </div>
+
+          {/* Delivery Challan Table */}
+          <table className="w-full border collapse text-left mb-6">
+            <thead>
+              <tr className="bg-slate-100 text-[10px] font-black uppercase tracking-wider">
+                <th className="border p-2">Item Description</th>
+                <th className="border p-2 text-right">Quantity (m³)</th>
+                <th className="border p-2 text-right">Unit Rate</th>
+                <th className="border p-2 text-right">Net Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="text-xs">
+                <td className="border p-2 font-bold text-gray-700">Ready Mix Concrete {printDC.grade}</td>
+                <td className="border p-2 text-right font-semibold">{printDC.quantity || 0} m³</td>
+                <td className="border p-2 text-right font-semibold">₹{(Number(printDC.netAmount || 0) / (Number(printDC.quantity) || 1)).toFixed(2)}</td>
+                <td className="border p-2 text-right font-bold text-[#1e40af]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN")}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="mt-12 pt-8 border-t flex justify-between items-end">
+            <div>
+              <p className="text-[9px] text-gray-400">All materials delivered conform with IS 456 / IS 4926 standard practices.</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Receiver Signature</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Officer</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

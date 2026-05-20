@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -8,9 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ClipboardEdit, Plus, Sparkles, ListPlus, ChevronRight, List } from "lucide-react";
+import { Plus, Sparkles, ChevronRight, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 
 /* ── Reusable compact field components ── */
 function Field({
@@ -53,10 +52,25 @@ function SectionCard({ title, accent, children }: { title: string; accent: strin
   );
 }
 
+interface RequirementRow {
+  id: number;
+  projectName: string;
+  locality: string;
+  sourceOfLead: string;
+  materialType: string;
+  paymentTerms: string;
+  estimatedRate: string;
+  constructionStage: string;
+  estimatedQty: string;
+  unit: string;
+  projectAddress: string;
+}
+
 export default function AddEnquiry() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [mounted, setMounted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Customer fields
   const [contactPerson, setContactPerson] = useState("");
@@ -67,38 +81,141 @@ export default function AddEnquiry() {
   const [designation, setDesignation] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
 
-  // Requirement fields
-  const [projectName, setProjectName] = useState("");
-  const [locality, setLocality] = useState("");
-  const [sourceOfLead, setSourceOfLead] = useState("");
-  const [materialType, setMaterialType] = useState("");
-  const [paymentTerms, setPaymentTerms] = useState("");
-  const [estimatedRate, setEstimatedRate] = useState("");
-  const [constructionStage, setConstructionStage] = useState("");
-  const [estimatedQty, setEstimatedQty] = useState("");
-  const [unit, setUnit] = useState("");
-  const [projectAddress, setProjectAddress] = useState("");
+  // Multiple Requirement fields state list
+  const [requirements, setRequirements] = useState<RequirementRow[]>([
+    {
+      id: 1,
+      projectName: "",
+      locality: "",
+      sourceOfLead: "",
+      materialType: "",
+      paymentTerms: "",
+      estimatedRate: "",
+      constructionStage: "",
+      estimatedQty: "",
+      unit: "",
+      projectAddress: "",
+    }
+  ]);
 
   useEffect(() => { setMounted(true); }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const addRequirement = () => {
+    setRequirements(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        projectName: "",
+        locality: "",
+        sourceOfLead: "",
+        materialType: "",
+        paymentTerms: "",
+        estimatedRate: "",
+        constructionStage: "",
+        estimatedQty: "",
+        unit: "",
+        projectAddress: "",
+      }
+    ]);
+  };
+
+  const removeRequirement = (id: number) => {
+    if (requirements.length === 1) return;
+    setRequirements(prev => prev.filter(r => r.id !== id));
+  };
+
+  const updateRequirement = (id: number, field: keyof RequirementRow, value: string) => {
+    setRequirements(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
+
+  const handleCancel = () => {
+    setContactPerson("");
+    setMobile("");
+    setAltNumber("");
+    setEmail("");
+    setCompanyName("");
+    setDesignation("");
+    setCustomerAddress("");
+    setRequirements([
+      {
+        id: Date.now(),
+        projectName: "",
+        locality: "",
+        sourceOfLead: "",
+        materialType: "",
+        paymentTerms: "",
+        estimatedRate: "",
+        constructionStage: "",
+        estimatedQty: "",
+        unit: "",
+        projectAddress: "",
+      }
+    ]);
+    toast({ title: "Form Cleared", description: "All input fields have been reset successfully." });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactPerson || !mobile || !designation) {
-      toast({ title: "Please fill all required customer fields", variant: "destructive" });
+    if (!contactPerson || !mobile || !designation || !customerAddress) {
+      toast({ title: "Validation Error", description: "Please fill all required customer fields (*)", variant: "destructive" });
       return;
     }
-    if (!projectName || !locality || !sourceOfLead || !materialType || !paymentTerms) {
-      toast({ title: "Please fill all required requirement fields", variant: "destructive" });
-      return;
+
+    // Validate each requirement
+    for (let i = 0; i < requirements.length; i++) {
+      const r = requirements[i];
+      if (!r.projectName || !r.locality || !r.sourceOfLead || !r.materialType || !r.paymentTerms || !r.estimatedQty || !r.unit || !r.projectAddress) {
+        toast({ title: "Validation Error", description: `Please fill all required fields in Requirement #${i + 1}`, variant: "destructive" });
+        return;
+      }
     }
-    toast({ title: "Enquiry submitted!", description: `Saved for ${contactPerson}` });
-    navigate("/sales/enquiry/list");
+
+    try {
+      setIsSubmitting(true);
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contactPerson,
+          mobile,
+          altNumber,
+          email,
+          companyName,
+          designation,
+          customerAddress,
+          requirements: requirements.map(r => ({
+            projectName: r.projectName,
+            locality: r.locality,
+            sourceOfLead: r.sourceOfLead,
+            materialType: r.materialType,
+            paymentTerms: r.paymentTerms,
+            estimatedRate: r.estimatedRate ? parseFloat(r.estimatedRate) : undefined,
+            constructionStage: r.constructionStage || "Foundation",
+            estimatedQty: parseFloat(r.estimatedQty) || 0,
+            unit: r.unit,
+            projectAddress: r.projectAddress
+          }))
+        })
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to create sales enquiry");
+      }
+
+      toast({ title: "Success", description: "Sales Enquiry saved successfully!" });
+      navigate("/sales/enquiry/list");
+    } catch (err: any) {
+      toast({ title: "Submission Failed", description: err.message || "An error occurred", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div
       style={{ opacity: mounted ? 1 : 0, transform: mounted ? "none" : "translateY(12px)", transition: "all 0.4s ease" }}
-      className="space-y-3"
+      className="space-y-3 pb-4"
     >
       <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4">
         <div className="flex items-center gap-3">
@@ -149,93 +266,145 @@ export default function AddEnquiry() {
 
         {/* ── Requirement Details ── */}
         <SectionCard title="Requirement Details" accent="#1e40af">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-            <span style={{ fontSize: "10px", color: "#94a3b8" }}>Fill in the project requirement information</span>
+          <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
+            <span className="text-[10px] text-gray-400">Fill in the project requirement information</span>
             <Button 
               type="button" 
+              onClick={addRequirement}
               size="sm" 
-              className="h-7 bg-blue-500 hover:bg-blue-600 text-white font-bold text-[9px] uppercase tracking-wider px-3"
+              className="h-7 bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold text-[10px] uppercase tracking-wider px-3"
             >
-              <Plus className="h-3 w-3 mr-1" /> Add Another Requirement
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Another Requirement
             </Button>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px" }}>
-            <Field label="Project Name" required>
-              <input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Project / Site name" className={inputCls} />
-            </Field>
 
-            <Field label="Locality" required>
-              <Select value={locality} onValueChange={setLocality}>
-                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["Locality 1", "Locality 2", "Locality 3"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+          <div className="space-y-6">
+            {requirements.map((req, idx) => (
+              <div key={req.id} className="p-4 border border-slate-200/60 rounded-lg bg-slate-50/40 relative">
+                <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-1.5">
+                  <span className="text-xs font-black text-[#1e40af] uppercase">Requirement #{idx + 1}</span>
+                  {requirements.length > 1 && (
+                    <Button
+                      type="button"
+                      onClick={() => removeRequirement(req.id)}
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-[10px] font-bold text-red-600 hover:text-red-700 hover:bg-red-50 px-2"
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <Field label="Project Name" required>
+                    <input 
+                      value={req.projectName} 
+                      onChange={(e) => updateRequirement(req.id, "projectName", e.target.value)} 
+                      placeholder="Project / Site name" 
+                      className={inputCls} 
+                    />
+                  </Field>
 
-            <Field label="Source of Lead" required>
-              <Select value={sourceOfLead} onValueChange={setSourceOfLead}>
-                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["Online", "Referral", "Walk-in", "Exhibition"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+                  <Field label="Locality" required>
+                    <Select value={req.locality} onValueChange={(v) => updateRequirement(req.id, "locality", v)}>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {["Locality 1", "Locality 2", "Locality 3", "Whitefield", "Marathahalli", "Yelahanka", "Electronic City", "Koramangala", "Indiranagar", "Jayanagar"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-            <Field label="Material Type" required>
-              <Select value={materialType} onValueChange={setMaterialType}>
-                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["RMC", "Sand", "Aggregate"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+                  <Field label="Source of Lead" required>
+                    <Select value={req.sourceOfLead} onValueChange={(v) => updateRequirement(req.id, "sourceOfLead", v)}>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {["Online", "Referral", "Walk-in", "Exhibition", "Cold Call", "Newspaper"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-            <Field label="Payment Terms" required>
-              <input value={paymentTerms} onChange={(e) => setPaymentTerms(e.target.value)} placeholder="e.g. 30 days" className={inputCls} />
-            </Field>
+                  <Field label="Material Type" required>
+                    <Select value={req.materialType} onValueChange={(v) => updateRequirement(req.id, "materialType", v)}>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {["RMC", "Sand", "Aggregate", "Cement", "Steel"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-            <Field label="Estimated Rate">
-              <input value={estimatedRate} onChange={(e) => setEstimatedRate(e.target.value)} placeholder="₹ per unit" className={inputCls} />
-            </Field>
+                  <Field label="Payment Terms" required>
+                    <input 
+                      value={req.paymentTerms} 
+                      onChange={(e) => updateRequirement(req.id, "paymentTerms", e.target.value)} 
+                      placeholder="e.g. 30 days" 
+                      className={inputCls} 
+                    />
+                  </Field>
 
-            <Field label="Stage of Construction" required>
-              <Select value={constructionStage} onValueChange={setConstructionStage}>
-                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
-                <SelectContent>
-                  {["Foundation", "Slab", "Columns", "Beams", "Roof"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+                  <Field label="Estimated Rate">
+                    <input 
+                      value={req.estimatedRate} 
+                      onChange={(e) => updateRequirement(req.id, "estimatedRate", e.target.value)} 
+                      placeholder="₹ per unit" 
+                      className={inputCls} 
+                    />
+                  </Field>
 
-            <Field label="Estimated Quantity" required>
-              <input value={estimatedQty} onChange={(e) => setEstimatedQty(e.target.value)} placeholder="Qty amount" className={inputCls} />
-            </Field>
+                  <Field label="Stage of Construction" required>
+                    <Select value={req.constructionStage} onValueChange={(v) => updateRequirement(req.id, "constructionStage", v)}>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        {["Foundation", "Slab", "Columns", "Beams", "Roof", "Plastering"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
 
-            <Field label="Unit" required>
-              <Select value={unit} onValueChange={setUnit}>
-                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Unit" /></SelectTrigger>
-                <SelectContent>
-                  {["m³", "MT", "Bags"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </Field>
+                  <Field label="Estimated Quantity" required>
+                    <input 
+                      value={req.estimatedQty} 
+                      onChange={(e) => updateRequirement(req.id, "estimatedQty", e.target.value)} 
+                      placeholder="Qty amount" 
+                      className={inputCls} 
+                    />
+                  </Field>
 
-            <Field label="Project Address" required span={3}>
-              <input value={projectAddress} onChange={(e) => setProjectAddress(e.target.value)} placeholder="Full project address" className={inputCls} />
-            </Field>
+                  <Field label="Unit" required>
+                    <Select value={req.unit} onValueChange={(v) => updateRequirement(req.id, "unit", v)}>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Unit" /></SelectTrigger>
+                      <SelectContent>
+                        {["m³", "MT", "Bags", "Kilograms", "Tonnes"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+
+                  <Field label="Project Address" required span={3}>
+                    <input 
+                      value={req.projectAddress} 
+                      onChange={(e) => updateRequirement(req.id, "projectAddress", e.target.value)} 
+                      placeholder="Full project address" 
+                      className={inputCls} 
+                    />
+                  </Field>
+                </div>
+              </div>
+            ))}
           </div>
         </SectionCard>
 
         <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-          <Button type="submit" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold h-10 px-8 uppercase text-[11px] tracking-wider">
-            <Sparkles className="h-3.5 w-3.5 mr-2" /> Submit Enquiry
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold h-10 px-8 uppercase text-[11px] tracking-wider"
+          >
+            {isSubmitting ? "Saving..." : <><Sparkles className="h-3.5 w-3.5 mr-2" /> Submit Enquiry</>}
           </Button>
           <Button 
             type="button" 
             variant="ghost" 
             className="text-gray-500 hover:text-gray-700 font-bold h-10 px-6 uppercase text-[11px] tracking-wider"
-            onClick={() => navigate("/sales/enquiry")}
+            onClick={handleCancel}
           >
             Cancel
           </Button>

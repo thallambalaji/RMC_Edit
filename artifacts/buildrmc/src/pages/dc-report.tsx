@@ -4,6 +4,8 @@ import { useGetDCs, useGetCustomers } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -161,6 +163,55 @@ export default function DCReport() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    toast({ title: "Export Successful" });
+  };
+
+  const handleCopy = () => {
+    if (!filteredDCs.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["DC No", "DC Date", "DC Time", "Customer", "Plant", "Grade", "Qty (m³)", "Net Amount", "Status"];
+    const rows = filteredDCs.map((dc: any) => [
+      dc.dcNumber,
+      formatDate(dc.dcDate),
+      dc.dcTime || "-",
+      dc.customerName || customerMap[String(dc.customerId?._id || dc.customerId)] || "-",
+      dc.plant || "-",
+      dc.grade || "-",
+      dc.quantity || 0,
+      dc.netAmount || 0,
+      dc.status || "Active"
+    ]);
+    const text = [headers, ...rows].map(r => r.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Report data saved to clipboard." });
+  };
+
+  const handleExportCSV = () => {
+    if (!filteredDCs.length) {
+      toast({ title: "No data to export", variant: "destructive" });
+      return;
+    }
+    const headers = ["DC No", "DC Date", "DC Time", "Customer", "Plant", "Grade", "Qty (m³)", "Net Amount", "Status"];
+    const rows = filteredDCs.map((dc: any) => [
+      `"${(dc.dcNumber || "").replace(/"/g, '""')}"`,
+      `"${formatDate(dc.dcDate)}"`,
+      `"${(dc.dcTime || "-").replace(/"/g, '""')}"`,
+      `"${(dc.customerName || customerMap[String(dc.customerId?._id || dc.customerId)] || "-").replace(/"/g, '""')}"`,
+      `"${(dc.plant || "-").replace(/"/g, '""')}"`,
+      `"${(dc.grade || "-").replace(/"/g, '""')}"`,
+      dc.quantity || 0,
+      dc.netAmount || 0,
+      `"${(dc.status || "Active").replace(/"/g, '""')}"`
+    ]);
+    const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `dc_report_${Date.now()}.csv`;
+    link.click();
     toast({ title: "Export Successful" });
   };
 
@@ -373,33 +424,22 @@ export default function DCReport() {
         <div className="bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 print:shadow-none print:border-none print:overflow-visible">
           
           {/* Printable Header (Only visible during print) */}
-          <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6 mt-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
-                  BM
-                </div>
-                <div>
-                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                  <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                  <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <h2 className="text-2xl font-bold text-[#1e40af] uppercase">DC Report - {reportType}</h2>
-                <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
-                <p className="text-sm text-gray-500 font-medium">
-                  Period: {fromDate ? formatDate(fromDate) : "Start"} to {toDate ? formatDate(toDate) : "End"}
-                </p>
-                {(selectedPlant !== "All Plant" || selectedItem !== "All Item") && (
-                  <p className="text-xs text-gray-500 font-bold mt-1 uppercase">
-                    {selectedPlant !== "All Plant" && `Plant: ${selectedPlant}`} 
-                    {selectedPlant !== "All Plant" && selectedItem !== "All Item" && ` | `}
-                    {selectedItem !== "All Item" && `Item: ${selectedItem}`}
-                  </p>
-                )}
+          <div className="hidden print:block mb-6">
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">DC Report - {reportType}</h2>
+              <div className="text-right text-[10px] font-bold text-gray-600">
+                <span>Printed Date: {new Date().toLocaleDateString()}</span>
+                { (fromDate || toDate) && <span> &nbsp;|&nbsp; Period: {fromDate ? formatDate(fromDate) : "Start"} to {toDate ? formatDate(toDate) : "End"}</span> }
               </div>
             </div>
+            {(selectedPlant !== "All Plant" || selectedItem !== "All Item") && (
+              <p className="text-xs text-gray-500 font-bold mt-1 uppercase">
+                {selectedPlant !== "All Plant" && `Plant: ${selectedPlant}`} 
+                {selectedPlant !== "All Plant" && selectedItem !== "All Item" && ` | `}
+                {selectedItem !== "All Item" && `Item: ${selectedItem}`}
+              </p>
+            )}
           </div>
 
           {/* Report Header */}
@@ -417,14 +457,11 @@ export default function DCReport() {
                 </p>
               )}
             </div>
-            <Button
-              variant="outline"
-              onClick={() => window.print()}
-              className="bg-white/10 hover:bg-white/20 border-white/20 text-white gap-2"
-            >
-              <Printer className="h-4 w-4" />
-              Print
-            </Button>
+            <ExportDropdown
+              onCopy={handleCopy}
+              onCSV={handleExportCSV}
+              onPDF={() => window.print()}
+            />
           </div>
 
           {/* Table */}
@@ -643,16 +680,11 @@ export default function DCReport() {
       {/* Branded Single Delivery Challan Sheet for Printing */}
       {printDC && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">DELIVERY CHALLAN</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Challan Date: {printDC.dcDate ? formatDate(printDC.dcDate) : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
           </div>
 

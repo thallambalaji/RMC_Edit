@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -233,22 +235,11 @@ export default function PaymentFollowUpList() {
 
       <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 print:border-none print:shadow-none">
         {/* Printable Header */}
-        <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
-                BM
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h2 className="text-2xl font-bold text-[#1e40af] uppercase">Payment Follow-Up Report</h2>
-              <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString("en-IN")}</p>
-            </div>
+        <div className="hidden print:block mb-6">
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-4 mb-6">
+            <h2 className="text-xl font-bold text-gray-800 uppercase">Payment Follow-Up Report</h2>
+            <p className="text-xs text-gray-500 font-semibold">Generated: {new Date().toLocaleDateString("en-IN")}</p>
           </div>
         </div>
 
@@ -294,17 +285,7 @@ export default function PaymentFollowUpList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex gap-1.5">
-            <Button onClick={handleExportCopy} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Copy className="h-3.5 w-3.5 text-blue-600" /> Copy
-            </Button>
-            <Button onClick={handleExportCSV} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-            </Button>
-            <Button onClick={handlePrintPDF} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Printer className="h-3.5 w-3.5 text-rose-600" /> PDF
-            </Button>
-          </div>
+          <ExportDropdown onCopy={handleExportCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         {/* Table Data */}

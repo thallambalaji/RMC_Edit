@@ -46,6 +46,8 @@ import {
   Edit
 } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 
 export default function RecipeList() {
   const { toast } = useToast();
@@ -166,19 +168,12 @@ export default function RecipeList() {
       {/* ═══ LIST PRINT SECTION (Professional Layout) ═══ */}
       {isPrintingList && (
         <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-slate-900 overflow-y-auto">
-          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-xl">B</div>
-              <div className="space-y-0.5">
-                <h1 className="text-2xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
-                <p className="text-[9px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
-                <p className="text-[8px] text-slate-400 font-bold uppercase">ISO 9001:2015 Certified Enterprise</p>
-              </div>
-            </div>
-            <div className="text-right space-y-1">
-              <h2 className="text-lg font-black uppercase text-slate-800 tracking-widest">Recipe Summary Report</h2>
-              <p className="text-[9px] font-bold text-slate-500">Date: {new Date().toLocaleDateString('en-GB')}</p>
-              <p className="text-[9px] font-bold text-slate-500">Total Records: {filtered.length}</p>
+          <PrintHeader />
+          <div className="flex justify-between items-start border-b pb-4 mb-6">
+            <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Recipe Summary Report</h2>
+            <div className="text-right text-[10px] text-slate-500 font-bold">
+              <p>Date: {new Date().toLocaleDateString('en-GB')}</p>
+              <p>Total Records: {filtered.length}</p>
             </div>
           </div>
 
@@ -228,19 +223,12 @@ export default function RecipeList() {
       )}
       {printingItem && (
         <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-slate-900">
-          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-inner">B</div>
-              <div className="space-y-0.5">
-                <h1 className="text-3xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
-                <p className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
-                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">ISO 9001:2015 Certified Enterprise</p>
-              </div>
-            </div>
-            <div className="text-right space-y-1">
-              <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Mix Recipe Report</h2>
-              <p className="text-[10px] font-bold text-slate-500">Date: {new Date().toLocaleDateString('en-GB')}</p>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Doc ID: RMC/REC/{Math.floor(Math.random()*9000)+1000}</p>
+          <PrintHeader />
+          <div className="flex justify-between items-start border-b pb-4 mb-6">
+            <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Mix Recipe Report</h2>
+            <div className="text-right text-[10px] text-slate-500 font-bold">
+              <p>Date: {new Date().toLocaleDateString('en-GB')}</p>
+              <p className="text-blue-600 font-bold">Doc ID: RMC/REC/{Math.floor(Math.random()*9000)+1000}</p>
             </div>
           </div>
 
@@ -379,11 +367,11 @@ export default function RecipeList() {
                 <span>entries</span>
               </div>
 
-              <div className="flex gap-1">
-                <Button variant="outline" size="sm" onClick={() => handleExport("copy")} className="h-8 bg-slate-400 hover:bg-slate-500 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">Copy</Button>
-                <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="h-8 bg-slate-500 hover:bg-slate-600 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">CSV</Button>
-                <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} className="h-8 bg-slate-600 hover:bg-slate-700 text-white border-none text-[10px] font-black uppercase tracking-widest px-4">PDF</Button>
-              </div>
+              <ExportDropdown
+                onCopy={() => handleExport("copy")}
+                onCSV={() => handleExport("csv")}
+                onPDF={() => handleExport("pdf")}
+              />
             </div>
 
             {/* Table */}

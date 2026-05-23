@@ -28,6 +28,8 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Search, RotateCcw, Plus, Copy, FileText, FileCode, Edit, Trash2, Layers } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 
 interface MixDesignItem {
   id: number;
@@ -159,24 +161,15 @@ export default function MixDesignList() {
 
   return (
     <div className="min-h-full relative">
-      {/* Professional Print-Only Header (Hidden on screen) */}
       <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8">
-        <div className="flex justify-between items-start border-b-2 border-blue-800 pb-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-blue-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg">
-              B
-            </div>
-            <div>
-              <h1 className="text-3xl font-black text-blue-900 tracking-tighter mb-1">BUILD RMC SOLUTIONS</h1>
-              <p className="text-sm font-bold text-gray-600">Enterprise Ready-Mix Concrete Management</p>
-              <p className="text-[10px] text-gray-500 mt-1">123 Industrial Park, Block 4, Hyderabad, TS 500081</p>
-              <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">ISO 9001:2015 Certified</p>
-            </div>
+        <PrintHeader />
+        <div className="flex justify-between items-start border-b pb-4 mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 uppercase tracking-widest">{printingItem ? 'Single Formulation Report' : 'Mix Design Summary Report'}</h2>
+            <p className="text-xs font-semibold text-gray-500 mt-1">Doc ID: RMC/QC/{Math.floor(Math.random() * 9000) + 1000}</p>
           </div>
           <div className="text-right">
-            <h2 className="text-xl font-bold text-gray-800 uppercase tracking-widest">{printingItem ? 'Single Formulation Report' : 'Mix Design Summary Report'}</h2>
-            <p className="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-wider">Date: {new Date().toLocaleDateString()}</p>
-            <p className="text-[10px] font-bold text-blue-600 mt-1 uppercase tracking-wider">Doc ID: RMC/QC/{Math.floor(Math.random() * 9000) + 1000}</p>
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Date: {new Date().toLocaleDateString()}</p>
           </div>
         </div>
 
@@ -342,17 +335,11 @@ export default function MixDesignList() {
             <span>entries</span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <Button variant="outline" size="sm" onClick={() => handleExport("copy")} className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm">
-              <Copy className="h-3 w-3 mr-1.5" /> Copy
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExport("csv")} className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm">
-              <FileCode className="h-3 w-3 mr-1.5" /> CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm">
-              <FileText className="h-3 w-3 mr-1.5" /> PDF
-            </Button>
-          </div>
+          <ExportDropdown
+            onCopy={() => handleExport("copy")}
+            onCSV={() => handleExport("csv")}
+            onPDF={() => handleExport("pdf")}
+          />
         </div>
 
         {/* Data Grid Table matching screenshot */}

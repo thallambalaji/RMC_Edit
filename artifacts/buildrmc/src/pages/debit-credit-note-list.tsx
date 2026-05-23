@@ -4,6 +4,8 @@ import { useGetInvoices, useGetCustomers } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -377,18 +379,13 @@ export default function DebitCreditNoteList() {
       {/* ===== PRINT AREA - MULTIPLE ROWS REPORT ===== */}
       <div id="rpt-print-root" style={{ display: "none" }}>
         <div style={{ padding: "10px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-          <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-              <div style={{ width: "52px", height: "52px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
-              <div>
-                <div style={{ fontSize: "20px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>GSTIN: 36AAAAA1111A1Z1</div>
-              </div>
+          <PrintHeader />
+          <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Debit/Credit Note Register</h2>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Debit/Credit Note Register</div>
-              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Printed: {new Date().toLocaleString("en-IN")}</div>
+            <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+              <span>Printed: {new Date().toLocaleString("en-IN")}</span>
             </div>
           </div>
 
@@ -424,19 +421,13 @@ export default function DebitCreditNoteList() {
       <div id="row-print-root" style={{ display: "none" }}>
         {printNote && (
           <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-            <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <div style={{ width: "56px", height: "56px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "20px", borderRadius: "8px" }}>BM</div>
-                <div>
-                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-                </div>
+            <PrintHeader />
+            <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>{printNote.noteType} Details</h2>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>{printNote.noteType}</div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Note No: {printNote.noteNo}</div>
-                <div style={{ fontSize: "11px", color: "#475569" }}>Date: {printNote.date}</div>
+              <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+                <span>Note No: {printNote.noteNo} &nbsp;|&nbsp; Date: {printNote.date}</span>
               </div>
             </div>
 
@@ -582,17 +573,7 @@ export default function DebitCreditNoteList() {
                 onChange={(e) => { setGlobalSearch(e.target.value); setCurrentPage(1); }}
               />
             </div>
-            <div className="flex gap-1">
-              <Button onClick={handleCopyReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Copy className="h-3.5 w-3.5 text-slate-500" /> Copy
-              </Button>
-              <Button onClick={handleCSVReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-              </Button>
-              <Button onClick={handlePrintReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Printer className="h-3.5 w-3.5 text-blue-600" /> Print
-              </Button>
-            </div>
+            <ExportDropdown onCopy={handleCopyReport} onCSV={handleCSVReport} onPDF={handlePrintReport} />
           </div>
         </div>
 

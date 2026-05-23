@@ -14,6 +14,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
 import { Link } from "wouter";
+import { ExportDropdown } from "@/components/export-dropdown";
 import {
   Plus,
   Search,
@@ -107,16 +108,51 @@ export default function PumpDgList() {
             </style>
           </head>
           <body onload="window.print(); window.close();">
-            <div class="header">
-              <div class="company-info">
-                <h1>BUILD RMC CORPORATION</h1>
-                <p>Plot No. 42, Ready Mix Compound, Industrial Zone</p>
-                <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
+            <div style="display: flex; height: 6px; width: 100%;">
+              <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+            </div>
+            <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+              <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a855f7" />
+                      <stop offset="100%" stop-color="#f43f5e" />
+                    </linearGradient>
+                    <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                  <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                  <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                  <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                  <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
+                </svg>
               </div>
-              <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
-                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
-              </svg>
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+                <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+                <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    Kompally, TS
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    9010514880
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    abcs3d@gmail.com
+                  </span>
+                </div>
+              </div>
             </div>
             <div class="title">Asset Specifications Card</div>
             <div class="grid-info">
@@ -215,16 +251,51 @@ export default function PumpDgList() {
             </style>
           </head>
           <body onload="window.print(); window.close();">
-            <div class="header">
-              <div class="company-info">
-                <h1>BUILD RMC CORPORATION</h1>
-                <p>Plot No. 42, Ready Mix Compound, Industrial Zone</p>
-                <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
+            <div style="display: flex; height: 6px; width: 100%;">
+              <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+            </div>
+            <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+              <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a855f7" />
+                      <stop offset="100%" stop-color="#f43f5e" />
+                    </linearGradient>
+                    <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                  <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                  <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                  <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                  <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
+                </svg>
               </div>
-              <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
-                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
-              </svg>
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+                <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+                <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    Kompally, TS
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    9010514880
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    abcs3d@gmail.com
+                  </span>
+                </div>
+              </div>
             </div>
             <div class="title">Pump & DG Assets List</div>
             <table>
@@ -290,32 +361,11 @@ export default function PumpDgList() {
           <div className="text-xs font-bold text-slate-500 uppercase">
             Showing {filtered.length} of {items.length} registered assets
           </div>
-          <div className="flex gap-1.5">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("copy")}
-              className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm"
-            >
-              <Copy className="h-3 w-3 mr-1.5" /> Copy
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("csv")}
-              className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm"
-            >
-              <Download className="h-3 w-3 mr-1.5" /> CSV
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("pdf")}
-              className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm"
-            >
-              <Printer className="h-3 w-3 mr-1.5" /> PDF
-            </Button>
-          </div>
+          <ExportDropdown
+            onCopy={() => handleExport("copy")}
+            onCSV={() => handleExport("csv")}
+            onPDF={() => handleExport("pdf")}
+          />
         </div>
 
         {/* Table container */}

@@ -15,6 +15,8 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import { ChevronRight, RotateCcw, FileBarChart, Printer, Download, Eye, X, MoreHorizontal } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -150,6 +152,19 @@ export default function SalesDocumentReport() {
     toast({ title: "CSV Downloaded" });
   };
 
+  const handleCopy = () => {
+    if (!generated) { toast({ title: "Generate report first", variant: "destructive" }); return; }
+    const headers = ["Invoice No", "Date", "Customer", "Site", "Vehicle", "Plant", "Taxable Amt", "Tax Amt", "Net Amt"];
+    const rows = reportData.map(inv => {
+      const taxable = parseFloat(String(inv.netAmount || 0));
+      const net = parseFloat(String(inv.totalAmount || 0));
+      return [inv.invoiceNumber, inv.invoiceDate, inv.customerName, inv.site || "", inv.vehicleNo || "", inv.plant || "", taxable, net - taxable, net];
+    });
+    const text = [headers, ...rows].map(r => r.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Report data saved to clipboard." });
+  };
+
   const handleRowPrint = (inv: any) => {
     setPrintInv(inv);
     setTimeout(() => {
@@ -209,21 +224,13 @@ export default function SalesDocumentReport() {
 
       {/* ===== PRINT ONLY (REPORT) ===== */}
       <div id="rpt-print-root" style={{ display: "none" }}>
-        {/* Company header */}
-        <div style={{ borderBottom: "2px solid #1e3a8a", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ width: "52px", height: "52px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
-            <div>
-              <div style={{ fontSize: "20px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-              <div style={{ fontSize: "11px", color: "#64748b" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-              <div style={{ fontSize: "11px", color: "#64748b" }}>GSTIN: 36AAAAA1111A1Z1 &nbsp;|&nbsp; +91 98765 43210 &nbsp;|&nbsp; contact@buildrmc.com</div>
-            </div>
+        <PrintHeader />
+        <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Sales Document Report</h2>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Sales Document Report</div>
-            <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Report Type: {reportTypeLabel}</div>
-            {fromDate && <div style={{ fontSize: "11px", color: "#64748b" }}>Period: {new Date(fromDate).toLocaleDateString("en-IN")} — {toDate ? new Date(toDate).toLocaleDateString("en-IN") : "Today"}</div>}
-            <div style={{ fontSize: "11px", color: "#64748b" }}>Printed: {new Date().toLocaleString("en-IN")}</div>
+          <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+            <span>Report Type: {reportTypeLabel} &nbsp;|&nbsp; Printed: {new Date().toLocaleString("en-IN")}</span>
           </div>
         </div>
 
@@ -455,14 +462,7 @@ export default function SalesDocumentReport() {
                 </span>
               )}
             </div>
-            <div className="flex gap-2">
-              <Button onClick={handleCSV} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 hover:bg-emerald-50">
-                <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-              </Button>
-              <Button onClick={handlePrint} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 hover:bg-blue-50">
-                <Printer className="h-3.5 w-3.5 text-[#1e40af]" /> Print / PDF
-              </Button>
-            </div>
+            <ExportDropdown onCopy={handleCopy} onCSV={handleCSV} onPDF={handlePrint} />
           </div>
 
           {reportData.length === 0 ? (

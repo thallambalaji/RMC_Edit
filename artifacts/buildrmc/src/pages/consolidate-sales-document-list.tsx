@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 
 import {
   Dialog,
@@ -119,6 +121,27 @@ export default function ConsolidateSalesDocumentList() {
     setTimeout(() => {
       window.print();
     }, 150);
+  };
+
+  const handleCopyReport = () => {
+    const text = filteredData.map(inv => `${inv.invoiceNumber}\t${inv.customerName}\t${inv.invoiceDate}\t1\t${inv.plant}`).join("\n");
+    navigator.clipboard.writeText(`Consolidate Invoice ID\tCustomer\tGenerate Date\tNo Of Invoice\tPlant Name\n${text}`);
+    toast({ title: "Copied to clipboard" });
+  };
+
+  const handleCSVReport = () => {
+    const rows = [["Consolidate Invoice ID", "Customer", "Generate Date", "No Of Invoice", "Plant Name"]];
+    filteredData.forEach(inv => rows.push([inv.invoiceNumber, inv.customerName, inv.invoiceDate, "1", inv.plant || ""]));
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `Consolidated_Invoices.csv`;
+    a.click();
+    toast({ title: "CSV Downloaded" });
+  };
+
+  const handlePrintReport = () => {
+    window.print();
   };
 
   const confirmDelete = async () => {
@@ -243,27 +266,7 @@ export default function ConsolidateSalesDocumentList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => {
-                const text = filteredData.map(inv => `${inv.invoiceNumber}\t${inv.customerName}\t${inv.invoiceDate}\t1\t${inv.plant}`).join("\n");
-                navigator.clipboard.writeText(`Consolidate Invoice ID\tCustomer\tGenerate Date\tNo Of Invoice\tPlant Name\n${text}`);
-                toast({ title: "Copied to clipboard" });
-              }}>Copy</Button>
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => {
-                const rows = [["Consolidate Invoice ID", "Customer", "Generate Date", "No Of Invoice", "Plant Name"]];
-                filteredData.forEach(inv => rows.push([inv.invoiceNumber, inv.customerName, inv.invoiceDate, "1", inv.plant || ""]));
-                const csv = rows.map(r => r.join(",")).join("\n");
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-                a.download = `Consolidated_Invoices.csv`;
-                a.click();
-                toast({ title: "CSV Downloaded" });
-              }}>CSV</Button>
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => window.print()}>PDF</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopyReport} onCSV={handleCSVReport} onPDF={handlePrintReport} />
         </div>
 
         <div className="overflow-x-auto">
@@ -371,16 +374,13 @@ export default function ConsolidateSalesDocumentList() {
       <div id="print-root">
         {viewInv && (
           <div className="p-8 bg-white text-black">
-            <div className="flex items-center gap-4 mb-8 border-b-2 border-[#1e40af] pb-6">
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
-              <div>
-                <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-                <p className="text-sm text-slate-600 mt-1 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidated Invoice Details</h2>
+              <div className="text-right">
+                <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">CONSOLIDATED INVOICE</span>
               </div>
             </div>
-            
-            <h2 className="text-xl font-bold uppercase text-[#1e40af] mb-4 border-b pb-2">Consolidated Invoice Details</h2>
             
             <table className="w-full text-left mb-6 border border-slate-200">
               <tbody>
@@ -420,16 +420,13 @@ export default function ConsolidateSalesDocumentList() {
       {/* ===== GLOBAL PRINT LAYOUT (LIST) ===== */}
       <div id="global-print-root">
         <div className="p-8 bg-white text-black">
-          <div className="flex items-center gap-4 mb-8 border-b-2 border-[#1e40af] pb-6">
-            <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
-            <div>
-              <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-              <p className="text-sm text-slate-600 mt-1 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-              <p className="text-sm text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidate Sales Document List</h2>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-gray-600">Printed Date: {new Date().toLocaleDateString("en-IN")}</p>
             </div>
           </div>
-          
-          <h2 className="text-xl font-bold uppercase text-[#1e40af] mb-4">Consolidate Sales Document List</h2>
           
           <table className="w-full text-left border-collapse border border-slate-200">
             <thead>

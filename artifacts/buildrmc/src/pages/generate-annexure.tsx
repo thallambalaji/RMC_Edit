@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -316,21 +318,13 @@ export default function GenerateAnnexure() {
       {/* ===== PRINT AREA - MULTIPLE ROWS LANDSCAPE REPORT ===== */}
       <div id="rpt-print-root" style={{ display: "none" }}>
         <div style={{ padding: "10px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-          {/* Corporate Header */}
-          <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-              <div style={{ width: "52px", height: "52px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
-              <div>
-                <div style={{ fontSize: "20px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-              </div>
+          <PrintHeader />
+          <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Annexure Statement</h2>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Annexure Statement</div>
-              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Customer: {customerLabel}</div>
-              {fromDate && <div style={{ fontSize: "11px", color: "#64748b" }}>Period: {new Date(fromDate).toLocaleDateString("en-IN")} — {toDate ? new Date(toDate).toLocaleDateString("en-IN") : "Today"}</div>}
-              <div style={{ fontSize: "11px", color: "#64748b" }}>Printed: {new Date().toLocaleString("en-IN")}</div>
+            <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+              <span>Customer: {customerLabel} &nbsp;|&nbsp; Printed: {new Date().toLocaleString("en-IN")}</span>
             </div>
           </div>
 
@@ -368,18 +362,13 @@ export default function GenerateAnnexure() {
       <div id="row-print-root" style={{ display: "none" }}>
         {printInv && (
           <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-            <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <div style={{ width: "56px", height: "56px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyItems: "center", fontWeight: 900, fontSize: "20px", borderRadius: "8px" }}>BM</div>
-                <div>
-                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-                </div>
+            <PrintHeader />
+            <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Sales Invoice Details</h2>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Sales Invoice</div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Date: {printInv.invoiceDate ? new Date(printInv.invoiceDate).toLocaleDateString("en-IN") : "—"}</div>
+              <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+                <span>Invoice No: {printInv.invoiceNumber}</span>
               </div>
             </div>
 
@@ -539,15 +528,7 @@ export default function GenerateAnnexure() {
             </div>
 
             <div className="flex gap-1.5">
-              <Button onClick={handleCopyReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Copy className="h-3.5 w-3.5 text-slate-500" /> Copy
-              </Button>
-              <Button onClick={handleCSVReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-              </Button>
-              <Button onClick={handlePrintReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-                <Printer className="h-3.5 w-3.5 text-[#1e40af]" /> Print Report
-              </Button>
+              <ExportDropdown onCopy={handleCopyReport} onCSV={handleCSVReport} onPDF={handlePrintReport} />
             </div>
           </div>
 

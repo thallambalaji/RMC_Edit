@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -360,10 +362,14 @@ export default function WeighmentList() {
       </div>
 
       {/* Print Header */}
-      <div className="hidden print:block text-center mb-8 border-b pb-4">
-        <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">FORTUNE CONCRETE</h1>
-        <p className="text-slate-500 font-bold uppercase text-xs mt-1 tracking-widest">Official Weighment List Report</p>
-        <p className="text-slate-400 font-mono text-[10px] mt-2">Generated on {new Date().toLocaleString()}</p>
+      <div className="hidden print:block mb-6">
+        <PrintHeader />
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment List Report</h2>
+          <div className="text-right text-[10px] font-bold text-gray-600">
+            <span>Printed Date: {new Date().toLocaleString()}</span>
+          </div>
+        </div>
       </div>
 
       <div className="glass-card flex flex-col overflow-hidden border-white/80 shadow-xl print:shadow-none print:border-none print:bg-white print:m-0 print:p-0">
@@ -382,12 +388,7 @@ export default function WeighmentList() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopy} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm">Copy</Button>
-            <Button variant="outline" size="sm" onClick={handleExportCSV} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><FileText className="h-3 w-3" /> CSV</Button>
-            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Download className="h-3 w-3" /> PDF</Button>
-            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Printer className="h-3 w-3" /> Print</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         <div className="overflow-x-auto bg-white">
@@ -582,16 +583,11 @@ export default function WeighmentList() {
       {/* Branded Single Weighment Ticket Sheet for Printing */}
       {printRecord && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment Slip Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">WEIGHMENT SLIP</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Slip Date: {printRecord.dcDate ? new Date(printRecord.dcDate).toLocaleDateString("en-IN") : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">WEIGHMENT SLIP</span>
             </div>
           </div>
 

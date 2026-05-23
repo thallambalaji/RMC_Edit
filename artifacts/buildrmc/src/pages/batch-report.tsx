@@ -35,6 +35,8 @@ import {
   Calendar,
 } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 
 export default function BatchReport() {
   const { toast } = useToast();
@@ -294,36 +296,20 @@ export default function BatchReport() {
 
   return (
     <div className="min-h-full relative">
-      {/* ═══ PRINT TEMPLATE (Hidden on screen) ═══ */}
       <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8 text-black">
-        {/* Print Header */}
-        <div className="flex justify-between items-start border-b-2 border-blue-850 pb-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-blue-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg">
-              F
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-blue-900 tracking-tighter mb-0.5">
-                FORTUNE CONCRETE SOLUTIONS
-              </h1>
-              <p className="text-xs font-bold text-gray-600">
-                Quality Assurance & Plant Production System
-              </p>
-              <p className="text-[9px] text-gray-500">
-                123 Industrial Area, Block C, Hyderabad, TS 500081 • ISO 9001:2015 Certified
-              </p>
-            </div>
-          </div>
-          <div className="text-right">
-            <h2 className="text-base font-black text-gray-800 uppercase tracking-widest">
+        <PrintHeader />
+        <div className="flex justify-between items-start border-b pb-4 mb-6">
+          <div>
+            <h2 className="text-xl font-black text-gray-800 uppercase tracking-widest">
               {printingEntry ? "BATCH DELIVERY SLIP" : "BATCHING PRODUCTION REPORT"}
             </h2>
-            <p className="text-[9px] font-bold text-gray-500 mt-1">
-              Print Date: {new Date().toLocaleDateString()}
+            <p className="text-[10px] font-bold text-gray-500 mt-1 uppercase tracking-wider">
+              {printingEntry ? `TICKET NO: ${printingEntry.batchNo}` : "SUMMARY DETAILS"}
             </p>
-            <p className="text-[9px] font-bold text-blue-600">
-              Report ID: RMC/REP/{Math.floor(Math.random() * 9000) + 1000}
-            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Print Date: {new Date().toLocaleDateString()}</p>
+            <p className="text-xs font-bold text-blue-600 mt-1 uppercase tracking-wider">Report ID: RMC/REP/{Math.floor(Math.random() * 9000) + 1000}</p>
           </div>
         </div>
 
@@ -632,32 +618,11 @@ export default function BatchReport() {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleExport("copy")}
-                    className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm"
-                  >
-                    <CopyIcon className="h-3 w-3 mr-1.5" /> Copy
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleExport("csv")}
-                    className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm"
-                  >
-                    <FileCode className="h-3 w-3 mr-1.5" /> CSV
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleExport("pdf")}
-                    className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm"
-                  >
-                    <Printer className="h-3 w-3 mr-1.5" /> Print Report
-                  </Button>
-                </div>
+                <ExportDropdown
+                  onCopy={() => handleExport("copy")}
+                  onCSV={() => handleExport("csv")}
+                  onPDF={() => handleExport("pdf")}
+                />
               </div>
 
               {/* Data Table */}

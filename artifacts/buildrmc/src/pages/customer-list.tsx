@@ -8,6 +8,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -427,11 +429,11 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
               </Select>
               <span className="text-[9px] font-black text-gray-500 uppercase">entries</span>
             </div>
-            <div className="flex bg-slate-200 rounded p-0.5 gap-0.5">
-              <Button onClick={handleCopyAll} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">Copy All</Button>
-              <Button onClick={handleExportCSVAll} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">CSV Export</Button>
-              <Button onClick={() => { setPrintTarget(null); setTimeout(() => window.print(), 100); }} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">Print PDF</Button>
-            </div>
+            <ExportDropdown
+              onCopy={handleCopyAll}
+              onCSV={handleExportCSVAll}
+              onPDF={() => { setPrintTarget(null); setTimeout(() => window.print(), 100); }}
+            />
           </div>
 
           <div className="overflow-x-auto min-h-[300px] no-print">
@@ -688,15 +690,11 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       {/* Single Customer Print Profile (Branded letterhead) */}
       {printTarget && (
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Customer Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">CUSTOMER DOSSIER</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded">CUSTOMER DOSSIER</span>
             </div>
           </div>
 
@@ -760,14 +758,10 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       {/* Directory Summary Print Profile */}
       {!printTarget && (
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full font-sans">
-          <div className="border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 className="text-2xl font-black text-[#1e40af] uppercase tracking-tight">FORTUNE CONCRETE</h1>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Premium Ready Mix Concrete Solutions</p>
-            <p className="text-[9px] text-gray-400">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            <div className="mt-3 flex justify-between items-center">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider">OFFICIAL REGISTERED CUSTOMERS DIRECTORY</h2>
-              <p className="text-xs font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">OFFICIAL REGISTERED CUSTOMERS DIRECTORY</h2>
+            <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 
           <table className="w-full border-collapse border text-[9px] text-left">

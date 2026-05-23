@@ -23,6 +23,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Accordion,
   AccordionContent,
@@ -210,6 +212,29 @@ export default function DCHub() {
     window.print();
   };
 
+  const handleCopy = () => {
+    if (!filteredData.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["DC No", "Customer", "Site", "Date", "Quantity", "Vehicle"];
+    const rows = filteredData.map((d: any) => {
+      const cust = d.customerName || customerMap[String(d.customerId?._id || d.customerId)]?.name || "-";
+      const site = d.siteName || customerMap[String(d.customerId?._id || d.customerId)]?.address || "-";
+      return [
+        d.dcNumber,
+        cust,
+        site,
+        d.dcDate ? new Date(d.dcDate).toLocaleDateString("en-IN") : "-",
+        d.quantity,
+        d.vehicleReg
+      ];
+    });
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Complete data saved to clipboard." });
+  };
+
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
@@ -324,19 +349,12 @@ export default function DCHub() {
         <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden print:border-none print:shadow-none">
           
           {/* Printable Header (Only visible during print) */}
-          <div className="hidden print:block mb-6 border-b-2 border-gray-800 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">BM</div>
-                <div>
-                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                  <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                  <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-                </div>
-              </div>
+          <div className="hidden print:block mb-6">
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">DC Hub List</h2>
               <div className="text-right">
-                <h2 className="text-2xl font-bold text-[#1e40af] uppercase">DC Hub List</h2>
-                <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
+                <p className="text-[10px] font-bold text-gray-600">Printed Date: {new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -354,14 +372,7 @@ export default function DCHub() {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handleExportCSV}>
-                <Download className="h-3 w-3 mr-1.5" /> Export
-              </Button>
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handlePrint}>
-                <Printer className="h-3 w-3 mr-1.5" /> Print
-              </Button>
-            </div>
+            <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrint} />
           </div>
 
           {/* Table Body */}
@@ -509,16 +520,11 @@ export default function DCHub() {
       {/* Branded Single DC Sheet for Printing */}
       {printDC && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">DELIVERY CHALLAN</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Date: {printDC.dcDate ? new Date(printDC.dcDate).toLocaleDateString("en-IN") : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
           </div>
 

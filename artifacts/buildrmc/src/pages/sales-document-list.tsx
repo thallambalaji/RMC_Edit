@@ -20,6 +20,8 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   ChevronRight, Plus, Search, RotateCcw, Trash2, Pencil,
   Download, Printer, FileText, X, Copy,
@@ -161,6 +163,33 @@ export default function SalesDocumentList() {
     setTimeout(() => { document.title = prevTitle; }, 1000);
   };
 
+  const handleCopy = () => {
+    if (!filtered.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["Invoice No", "Date", "Time", "Customer", "Site Address", "Vehicle", "Taxable Amt", "Tax Amt", "Net Amt", "Plant"];
+    const rows = filtered.map(inv => {
+      const taxable = parseFloat(String(inv.netAmount || 0));
+      const net = parseFloat(String(inv.totalAmount || 0));
+      return [
+        inv.invoiceNumber,
+        inv.invoiceDate,
+        inv.invoiceTime || "",
+        inv.customerName,
+        inv.site || "",
+        inv.vehicleNo || "",
+        taxable,
+        net - taxable,
+        net,
+        inv.plant || ""
+      ];
+    });
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Table data saved to clipboard." });
+  };
+
   const handlePrintSingle = (inv: any) => {
     setViewInv(inv);
     setTimeout(() => {
@@ -203,20 +232,13 @@ export default function SalesDocumentList() {
 
       {/* ===== PRINT-ONLY AREA ===== */}
       <div id="print-root" style={{display:'none'}}>
-        {/* Company Header */}
-        <div style={{borderBottom:'2px solid #1e3a8a', paddingBottom:'16px', marginBottom:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
-            <div style={{width:'56px',height:'56px',background:'#1e40af',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'20px',borderRadius:'8px'}}>BM</div>
-            <div>
-              <div style={{fontSize:'22px',fontWeight:900,color:'#0f172a',textTransform:'uppercase',letterSpacing:'-0.5px'}}>BuildRMC Enterprises</div>
-              <div style={{fontSize:'11px',color:'#64748b',fontWeight:600}}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-              <div style={{fontSize:'11px',color:'#64748b',fontWeight:600}}>GSTIN: 36AAAAA1111A1Z1 &nbsp;|&nbsp; Phone: +91 98765 43210 &nbsp;|&nbsp; contact@buildrmc.com</div>
-            </div>
+        <PrintHeader />
+        <div style={{borderBottom:'2px solid #e2e8f0', paddingBottom:'8px', marginBottom:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+          <div>
+            <h2 style={{fontSize:'14px',fontWeight:900,color:'#1e40af',textTransform:'uppercase',margin:0}}>Sales Document List</h2>
           </div>
-          <div style={{textAlign:'right'}}>
-            <div style={{fontSize:'16px',fontWeight:900,color:'#1e40af',textTransform:'uppercase'}}>Sales Document List</div>
-            <div style={{fontSize:'11px',color:'#64748b',marginTop:'4px'}}>Printed on: {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})}</div>
-            <div style={{fontSize:'11px',color:'#64748b'}}>Total Records: {filtered.length}</div>
+          <div style={{textAlign:'right', fontSize:'11px', color:'#64748b'}}>
+            <span>Printed on: {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})} &nbsp;|&nbsp; Total Records: {filtered.length}</span>
           </div>
         </div>
 
@@ -351,6 +373,7 @@ export default function SalesDocumentList() {
           <div className="flex items-center gap-2">
             <Input value={globalSearch} onChange={e => { setGlobalSearch(e.target.value); setPage(1); }}
               placeholder="Search table..." className="h-8 w-44 bg-white text-xs" />
+            <ExportDropdown onCopy={handleCopy} onCSV={exportCSV} onPDF={handlePrint} />
           </div>
         </div>
 

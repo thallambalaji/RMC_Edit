@@ -9,6 +9,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -318,7 +320,17 @@ export default function Sales() {
         </div>
 
         {/* Main Table Container */}
-        <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
+        <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden print:border-none print:shadow-none">
+          {/* Printable Header (Only visible during print) */}
+          <div className="hidden print:block mb-6 mt-4">
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Order Register</h2>
+              <div className="text-right text-[10px] font-bold text-gray-600">
+                <span>Printed Date: {new Date().toLocaleDateString()}</span>
+              </div>
+            </div>
+          </div>
           {/* Table Header / Filters Row */}
           {showFilters && (
             <div className="p-3 border-b bg-gray-50/50 grid grid-cols-1 md:grid-cols-5 gap-3 items-end print:hidden">
@@ -371,19 +383,7 @@ export default function Sales() {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3">
-                    <Download className="h-3 w-3 mr-1.5" /> Export Data
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="text-xs">
-                  <DropdownMenuItem onClick={() => handleExport("copy")}>Copy to Clipboard</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport("csv")}>Download CSV</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <ExportDropdown onCopy={() => handleExport("copy")} onCSV={() => handleExport("csv")} onPDF={handlePrint} />
           </div>
 
           {/* Table Body */}

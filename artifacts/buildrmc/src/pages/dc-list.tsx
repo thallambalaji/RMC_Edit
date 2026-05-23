@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -361,27 +363,13 @@ export default function DCList() {
       <div className={`bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden print:border-none print:shadow-none ${printDC ? "print:hidden" : ""}`}>
 
         {/* Printable Header (Only visible during print) */}
-        <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Placeholder for Logo */}
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
-                BM
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h2 className="text-2xl font-bold text-[#1e40af] uppercase">Delivery Challan List</h2>
-              <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
-              {(fromDate || toDate) && (
-                <p className="text-sm text-gray-500 font-medium">
-                  Period: {fromDate || "Start"} to {toDate || "End"}
-                </p>
-              )}
+        <div className="hidden print:block mb-6">
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Register</h2>
+            <div className="text-right text-[10px] font-bold text-gray-600">
+              <span>Printed Date: {new Date().toLocaleDateString()}</span>
+              { (fromDate || toDate) && <span> &nbsp;|&nbsp; Period: {fromDate || "Start"} to {toDate || "End"}</span> }
             </div>
           </div>
         </div>
@@ -397,11 +385,7 @@ export default function DCList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleCopy}>Copy</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleExportCSV}>CSV</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handlePrintPDF}>PDF</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         <div className="overflow-x-auto print:overflow-visible">
@@ -625,16 +609,11 @@ export default function DCList() {
       {/* Branded Single DC Sheet for Printing */}
       {printDC && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">DELIVERY CHALLAN</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Date: {printDC.dcDate ? new Date(printDC.dcDate).toLocaleDateString("en-IN") : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
           </div>
 

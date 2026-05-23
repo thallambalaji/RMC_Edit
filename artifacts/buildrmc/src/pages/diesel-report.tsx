@@ -19,6 +19,7 @@ import {
   FileSpreadsheet,
   Trash2,
 } from "lucide-react";
+import { ExportDropdown } from "@/components/export-dropdown";
 
 interface EngineData {
   engineType: string;
@@ -205,19 +206,50 @@ export default function DieselReport() {
           </style>
         </head>
         <body>
-          <div class="header">
-            <div class="logo-container">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+          <div style="display: flex; height: 6px; width: 100%;">
+            <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+          </div>
+          <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+            <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+              <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a855f7" />
+                    <stop offset="100%" stop-color="#f43f5e" />
+                  </linearGradient>
+                  <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#06b6d4" />
+                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="100%" stop-color="#f97316" />
+                  </linearGradient>
+                </defs>
+                <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
               </svg>
             </div>
-            <div class="company-details">
-              <h1>${(item.plant || "Fortune Concrete").toUpperCase()}</h1>
-              <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
-              <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+              <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+              <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  Kompally, TS
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  9010514880
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  abcs3d@gmail.com
+                </span>
+              </div>
             </div>
           </div>
           <div class="doc-title">Diesel Consumption Log</div>
@@ -334,19 +366,50 @@ export default function DieselReport() {
             </style>
           </head>
           <body>
-            <div class="header">
-              <div class="logo-container">
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                  <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                  <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+            <div style="display: flex; height: 6px; width: 100%;">
+              <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+            </div>
+            <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+              <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a855f7" />
+                      <stop offset="100%" stop-color="#f43f5e" />
+                    </linearGradient>
+                    <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                  <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                  <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                  <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                  <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
                 </svg>
               </div>
-              <div class="company-details">
-                <h1>BUILD RMC REPORTS</h1>
-                <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
-                <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+                <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+                <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    Kompally, TS
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    9010514880
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    abcs3d@gmail.com
+                  </span>
+                </div>
               </div>
             </div>
             <div class="doc-title">Diesel Consolidate Report</div>
@@ -431,19 +494,50 @@ export default function DieselReport() {
           </style>
         </head>
         <body>
-          <div class="header">
-            <div class="logo-container">
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3C13 6.9 11.8 6.5 10.5 6.5H5C3.3 6.5 2 7.8 2 9.5v5c0 1.1.9 2 2 2h1" stroke="#00c0a5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="7" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                <circle cx="16" cy="17" r="2.5" stroke="#00c0a5" stroke-width="2"/>
-                <path d="M14 10v4" stroke="#00c0a5" stroke-width="2"/>
+          <div style="display: flex; height: 6px; width: 100%;">
+            <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+          </div>
+          <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+            <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+              <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a855f7" />
+                    <stop offset="100%" stop-color="#f43f5e" />
+                  </linearGradient>
+                  <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#06b6d4" />
+                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="100%" stop-color="#f97316" />
+                  </linearGradient>
+                </defs>
+                <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
               </svg>
             </div>
-            <div class="company-details">
-              <h1>BUILD RMC REPORTS</h1>
-              <p>Plot No. 42, Phase-II, Industrial Area, Hyderabad, Telangana - 500051</p>
-              <p>Email: info@fortuneconcrete.com | Tel: +91 40 12345678</p>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+              <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+              <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  Kompally, TS
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  9010514880
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  abcs3d@gmail.com
+                </span>
+              </div>
             </div>
           </div>
           <div class="doc-title">${reportType}</div>
@@ -669,24 +763,7 @@ export default function DieselReport() {
                   Showing {reportResults.length} records matching criteria
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button
-                    onClick={printAllLogs}
-                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> PDF Report
-                  </Button>
-                  <Button
-                    onClick={downloadAllCSV}
-                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
-                  >
-                    <FileSpreadsheet className="h-3.5 w-3.5" /> CSV Report
-                  </Button>
-                  <Button
-                    onClick={copyAllLogs}
-                    className="h-8 px-3 text-[11px] font-bold bg-[#00c0a5] hover:bg-[#00a890] text-white rounded border-none shadow-sm flex items-center gap-1.5"
-                  >
-                    <Copy className="h-3.5 w-3.5" /> Copy Data
-                  </Button>
+                  <ExportDropdown onCopy={copyAllLogs} onCSV={downloadAllCSV} onPDF={printAllLogs} />
                 </div>
               </div>
 

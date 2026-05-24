@@ -161,7 +161,7 @@ export default function MixDesignList() {
   };
 
   return (
-    <div className="min-h-full relative">
+    <>
       <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8">
         <PrintHeader />
         <div className="flex justify-between items-start border-b pb-4 mb-6">
@@ -522,6 +522,6 @@ export default function MixDesignList() {
         </DialogContent>
       </Dialog>
       </QcLayout>
-    </div>
+    </>
   );
 }

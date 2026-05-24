@@ -164,7 +164,7 @@ export default function RecipeList() {
   };
 
   return (
-    <div className="space-y-6 bg-[#f8fafc] min-h-full pb-12 print:bg-white print:p-0">
+    <>
       
       {/* ═══ LIST PRINT SECTION (Professional Layout) ═══ */}
       {isPrintingList && (
@@ -514,6 +514,6 @@ export default function RecipeList() {
           </DialogContent>
         </Dialog>
       </QcLayout>
-    </div>
+    </>
   );
 }

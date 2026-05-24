@@ -216,7 +216,7 @@ export default function CubeTestList() {
   };
 
   return (
-    <div className="flex flex-col gap-4 bg-[#f8fafc] min-h-full pb-12 print:bg-white print:p-0">
+    <>
       
       {/* ═══ LIST PRINT VIEW (Professional Layout) ═══ */}
       {isPrintingList && (
@@ -576,6 +576,6 @@ export default function CubeTestList() {
           </CardContent>
         </Card>
       </QcLayout>
-    </div>
+    </>
   );
 }

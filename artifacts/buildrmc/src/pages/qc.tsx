@@ -201,7 +201,7 @@ export default function QC() {
   };
 
   return (
-    <div className="min-h-full relative">
+    <>
       {/* Professional Print-Only Header (Hidden on screen) */}
       <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8">
         <PrintHeader />
@@ -595,6 +595,6 @@ export default function QC() {
         </DialogContent>
       </Dialog>
       </QcLayout>
-    </div>
+    </>
   );
 }

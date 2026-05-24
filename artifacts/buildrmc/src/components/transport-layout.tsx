@@ -81,7 +81,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
 
   return (
     <TransportFiltersContext.Provider value={{ showFilters, toggleFilters }}>
-    <div className="flex h-full gap-4 bg-[#f8fafc] p-4 relative min-h-screen">
+    <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Collapsible Accordion Navigation matching DC & QC Navigation */}
       <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
         <div className="p-4 bg-gray-50 border-b flex items-center justify-between">

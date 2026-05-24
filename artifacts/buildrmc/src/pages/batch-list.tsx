@@ -280,7 +280,7 @@ export default function BatchList() {
   };
 
   return (
-    <div className="min-h-full relative">
+    <>
       <div className="hidden print:block absolute inset-0 bg-white z-[9999] p-8 text-black">
         <PrintHeader />
         <div className="flex justify-between items-start border-b pb-4 mb-6">
@@ -784,6 +784,6 @@ export default function BatchList() {
           </div>
         </div>
       </QcLayout>
-    </div>
+    </>
   );
 }

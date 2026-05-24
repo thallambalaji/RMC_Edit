@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { connectMongo, User } from "@workspace/mongo-db";
+import { connectMongo, User, RolePermission } from "@workspace/mongo-db";
 import {
   LoginBody,
   LoginResponse,
@@ -173,6 +173,136 @@ router.put("/auth/change-password", async (req, res): Promise<void> => {
   } catch (err: any) {
     console.error("Change password failed:", err);
     res.status(500).json({ error: err.message || "Failed to change password" });
+  }
+});
+
+const DEFAULT_PERMISSIONS = [
+  {
+    roleId: "admin",
+    permissions: {
+      "Customer & PO": ["read", "create", "edit", "delete"],
+      "Sales & Enquiries": ["read", "create", "edit", "delete"],
+      "Billing & Invoices": ["read", "create", "edit", "delete"],
+      "Delivery Challan": ["read", "create", "edit", "delete"],
+      "Weighbridge & Weighment": ["read", "create", "edit", "delete"],
+      "QC Mix & Recipes": ["read", "create", "edit", "delete"],
+      "Fleet & Transport": ["read", "create", "edit", "delete"],
+    }
+  },
+  {
+    roleId: "manager",
+    permissions: {
+      "Customer & PO": ["read", "create", "edit"],
+      "Sales & Enquiries": ["read", "create", "edit"],
+      "Billing & Invoices": ["read", "create", "edit"],
+      "Delivery Challan": ["read"],
+      "Weighbridge & Weighment": ["read"],
+      "QC Mix & Recipes": ["read"],
+      "Fleet & Transport": ["read"],
+    }
+  },
+  {
+    roleId: "dispatcher",
+    permissions: {
+      "Customer & PO": ["read"],
+      "Sales & Enquiries": ["read"],
+      "Billing & Invoices": [],
+      "Delivery Challan": ["read", "create", "edit"],
+      "Weighbridge & Weighment": ["read", "create", "edit"],
+      "QC Mix & Recipes": [],
+      "Fleet & Transport": ["read", "create", "edit"],
+    }
+  },
+  {
+    roleId: "qc_engineer",
+    permissions: {
+      "Customer & PO": ["read"],
+      "Sales & Enquiries": [],
+      "Billing & Invoices": [],
+      "Delivery Challan": ["read"],
+      "Weighbridge & Weighment": [],
+      "QC Mix & Recipes": ["read", "create", "edit"],
+      "Fleet & Transport": [],
+    }
+  }
+];
+
+router.get("/auth/permissions", async (req, res): Promise<void> => {
+  const userId = req.cookies?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  try {
+    await connectMongo();
+    const records = await RolePermission.find();
+    
+    // If no records in database, seed/return default permissions
+    if (records.length === 0) {
+      const formatted = DEFAULT_PERMISSIONS.map(p => ({
+        roleId: p.roleId,
+        permissions: p.permissions
+      }));
+      res.json(formatted);
+      return;
+    }
+
+    const formatted = records.map((r: any) => ({
+      roleId: r.roleId,
+      permissions: Object.fromEntries(r.permissions)
+    }));
+    res.json(formatted);
+  } catch (err: any) {
+    console.error("Get permissions failed:", err);
+    res.status(500).json({ error: err.message || "Failed to fetch permissions" });
+  }
+});
+
+router.put("/auth/permissions", async (req, res): Promise<void> => {
+  const userId = req.cookies?.userId;
+  if (!userId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+
+  let isAdmin = false;
+  if (userId === "1") {
+    isAdmin = true;
+  } else {
+    try {
+      await connectMongo();
+      const user = await User.findById(userId);
+      if (user && user.role === "admin") {
+        isAdmin = true;
+      }
+    } catch {}
+  }
+
+  if (!isAdmin) {
+    res.status(403).json({ error: "Access denied. Only Super Admins can configure permissions." });
+    return;
+  }
+
+  const { roleId, permissions } = req.body;
+  if (!roleId || !permissions) {
+    res.status(400).json({ error: "Role ID and permissions config map are required" });
+    return;
+  }
+
+  try {
+    await connectMongo();
+    let record = await RolePermission.findOne({ roleId });
+    if (!record) {
+      record = new RolePermission({ roleId, permissions });
+    } else {
+      record.permissions = permissions;
+    }
+    await record.save();
+    res.json({ success: true, record: { roleId: record.roleId, permissions: Object.fromEntries(record.permissions) } });
+  } catch (err: any) {
+    console.error("Save permissions failed:", err);
+    res.status(500).json({ error: err.message || "Failed to save permissions" });
   }
 });
 

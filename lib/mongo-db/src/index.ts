@@ -48,4 +48,6 @@ export * from "./models/Master";
 export * from "./models/PurchaseOrder";
 export * from "./models/DeliveryChallan";
 export * from "./models/Others";
+export * from "./models/RolePermission";
 export * from "./seed";
+

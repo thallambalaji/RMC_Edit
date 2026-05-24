@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ChevronRight, Shield, ShieldCheck, Info, Check, X } from "lucide-react";
+import { ChevronRight, Shield, ShieldCheck, Info, Check, X, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface RoleConfig {
   id: string;
@@ -10,7 +12,7 @@ interface RoleConfig {
 
 interface ModuleConfig {
   name: string;
-  perms: Record<string, string[]>;
+  actions: string[];
 }
 
 const ROLES: RoleConfig[] = [
@@ -21,17 +23,103 @@ const ROLES: RoleConfig[] = [
 ];
 
 const MODULES: ModuleConfig[] = [
-  { name: "Customer & PO", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read", "create", "edit"], dispatcher: ["read"], qc_engineer: ["read"] } },
-  { name: "Sales & Enquiries", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read", "create", "edit"], dispatcher: ["read"], qc_engineer: [] } },
-  { name: "Billing & Invoices", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read", "create", "edit"], dispatcher: [], qc_engineer: [] } },
-  { name: "Delivery Challan", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read"], dispatcher: ["read", "create", "edit"], qc_engineer: ["read"] } },
-  { name: "Weighbridge & Weighment", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read"], dispatcher: ["read", "create", "edit"], qc_engineer: [] } },
-  { name: "QC Mix & Recipes", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read"], dispatcher: [], qc_engineer: ["read", "create", "edit"] } },
-  { name: "Fleet & Transport", perms: { admin: ["read", "create", "edit", "delete"], manager: ["read"], dispatcher: ["read", "create", "edit"], qc_engineer: [] } }
+  { name: "Customer & PO", actions: ["read", "create", "edit", "delete"] },
+  { name: "Sales & Enquiries", actions: ["read", "create", "edit", "delete"] },
+  { name: "Billing & Invoices", actions: ["read", "create", "edit", "delete"] },
+  { name: "Delivery Challan", actions: ["read", "create", "edit", "delete"] },
+  { name: "Weighbridge & Weighment", actions: ["read", "create", "edit", "delete"] },
+  { name: "QC Mix & Recipes", actions: ["read", "create", "edit", "delete"] },
+  { name: "Fleet & Transport", actions: ["read", "create", "edit", "delete"] }
 ];
 
 export default function Permissions() {
+  const { toast } = useToast();
   const [activeRole, setActiveRole] = useState("admin");
+  const [rolePermissions, setRolePermissions] = useState<Record<string, Record<string, string[]>>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load configured permissions from server
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/auth/permissions");
+        if (res.ok) {
+          const data = await res.json();
+          const map: Record<string, Record<string, string[]>> = {};
+          data.forEach((r: any) => {
+            map[r.roleId] = r.permissions;
+          });
+          setRolePermissions(map);
+        } else {
+          throw new Error("Failed to fetch permissions settings");
+        }
+      } catch (err: any) {
+        toast({
+          title: "Error Loading Permissions",
+          description: err.message,
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    load();
+  }, [toast]);
+
+  // Handle toggling of a checkbox permission
+  const handleToggle = (moduleName: string, action: string) => {
+    setRolePermissions(prev => {
+      const currentRolePerms = prev[activeRole] || {};
+      const currentModulePerms = currentRolePerms[moduleName] || [];
+      
+      let newModulePerms: string[];
+      if (currentModulePerms.includes(action)) {
+        newModulePerms = currentModulePerms.filter(a => a !== action);
+      } else {
+        newModulePerms = [...currentModulePerms, action];
+      }
+
+      return {
+        ...prev,
+        [activeRole]: {
+          ...currentRolePerms,
+          [moduleName]: newModulePerms
+        }
+      };
+    });
+  };
+
+  // Save changes to backend database
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/auth/permissions", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roleId: activeRole,
+          permissions: rolePermissions[activeRole] || {}
+        })
+      });
+      if (!res.ok) {
+        throw new Error(await res.text() || "Failed to save permissions");
+      }
+      toast({
+        title: "Success",
+        description: `Permissions for ${ROLES.find(r => r.id === activeRole)?.name} saved successfully!`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Error Saving Changes",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -80,60 +168,83 @@ export default function Permissions() {
 
         {/* Right Side: Matrix display */}
         <div className="lg:col-span-3 bg-white rounded-lg border shadow-sm p-6 space-y-6">
-          <div>
-            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-[#1e40af]" />
-              Module Access for {ROLES.find(r => r.id === activeRole)?.name}
-            </h3>
-            <p className="text-xs text-gray-500 mt-1">Verify modules and specific actions permitted for this role.</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#1e40af]" />
+                Module Access for {ROLES.find(r => r.id === activeRole)?.name}
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">Configure individual module actions permitted for this role.</p>
+            </div>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving || isLoading}
+              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {isSaving ? "Saving..." : "Save Settings"}
+            </Button>
           </div>
 
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b text-[10px] font-black uppercase text-gray-500 tracking-wider">
-                  <th className="p-3 font-black">Module Name</th>
-                  <th className="p-3 text-center font-black">Read</th>
-                  <th className="p-3 text-center font-black">Create</th>
-                  <th className="p-3 text-center font-black">Edit</th>
-                  <th className="p-3 text-center font-black">Delete</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y text-xs">
-                {MODULES.map((mod) => {
-                  const perms = mod.perms[activeRole] || [];
-                  return (
-                    <tr key={mod.name} className="hover:bg-slate-50/50">
-                      <td className="p-3 font-semibold text-gray-700">{mod.name}</td>
-                      {["read", "create", "edit", "delete"].map((action) => {
-                        const hasPerm = perms.includes(action);
-                        return (
-                          <td key={action} className="p-3 text-center">
-                            <div className="flex justify-center">
-                              {hasPerm ? (
-                                <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                                  <Check className="h-3 w-3 stroke-[3]" />
-                                </div>
-                              ) : (
-                                <div className="w-5 h-5 rounded-full bg-rose-100 flex items-center justify-center text-rose-700">
-                                  <X className="h-3 w-3 stroke-[3]" />
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          {isLoading ? (
+            <div className="h-64 flex items-center justify-center text-sm text-gray-400 font-medium">
+              Loading permissions settings...
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b text-[10px] font-black uppercase text-gray-500 tracking-wider">
+                    <th className="p-3 font-black">Module Name</th>
+                    <th className="p-3 text-center font-black">Read</th>
+                    <th className="p-3 text-center font-black">Create</th>
+                    <th className="p-3 text-center font-black">Edit</th>
+                    <th className="p-3 text-center font-black">Delete</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y text-xs">
+                  {MODULES.map((mod) => {
+                    const currentRolePerms = rolePermissions[activeRole] || {};
+                    const perms = currentRolePerms[mod.name] || [];
+                    return (
+                      <tr key={mod.name} className="hover:bg-slate-50/50">
+                        <td className="p-3 font-semibold text-gray-700">{mod.name}</td>
+                        {["read", "create", "edit", "delete"].map((action) => {
+                          const hasPerm = perms.includes(action);
+                          return (
+                            <td key={action} className="p-3">
+                              <div className="flex justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggle(mod.name, action)}
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all border ${
+                                    hasPerm
+                                      ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+                                      : "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100"
+                                  } cursor-pointer`}
+                                >
+                                  {hasPerm ? (
+                                    <Check className="h-4 w-4 stroke-[3]" />
+                                  ) : (
+                                    <X className="h-4 w-4 stroke-[3]" />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           <div className="p-3 bg-slate-50 rounded-lg border flex gap-3 text-xs text-gray-600">
             <Info className="h-4 w-4 text-[#1e40af] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
-              <strong>Note:</strong> Permissions are configured globally at the server environment configuration layer. To request custom access overrides, please contact your system administrator.
+              <strong>Tip:</strong> Toggle each checkbox cell to grant or restrict specific actions for this role, then click <strong>Save Settings</strong> to save the changes to the system.
             </p>
           </div>
         </div>

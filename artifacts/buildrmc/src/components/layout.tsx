@@ -299,9 +299,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
                   {/* Menu items */}
                   {[
-                    { icon: User, label: "My Profile", href: "/dashboard" },
-                    { icon: Shield, label: "Permissions", href: "/dashboard" },
-                    { icon: KeyRound, label: "Change Password", href: "/dashboard" },
+                    { icon: User, label: "My Profile", href: "/profile" },
+                    { icon: Shield, label: "Permissions", href: "/permissions" },
+                    { icon: KeyRound, label: "Change Password", href: "/change-password" },
                   ].map((item) => (
                     <Link key={item.label} href={item.href}>
                       <div

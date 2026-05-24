@@ -83,6 +83,9 @@ import TransportSettings from "@/pages/transport-settings";
 import AddSecurityCheck from "@/pages/add-security";
 import SecurityCheckList from "@/pages/security-list";
 import SecurityCheckReport from "@/pages/security-report";
+import Profile from "@/pages/profile";
+import Permissions from "@/pages/permissions";
+import ChangePassword from "@/pages/change-password";
 import { Layout } from "@/components/layout";
 
 const queryClient = new QueryClient();
@@ -166,6 +169,9 @@ function Router() {
       <Route path="/dc/new"><ProtectedRoute component={AddDC} /></Route>
       <Route path="/dc/list"><ProtectedRoute component={DCList} /></Route>
       <Route path="/dc"><ProtectedRoute component={DCHub} /></Route>
+      <Route path="/profile"><ProtectedRoute component={Profile} /></Route>
+      <Route path="/permissions"><ProtectedRoute component={Permissions} /></Route>
+      <Route path="/change-password"><ProtectedRoute component={ChangePassword} /></Route>
       <Route path="/sales/enquiry/new"><ProtectedRoute component={AddEnquiry} /></Route>
       <Route path="/sales/enquiry/list"><ProtectedRoute component={EnquiryList} /></Route>
       <Route path="/sales/enquiry"><ProtectedRoute component={SalesEnquiryHub} /></Route>

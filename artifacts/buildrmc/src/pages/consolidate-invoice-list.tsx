@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -53,9 +55,7 @@ import {
   RotateCcw,
   Printer,
   Download,
-  Eye,
   X,
-  MoreHorizontal,
   FileBarChart,
   Copy,
   Trash2,
@@ -307,19 +307,13 @@ export default function ConsolidateInvoiceList() {
       {/* ===== PRINT AREA - MULTIPLE ROWS REPORT (LANDSCAPE) ===== */}
       <div id="rpt-print-root" style={{ display: "none" }}>
         <div style={{ padding: "10px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-          {/* Corporate Header */}
-          <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-              <div style={{ width: "52px", height: "52px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
-              <div>
-                <div style={{ fontSize: "20px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                <div style={{ fontSize: "11px", color: "#64748b" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-              </div>
+          <PrintHeader />
+          <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Consolidate Invoice List</h2>
             </div>
-            <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Consolidate Invoice List</div>
-              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Printed: {new Date().toLocaleString("en-IN")}</div>
+            <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+              <span>Printed: {new Date().toLocaleString("en-IN")}</span>
             </div>
           </div>
 
@@ -355,18 +349,13 @@ export default function ConsolidateInvoiceList() {
       <div id="row-print-root" style={{ display: "none" }}>
         {printInv && (
           <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-            <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <div style={{ width: "56px", height: "56px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "20px", borderRadius: "8px" }}>BM</div>
-                <div>
-                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-                </div>
+            <PrintHeader />
+            <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Consolidated Invoice Details</h2>
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Sales Invoice</div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Date: {printInv.invoiceDate ? new Date(printInv.invoiceDate).toLocaleDateString("en-IN") : "—"}</div>
+              <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
+                <span>Invoice No: {printInv.invoiceNumber}</span>
               </div>
             </div>
 
@@ -495,17 +484,7 @@ export default function ConsolidateInvoiceList() {
             <span>entries</span>
           </div>
 
-          <div className="flex gap-1.5">
-            <Button onClick={handleCopyReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-              <Copy className="h-3.5 w-3.5 text-slate-500" /> Copy
-            </Button>
-            <Button onClick={handleCSVReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-              <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-            </Button>
-            <Button onClick={handlePrintReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1 bg-gray-100 hover:bg-gray-250 text-slate-700">
-              <Printer className="h-3.5 w-3.5 text-blue-600" /> Print
-            </Button>
-          </div>
+          <ExportDropdown onCopy={handleCopyReport} onCSV={handleCSVReport} onPDF={handlePrintReport} />
         </div>
 
         {/* Invoices table */}
@@ -544,27 +523,7 @@ export default function ConsolidateInvoiceList() {
                     </td>
                     <td className="py-2.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">
-                        {/* 1. View (Eye Icon) */}
-                        <Button 
-                          onClick={() => setViewInv(inv)}
-                          title="View Details" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-
-                        {/* 2. Edit (Pencil Icon) */}
-                        <Button 
-                          onClick={() => handleEditRow(inv)}
-                          title="Edit Record" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        {/* 3. Print (Printer Icon) */}
+                        {/* 1. Print (Printer Icon) */}
                         <Button 
                           onClick={() => handleRowPrint(inv)}
                           title="Print Invoice" 
@@ -574,7 +533,7 @@ export default function ConsolidateInvoiceList() {
                           <Printer className="h-4 w-4" />
                         </Button>
 
-                        {/* 4. CSV (Download Icon) */}
+                        {/* 2. CSV (Download Icon) */}
                         <Button 
                           onClick={() => handleRowCSV(inv)}
                           title="Download CSV" 
@@ -584,7 +543,7 @@ export default function ConsolidateInvoiceList() {
                           <Download className="h-4 w-4" />
                         </Button>
 
-                        {/* 5. Copy (Copy Icon) */}
+                        {/* 3. Copy (Copy Icon) */}
                         <Button 
                           onClick={() => handleRowCopy(inv)}
                           title="Copy Details" 
@@ -594,7 +553,17 @@ export default function ConsolidateInvoiceList() {
                           <Copy className="h-4 w-4" />
                         </Button>
 
-                        {/* 6. Delete (Trash Icon) */}
+                        {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                        <Button 
+                          onClick={() => setViewInv(inv)}
+                          title="Edit Record" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
                         <Button 
                           onClick={() => setDeleteId(inv.id)}
                           title="Delete Record" 

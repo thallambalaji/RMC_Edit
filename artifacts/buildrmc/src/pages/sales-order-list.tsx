@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -26,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronRight, Loader2, Search, RotateCcw, Copy, FileSpreadsheet, Printer, Trash2, MoreHorizontal, CheckCircle2, AlertCircle } from "lucide-react";
+import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download } from "lucide-react";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -342,11 +344,11 @@ export default function SalesOrderList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-0 h-7 text-[10px] font-bold px-3 cursor-pointer uppercase tracking-wider" onClick={handleCopy}>Copy</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-0 h-7 text-[10px] font-bold px-3 cursor-pointer uppercase tracking-wider" onClick={handleExportCSV}>CSV</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-0 h-7 text-[10px] font-bold px-3 cursor-pointer uppercase tracking-wider" onClick={handlePrintPDF}>PDF</Button>
-          </div>
+          <ExportDropdown
+            onCopy={handleCopy}
+            onCSV={handleExportCSV}
+            onPDF={handlePrintPDF}
+          />
         </div>
 
         <div className="overflow-x-auto min-h-[300px]">
@@ -430,55 +432,63 @@ export default function SalesOrderList() {
                     </TableCell>
 
                     <TableCell className="text-center align-middle py-1.5">
-                      {/* Fully updated Dropdown Actions menu */}
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 cursor-pointer hover:bg-slate-100">
-                            <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44 bg-white font-bold text-xs p-1">
-                          
-                          <DropdownMenuItem onClick={() => handleToggleStatus(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            {order.status === 'completed' ? (
-                              <>
-                                <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
-                                <span>Set as Pending</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                                <span>Approve & Complete</span>
-                              </>
-                            )}
-                          </DropdownMenuItem>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handlePrintSingle(order)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleExportCSVResponseSingle(order)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handlePrintSingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Printer className="h-3.5 w-3.5 text-indigo-500" />
-                            <span>Print PDF</span>
-                          </DropdownMenuItem>
-                          
-                          <DropdownMenuItem onClick={() => handleExportCSVResponseSingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" />
-                            <span>Export CSV</span>
-                          </DropdownMenuItem>
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(order)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
 
-                          <DropdownMenuItem onClick={() => handleCopySingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-500" />
-                            <span>Copy Details</span>
-                          </DropdownMenuItem>
+                        {/* 4. Edit (Pencil Icon) */}
+                        <Button 
+                          onClick={() => {
+                            toast({
+                              title: "Edit restricted",
+                              description: `Approved Sales Order ${order.poNumber} is locked.`,
+                              variant: "destructive"
+                            });
+                          }}
+                          title="Edit Order" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
 
-                          <div className="h-px bg-slate-100 my-1" />
-
-                          <DropdownMenuItem onClick={() => handleDelete(order.id)} className="flex items-center gap-2 px-2.5 py-1.5 text-rose-600 hover:bg-rose-50 cursor-pointer rounded">
-                            <Trash2 className="h-3.5 w-3.5" />
-                            <span>Delete Order</span>
-                          </DropdownMenuItem>
-
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => handleDelete(order.id)}
+                          title="Delete Order" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -504,16 +514,11 @@ export default function SalesOrderList() {
       {/* Print Option A: Branded Single Sales Order Sheet */}
       {printOrder && (
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          {/* Company details banner */}
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Order Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">SALES ORDER</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded">SALES ORDER</span>
             </div>
           </div>
 
@@ -605,14 +610,10 @@ export default function SalesOrderList() {
       {/* Print Option B: Full Landscape Register Schedule */}
       {!printOrder && (
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
-          <div className="border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 className="text-2xl font-black text-[#1e40af] uppercase tracking-tight">FORTUNE CONCRETE</h1>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Premium Ready Mix Concrete Solutions</p>
-            <p className="text-[9px] text-gray-400">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            <div className="mt-3 flex justify-between items-center">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider">SALES ORDER REGISTER SCHEDULE</h2>
-              <p className="text-xs font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">SALES ORDER REGISTER SCHEDULE</h2>
+            <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 
           <table className="w-full border-collapse border text-[10px] text-left">

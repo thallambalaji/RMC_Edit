@@ -14,14 +14,16 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
 import { Link } from "wouter";
+import { ExportDropdown } from "@/components/export-dropdown";
 import {
   Plus,
   Search,
   RotateCcw,
   Copy,
-  FileCode,
-  FileText,
+  Printer,
+  Download,
   Trash2,
+  Edit,
   Zap,
 } from "lucide-react";
 
@@ -75,17 +77,140 @@ export default function PumpDgList() {
     }
   };
 
+  const filtered = useMemo(() => {
+    return items.filter((i) =>
+      i.name.toLowerCase().includes(searchName.toLowerCase())
+    );
+  }, [items, searchName]);
+
+  // Individual Row Actions Logic
+  const handleExportRow = (item: PumpDGData, index: number, type: "pdf" | "csv" | "copy") => {
+    const sNo = index + 1;
+    if (type === "pdf") {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Asset Receipt - ${item.name}</title>
+            <style>
+              body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
+              .logo { height: 50px; width: 50px; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+              .info-group { display: flex; flex-direction: column; }
+              .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+              .value { font-size: 12px; font-weight: 700; color: #0f172a; }
+            </style>
+          </head>
+          <body onload="window.print(); window.close();">
+            <div style="display: flex; height: 6px; width: 100%;">
+              <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+            </div>
+            <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+              <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a855f7" />
+                      <stop offset="100%" stop-color="#f43f5e" />
+                    </linearGradient>
+                    <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                  <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                  <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                  <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                  <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
+                </svg>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+                <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+                <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    Kompally, TS
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    9010514880
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    abcs3d@gmail.com
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="title">Asset Specifications Card</div>
+            <div class="grid-info">
+              <div class="info-group"><span class="label">S.No</span><span class="value">${sNo}</span></div>
+              <div class="info-group"><span class="label">Equipment Name</span><span class="value">${item.name}</span></div>
+              <div class="info-group"><span class="label">Type of Pump</span><span class="value">${item.type}</span></div>
+              <div class="info-group"><span class="label">Capacity</span><span class="value">${item.capacity || "N/A"}</span></div>
+              <div class="info-group"><span class="label">Status</span><span class="value">${item.status || "N/A"}</span></div>
+            </div>
+          </body>
+        </html>
+      `;
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+    } else if (type === "csv") {
+      const csvData = [
+        ["S.No", "Name", "Type of Pump"].join(","),
+        [sNo, `"${item.name}"`, `"${item.type}"`].join(",")
+      ].join("\n");
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `asset_${item.name}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({ title: "CSV Downloaded", description: `File asset_${item.name}.csv saved.` });
+    } else if (type === "copy") {
+      const tsvContent = [
+        ["S.No", "Name", "Type of Pump"].join("\t"),
+        [sNo, item.name, item.type].join("\t")
+      ].join("\n");
+      navigator.clipboard.writeText(tsvContent);
+      toast({ title: "Copied to Clipboard", description: `Copied data for asset ${item.name}.` });
+    }
+  };
+
+  // Table Level Global Export
   const handleExport = (type: "copy" | "csv" | "pdf") => {
-    if (items.length === 0) return;
-    const csvContent = [
-      ["Asset Name", "Type", "Capacity", "Status"].join(","),
-      ...items.map((i) => [i.name, i.type, i.capacity, i.status].join(",")),
-    ].join("\n");
+    if (filtered.length === 0) return;
+    
+    const headers = ["S.No", "Name", "Type of Pump"];
+    const rows = filtered.map((i, index) => [
+      String(index + 1),
+      i.name,
+      i.type
+    ]);
 
     if (type === "copy") {
-      navigator.clipboard.writeText(csvContent);
-      toast({ title: "Copied to Clipboard" });
+      const copyText = [headers.join("\t"), ...rows.map(r => r.join("\t"))].join("\n");
+      navigator.clipboard.writeText(copyText);
+      toast({ title: "Copied to Clipboard", description: "Asset list copied." });
     } else if (type === "csv") {
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(r => r.map(cell => `"${cell.replace(/"/g, '""')}"`).join(","))
+      ].join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -96,15 +221,102 @@ export default function PumpDgList() {
       document.body.removeChild(link);
       toast({ title: "CSV Downloaded" });
     } else if (type === "pdf") {
-      window.print();
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+
+      const tableRows = filtered
+        .map(
+          (item, idx) => `
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 10px; font-size: 11px; font-weight: bold; text-align: center;">${idx + 1}</td>
+          <td style="padding: 10px; font-size: 11px;">${item.name}</td>
+          <td style="padding: 10px; font-size: 11px; text-transform: uppercase;">${item.type}</td>
+        </tr>`
+        )
+        .join("");
+
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Asset Report</title>
+            <style>
+              body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 20px; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 15px; margin-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #1e3a8a; }
+              .company-info p { margin: 3px 0 0 0; font-size: 10px; color: #64748b; font-weight: bold; }
+              .logo { height: 45px; width: 45px; }
+              .title { text-align: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; color: #0f172a; }
+              table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+              th { background-color: #f1f5f9; padding: 10px; font-size: 10px; font-weight: 900; text-transform: uppercase; text-align: center; border-bottom: 2px solid #cbd5e1; }
+            </style>
+          </head>
+          <body onload="window.print(); window.close();">
+            <div style="display: flex; height: 6px; width: 100%;">
+              <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+            </div>
+            <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+              <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+                <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a855f7" />
+                      <stop offset="100%" stop-color="#f43f5e" />
+                    </linearGradient>
+                    <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="100%" stop-color="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                  <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                  <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                  <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                  <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
+                </svg>
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+                <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+                <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    Kompally, TS
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    9010514880
+                  </span>
+                  <span style="display: flex; align-items: center; gap: 4px;">
+                    <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                    abcs3d@gmail.com
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="title">Pump & DG Assets List</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Name</th>
+                  <th>Type of Pump</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
     }
   };
-
-  const filtered = useMemo(() => {
-    return items.filter((i) =>
-      i.name.toLowerCase().includes(searchName.toLowerCase())
-    );
-  }, [items, searchName]);
 
   return (
     <TransportLayout
@@ -149,32 +361,11 @@ export default function PumpDgList() {
           <div className="text-xs font-bold text-slate-500 uppercase">
             Showing {filtered.length} of {items.length} registered assets
           </div>
-          <div className="flex gap-1.5">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("copy")}
-              className="h-8 text-xs font-bold bg-slate-500 hover:bg-slate-600 text-white border-none shadow-sm"
-            >
-              <Copy className="h-3 w-3 mr-1.5" /> Copy
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("csv")}
-              className="h-8 text-xs font-bold bg-slate-600 hover:bg-slate-700 text-white border-none shadow-sm"
-            >
-              <FileCode className="h-3 w-3 mr-1.5" /> CSV
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleExport("pdf")}
-              className="h-8 text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white border-none shadow-sm"
-            >
-              <FileText className="h-3 w-3 mr-1.5" /> PDF
-            </Button>
-          </div>
+          <ExportDropdown
+            onCopy={() => handleExport("copy")}
+            onCSV={() => handleExport("csv")}
+            onPDF={() => handleExport("pdf")}
+          />
         </div>
 
         {/* Table container */}
@@ -182,23 +373,22 @@ export default function PumpDgList() {
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow className="border-b border-slate-200">
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4">Equipment Name / Code</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Equipment Type</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Capacity</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-center">Status</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 w-20">S.No</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Type of Pump</TableHead>
+                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Name</TableHead>
                 <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center">ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-20 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
+                  <TableCell colSpan={4} className="text-center py-20 text-xs font-bold text-slate-400 uppercase tracking-widest animate-pulse">
                     Connecting to Assets database...
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-20 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <TableCell colSpan={4} className="text-center py-20 text-xs font-bold text-slate-400 uppercase tracking-widest">
                     No assets found.
                   </TableCell>
                 </TableRow>
@@ -210,37 +400,64 @@ export default function PumpDgList() {
                       idx % 2 === 0 ? "bg-white" : "bg-slate-50/20"
                     }`}
                   >
-                    <TableCell className="font-extrabold text-[#1e40af] text-xs py-3 px-4 flex items-center gap-2">
-                      <Zap className="h-4.5 w-4.5 text-slate-400 shrink-0" />
+                    <TableCell className="text-xs font-extrabold py-3 px-4 text-slate-600">
+                      {idx + 1}
+                    </TableCell>
+                    <TableCell className="font-bold text-slate-700 text-xs px-3 text-uppercase">
+                      {item.type}
+                    </TableCell>
+                    <TableCell className="font-extrabold text-[#1e40af] text-xs px-3">
                       {item.name}
                     </TableCell>
-                    <TableCell className="font-bold text-slate-700 text-xs px-3">
-                      {item.type === "Pump" ? "Concrete Pump" : "DG Generator"}
-                    </TableCell>
-                    <TableCell className="font-black text-slate-800 text-xs px-3">{item.capacity}</TableCell>
-                    <TableCell className="text-xs px-3 text-center">
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                          item.status === "active"
-                            ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                            : item.status === "idle"
-                            ? "bg-blue-50 text-blue-600 border border-blue-100"
-                            : "bg-amber-50 text-amber-600 border border-amber-100"
-                        }`}
-                      >
-                        {item.status}
-                      </span>
-                    </TableCell>
                     <TableCell className="px-4 text-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(item._id || item.id!)}
-                        className="h-7 w-7 text-rose-500 hover:bg-rose-50"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <div className="flex items-center justify-center gap-1 select-none">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleExportRow(item, idx, "pdf")}
+                          className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
+                          title="Print PDF"
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleExportRow(item, idx, "copy")}
+                          className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
+                          title="Copy TSV"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleExportRow(item, idx, "csv")}
+                          className="h-7 w-7 text-emerald-600 hover:bg-emerald-50 rounded border border-emerald-200"
+                          title="Download CSV"
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                        </Button>
+                        <Link href={`/transport/pump-dg/edit/${item.id || item._id}`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
+                            title="Edit"
+                          >
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(item._id || item.id!)}
+                          className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

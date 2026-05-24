@@ -3,6 +3,8 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -18,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, Search, Plus, Trash2, Filter, FileText, Download, Printer, Eye, Pencil, Copy } from "lucide-react";
+import { ChevronRight, Search, Plus, Trash2, Filter, FileText, Download, Printer, Eye, Pencil, Copy, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useGetDCs, useGetCustomers } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -233,17 +235,51 @@ export default function WeighmentList() {
     <div className="space-y-4 animate-in fade-in duration-500 print:bg-white print:p-0 print:m-0">
       <div className={`space-y-4 ${printRecord ? "print:hidden" : ""}`}>
         {/* Header & Breadcrumbs */}
-      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
-        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Weighment List</h2>
-        <div className="h-4 w-px bg-gray-300" />
-        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/dc" className="hover:text-[#1e40af] transition-colors">DC</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Weighment List</span>
-        </nav>
-      </div>
+        <div className="flex items-center justify-between bg-white py-3.5 px-5 rounded-lg border border-slate-200 shadow-sm shrink-0 print:hidden">
+          <div className="flex items-center">
+            <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-wider select-none">
+              Weighment List
+            </h2>
+            <div className="h-4 w-px bg-slate-300 mx-4" />
+            <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
+              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <Home className="h-3.5 w-3.5 text-slate-500" />
+                <span>HOME</span>
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+                DC
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <span className="text-blue-600 font-black">WEIGHMENT LIST</span>
+            </nav>
+          </div>
+
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+              onClick={handleSearch}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-slate-700"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+            </Button>
+          </div>
+        </div>
 
       <div className="flex flex-wrap gap-3 mb-2 print:hidden">
         <Button className="bg-[#1e40af] text-white hover:bg-[#1d4ed8] px-6 h-10 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-cyan-500/10">
@@ -326,10 +362,14 @@ export default function WeighmentList() {
       </div>
 
       {/* Print Header */}
-      <div className="hidden print:block text-center mb-8 border-b pb-4">
-        <h1 className="text-2xl font-black text-slate-800 tracking-tight uppercase">FORTUNE CONCRETE</h1>
-        <p className="text-slate-500 font-bold uppercase text-xs mt-1 tracking-widest">Official Weighment List Report</p>
-        <p className="text-slate-400 font-mono text-[10px] mt-2">Generated on {new Date().toLocaleString()}</p>
+      <div className="hidden print:block mb-6">
+        <PrintHeader />
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment List Report</h2>
+          <div className="text-right text-[10px] font-bold text-gray-600">
+            <span>Printed Date: {new Date().toLocaleString()}</span>
+          </div>
+        </div>
       </div>
 
       <div className="glass-card flex flex-col overflow-hidden border-white/80 shadow-xl print:shadow-none print:border-none print:bg-white print:m-0 print:p-0">
@@ -348,27 +388,22 @@ export default function WeighmentList() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handleCopy} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm">Copy</Button>
-            <Button variant="outline" size="sm" onClick={handleExportCSV} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><FileText className="h-3 w-3" /> CSV</Button>
-            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Download className="h-3 w-3" /> PDF</Button>
-            <Button variant="outline" size="sm" onClick={handlePrintPDF} className="bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50 h-8 gap-2 text-[10px] font-black uppercase tracking-wider shadow-sm"><Printer className="h-3 w-3" /> Print</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         <div className="overflow-x-auto bg-white">
           <Table className="data-table">
             <TableHeader>
               <TableRow className="bg-slate-900 hover:bg-slate-900 border-b border-slate-800 print:bg-slate-100 print:text-slate-800">
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Delivery No</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Customer</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Site</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Date</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Item</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Weights (E/L/N)</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Vehicle</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest">Plant</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 text-center text-[10px] uppercase tracking-widest print:hidden">ACTIONS</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Delivery No</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Customer</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Site</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Date</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Item</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Weights (E/L/N)</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Vehicle</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Plant</TableHead>
+                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -392,7 +427,13 @@ export default function WeighmentList() {
 
                   return (
                     <TableRow key={row.id || idx} className="hover:bg-slate-50 border-b border-slate-100 transition-colors group">
-                      <TableCell className="text-center py-3 text-cyan-600 font-black text-[10px]">{row.dcNumber}</TableCell>
+                      <TableCell 
+                        onClick={() => setSelectedRecord(row)} 
+                        className="text-center py-3 text-cyan-600 font-black text-[10px] cursor-pointer hover:underline"
+                        title="Click to view details"
+                      >
+                        {row.dcNumber}
+                      </TableCell>
                       <TableCell className="text-center py-3 text-slate-700 font-bold text-[10px] max-w-[150px] truncate" title={row.customerName || row.customer?.name}>{row.customerName || row.customer?.name || "-"}</TableCell>
                       <TableCell className="text-center py-3 text-slate-600 font-semibold text-[10px]" title={row.siteName || row.site?.name}>{row.siteName || row.site?.name || "-"}</TableCell>
                       <TableCell className="text-center py-3 text-slate-400 font-bold text-[10px]">{new Date(row.dcDate).toLocaleDateString()}</TableCell>
@@ -400,7 +441,7 @@ export default function WeighmentList() {
                         <span className="px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 text-[10px] font-black border border-cyan-100">{row.grade || "-"}</span>
                       </TableCell>
                       <TableCell className="text-center py-3">
-                        <div className="flex flex-col gap-0.5 font-mono text-[9px] font-bold">
+                        <div className="flex flex-col items-center justify-center gap-0.5 font-mono text-[9px] font-bold">
                           <span className="text-slate-400">E: {empty}</span>
                           <span className="text-slate-500">L: {loaded}</span>
                           <span className="text-emerald-600">N: {net}</span>
@@ -410,27 +451,7 @@ export default function WeighmentList() {
                       <TableCell className="text-center py-3 text-slate-400 font-semibold text-[10px]">{row.plant?.name || row.plant || "FORTUNE CONCRETE"}</TableCell>
                       <TableCell className="text-center py-3 print:hidden">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* 1. View (Eye Icon) */}
-                          <Button 
-                            onClick={() => setSelectedRecord(row)}
-                            title="View Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-
-                          {/* 2. Edit (Pencil Icon) */}
-                          <Button 
-                            onClick={() => handleEditRow(row)}
-                            title="Edit Record" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-
-                          {/* 3. Print (Printer Icon) */}
+                          {/* 1. Print (Printer Icon) */}
                           <Button 
                             onClick={() => handlePrintSingleRow(row)}
                             title="Print Weighment Slip" 
@@ -440,7 +461,7 @@ export default function WeighmentList() {
                             <Printer className="h-4 w-4" />
                           </Button>
 
-                          {/* 4. CSV (Download Icon) */}
+                          {/* 2. CSV (Download Icon) */}
                           <Button 
                             onClick={() => handleExportRowCSV(row)}
                             title="Download CSV" 
@@ -450,7 +471,7 @@ export default function WeighmentList() {
                             <Download className="h-4 w-4" />
                           </Button>
 
-                          {/* 5. Copy (Copy Icon) */}
+                          {/* 3. Copy (Copy Icon) */}
                           <Button 
                             onClick={() => handleCopyRow(row)}
                             title="Copy Details" 
@@ -460,7 +481,17 @@ export default function WeighmentList() {
                             <Copy className="h-4 w-4" />
                           </Button>
 
-                          {/* 6. Delete (Trash Icon) */}
+                          {/* 4. Edit (Pencil Icon) */}
+                          <Button 
+                            onClick={() => handleEditRow(row)}
+                            title="Edit Record" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
                           <Button 
                             onClick={() => handleDeleteRow(row.id || row._id)}
                             title="Delete Record" 
@@ -552,16 +583,11 @@ export default function WeighmentList() {
       {/* Branded Single Weighment Ticket Sheet for Printing */}
       {printRecord && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment Slip Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">WEIGHMENT SLIP</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Slip Date: {printRecord.dcDate ? new Date(printRecord.dcDate).toLocaleDateString("en-IN") : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">WEIGHMENT SLIP</span>
             </div>
           </div>
 

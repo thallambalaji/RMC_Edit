@@ -6,12 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
+
 import {
   Dialog,
   DialogContent,
@@ -43,7 +40,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, Search, RotateCcw, Files, MoreHorizontal, Printer, Download, Copy, Trash2, Eye } from "lucide-react";
+import { ChevronRight, Search, RotateCcw, Files, Printer, Download, Copy, Trash2, Pencil } from "lucide-react";
 
 export default function ConsolidateSalesDocumentList() {
   const queryClient = useQueryClient();
@@ -124,6 +121,27 @@ export default function ConsolidateSalesDocumentList() {
     setTimeout(() => {
       window.print();
     }, 150);
+  };
+
+  const handleCopyReport = () => {
+    const text = filteredData.map(inv => `${inv.invoiceNumber}\t${inv.customerName}\t${inv.invoiceDate}\t1\t${inv.plant}`).join("\n");
+    navigator.clipboard.writeText(`Consolidate Invoice ID\tCustomer\tGenerate Date\tNo Of Invoice\tPlant Name\n${text}`);
+    toast({ title: "Copied to clipboard" });
+  };
+
+  const handleCSVReport = () => {
+    const rows = [["Consolidate Invoice ID", "Customer", "Generate Date", "No Of Invoice", "Plant Name"]];
+    filteredData.forEach(inv => rows.push([inv.invoiceNumber, inv.customerName, inv.invoiceDate, "1", inv.plant || ""]));
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `Consolidated_Invoices.csv`;
+    a.click();
+    toast({ title: "CSV Downloaded" });
+  };
+
+  const handlePrintReport = () => {
+    window.print();
   };
 
   const confirmDelete = async () => {
@@ -248,27 +266,7 @@ export default function ConsolidateSalesDocumentList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => {
-                const text = filteredData.map(inv => `${inv.invoiceNumber}\t${inv.customerName}\t${inv.invoiceDate}\t1\t${inv.plant}`).join("\n");
-                navigator.clipboard.writeText(`Consolidate Invoice ID\tCustomer\tGenerate Date\tNo Of Invoice\tPlant Name\n${text}`);
-                toast({ title: "Copied to clipboard" });
-              }}>Copy</Button>
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => {
-                const rows = [["Consolidate Invoice ID", "Customer", "Generate Date", "No Of Invoice", "Plant Name"]];
-                filteredData.forEach(inv => rows.push([inv.invoiceNumber, inv.customerName, inv.invoiceDate, "1", inv.plant || ""]));
-                const csv = rows.map(r => r.join(",")).join("\n");
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-                a.download = `Consolidated_Invoices.csv`;
-                a.click();
-                toast({ title: "CSV Downloaded" });
-              }}>CSV</Button>
-            <Button variant="secondary" size="sm" className="bg-gray-400 hover:bg-gray-500 text-white border-none"
-              onClick={() => window.print()}>PDF</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopyReport} onCSV={handleCSVReport} onPDF={handlePrintReport} />
         </div>
 
         <div className="overflow-x-auto">
@@ -301,27 +299,57 @@ export default function ConsolidateSalesDocumentList() {
                     <TableCell className="text-center text-slate-600">1</TableCell>
                     <TableCell className="text-center text-slate-600">{inv.plant || "—"}</TableCell>
                     <TableCell className="text-center">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-[#1e40af] hover:bg-blue-50 rounded-full">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40 border-gray-100 shadow-md rounded-xl">
-                          <DropdownMenuItem onClick={() => handleRowPrint(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-blue-50 focus:text-[#1e40af]">
-                            <Printer className="h-3.5 w-3.5 mr-2" /> PDF / Print
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCSVRow(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-emerald-50 focus:text-emerald-600">
-                            <Download className="h-3.5 w-3.5 mr-2" /> CSV
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleCopyRow(inv)} className="text-xs font-semibold text-slate-600 cursor-pointer py-2 focus:bg-amber-50 focus:text-amber-600">
-                            <Copy className="h-3.5 w-3.5 mr-2" /> Copy
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteId(inv.id)} className="text-xs font-semibold text-rose-600 cursor-pointer py-2 focus:bg-rose-50 focus:text-rose-700">
-                            <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handleRowPrint(inv)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleCSVRow(inv)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopyRow(inv)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens viewInv details */}
+                        <Button 
+                          onClick={() => setViewInv(inv)}
+                          title="Edit Document" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => setDeleteId(inv.id)}
+                          title="Delete Document" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -346,16 +374,13 @@ export default function ConsolidateSalesDocumentList() {
       <div id="print-root">
         {viewInv && (
           <div className="p-8 bg-white text-black">
-            <div className="flex items-center gap-4 mb-8 border-b-2 border-[#1e40af] pb-6">
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
-              <div>
-                <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-                <p className="text-sm text-slate-600 mt-1 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidated Invoice Details</h2>
+              <div className="text-right">
+                <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">CONSOLIDATED INVOICE</span>
               </div>
             </div>
-            
-            <h2 className="text-xl font-bold uppercase text-[#1e40af] mb-4 border-b pb-2">Consolidated Invoice Details</h2>
             
             <table className="w-full text-left mb-6 border border-slate-200">
               <tbody>
@@ -395,16 +420,13 @@ export default function ConsolidateSalesDocumentList() {
       {/* ===== GLOBAL PRINT LAYOUT (LIST) ===== */}
       <div id="global-print-root">
         <div className="p-8 bg-white text-black">
-          <div className="flex items-center gap-4 mb-8 border-b-2 border-[#1e40af] pb-6">
-            <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
-            <div>
-              <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-              <p className="text-sm text-slate-600 mt-1 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-              <p className="text-sm text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidate Sales Document List</h2>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-gray-600">Printed Date: {new Date().toLocaleDateString("en-IN")}</p>
             </div>
           </div>
-          
-          <h2 className="text-xl font-bold uppercase text-[#1e40af] mb-4">Consolidate Sales Document List</h2>
           
           <table className="w-full text-left border-collapse border border-slate-200">
             <thead>

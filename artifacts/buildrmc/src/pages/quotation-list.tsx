@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -330,11 +332,11 @@ export default function QuotationList() {
           </Select>
           <span className="text-[9px] font-black text-gray-500 uppercase">entries</span>
         </div>
-        <div className="flex bg-slate-200 rounded p-0.5 gap-0.5">
-          <Button onClick={handleCopy} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">Copy</Button>
-          <Button onClick={handleExportCSV} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">CSV</Button>
-          <Button onClick={handlePrintPDF} variant="ghost" className="h-5 px-3 text-[8px] font-black uppercase text-gray-600 hover:bg-white rounded-sm cursor-pointer">PDF</Button>
-        </div>
+        <ExportDropdown
+          onCopy={handleCopy}
+          onCSV={handleExportCSV}
+          onPDF={handlePrintPDF}
+        />
       </div>
 
       {/* Data Table */}
@@ -445,16 +447,11 @@ export default function QuotationList() {
       {/* Print Option A: Branded Commercial Proposal & Quotation */}
       {printQuotation && (
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          {/* Company letterhead */}
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Proposal / Quotation Reference Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1 font-sans">PROPOSAL / QUOTATION</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">PROPOSAL / QUOTATION</span>
             </div>
           </div>
 
@@ -555,14 +552,10 @@ export default function QuotationList() {
       {/* Print Option B: Branded List Summary Sheet */}
       {!printQuotation && (
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
-          <div className="border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 className="text-2xl font-black text-[#1e40af] uppercase tracking-tight">FORTUNE CONCRETE</h1>
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Premium Ready Mix Concrete Solutions</p>
-            <p className="text-[9px] text-gray-400">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            <div className="mt-3 flex justify-between items-center">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider">OFFICIAL QUOTATION SUMMARY REGISTER</h2>
-              <p className="text-xs font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">OFFICIAL QUOTATION SUMMARY REGISTER</h2>
+            <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 
           <table className="w-full border-collapse border text-[10px] text-left">

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
-import { Plus, Trash2, Edit2 } from "lucide-react";
+import { Plus, Trash2, Edit, Printer, Copy, Download } from "lucide-react";
 
 interface VehicleData {
   _id?: string;
@@ -98,6 +98,80 @@ export default function VehicleList() {
 
   // Total pages calculation
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+  // Individual Row Actions logic
+  const handleExportRow = (item: VehicleData, index: number, type: "pdf" | "csv" | "copy") => {
+    const sNo = index + 1;
+    if (type === "pdf") {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Vehicle Card - ${item.registrationNo}</title>
+            <style>
+              body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
+              .logo { height: 50px; width: 50px; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+              .info-group { display: flex; flex-direction: column; }
+              .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
+              .value { font-size: 12px; font-weight: 700; color: #0f172a; }
+            </style>
+          </head>
+          <body onload="window.print(); window.close();">
+            <div class="header">
+              <div class="company-info">
+                <h1>BUILD RMC CORPORATION</h1>
+                <p>Plot No. 42, Ready Mix Compound, Industrial Zone</p>
+                <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
+              </div>
+              <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
+                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
+              </svg>
+            </div>
+            <div class="title">Vehicle Fleet Identification</div>
+            <div class="grid-info">
+              <div class="info-group"><span class="label">S.No</span><span class="value">${sNo}</span></div>
+              <div class="info-group"><span class="label">Vehicle No</span><span class="value">${item.registrationNo}</span></div>
+              <div class="info-group"><span class="label">Vehicle Name</span><span class="value">${item.model}</span></div>
+              <div class="info-group"><span class="label">Transporter Name</span><span class="value">${item.transporter || "N/A"}</span></div>
+              <div class="info-group"><span class="label">Vehicle Type</span><span class="value">${item.vehicleType || "own"}</span></div>
+              <div class="info-group"><span class="label">Vehicle Category</span><span class="value">${item.vehicleCategory || "km"}</span></div>
+            </div>
+          </body>
+        </html>
+      `;
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+    } else if (type === "csv") {
+      const csvData = [
+        ["S.No", "Vehicle No", "Vehicle Name", "Transporter Name", "Vehicle Type", "Vehicle Category"].join(","),
+        [sNo, `"${item.registrationNo}"`, `"${item.model}"`, `"${item.transporter || "N/A"}"`, `"${item.vehicleType || "own"}"`, `"${item.vehicleCategory || "km"}"`].join(",")
+      ].join("\n");
+      const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `vehicle_${item.registrationNo}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({ title: "CSV Downloaded" });
+    } else if (type === "copy") {
+      const tsvContent = [
+        ["S.No", "Vehicle No", "Vehicle Name", "Transporter Name", "Vehicle Type", "Vehicle Category"].join("\t"),
+        [sNo, item.registrationNo, item.model, item.transporter || "N/A", item.vehicleType || "own", item.vehicleCategory || "km"].join("\t")
+      ].join("\n");
+      navigator.clipboard.writeText(tsvContent);
+      toast({ title: "Copied to Clipboard" });
+    }
+  };
 
   return (
     <TransportLayout
@@ -184,7 +258,7 @@ export default function VehicleList() {
                   <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Transporter Name</TableHead>
                   <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle Type</TableHead>
                   <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle Category</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center">Action</TableHead>
+                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center">ACTION</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -220,21 +294,48 @@ export default function VehicleList() {
                         <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleType || "own"}</TableCell>
                         <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleCategory || "km"}</TableCell>
                         <TableCell className="px-4 py-2.5 text-center">
-                          <div className="flex items-center justify-center gap-1.5">
+                          <div className="flex items-center justify-center gap-1 select-none">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleExportRow(item, idx, "pdf")}
+                              className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
+                              title="Print PDF"
+                            >
+                              <Printer className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleExportRow(item, idx, "copy")}
+                              className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
+                              title="Copy TSV"
+                            >
+                              <Copy className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleExportRow(item, idx, "csv")}
+                              className="h-7 w-7 text-emerald-600 hover:bg-emerald-50 rounded border border-emerald-200"
+                              title="Download CSV"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEdit(item)}
-                              className="h-7 w-7 text-blue-600 hover:bg-blue-50"
+                              className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
                               title="Edit"
                             >
-                              <Edit2 className="h-3.5 w-3.5" />
+                              <Edit className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               variant="ghost"
                               size="icon"
                               onClick={() => handleDeleteVehicle(item._id || item.id!)}
-                              className="h-7 w-7 text-rose-500 hover:bg-rose-50"
+                              className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
                               title="Delete"
                             >
                               <Trash2 className="h-3.5 w-3.5" />

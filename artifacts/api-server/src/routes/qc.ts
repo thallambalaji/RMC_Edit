@@ -1,20 +1,6 @@
 import { Router, type IRouter } from "express";
 import mongoose, { Schema } from "mongoose";
-import { connectMongo, QCTest, MixDesign, CubeEntry, BatchEntry, MoistureSetting, CubeMaster, BatchItemMatching } from "@workspace/mongo-db";
-
-const RecipeSchema = new Schema({
-  customer: { type: String, required: true },
-  siteName: { type: String, required: true },
-  grade: { type: String, required: true },
-  recipeCode: { type: String, required: true },
-  plant: { type: String, default: "FORTUNE CONCRETE" },
-  cementName: { type: String },
-  slump: { type: String, default: "100+/-20" },
-  ingredients: { type: [Schema.Types.Mixed], default: [] },
-  totalDensity: { type: Number }
-}, { timestamps: true, strict: false });
-
-const Recipe = mongoose.models.LastRecipe || mongoose.model("LastRecipe", RecipeSchema);
+import { connectMongo, QCTest, MixDesign, CubeEntry, BatchEntry, MoistureSetting, CubeMaster, BatchItemMatching, Recipe } from "@workspace/mongo-db";
 import {
   CreateQcTestBody,
   UpdateQcTestBody,

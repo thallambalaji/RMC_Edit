@@ -35,6 +35,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays } from "date-fns";
 import { QcLayout } from "@/components/qc-layout";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 
 export default function CubeTestList() {
   const [entries, setEntries] = useState<any[]>([]);
@@ -218,19 +220,12 @@ export default function CubeTestList() {
       {/* ═══ LIST PRINT VIEW (Professional Layout) ═══ */}
       {isPrintingList && (
         <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-sans text-slate-900 overflow-y-auto">
-          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-inner">B</div>
-              <div className="space-y-0.5">
-                <h1 className="text-3xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
-                <p className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
-                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">ISO 9001:2015 Certified Enterprise</p>
-              </div>
-            </div>
-            <div className="text-right space-y-1">
-              <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Cube Test Summary List</h2>
-              <p className="text-[10px] font-bold text-slate-500">Date: {format(new Date(), "dd/MM/yyyy")}</p>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Total Tests: {filtered.length}</p>
+          <PrintHeader />
+          <div className="flex justify-between items-start border-b pb-4 mb-6">
+            <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Cube Test Summary List</h2>
+            <div className="text-right text-[10px] text-slate-500 font-bold">
+              <p>Date: {format(new Date(), "dd/MM/yyyy")}</p>
+              <p className="text-blue-600 uppercase">Total Tests: {filtered.length}</p>
             </div>
           </div>
 
@@ -282,19 +277,12 @@ export default function CubeTestList() {
       {/* ═══ INDIVIDUAL RECORD PRINT VIEW ═══ */}
       {printingItem && (
         <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-sans text-slate-900 overflow-y-auto">
-          <div className="flex justify-between items-start border-b-4 border-double border-slate-800 pb-6 mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-slate-900 rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-inner">B</div>
-              <div className="space-y-0.5">
-                <h1 className="text-3xl font-black tracking-tighter text-slate-900 uppercase">BUILD RMC</h1>
-                <p className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">Premium Concrete Solutions</p>
-                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tight">ISO 9001:2015 Certified Enterprise</p>
-              </div>
-            </div>
-            <div className="text-right space-y-1">
-              <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Compressive Strength Report</h2>
-              <p className="text-[10px] font-bold text-slate-500">Date: {format(new Date(), "dd/MM/yyyy")}</p>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Test No: {printingItem.testNo}</p>
+          <PrintHeader />
+          <div className="flex justify-between items-start border-b pb-4 mb-6">
+            <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Compressive Strength Report</h2>
+            <div className="text-right text-[10px] text-slate-500 font-bold">
+              <p>Date: {format(new Date(), "dd/MM/yyyy")}</p>
+              <p className="text-blue-600 uppercase">Test No: {printingItem.testNo}</p>
             </div>
           </div>
 
@@ -480,10 +468,8 @@ export default function CubeTestList() {
                 </Select>
                 <span>entries</span>
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary" onClick={handleCopyList} className="bg-slate-500 hover:bg-slate-600 text-white h-9 text-[10px] font-black uppercase tracking-wider px-4">Copy</Button>
-                <Button size="sm" variant="secondary" onClick={handleExportListCSV} className="bg-slate-500 hover:bg-slate-600 text-white h-9 text-[10px] font-black uppercase tracking-wider px-4">CSV</Button>
-                <Button size="sm" variant="secondary" onClick={handlePrintList} className="bg-slate-500 hover:bg-slate-600 text-white h-9 text-[10px] font-black uppercase tracking-wider px-4">PDF</Button>
+              <div className="flex gap-2 items-center">
+                <ExportDropdown onCopy={handleCopyList} onCSV={handleExportListCSV} onPDF={handlePrintList} />
                 <Button size="sm" variant="outline" onClick={() => setRefreshKey(k => k + 1)} className="h-9 w-9 p-0 border-slate-200">
                   <RotateCcw className={cn("h-4 w-4 text-slate-500", loading && "animate-spin")} />
                 </Button>

@@ -106,7 +106,7 @@ export default function AddVehicle() {
       title={vehicleId ? "EDIT VEHICLE" : "REGISTER NEW VEHICLE"}
       activePath={vehicleId ? `/transport/vehicle/edit/${vehicleId}` : "/transport/vehicle/new"}
     >
-      <div className="max-w-2xl mx-auto flex-1 flex flex-col justify-center">
+      <div className="max-w-2xl mx-auto w-full py-8 px-4">
         <Card className="border shadow-md bg-white rounded-lg overflow-hidden border-t-4 border-[#00c0a5]">
           <div className="p-4 bg-slate-50 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">

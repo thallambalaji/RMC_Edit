@@ -20,9 +20,11 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
-  ChevronRight, Plus, Search, RotateCcw, Trash2, Eye,
-  Download, Printer, FileText, X,
+  ChevronRight, Plus, Search, RotateCcw, Trash2, Pencil,
+  Download, Printer, FileText, X, Copy,
 } from "lucide-react";
 
 export default function SalesDocumentList() {
@@ -161,6 +163,58 @@ export default function SalesDocumentList() {
     setTimeout(() => { document.title = prevTitle; }, 1000);
   };
 
+  const handleCopy = () => {
+    if (!filtered.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["Invoice No", "Date", "Time", "Customer", "Site Address", "Vehicle", "Taxable Amt", "Tax Amt", "Net Amt", "Plant"];
+    const rows = filtered.map(inv => {
+      const taxable = parseFloat(String(inv.netAmount || 0));
+      const net = parseFloat(String(inv.totalAmount || 0));
+      return [
+        inv.invoiceNumber,
+        inv.invoiceDate,
+        inv.invoiceTime || "",
+        inv.customerName,
+        inv.site || "",
+        inv.vehicleNo || "",
+        taxable,
+        net - taxable,
+        net,
+        inv.plant || ""
+      ];
+    });
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Table data saved to clipboard." });
+  };
+
+  const handlePrintSingle = (inv: any) => {
+    setViewInv(inv);
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  };
+
+  const handleExportSingleCSV = (inv: any) => {
+    const rows = [["Field","Value"],["Invoice No", inv.invoiceNumber],["Date", inv.invoiceDate],
+      ["Customer", inv.customerName],["Site", inv.site],["Vehicle", inv.vehicleNo],
+      ["Plant", inv.plant],["Net Amount", inv.totalAmount]];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    a.download = `${inv.invoiceNumber}.csv`;
+    a.click();
+    toast({ title: "CSV Downloaded" });
+  };
+
+  const handleCopySingle = (inv: any) => {
+    const text = `Invoice No: ${inv.invoiceNumber}\nDate: ${inv.invoiceDate}\nCustomer: ${inv.customerName}\nSite: ${inv.site || ""}\nVehicle: ${inv.vehicleNo || ""}\nNet Amount: ₹${inv.totalAmount}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Invoice details copied to clipboard." });
+  };
+
   return (
     <div className="space-y-4">
       <style>{`
@@ -178,20 +232,13 @@ export default function SalesDocumentList() {
 
       {/* ===== PRINT-ONLY AREA ===== */}
       <div id="print-root" style={{display:'none'}}>
-        {/* Company Header */}
-        <div style={{borderBottom:'2px solid #1e3a8a', paddingBottom:'16px', marginBottom:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-          <div style={{display:'flex', alignItems:'center', gap:'16px'}}>
-            <div style={{width:'56px',height:'56px',background:'#1e40af',color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,fontSize:'20px',borderRadius:'8px'}}>BM</div>
-            <div>
-              <div style={{fontSize:'22px',fontWeight:900,color:'#0f172a',textTransform:'uppercase',letterSpacing:'-0.5px'}}>BuildRMC Enterprises</div>
-              <div style={{fontSize:'11px',color:'#64748b',fontWeight:600}}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-              <div style={{fontSize:'11px',color:'#64748b',fontWeight:600}}>GSTIN: 36AAAAA1111A1Z1 &nbsp;|&nbsp; Phone: +91 98765 43210 &nbsp;|&nbsp; contact@buildrmc.com</div>
-            </div>
+        <PrintHeader />
+        <div style={{borderBottom:'2px solid #e2e8f0', paddingBottom:'8px', marginBottom:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+          <div>
+            <h2 style={{fontSize:'14px',fontWeight:900,color:'#1e40af',textTransform:'uppercase',margin:0}}>Sales Document List</h2>
           </div>
-          <div style={{textAlign:'right'}}>
-            <div style={{fontSize:'16px',fontWeight:900,color:'#1e40af',textTransform:'uppercase'}}>Sales Document List</div>
-            <div style={{fontSize:'11px',color:'#64748b',marginTop:'4px'}}>Printed on: {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})}</div>
-            <div style={{fontSize:'11px',color:'#64748b'}}>Total Records: {filtered.length}</div>
+          <div style={{textAlign:'right', fontSize:'11px', color:'#64748b'}}>
+            <span>Printed on: {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})} &nbsp;|&nbsp; Total Records: {filtered.length}</span>
           </div>
         </div>
 
@@ -326,6 +373,7 @@ export default function SalesDocumentList() {
           <div className="flex items-center gap-2">
             <Input value={globalSearch} onChange={e => { setGlobalSearch(e.target.value); setPage(1); }}
               placeholder="Search table..." className="h-8 w-44 bg-white text-xs" />
+            <ExportDropdown onCopy={handleCopy} onCSV={exportCSV} onPDF={handlePrint} />
           </div>
         </div>
 
@@ -361,14 +409,55 @@ export default function SalesDocumentList() {
                       <TableCell className="text-right font-black text-slate-900">₹{net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
                       <TableCell className="text-slate-600">{inv.plant || "—"}</TableCell>
                       <TableCell className="text-center no-print">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button onClick={() => setViewInv(inv)} variant="ghost" size="icon"
-                            className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded-full" title="View Details">
-                            <Eye className="w-4 h-4" />
+                        <div className="flex items-center justify-center gap-1.5">
+                          {/* 1. Print (Printer Icon) */}
+                          <Button 
+                            onClick={() => handlePrintSingle(inv)}
+                            title="Print PDF" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Printer className="h-4 w-4" />
                           </Button>
-                          <Button onClick={() => handleDelete(inv.id)} variant="ghost" size="icon"
-                            className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded-full" title="Delete">
-                            <Trash2 className="w-4 h-4" />
+
+                          {/* 2. CSV (Download Icon) */}
+                          <Button 
+                            onClick={() => handleExportSingleCSV(inv)}
+                            title="Download CSV" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+
+                          {/* 3. Copy (Copy Icon) */}
+                          <Button 
+                            onClick={() => handleCopySingle(inv)}
+                            title="Copy Details" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+
+                          {/* 4. Edit (Pencil Icon) - opens view details modal */}
+                          <Button 
+                            onClick={() => setViewInv(inv)}
+                            title="Edit Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
+                          <Button 
+                            onClick={() => handleDelete(inv.id)}
+                            title="Delete Invoice" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

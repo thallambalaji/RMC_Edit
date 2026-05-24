@@ -1,136 +1,148 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
-import { Zap, Activity } from "lucide-react";
+import { useRoute, useLocation } from "wouter";
 
 export default function AddPumpDg() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [match, params] = useRoute("/transport/pump-dg/edit/:id");
+  const assetId = match ? params.id : null;
+
   const [name, setName] = useState("");
   const [type, setType] = useState("Pump");
-  const [capacity, setCapacity] = useState("");
-  const [status, setStatus] = useState("active");
+
+  useEffect(() => {
+    if (assetId) {
+      const fetchAsset = async () => {
+        try {
+          const res = await fetch(`/api/pump-dgs/${assetId}?t=${Date.now()}`);
+          if (res.ok) {
+            const data = await res.json();
+            setName(data.name || "");
+            setType(data.type || "Pump");
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchAsset();
+    }
+  }, [assetId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !capacity) {
+    if (!name) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields.",
+        description: "Pump or DG Name is required.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const res = await fetch("/api/pump-dgs", {
-        method: "POST",
+      const url = assetId ? `/api/pump-dgs/${assetId}` : "/api/pump-dgs";
+      const method = assetId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: name.trim(),
           type,
-          capacity: capacity.trim(),
-          status,
+          capacity: "N/A",
+          status: "active",
         }),
       });
 
       if (res.ok) {
         toast({
-          title: "Asset Registered",
-          description: "Pump/DG asset registered successfully.",
+          title: assetId ? "Asset Updated" : "Asset Registered",
+          description: assetId ? "Asset details updated successfully." : "Pump/DG asset registered successfully.",
         });
-        setName("");
-        setCapacity("");
-        setStatus("active");
+        setLocation("/transport/pump-dg/list");
       } else {
         toast({
           title: "Error",
-          description: "Failed to register Pump/DG.",
+          description: "Failed to save asset details.",
           variant: "destructive",
         });
       }
     } catch (err) {
       console.error(err);
+      toast({
+        title: "Error",
+        description: "Something went wrong.",
+        variant: "destructive",
+      });
     }
   };
 
   return (
     <TransportLayout
-      breadcrumbs={[{ label: "Pump&DG" }, { label: "Add Pump & DG" }]}
-      title="REGISTER NEW PUMP & DG"
-      activePath="/transport/pump-dg/new"
+      breadcrumbs={[{ label: "Pump&DG", href: "/transport/pump-dg/list" }, { label: assetId ? "Edit Pump & DG" : "Add Pump & DG" }]}
+      title={assetId ? "EDIT PUMP & DG DETAILS" : "REGISTER NEW PUMP & DG"}
+      activePath={assetId ? `/transport/pump-dg/edit/${assetId}` : "/transport/pump-dg/new"}
     >
-      <div className="max-w-2xl mx-auto flex-1 flex flex-col justify-center">
-        <Card className="border shadow-md bg-white rounded-lg overflow-hidden border-t-4 border-blue-600">
-          <div className="p-4 bg-slate-50 border-b flex items-center gap-2">
-            <Zap className="h-5 w-5 text-blue-600" />
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">Register New Pump & DG Asset</h3>
-          </div>
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs font-black uppercase text-slate-700">Equipment Name / Code *</Label>
-                <Input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Schwing Stetter BP350 Concrete Pump"
-                  className="h-10 text-xs font-semibold border-slate-300"
-                  required
-                />
-              </div>
+      <div className="w-full py-8 px-8 bg-white min-h-[calc(100vh-140px)] flex flex-col rounded-lg border shadow-sm justify-center items-center">
+        {/* Simplified Form Container */}
+        <div className="max-w-2xl w-full bg-white p-8 rounded-lg">
+          <h2 className="text-center font-bold text-[#0f766e] text-2xl mb-6 tracking-wide">
+            {assetId ? "Edit Pump & DG Details" : "Enter Pump & DG Details"}
+          </h2>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-black uppercase text-slate-700">Equipment Type</Label>
-                  <select
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="Pump">Concrete Pump</option>
-                    <option value="DG">DG Generator</option>
-                  </select>
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Equipment Type */}
+            <div className="space-y-1">
+              <Label className="text-sm font-bold text-gray-700">
+                Type :
+              </Label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+              >
+                <option value="Pump">Pump</option>
+                <option value="DG">DG</option>
+              </select>
+            </div>
 
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-black uppercase text-slate-700">Output Capacity *</Label>
-                  <Input
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    placeholder="e.g. 35 m³/hr or 125 kVA"
-                    className="h-10 text-xs font-semibold border-slate-300"
-                    required
-                  />
-                </div>
-              </div>
+            {/* Equipment Name */}
+            <div className="space-y-1">
+              <Label className="text-sm font-bold text-gray-700">
+                Pump or DG Name :
+              </Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Pump or DG Name.."
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                required
+              />
+            </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs font-black uppercase text-slate-700">Operational Status</Label>
-                <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="active">Active Operational</option>
-                  <option value="maintenance">Under Maintenance</option>
-                  <option value="idle">Idle / Standby</option>
-                </select>
-              </div>
-
-              <div className="pt-4 border-t flex items-center justify-end gap-2 shrink-0">
-                <Button
-                  type="submit"
-                  className="bg-[#10b981] hover:bg-[#059669] text-white font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm transition-all"
-                >
-                  Register Asset
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+            {/* Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="submit"
+                className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 border-0 shadow-sm"
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setLocation("/transport/pump-dg/list")}
+                className="bg-white hover:bg-gray-50 text-gray-700 border border-slate-200 font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 shadow-sm"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </TransportLayout>
   );

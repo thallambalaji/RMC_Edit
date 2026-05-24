@@ -14,11 +14,17 @@ import {
   MoreHorizontal,
   FileText,
   Calendar,
-  Loader2
+  Loader2,
+  Copy,
+  Pencil,
+  Trash2,
+  Home
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Accordion,
   AccordionContent,
@@ -57,8 +63,15 @@ import { useGetDCs, useGetCustomers, customFetch } from "@workspace/api-client-r
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function DCHub() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
+
+  const getDefaultAccordions = () => {
+    if (location === "/dc" || location === "/dc/") return [];
+    if (location.includes("/weighment")) return ["weighment"];
+    if (location.includes("/dc")) return ["dc-ops"];
+    return [];
+  };
   
   // Live API States
   const [dcNo, setDcNo] = useState("");
@@ -69,6 +82,7 @@ export default function DCHub() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(true);
   const [selectedDC, setSelectedDC] = useState<any>(null);
+  const [printDC, setPrintDC] = useState<any>(null);
 
   const queryClient = useQueryClient();
   const { data: dcs, isLoading: dcsLoading } = useGetDCs();
@@ -128,6 +142,43 @@ export default function DCHub() {
   const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
   const paginatedData = filteredData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  const handlePrintSingleDC = (dc: any) => {
+    setPrintDC(dc);
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
+  const handleEditDC = (dc: any) => {
+    toast({
+      title: "Edit restricted",
+      description: `Delivery Challan ${dc.dcNumber} is marked as DELIVERED and locked in the ERP system. Please contact your administrator to modify closed invoices.`,
+      variant: "destructive"
+    });
+  };
+
+  const handleCopyRow = (dc: any) => {
+    const custName = dc.customerName || customerMap[String(dc.customerId?._id || dc.customerId)]?.name || "-";
+    const siteName = dc.siteName || customerMap[String(dc.customerId?._id || dc.customerId)]?.address || "-";
+    const text = `DC No: ${dc.dcNumber}\nCustomer: ${custName}\nSite: ${siteName}\nDate: ${dc.dcDate ? new Date(dc.dcDate).toLocaleDateString("en-IN") : "-"}\nQuantity: ${dc.quantity}\nVehicle: ${dc.vehicleReg}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "DC Details copied to clipboard." });
+  };
+
+  const handleExportRowCSV = (dc: any) => {
+    const custName = dc.customerName || customerMap[String(dc.customerId?._id || dc.customerId)]?.name || "-";
+    const siteName = dc.siteName || customerMap[String(dc.customerId?._id || dc.customerId)]?.address || "-";
+    const csvContent = `DC No,Customer,Site,Date,Quantity,Vehicle\n"${dc.dcNumber}","${custName}","${siteName}","${dc.dcDate ? new Date(dc.dcDate).toLocaleDateString("en-IN") : "-"}","${dc.quantity}","${dc.vehicleReg}"`;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `dc_${dc.dcNumber?.replace(/\//g, "_")}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this DC?")) return;
     try {
@@ -161,6 +212,29 @@ export default function DCHub() {
     window.print();
   };
 
+  const handleCopy = () => {
+    if (!filteredData.length) {
+      toast({ title: "No data to copy", variant: "destructive" });
+      return;
+    }
+    const headers = ["DC No", "Customer", "Site", "Date", "Quantity", "Vehicle"];
+    const rows = filteredData.map((d: any) => {
+      const cust = d.customerName || customerMap[String(d.customerId?._id || d.customerId)]?.name || "-";
+      const site = d.siteName || customerMap[String(d.customerId?._id || d.customerId)]?.address || "-";
+      return [
+        d.dcNumber,
+        cust,
+        site,
+        d.dcDate ? new Date(d.dcDate).toLocaleDateString("en-IN") : "-",
+        d.quantity,
+        d.vehicleReg
+      ];
+    });
+    const text = [headers, ...rows].map(row => row.join("\t")).join("\n");
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Complete data saved to clipboard." });
+  };
+
   return (
     <div className="flex h-full gap-4 bg-[#f8fafc]">
       {/* Sidebar with Accordion Navigation */}
@@ -177,7 +251,7 @@ export default function DCHub() {
             </Link>
           </div>
           
-          <Accordion type="multiple" defaultValue={["dc-ops", "weighment"]} className="w-full space-y-2">
+          <Accordion type="multiple" defaultValue={getDefaultAccordions()} className="w-full space-y-2">
             <AccordionItem value="dc-ops" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><Truck className="h-4 w-4 text-[#1e40af]"/> DC Operations</div>
@@ -207,7 +281,7 @@ export default function DCHub() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col space-y-3 min-w-0">
+      <div className={`flex-1 flex flex-col space-y-3 min-w-0 ${printDC ? "print:hidden" : ""}`}>
         {/* Header / Breadcrumb */}
         <div className="flex items-center justify-between px-1 print:hidden">
           <div className="flex items-center gap-2">
@@ -275,19 +349,12 @@ export default function DCHub() {
         <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden print:border-none print:shadow-none">
           
           {/* Printable Header (Only visible during print) */}
-          <div className="hidden print:block mb-6 border-b-2 border-gray-800 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">BM</div>
-                <div>
-                  <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                  <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                  <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-                </div>
-              </div>
+          <div className="hidden print:block mb-6">
+            <PrintHeader />
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">DC Hub List</h2>
               <div className="text-right">
-                <h2 className="text-2xl font-bold text-[#1e40af] uppercase">DC Hub List</h2>
-                <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
+                <p className="text-[10px] font-bold text-gray-600">Printed Date: {new Date().toLocaleDateString()}</p>
               </div>
             </div>
           </div>
@@ -305,14 +372,7 @@ export default function DCHub() {
                 </Select>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handleExportCSV}>
-                <Download className="h-3 w-3 mr-1.5" /> Export
-              </Button>
-              <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3" onClick={handlePrint}>
-                <Printer className="h-3 w-3 mr-1.5" /> Print
-              </Button>
-            </div>
+            <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrint} />
           </div>
 
           {/* Table Body */}
@@ -326,7 +386,7 @@ export default function DCHub() {
                   <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Grade</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right print:text-black">Quantity</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Vehicle</TableHead>
-                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">Action</TableHead>
+                  <TableHead className="w-[180px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">ACTION</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -340,7 +400,13 @@ export default function DCHub() {
                     const siteName = row.siteName || customerMap[String(row.customerId?._id || row.customerId)]?.address || "-";
                     return (
                       <TableRow key={row.id || row._id} className="group hover:bg-gray-50/80 transition-colors print:border-b print:border-gray-200">
-                        <TableCell className="text-center py-3 font-bold text-[#1e40af] text-xs print:text-black">{row.dcNumber}</TableCell>
+                        <TableCell 
+                          onClick={() => setSelectedDC(row)} 
+                          className="text-center py-3 font-bold text-[#1e40af] text-xs print:text-black cursor-pointer hover:underline"
+                          title="Click to view details"
+                        >
+                          {row.dcNumber}
+                        </TableCell>
                         <TableCell className="py-3">
                           <div className="text-xs font-semibold text-gray-800 max-w-[200px] truncate print:whitespace-normal print:max-w-none">{custName}</div>
                           <div className="text-[10px] text-gray-400 truncate max-w-[200px] print:whitespace-normal print:max-w-none print:text-black">{siteName}</div>
@@ -355,17 +421,57 @@ export default function DCHub() {
                         <TableCell className="text-right font-bold text-xs py-3 print:text-black">{Number(row.quantity || 0).toFixed(2)} <span className="text-[9px] font-normal text-gray-400 ml-0.5 print:text-black">m³</span></TableCell>
                         <TableCell className="text-center py-3 font-medium text-[11px] text-gray-700 print:text-black">{row.vehicleReg}</TableCell>
                         <TableCell className="text-center py-3 print:hidden">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="text-xs">
-                              <DropdownMenuItem onClick={() => setSelectedDC(row)}>View Details</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(row.id || row._id)}>Delete</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className="flex items-center justify-center gap-1.5">
+                            {/* 1. Print (Printer Icon) */}
+                            <Button 
+                              onClick={() => handlePrintSingleDC(row)}
+                              title="Print DC Slip" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                            >
+                              <Printer className="h-4 w-4" />
+                            </Button>
+
+                            {/* 2. CSV (Download Icon) */}
+                            <Button 
+                              onClick={() => handleExportRowCSV(row)}
+                              title="Download CSV" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+
+                            {/* 3. Copy (Copy Icon) */}
+                            <Button 
+                              onClick={() => handleCopyRow(row)}
+                              title="Copy Details" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+
+                            {/* 4. Edit (Pencil Icon) */}
+                            <Button 
+                              onClick={() => handleEditDC(row)}
+                              title="Edit Record" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+
+                            {/* 5. Delete (Trash Icon) */}
+                            <Button 
+                              onClick={() => handleDelete(row.id || row._id)}
+                              title="Delete Record" 
+                              variant="ghost" 
+                              className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -410,6 +516,73 @@ export default function DCHub() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Branded Single DC Sheet for Printing */}
+      {printDC && (
+        <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
+            <div className="text-right">
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">DC Number: <span className="font-black text-gray-900">{printDC.dcNumber}</span></p>
+                <p className="text-xs font-bold text-gray-700">DC Date: <span className="font-medium text-gray-900">{printDC.dcDate ? new Date(printDC.dcDate).toLocaleDateString("en-IN") : "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">DC Time: <span className="font-medium text-gray-900">{printDC.dcTime || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Loaded Plant: <span className="font-medium text-gray-900">{printDC.plant || "-"}</span></p>
+              </div>
+            </div>
+            <div className="bg-slate-50 p-3 rounded border">
+              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer & Vehicle</h3>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printDC.customerName || customerMap[String(printDC.customerId?._id || printDC.customerId)]?.name || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Site Address: <span className="font-medium text-gray-900">{printDC.siteName || customerMap[String(printDC.customerId?._id || printDC.customerId)]?.address || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Vehicle: <span className="font-medium text-gray-900">{printDC.vehicleReg || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Driver Name: <span className="font-medium text-gray-900">{printDC.driverName || "-"}</span></p>
+              </div>
+            </div>
+          </div>
+
+          <table className="w-full border collapse text-left mb-6">
+            <thead>
+              <tr className="bg-slate-100 text-[10px] font-black uppercase tracking-wider">
+                <th className="border p-2 text-center w-12">S/No</th>
+                <th className="border p-2">Grade Type</th>
+                <th className="border p-2 text-center">Quantity (m³)</th>
+                <th className="border p-2 text-right">Unit Rate (₹)</th>
+                <th className="border p-2 text-right">Net Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="text-xs">
+                <td className="border p-2 text-center font-bold">1</td>
+                <td className="border p-2 font-semibold text-gray-800">{printDC.grade || "-"}</td>
+                <td className="border p-2 text-center font-medium">{Number(printDC.quantity || 0).toFixed(2)}</td>
+                <td className="border p-2 text-right font-medium">₹{Number(printDC.rate || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                <td className="border p-2 text-right font-bold text-[#1e40af]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div className="mt-12 pt-8 border-t flex justify-between items-end">
+            <div>
+              <p className="text-[9px] text-gray-400">Received above material in good condition. Subject to local jurisdiction.</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Receiver Signature</p>
+            </div>
+            <div className="text-center w-40 border-t pt-2 border-gray-300">
+              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Signatory</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

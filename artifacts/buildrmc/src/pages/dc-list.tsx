@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import {
   Select,
   SelectContent,
@@ -21,7 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ChevronRight, Eye, Trash2, Copy, Download, ChevronLeft, Printer, Pencil } from "lucide-react";
+import { ChevronRight, Eye, Trash2, Copy, Download, ChevronLeft, Printer, Pencil, Home } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function DCList() {
@@ -266,16 +268,50 @@ export default function DCList() {
     <div className="space-y-4">
       {/* Hide navigation and filters when printing */}
       <div className={`print:hidden space-y-4 ${printDC ? "print:hidden" : ""}`}>
-        <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0">
-          <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Delivery Challan List</h2>
-          <div className="h-4 w-px bg-gray-300" />
-          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-            <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/dc" className="hover:text-[#1e40af] transition-colors">DC</Link>
-            <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">DC List</span>
-          </nav>
+        <div className="flex items-center justify-between bg-white py-3.5 px-5 rounded-lg border border-slate-200 shadow-sm shrink-0">
+          <div className="flex items-center">
+            <h2 className="text-[13px] font-black text-slate-800 uppercase tracking-wider select-none">
+              Delivery Challan List
+            </h2>
+            <div className="h-4 w-px bg-slate-300 mx-4" />
+            <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
+              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <Home className="h-3.5 w-3.5 text-slate-500" />
+                <span>HOME</span>
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+                DC
+              </Link>
+              <span className="text-slate-400 font-black mx-2.5">&gt;</span>
+              <span className="text-blue-600 font-black">DC LIST</span>
+            </nav>
+          </div>
+
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+              onClick={handleSearch}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-slate-700"
+              >
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+              </svg>
+              Filters
+            </Button>
+          </div>
         </div>
 
         <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
@@ -327,27 +363,13 @@ export default function DCList() {
       <div className={`bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden print:border-none print:shadow-none ${printDC ? "print:hidden" : ""}`}>
 
         {/* Printable Header (Only visible during print) */}
-        <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Placeholder for Logo */}
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
-                BM
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h2 className="text-2xl font-bold text-[#1e40af] uppercase">Delivery Challan List</h2>
-              <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString()}</p>
-              {(fromDate || toDate) && (
-                <p className="text-sm text-gray-500 font-medium">
-                  Period: {fromDate || "Start"} to {toDate || "End"}
-                </p>
-              )}
+        <div className="hidden print:block mb-6">
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Register</h2>
+            <div className="text-right text-[10px] font-bold text-gray-600">
+              <span>Printed Date: {new Date().toLocaleDateString()}</span>
+              { (fromDate || toDate) && <span> &nbsp;|&nbsp; Period: {fromDate || "Start"} to {toDate || "End"}</span> }
             </div>
           </div>
         </div>
@@ -363,11 +385,7 @@ export default function DCList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex gap-1">
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleCopy}>Copy</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handleExportCSV}>CSV</Button>
-            <Button variant="outline" size="sm" className="bg-gray-400 text-white hover:bg-gray-500 border-0 h-8 px-4" onClick={handlePrintPDF}>PDF</Button>
-          </div>
+          <ExportDropdown onCopy={handleCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         <div className="overflow-x-auto print:overflow-visible">
@@ -405,7 +423,13 @@ export default function DCList() {
 
                   return (
                     <TableRow key={row.id || row._id || idx} className="hover:bg-gray-50/50 print:border-b print:border-gray-200">
-                      <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-medium text-[#1e40af] print:text-black">{row.dcNumber || "-"}</TableCell>
+                      <TableCell 
+                        onClick={() => setSelectedDC(row)} 
+                        className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-semibold text-[#1e40af] print:text-black cursor-pointer hover:underline hover:text-blue-800"
+                        title="Click to view details"
+                      >
+                        {row.dcNumber || "-"}
+                      </TableCell>
                       <TableCell className="text-center text-xs border-r border-gray-100 max-w-[150px] truncate print:max-w-none print:whitespace-normal" title={custName}>{custName}</TableCell>
                       <TableCell className="text-center text-xs border-r border-gray-100 max-w-[150px] truncate print:max-w-none print:whitespace-normal" title={siteName}>{siteName}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100">{row.dcDate ? new Date(row.dcDate).toLocaleDateString("en-IN") : "-"}</TableCell>
@@ -419,27 +443,7 @@ export default function DCList() {
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 print:hidden">{row.plant || "-"}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap print:hidden">
                         <div className="flex items-center justify-center gap-1.5">
-                          {/* 1. View (Eye Icon) */}
-                          <Button 
-                            onClick={() => setSelectedDC(row)}
-                            title="View Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-800 hover:text-blue-900 cursor-pointer"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-
-                          {/* 2. Edit (Pencil Icon) */}
-                          <Button 
-                            onClick={() => handleEditDC(row)}
-                            title="Edit DC" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-
-                          {/* 3. Print (Printer Icon) */}
+                          {/* 1. Print (Printer Icon) */}
                           <Button 
                             onClick={() => handlePrintSingleDC(row)}
                             title="Print PDF with Letterhead" 
@@ -449,7 +453,7 @@ export default function DCList() {
                             <Printer className="h-4 w-4" />
                           </Button>
 
-                          {/* 4. CSV (Download Icon) */}
+                          {/* 2. CSV (Download Icon) */}
                           <Button 
                             onClick={() => handleExportRowCSV(row)}
                             title="Download CSV" 
@@ -459,7 +463,7 @@ export default function DCList() {
                             <Download className="h-4 w-4" />
                           </Button>
 
-                          {/* 5. Copy (Copy Icon) */}
+                          {/* 3. Copy (Copy Icon) */}
                           <Button 
                             onClick={() => handleCopyRow(row)}
                             title="Copy Details" 
@@ -469,7 +473,17 @@ export default function DCList() {
                             <Copy className="h-4 w-4" />
                           </Button>
 
-                          {/* 6. Delete (Trash Icon) */}
+                          {/* 4. Edit (Pencil Icon) */}
+                          <Button 
+                            onClick={() => handleEditDC(row)}
+                            title="Edit DC" 
+                            variant="ghost" 
+                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+
+                          {/* 5. Delete (Trash Icon) */}
                           <Button 
                             onClick={() => handleDelete(row.id || row._id)}
                             title="Delete DC" 
@@ -595,16 +609,11 @@ export default function DCList() {
       {/* Branded Single DC Sheet for Printing */}
       {printDC && (
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
-          <div className="flex justify-between items-center border-b pb-6 mb-6">
-            <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
-              <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
-            </div>
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">DELIVERY CHALLAN</div>
-              <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
-              <p className="text-[9px] text-gray-400 font-medium">Date: {printDC.dcDate ? new Date(printDC.dcDate).toLocaleDateString("en-IN") : ""}</p>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
           </div>
 

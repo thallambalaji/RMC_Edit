@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Eye, MoreHorizontal, Printer } from "lucide-react";
+import { ChevronRight, ListPlus, Search, RotateCcw, Copy, Download, Trash2, Printer, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ExportDropdown } from "@/components/export-dropdown";
+import { PrintHeader } from "@/components/print-header";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -161,6 +163,103 @@ export default function EnquiryList() {
     window.print();
   };
 
+  const handlePrintSingle = (e: any) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+    const html = `
+      <html>
+        <head>
+          <title>Enquiry Details - ${e.enquiryId}</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; }
+            h1 { color: #1e40af; }
+            .field { margin-bottom: 10px; }
+            .label { font-weight: bold; }
+          </style>
+        </head>
+        <body onload="window.print(); window.close();">
+          <div style="display: flex; height: 6px; width: 100%;">
+            <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
+          </div>
+          <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
+            <div style="background-color: black; width: 64px; height: 64px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #1e293b;">
+              <svg viewBox="0 0 100 100" style="width: 100%; height: 100%;" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="aGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a855f7" />
+                    <stop offset="100%" stop-color="#f43f5e" />
+                  </linearGradient>
+                  <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#06b6d4" />
+                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="100%" stop-color="#f97316" />
+                  </linearGradient>
+                </defs>
+                <path d="M 18 80 L 46 20 L 56 20 L 28 80 Z" fill="url(#aGrad)" />
+                <path d="M 46 20 L 56 20 L 36 80 L 26 80 Z" fill="url(#eGrad)" />
+                <path d="M 51 20 L 82 20 L 78 30 L 48 30 Z" fill="url(#eGrad)" />
+                <path d="M 41 47 L 76 47 L 72 57 L 38 57 Z" fill="url(#eGrad)" />
+                <path d="M 31 70 L 82 70 L 78 80 L 27 80 Z" fill="url(#eGrad)" />
+              </svg>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; min-width: 0;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: white; line-height: 1; text-align: left;">FORTUNE CONCRETE</h1>
+              <p style="margin: 4px 0 0 0; font-size: 10px; font-weight: 600; color: #f97316; letter-spacing: 1px; text-align: left;">Building Trust &bull; Delivering Excellence</p>
+              <div style="width: 100%; height: 1px; background-color: rgba(51, 65, 85, 0.6); margin: 6px 0;"></div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 8px; color: #cbd5e1; font-weight: bold;">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  Kompally, TS
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  9010514880
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                  <span style="display: inline-block; width: 4px; height: 4px; background-color: #f97316;"></span>
+                  abcs3d@gmail.com
+                </span>
+              </div>
+            </div>
+          </div>
+          <h2 style="font-family: sans-serif; font-size: 14px; font-weight: bold; color: #1e40af; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px;">Enquiry Details: ${e.enquiryId}</h2>
+          <div class="field"><span class="label">Contact Person:</span> ${e.contactPerson}</div>
+          <div class="field"><span class="label">Company Name:</span> ${e.companyName || "N/A"}</div>
+          <div class="field"><span class="label">Mobile:</span> ${e.mobile}</div>
+          <div class="field"><span class="label">Email:</span> ${e.email || "N/A"}</div>
+          <div class="field"><span class="label">Address:</span> ${e.customerAddress}</div>
+          <div class="field"><span class="label">Designation:</span> ${e.designation}</div>
+          <div class="field"><span class="label">Status:</span> ${e.status || "pending"}</div>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
+  const handleExportCSVSingle = (e: any) => {
+    const headers = ["Enquiry ID", "Name", "Phone", "Email", "Address", "Company", "Status"];
+    const row = [e.enquiryId, e.contactPerson, e.mobile, e.email || "", e.customerAddress, e.companyName || "", e.status || "pending"];
+    const content = [headers.join(","), row.map(val => `"${val}"`).join(",")].join("\n");
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `enquiry_${e.enquiryId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast({ title: "CSV Downloaded", description: `Enquiry ${e.enquiryId} CSV file generated.` });
+  };
+
+  const handleCopySingle = (e: any) => {
+    const text = `Enquiry ID: ${e.enquiryId}\nName: ${e.contactPerson}\nPhone: ${e.mobile}\nEmail: ${e.email || ""}\nAddress: ${e.customerAddress}\nCompany: ${e.companyName || ""}\nStatus: ${e.status}`;
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied!", description: "Enquiry details copied to clipboard." });
+  };
+
   return (
     <div className="space-y-4 pb-4 print:p-0">
       <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 print:hidden">
@@ -184,22 +283,12 @@ export default function EnquiryList() {
 
       <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 print:border-none print:shadow-none">
         {/* Printable Header (Only visible during print) */}
-        <div className="hidden print:block mb-8 border-b-2 border-gray-800 pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Placeholder for Logo */}
-              <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-lg">
-                BM
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
-                <p className="text-sm text-gray-600 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                <p className="text-sm text-gray-600 font-medium">Phone: +91 98765 43210 | Email: contact@buildrmc.com</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h2 className="text-2xl font-bold text-[#1e40af] uppercase">Sales Enquiry Report</h2>
-              <p className="text-sm text-gray-500 font-medium mt-1">Generated: {new Date().toLocaleDateString("en-IN")}</p>
+        <div className="hidden print:block mb-6">
+          <PrintHeader />
+          <div className="flex justify-between items-center border-b pb-2 mb-4">
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Enquiry Report</h2>
+            <div className="text-right text-[10px] font-bold text-gray-600">
+              <span>Printed Date: {new Date().toLocaleDateString("en-IN")}</span>
             </div>
           </div>
         </div>
@@ -246,17 +335,7 @@ export default function EnquiryList() {
             </Select>
             <span>entries</span>
           </div>
-          <div className="flex gap-1.5">
-            <Button onClick={handleExportCopy} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Copy className="h-3.5 w-3.5 text-blue-600" /> Copy
-            </Button>
-            <Button onClick={handleExportCSV} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Download className="h-3.5 w-3.5 text-emerald-600" /> CSV
-            </Button>
-            <Button onClick={handlePrintPDF} variant="outline" size="sm" className="h-7 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-[10px] uppercase gap-1.5">
-              <Printer className="h-3.5 w-3.5 text-rose-600" /> PDF
-            </Button>
-          </div>
+          <ExportDropdown onCopy={handleExportCopy} onCSV={handleExportCSV} onPDF={handlePrintPDF} />
         </div>
 
         {/* Dynamic Table */}
@@ -317,21 +396,57 @@ export default function EnquiryList() {
                       </span>
                     </TableCell>
                     <TableCell className="text-center print:hidden">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="text-xs">
-                          <DropdownMenuItem onClick={() => setSelectedEnquiry(enq)} className="gap-2">
-                            <Eye className="h-3.5 w-3.5 text-blue-600" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(enq.id)} className="text-red-600 gap-2">
-                            <Trash2 className="h-3.5 w-3.5" /> Delete Enquiry
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-center gap-1.5">
+                        {/* 1. Print (Printer Icon) */}
+                        <Button 
+                          onClick={() => handlePrintSingle(enq)}
+                          title="Print PDF" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </Button>
+
+                        {/* 2. CSV (Download Icon) */}
+                        <Button 
+                          onClick={() => handleExportCSVSingle(enq)}
+                          title="Download CSV" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+
+                        {/* 3. Copy (Copy Icon) */}
+                        <Button 
+                          onClick={() => handleCopySingle(enq)}
+                          title="Copy Details" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+
+                        {/* 4. Edit (Pencil Icon) - opens Enquiry detail modal to view/manage */}
+                        <Button 
+                          onClick={() => setSelectedEnquiry(enq)}
+                          title="Edit Enquiry" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        {/* 5. Delete (Trash Icon) */}
+                        <Button 
+                          onClick={() => handleDelete(enq.id)}
+                          title="Delete Enquiry" 
+                          variant="ghost" 
+                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

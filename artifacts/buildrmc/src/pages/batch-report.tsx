@@ -34,12 +34,13 @@ import {
   CheckCircle2,
   Calendar,
 } from "lucide-react";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 
 export default function BatchReport() {
   const { toast } = useToast();
+  const { showFilters } = useQcFilters();
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -498,6 +499,7 @@ export default function BatchReport() {
       >
 
         {/* Dynamic Header Card with Filters */}
+        {showFilters && (
         <Card className="border shadow-sm bg-white shrink-0">
           <CardContent className="p-4 flex flex-wrap items-end gap-4">
             <div className="space-y-1.5 min-w-[200px] flex-1">
@@ -555,6 +557,7 @@ export default function BatchReport() {
             </div>
           </CardContent>
         </Card>
+        )}
 
         {/* Report Output Card */}
         {generatedReport ? (

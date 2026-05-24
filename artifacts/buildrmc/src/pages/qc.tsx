@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { 
   ChevronRight, 
   Search, 
@@ -86,6 +86,7 @@ const INITIAL_DATA: MixDesignItem[] = [
 
 export default function QC() {
   const { toast } = useToast();
+  const { showFilters } = useQcFilters();
   const [items, setItems] = useState<MixDesignItem[]>([]);
 
   // Load from localStorage or initialize with screenshot data
@@ -344,6 +345,7 @@ export default function QC() {
         {/* Embedded Mix Design List Table Card matching screenshot */}
         <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
           {/* Filters Row */}
+          {showFilters && (
           <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4">
             <div className="space-y-1.5 min-w-[220px] flex-1">
               <Label className="text-xs font-black uppercase text-slate-700">Recipe Code</Label>
@@ -392,6 +394,7 @@ export default function QC() {
               </Link>
             </div>
           </div>
+          )}
 
           {/* Toolbar Row */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white flex-wrap gap-4">

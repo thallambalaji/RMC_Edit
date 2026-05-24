@@ -1,5 +1,5 @@
-// v1.0.2 - Fixed typos and verified logic
-import { useState, useMemo } from "react";
+// v1.0.3 - Customer site auto-fill + grade text+dropdown
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetCustomers, useCreateSalesOrder, useGetEmployees } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,56 @@ export default function AddSalesOrder() {
   const [orderType, setOrderType] = useState("OPEN ORDER");
   const [marketingPerson, setMarketingPerson] = useState("FORTUNE CONCRETE");
   const [gradeRows, setGradeRows] = useState<GradeRow[]>([{ id: 1, grade: "", qty: "", rate: "" }]);
+
+  // Derive selected customer object
+  const selectedCustomer = useMemo(
+    () => customers?.find((c: any) => String(c.id) === customerId) as any,
+    [customers, customerId]
+  );
+
+  // Parse pipe-joined siteName from customer DB into individual site names
+  const customerSites = useMemo(() => {
+    if (!selectedCustomer?.siteName) return [];
+    return selectedCustomer.siteName
+      .split("|")
+      .map((s: string) => s.trim())
+      .filter(Boolean);
+  }, [selectedCustomer]);
+
+  // Parse pipe-joined siteAddress from customer DB into individual addresses
+  const customerSiteAddresses = useMemo(() => {
+    if (!selectedCustomer?.siteAddress) return [];
+    return selectedCustomer.siteAddress
+      .split("|")
+      .map((s: string) => s.trim())
+      .filter(Boolean);
+  }, [selectedCustomer]);
+
+  // When customer changes: auto-select first site + address
+  useEffect(() => {
+    if (!customerId) {
+      setSiteName("");
+      setSiteAddress("");
+      return;
+    }
+    if (customerSites.length > 0) {
+      setSiteName(customerSites[0]);
+      setSiteAddress(customerSiteAddresses[0] || "");
+    } else {
+      setSiteName("");
+      setSiteAddress("");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, customerSites.join(",")]);
+
+  // When site name changes: auto-fill matching address
+  const handleSiteNameChange = (name: string) => {
+    setSiteName(name);
+    const idx = customerSites.indexOf(name);
+    if (idx >= 0 && customerSiteAddresses[idx]) {
+      setSiteAddress(customerSiteAddresses[idx]);
+    }
+  };
 
   const addRow = () => setGradeRows(prev => [...prev, { id: Date.now(), grade: "", qty: "", rate: "" }]);
   const removeRow = (id: number) => {
@@ -208,21 +258,34 @@ export default function AddSalesOrder() {
 
             <div className="space-y-1">
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Site Name</Label>
-              <Input 
-                placeholder="Enter Site Name"
-                value={siteName}
-                onChange={(e) => setSiteName(e.target.value)}
-                className="h-8 text-xs border-gray-300" 
-              />
+              {customerSites.length > 0 ? (
+                <Select value={siteName} onValueChange={handleSiteNameChange}>
+                  <SelectTrigger className="h-8 text-xs border-gray-300">
+                    <SelectValue placeholder="Choose Site" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customerSites.map((s: string) => (
+                      <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  placeholder={customerId ? "No sites on record — type manually" : "Select customer first"}
+                  value={siteName}
+                  onChange={(e) => setSiteName(e.target.value)}
+                  className="h-8 text-xs border-gray-300"
+                />
+              )}
             </div>
 
             <div className="space-y-1">
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Site Address</Label>
-              <Input 
-                placeholder="Enter Site Address"
+              <Input
+                placeholder="Auto-filled from customer sites"
                 value={siteAddress}
                 onChange={(e) => setSiteAddress(e.target.value)}
-                className="h-8 text-xs border-gray-300" 
+                className="h-8 text-xs border-gray-300"
               />
             </div>
 
@@ -311,12 +374,27 @@ export default function AddSalesOrder() {
               {gradeRows.map((row) => (
                 <div key={row.id} className="grid grid-cols-12 border-b last:border-0 border-gray-100 hover:bg-gray-50/30 transition-colors items-center">
                   <div className="col-span-5 p-2">
-                    <Select value={row.grade} onValueChange={(v) => updateRow(row.id, "grade", v)}>
-                      <SelectTrigger className="h-8 text-xs border-gray-200"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                      <SelectContent>
-                        {["M10", "M15", "M20", "M25", "M30", "M35", "M40"].map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-1">
+                      <Input
+                        value={row.grade}
+                        onChange={(e) => updateRow(row.id, "grade", e.target.value)}
+                        placeholder="e.g. M25"
+                        className="h-8 text-xs border-gray-200 flex-1"
+                      />
+                      <Select
+                        value={["M10","M15","M20","M25","M30","M35","M40","M45","M50"].includes(row.grade) ? row.grade : ""}
+                        onValueChange={(v) => updateRow(row.id, "grade", v)}
+                      >
+                        <SelectTrigger className="h-8 w-10 shrink-0 border-gray-200 rounded-md px-1">
+                          <span className="text-[10px] text-gray-500">▾</span>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["M10","M15","M20","M25","M30","M35","M40","M45","M50"].map(g => (
+                            <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div className="col-span-3 p-2 border-l border-gray-50">
                     <Input 

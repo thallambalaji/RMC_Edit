@@ -31,6 +31,7 @@ import {
   ChevronRight,
   Trash2,
   Loader2,
+  Filter,
 } from "lucide-react";
 import { useGetQuotations, useDeleteQuotation } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +41,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function QuotationList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showFilters, setShowFilters] = useState(true);
 
   // Input States
   const [quoteFilter, setQuoteFilter] = useState("");
@@ -221,7 +223,7 @@ export default function QuotationList() {
   const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-white rounded-lg border border-gray-100 shadow-sm">
+    <div className="space-y-4">
       {/* CSS Stylesheet wrapper inside JSX for full Print Layout Control */}
       <style>{`
         @media print {
@@ -243,16 +245,41 @@ export default function QuotationList() {
         }
       `}</style>
 
-      {/* Search & Filter Section */}
-      <div className="p-3 border-b bg-white shrink-0 no-print">
-        <div className="flex items-center justify-between mb-3">
-           <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Customer Quotation List</h2>
-           <Link href="/customer-po/quotation/new">
-              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
-                <Plus className="h-3 w-3" /> Add Quotation
-              </Button>
-           </Link>
+      {/* Main Screen Path Header */}
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Quotation Management</h2>
+          <div className="h-4 w-px bg-gray-300" />
+          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <span className="text-[#1e40af]">Quotation List</span>
+          </nav>
         </div>
+        <div className="flex gap-2">
+          <Link href="/customer-po/quotation/new">
+            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+              <Plus className="h-3.5 w-3.5" /> Add Quotation
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer ${
+              showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Filter className="h-3 w-3" /> Filters
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col h-full overflow-hidden bg-white rounded-lg border border-gray-100 shadow-sm no-print">
+        {/* Search & Filter Section */}
+        {showFilters && (
+        <div className="p-3 border-b bg-white shrink-0 no-print">
 
         {/* Robust Flexbox Layout with Wrapped Spans to eliminate clipping / alignment errors */}
         <div className="flex flex-wrap gap-3 items-end">
@@ -318,9 +345,9 @@ export default function QuotationList() {
               <RotateCcw className="h-3 w-3" /> Clear
             </Button>
           </div>
-
         </div>
       </div>
+      )}
 
       {/* Table Toolbar */}
       <div className="px-3 py-2 flex items-center justify-between bg-slate-50/50 border-b shrink-0 no-print">
@@ -440,6 +467,8 @@ export default function QuotationList() {
           <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">1</div>
           <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-gray-200 text-gray-400" disabled><ChevronRight className="h-3 w-3" /></Button>
         </div>
+      </div>
+
       </div>
 
       {/* DUAL RENDER PRINTS */}

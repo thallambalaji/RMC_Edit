@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 import { 
@@ -43,6 +43,7 @@ import {
 
 export default function BatchList() {
   const { toast } = useToast();
+  const { showFilters } = useQcFilters();
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -494,6 +495,7 @@ export default function BatchList() {
         {/* Embedded Batch List Table Card */}
         <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden">
           {/* Filters Row */}
+          {showFilters && (
           <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4">
             <div className="space-y-1.5 min-w-[200px] flex-1">
               <Label className="text-xs font-black uppercase text-slate-700">Batch No</Label>
@@ -577,6 +579,7 @@ export default function BatchList() {
               </Button>
             </div>
           </div>
+          )}
 
           {/* Toolbar Row */}
           <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white flex-wrap gap-4 shrink-0">

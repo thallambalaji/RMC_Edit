@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { TransportLayout } from "@/components/transport-layout";
+import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
 import { Link } from "wouter";
 import {
   Plus,
@@ -53,6 +53,7 @@ interface VehicleData {
 
 export default function DieselList() {
   const { toast } = useToast();
+  const { showFilters } = useTransportFilters();
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -271,6 +272,7 @@ export default function DieselList() {
       <div className="w-full flex-1 flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden min-h-[calc(100vh-140px)]">
         
         {/* Advanced Filters Panel */}
+        {showFilters && (
         <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4 shrink-0">
           <div className="space-y-1 w-44">
             <Label className="text-xs font-bold text-slate-700">From Date *</Label>
@@ -328,6 +330,7 @@ export default function DieselList() {
             </Link>
           </div>
         </div>
+        )}
 
         {/* Entry page selector */}
         <div className="flex items-center gap-1.5 text-xs text-slate-650 font-bold select-none p-4 pb-0 bg-white">

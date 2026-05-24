@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { TransportLayout } from "@/components/transport-layout";
+import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
 import {
   FileText,
   Copy,
@@ -45,6 +45,7 @@ interface FuelData {
 
 export default function DieselReport() {
   const { toast } = useToast();
+  const { showFilters } = useTransportFilters();
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -671,6 +672,7 @@ export default function DieselReport() {
       <div className="w-full flex-1 flex flex-col bg-white rounded-lg border shadow-sm overflow-hidden min-h-[calc(100vh-140px)]">
         
         {/* Advanced Filters Panel */}
+        {showFilters && (
         <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 shrink-0">
           <div className="space-y-1">
             <Label className="text-xs font-bold text-slate-700">Report Type *</Label>
@@ -733,6 +735,7 @@ export default function DieselReport() {
             </Button>
           </div>
         </div>
+        )}
 
         {/* Global actions and results list */}
         <div className="flex-1 overflow-auto p-4 flex flex-col">

@@ -28,13 +28,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download } from "lucide-react";
+import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download, Plus, Filter } from "lucide-react";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SalesOrderList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showFilters, setShowFilters] = useState(true);
   const [poFilter, setPoFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -250,19 +251,38 @@ export default function SalesOrderList() {
       `}</style>
 
       {/* Main Screen Path Header */}
-      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 no-print">
-        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Order List</h2>
-        <div className="h-4 w-px bg-gray-300" />
-        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Sales Order List</span>
-        </nav>
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 no-print">
+        <div className="flex items-center gap-3">
+          <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Sales Order Management</h2>
+          <div className="h-4 w-px bg-gray-300" />
+          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <span className="text-[#1e40af]">Sales Order List</span>
+          </nav>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/customer-po/sales-order/new">
+            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+              <Plus className="h-3.5 w-3.5" /> Add Sales Order
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer ${
+              showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Filter className="h-3 w-3" /> Filters
+          </Button>
+        </div>
       </div>
 
       {/* Search Filters Section with properly aligned Clear Button */}
+      {showFilters && (
       <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 no-print">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-12 gap-3 items-end">
           
@@ -332,6 +352,7 @@ export default function SalesOrderList() {
 
         </div>
       </div>
+      )}
 
       {/* Main List Table View on Screen */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden no-print">

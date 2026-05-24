@@ -5,7 +5,7 @@ import {
   useGetVehicles,
   useGetEmployees,
   useGetMasters,
-  useCreateInvoice,
+  useGetSalesOrders,
   getGetInvoicesQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -91,13 +91,14 @@ export default function AddInvoice() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const createInvoice = useCreateInvoice();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Master Data Hook Queries
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
   const { data: employees } = useGetEmployees();
   const { data: sites } = useGetMasters("site");
+  const { data: allSalesOrders } = useGetSalesOrders();
 
   const drivers = useMemo(() => {
     if (!employees) return [];
@@ -118,9 +119,9 @@ export default function AddInvoice() {
   const [siteName, setSiteName] = useState("");
   const [invoiceTime, setInvoiceTime] = useState(new Date().toTimeString().slice(0, 8));
   const [driverName, setDriverName] = useState("");
-  const [grade, setGrade] = useState("M25");
+  const [grade, setGrade] = useState("");
   const [loadedQuantity, setLoadedQuantity] = useState<string>("0");
-  const [loadedGrade, setLoadedGrade] = useState("M25");
+  const [loadedGrade, setLoadedGrade] = useState("");
   const [remark, setRemark] = useState("");
   const [quantity, setQuantity] = useState<string>("0");
   const [vehicleId, setVehicleId] = useState<string>("");
@@ -142,42 +143,55 @@ export default function AddInvoice() {
   const [sgstRate] = useState("9");
   const [igstRate] = useState("0");
 
-  useEffect(() => {
-    if (!customerId || !customers) return;
-    const c = customers.find((x) => String(x.id) === customerId) as any;
-    if (c) {
-      // Prefill with customer's site fallback or name
-      setSiteName(c.siteName || c.siteAddress || "Hitech City Phase II");
-    }
-  }, [customerId, customers]);
-
   const selectedCustomer = useMemo(
     () => customers?.find((c) => String(c.id) === customerId) as any,
     [customers, customerId],
   );
 
+  // Parse pipe-joined siteName string from customer DB → individual site names array
   const availableSites = useMemo(() => {
-    const list = new Set<string>();
-    
-    // 1. Add customer's registered sites
-    if (selectedCustomer) {
-      if (selectedCustomer.siteName) list.add(selectedCustomer.siteName);
-      if (selectedCustomer.siteAddress) list.add(selectedCustomer.siteAddress);
-    }
-    
-    // 2. Add fallback default sites in case customer has none registered
-    const defaults = [
-      "Hitech City Phase II",
-      "Gachibowli Concrete Site",
-      "Madhapur Industrial Site",
-      "Miyapur RMC Depot",
-      "Kondapur Commercial Site",
-      "Kukatpally Project Site"
-    ];
-    defaults.forEach(d => list.add(d));
-    
-    return Array.from(list);
+    if (!selectedCustomer?.siteName) return [];
+    return selectedCustomer.siteName
+      .split("|")
+      .map((s: string) => s.trim())
+      .filter(Boolean);
   }, [selectedCustomer]);
+
+  // Collect all unique grades from ALL sales orders belonging to this customer
+  const customerGrades = useMemo(() => {
+    if (!customerId || !allSalesOrders) return GRADES;
+    const orders = (allSalesOrders as any[]).filter(
+      (o) => String(o.customerId) === customerId
+    );
+    const gradeSet = new Set<string>();
+    orders.forEach((o) => {
+      (o.items || []).forEach((item: any) => {
+        if (item.grade) gradeSet.add(item.grade);
+      });
+    });
+    // If no sales orders found, fall back to standard grades
+    return gradeSet.size > 0 ? Array.from(gradeSet) : GRADES;
+  }, [customerId, allSalesOrders]);
+
+  // When customer changes: auto-select first site, reset grade to first customer grade
+  useEffect(() => {
+    if (!customerId) {
+      setSiteName("");
+      setGrade("M25");
+      setLoadedGrade("M25");
+      return;
+    }
+    if (availableSites.length > 0) {
+      setSiteName(availableSites[0]);
+    } else {
+      setSiteName("");
+    }
+    if (customerGrades.length > 0) {
+      setGrade(customerGrades[0]);
+      setLoadedGrade(customerGrades[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, availableSites.join(","), customerGrades.join(",")]);
 
   // Financial Calculations
   const totals = useMemo(() => {
@@ -233,7 +247,7 @@ export default function AddInvoice() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerId) {
       toast({ title: "Select Customer", description: "Choosing a customer is required.", variant: "destructive" });
@@ -244,18 +258,19 @@ export default function AddInvoice() {
       return;
     }
 
-    createInvoice.mutate({
-      data: {
+    setIsSubmitting(true);
+    try {
+      const payload = {
         invoiceNumber,
         invoiceDate,
-        customerId: Number(customerId) as any,
+        customerId,           // MongoDB ObjectId string — sent directly
         totalAmount: totals.net,
         status: "pending",
         plant,
         site: siteName,
         remark,
         invoiceTime,
-        vehicleId: (vehicleId ? Number(vehicleId) : null) as any,
+        vehicleId: vehicleId || null,   // MongoDB ObjectId string or null
         grade,
         loadedGrade,
         loadedQuantity: parseFloat(loadedQuantity),
@@ -266,29 +281,41 @@ export default function AddInvoice() {
         isBillReceived: false,
         pumpCharge: parseFloat(pumpCharge) || 0,
         transportCharge: parseFloat(transportCharge) || 0,
-        loadedPlant: loadedPlant,
+        loadedPlant,
         pumpType: pump,
         kmReading: parseFloat(kmReading) || 0,
         driverName: driverName || "Default Driver",
         block: block || ""
+      };
+
+      const response = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error ${response.status}`);
       }
-    }, {
-      onSuccess: () => {
-        toast({ 
-          title: "Invoice Submitted Successfully!", 
-          description: `Invoice ${invoiceNumber} was successfully added to the database.` 
-        });
-        queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
-        handleClear(); // Resets and stays on page for premium entry workflow
-      },
-      onError: (err: any) => {
-        toast({
-          title: "Submission Failed",
-          description: err.message || "An error occurred while saving the invoice.",
-          variant: "destructive"
-        });
-      }
-    });
+
+      toast({ 
+        title: "Invoice Submitted Successfully!", 
+        description: `Invoice ${invoiceNumber} has been saved to the database.` 
+      });
+      queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
+      // Generate a fresh invoice number for the next entry, but keep the rest of the form intact
+      setInvoiceNumber(generateInvoiceNumber());
+    } catch (err: any) {
+      toast({
+        title: "Submission Failed",
+        description: err.message || "An error occurred while saving the invoice.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const labelStyle = "text-[11px] font-black text-gray-500 uppercase tracking-wider mb-1 block";
@@ -338,36 +365,65 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Site Name <span className="text-red-500">*</span></Label>
-              <Select value={siteName} onValueChange={setSiteName}>
-                <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Site" /></SelectTrigger>
-                <SelectContent className="text-xs">
-                  {availableSites.map((s) => (
-                    <SelectItem key={s} value={s} className="text-xs">
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {availableSites.length > 0 ? (
+                <Select value={siteName} onValueChange={setSiteName}>
+                  <SelectTrigger className={inputStyle}>
+                    <SelectValue placeholder="Choose Site" />
+                  </SelectTrigger>
+                  <SelectContent className="text-xs">
+                    {availableSites.map((s: string) => (
+                      <SelectItem key={s} value={s} className="text-xs">{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  value={siteName}
+                  onChange={e => setSiteName(e.target.value)}
+                  placeholder={customerId ? "No sites registered for this customer" : "Select a customer first"}
+                  className={inputStyle}
+                />
+              )}
             </div>
             
             <div>
               <Label className={labelStyle}>Grade <span className="text-red-500">*</span></Label>
-              <Select value={grade} onValueChange={setGrade}>
-                <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                <SelectContent className="text-xs">
-                  {GRADES.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1">
+                <Input
+                  value={grade}
+                  onChange={e => setGrade(e.target.value)}
+                  placeholder="Select the Grade"
+                  className={`${inputStyle} flex-1`}
+                />
+                <Select value={customerGrades.includes(grade) ? grade : ""} onValueChange={setGrade}>
+                  <SelectTrigger className="h-8 w-10 shrink-0 border-gray-200 shadow-sm rounded-md text-slate-600 px-1">
+                    <span className="text-[10px]">▾</span>
+                  </SelectTrigger>
+                  <SelectContent className="text-xs">
+                    {customerGrades.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <div>
               <Label className={labelStyle}>Loaded Grade <span className="text-red-500">*</span></Label>
-              <Select value={loadedGrade} onValueChange={setLoadedGrade}>
-                <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                <SelectContent className="text-xs">
-                  {GRADES.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1">
+                <Input
+                  value={loadedGrade}
+                  onChange={e => setLoadedGrade(e.target.value)}
+                  placeholder="Select the Loaded Grade"
+                  className={`${inputStyle} flex-1`}
+                />
+                <Select value={customerGrades.includes(loadedGrade) ? loadedGrade : ""} onValueChange={setLoadedGrade}>
+                  <SelectTrigger className="h-8 w-10 shrink-0 border-gray-200 shadow-sm rounded-md text-slate-600 px-1">
+                    <span className="text-[10px]">▾</span>
+                  </SelectTrigger>
+                  <SelectContent className="text-xs">
+                    {customerGrades.map(g => <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <div>
@@ -772,9 +828,9 @@ export default function AddInvoice() {
           <Button 
             type="submit" 
             className="bg-[#1e40af] hover:bg-blue-800 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
-            disabled={createInvoice.isPending}
+            disabled={isSubmitting}
           >
-            {createInvoice.isPending ? "Submitting..." : "Submit Invoice"}
+            {isSubmitting ? "Submitting..." : "Submit Invoice"}
           </Button>
           <Button 
             type="button" 

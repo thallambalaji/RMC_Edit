@@ -45,6 +45,7 @@ import {
   Trash2,
   Search,
   RotateCcw,
+  Filter,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +54,7 @@ import { useQueryClient } from "@tanstack/react-query";
 export default function CustomerList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showFilters, setShowFilters] = useState(true);
 
   // Input States
   const [nameFilter, setNameFilter] = useState("");
@@ -326,10 +328,20 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                 <Warehouse className="h-3.5 w-3.5" /> Manage Godowns
               </Button>
             </Link>
+            <Button
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer ${
+                showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Filter className="h-3 w-3" /> Filters
+            </Button>
           </div>
         </div>
 
         {/* Robust, responsive wrapping flex container to prevent overflow/cutting */}
+        {showFilters && (
         <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm no-print">
           <div className="flex flex-wrap gap-3 items-end">
             
@@ -417,6 +429,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
 
           </div>
         </div>
+        )}
 
         {/* Table Register Component */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">

@@ -131,7 +131,7 @@ export default function SalesDocumentList() {
 
   const handleDelete = (id: any) => {
     if (!confirm("Permanently delete this sales document?")) return;
-    deleteInvoice.mutate({ id: Number(id) } as any, {
+    deleteInvoice.mutate({ id } as any, {
       onSuccess: () => {
         toast({ title: "Document Deleted", description: "Removed from database successfully." });
         queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });

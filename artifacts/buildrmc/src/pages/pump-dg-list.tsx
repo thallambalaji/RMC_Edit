@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { TransportLayout } from "@/components/transport-layout";
+import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
 import { Link } from "wouter";
 import { ExportDropdown } from "@/components/export-dropdown";
 import {
@@ -38,6 +38,7 @@ interface PumpDGData {
 
 export default function PumpDgList() {
   const { toast } = useToast();
+  const { showFilters } = useTransportFilters();
   const [items, setItems] = useState<PumpDGData[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchName, setSearchName] = useState("");
@@ -326,6 +327,7 @@ export default function PumpDgList() {
     >
       <Card className="border shadow-sm bg-white flex-1 flex flex-col overflow-hidden">
         {/* Filters Panel */}
+        {showFilters && (
         <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4 shrink-0">
           <div className="space-y-1.5 min-w-[250px] flex-1">
             <Label className="text-xs font-black uppercase text-slate-700">Search Equipment Name / Code</Label>
@@ -355,6 +357,7 @@ export default function PumpDgList() {
             </Button>
           </div>
         </div>
+        )}
 
         {/* Actions Bar */}
         <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/20 shrink-0">

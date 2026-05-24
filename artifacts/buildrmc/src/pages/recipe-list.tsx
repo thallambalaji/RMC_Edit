@@ -45,12 +45,13 @@ import {
   Printer,
   Edit
 } from "lucide-react";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 
 export default function RecipeList() {
   const { toast } = useToast();
+  const { showFilters } = useQcFilters();
   const [recipes, setRecipes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -291,6 +292,7 @@ export default function RecipeList() {
         <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
           <CardContent className="p-6">
             {/* Filters matching image */}
+            {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end mb-8">
               <div className="space-y-1.5 lg:col-span-1">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Recipe Code</Label>
@@ -351,6 +353,7 @@ export default function RecipeList() {
                 </Link>
               </div>
             </div>
+            )}
 
             {/* Toolbar Row */}
             <div className="flex items-center justify-between mb-4 flex-wrap gap-4">

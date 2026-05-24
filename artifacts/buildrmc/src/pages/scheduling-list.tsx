@@ -44,7 +44,8 @@ import {
   Printer,
   Pencil,
   Copy,
-  Download
+  Download,
+  Filter
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
@@ -97,6 +98,7 @@ function isNextWeek(dateStr: string) {
 export default function SchedulingList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showFilters, setShowFilters] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("today");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
@@ -348,29 +350,37 @@ export default function SchedulingList() {
       `}</style>
 
       {/* Header */}
-      <div className="flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
-        <div className="bg-[#1e40af]/10 p-1 rounded">
-           <CalendarClock className="h-4 w-4 text-[#1e40af]" />
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
+        <div className="flex items-center gap-3">
+          <div className="bg-[#1e40af]/10 p-1 rounded">
+             <CalendarClock className="h-4 w-4 text-[#1e40af]" />
+          </div>
+          <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Scheduling Management</h2>
+          <div className="h-4 w-px bg-gray-300" />
+          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <ChevronRight className="h-2.5 w-2.5" />
+            <span className="text-[#1e40af]">Scheduling List</span>
+          </nav>
         </div>
-        <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Scheduling Management List</h2>
-        <div className="h-4 w-px bg-gray-300" />
-        <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
-          <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Scheduling List</span>
-        </nav>
-      </div>
-
-      {/* Add button */}
-      <div className="flex justify-start no-print">
-        <Link href="/customer-po/scheduling/new">
-          <Button className="bg-emerald-500 hover:bg-emerald-600 text-white gap-1.5 h-8 text-[10px] font-black uppercase tracking-wider cursor-pointer shadow-none">
-            <Plus className="h-3.5 w-3.5" />
-            Add New Scheduling
+        <div className="flex gap-2">
+          <Link href="/customer-po/scheduling/new">
+            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+              <Plus className="h-3.5 w-3.5" /> Add Scheduling
+            </Button>
+          </Link>
+          <Button
+            size="sm"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer ${
+              showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Filter className="h-3 w-3" /> Filters
           </Button>
-        </Link>
+        </div>
       </div>
 
       {/* Tab buttons */}
@@ -389,6 +399,7 @@ export default function SchedulingList() {
       </div>
 
       {/* Filter bar - Corrected to use a perfect 12-column grid to align Search/Clear */}
+      {showFilters && (
       <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 no-print">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-12 gap-3 items-end">
           
@@ -453,6 +464,7 @@ export default function SchedulingList() {
 
         </div>
       </div>
+      )}
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden no-print">

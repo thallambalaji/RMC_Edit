@@ -27,7 +27,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Search, RotateCcw, Plus, Copy, FileText, FileCode, Edit, Trash2, Layers } from "lucide-react";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 
@@ -62,6 +62,7 @@ const INITIAL_DATA: MixDesignItem[] = [
 ];
 
 export default function MixDesignList() {
+  const { showFilters } = useQcFilters();
   const { toast } = useToast();
   const [items, setItems] = useState<MixDesignItem[]>([]);
 
@@ -271,6 +272,7 @@ export default function MixDesignList() {
         <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
         
         {/* Filters Row matching screenshot */}
+        {showFilters && (
         <div className="p-4 bg-slate-50/50 border-b border-slate-200 flex flex-wrap items-end gap-4">
           <div className="space-y-1.5 min-w-[220px] flex-1">
             <Label className="text-xs font-black uppercase text-slate-700">Recipe Code</Label>
@@ -319,6 +321,7 @@ export default function MixDesignList() {
             </Link>
           </div>
         </div>
+        )}
 
         {/* Toolbar Row matching screenshot */}
         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-white flex-wrap gap-4">

@@ -76,17 +76,6 @@ export default function SchedulingSubHub() {
       </div>
 
       <div className="flex-1 flex flex-col min-w-0 pr-2 overflow-auto pb-10">
-        <div className="mb-4 flex items-center gap-3 bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
-          <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Scheduling Management</h2>
-          <div className="h-4 w-px bg-gray-300" />
-          <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-            <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
-            <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Scheduling Management</span>
-          </nav>
-        </div>
         <SchedulingList />
       </div>
     </div>

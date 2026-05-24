@@ -34,7 +34,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays } from "date-fns";
-import { QcLayout } from "@/components/qc-layout";
+import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 
@@ -44,6 +44,7 @@ export default function CubeTestList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const { toast } = useToast();
+  const { showFilters } = useQcFilters();
 
   // Print states
   const [printingItem, setPrintingItem] = useState<any | null>(null);
@@ -373,6 +374,7 @@ export default function CubeTestList() {
           <CardContent className="p-6 space-y-6">
 
             {/* Filter Bar */}
+            {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end mb-4">
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Test No</Label>
@@ -451,6 +453,7 @@ export default function CubeTestList() {
                 Clear
               </Button>
             </div>
+            )}
 
             {/* Actions Bar */}
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-4">

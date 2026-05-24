@@ -278,7 +278,7 @@ export default function AddSalesDocument() {
       data: {
         invoiceNumber,
         invoiceDate,
-        customerId: Number(customerId) as any,
+        customerId: customerId as any,
         totalAmount: totals.net,
         status: "pending",
         plant,
@@ -313,7 +313,7 @@ export default function AddSalesDocument() {
       data: {
         invoiceNumber,
         invoiceDate,
-        customerId: Number(customerId) as any,
+        customerId: customerId as any,
         totalAmount: totals.net,
         status: "pending",
         plant,

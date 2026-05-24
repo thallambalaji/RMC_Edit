@@ -17,6 +17,37 @@ import {
   Zap,
   Flame,
 } from "lucide-react";
+import { createContext, useContext, useState, useEffect } from "react";
+
+let transportFiltersState = true;
+const transportSubscribers = new Set<(val: boolean) => void>();
+
+export const toggleTransportFiltersGlobal = () => {
+  transportFiltersState = !transportFiltersState;
+  transportSubscribers.forEach(sub => sub(transportFiltersState));
+};
+
+export const TransportFiltersContext = createContext<{
+  showFilters: boolean;
+  toggleFilters: () => void;
+}>({
+  showFilters: true,
+  toggleFilters: () => {},
+});
+
+export const useTransportFilters = () => {
+  const [showFilters, setShowFilters] = useState(transportFiltersState);
+  useEffect(() => {
+    transportSubscribers.add(setShowFilters);
+    return () => {
+      transportSubscribers.delete(setShowFilters);
+    };
+  }, []);
+  return {
+    showFilters,
+    toggleFilters: toggleTransportFiltersGlobal
+  };
+};
 
 interface TransportLayoutProps {
   children: React.ReactNode;
@@ -28,6 +59,7 @@ interface TransportLayoutProps {
 export function TransportLayout({ children, activePath, breadcrumbs, title }: TransportLayoutProps) {
   const [location] = useLocation();
   const currentPath = activePath || location;
+  const { showFilters, toggleFilters } = useTransportFilters();
 
   // Active item style helper
   const isLinkActive = (path: string) => {
@@ -48,6 +80,7 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
   };
 
   return (
+    <TransportFiltersContext.Provider value={{ showFilters, toggleFilters }}>
     <div className="flex h-full gap-4 bg-[#f8fafc] p-4 relative min-h-screen">
       {/* Sidebar with Collapsible Accordion Navigation matching DC & QC Navigation */}
       <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
@@ -290,7 +323,8 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs"
+              onClick={toggleFilters}
+              className={`h-8 text-xs font-black text-slate-800 border-slate-300 hover:bg-slate-50 flex items-center gap-1.5 px-3 rounded shadow-xs cursor-pointer ${showFilters ? "bg-slate-100 border-slate-400" : ""}`}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -317,5 +351,6 @@ export function TransportLayout({ children, activePath, breadcrumbs, title }: Tr
         </div>
       </div>
     </div>
+    </TransportFiltersContext.Provider>
   );
 }

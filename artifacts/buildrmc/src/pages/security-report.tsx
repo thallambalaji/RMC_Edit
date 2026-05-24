@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { TransportLayout } from "@/components/transport-layout";
+import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 
 interface SecurityData {
@@ -36,6 +36,7 @@ interface VehicleData {
 
 export default function SecurityCheckReport() {
   const { toast } = useToast();
+  const { showFilters } = useTransportFilters();
   const [logs, setLogs] = useState<SecurityData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -270,6 +271,7 @@ export default function SecurityCheckReport() {
       <div className="w-full py-4 px-4 bg-[#f8fafc] min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
         
         {/* Filters Card matching Screenshot */}
+        {showFilters && (
         <Card className="border border-slate-200/60 shadow-xs bg-white rounded-md p-5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
             
@@ -349,6 +351,7 @@ export default function SecurityCheckReport() {
             </Button>
           </div>
         </Card>
+        )}
 
         {/* Results Area */}
         {generated && (

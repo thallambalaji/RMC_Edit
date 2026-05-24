@@ -6,11 +6,8 @@ const mockCustomers = [
   { name: "SREE CHAITANYA CONSTRUCTIONS", contact: "9000012345", email: "sree@chaitanya.com", address: "VELIMELA, Site A", gstNumber: "36CCCCC2222C3Z7", marketingPerson: "Fortune Concrete" },
 ];
 
-const mockVehicles = [
-  { registrationNo: "TS07UP 1459", model: "Schwing Stetter 6m3", capacity: 6, status: "available" },
-  { registrationNo: "TS07UP 1789", model: "Schwing Stetter 7m3", capacity: 7, status: "available" },
-  { registrationNo: "TS07UP 1679", model: "Ashok Leyland 6m3", capacity: 6, status: "in-transit" },
-];
+// No mock vehicles — vehicles must be added via the Transport > Add Vehicle form
+const mockVehicles: any[] = [];
 
 const mockMasters = [
   { type: "locality", name: "UPSIDE AVENUES" },

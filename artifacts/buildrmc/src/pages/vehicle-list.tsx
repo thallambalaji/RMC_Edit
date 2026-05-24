@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { TransportLayout } from "@/components/transport-layout";
+import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
 import { Plus, Trash2, Edit, Printer, Copy, Download } from "lucide-react";
 
 interface VehicleData {
@@ -32,6 +32,7 @@ interface VehicleData {
 export default function VehicleList() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const { showFilters } = useTransportFilters();
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -205,6 +206,7 @@ export default function VehicleList() {
         {/* Clean full screen width container list table */}
         <Card className="border shadow-md bg-white rounded-lg overflow-hidden flex flex-col flex-1 min-h-0 w-full">
           {/* Header Panel */}
+          {showFilters && (
           <div className="p-4 bg-slate-50/50 border-b flex items-center justify-between gap-4 shrink-0 flex-wrap">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -246,6 +248,7 @@ export default function VehicleList() {
               />
             </div>
           </div>
+          )}
 
           {/* Datatable Scroll Container */}
           <div className="flex-1 overflow-auto">

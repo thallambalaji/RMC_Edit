@@ -201,7 +201,7 @@ export default function Billing() {
 
   const handleDelete = (id: any) => {
     if (confirm("Are you sure you want to permanently delete this invoice?")) {
-      deleteInvoice.mutate({ id: Number(id) } as any, {
+      deleteInvoice.mutate({ id } as any, {
         onSuccess: () => {
           toast({ title: "Invoice Deleted", description: "The invoice record was deleted from the database." });
           queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });

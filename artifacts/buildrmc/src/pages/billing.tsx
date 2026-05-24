@@ -503,40 +503,45 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
                   <TableHead className="w-[60px] text-[10px] font-bold uppercase text-slate-800 py-3 text-center">ID</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-slate-800">Invoice No</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-slate-800">Customer</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800">Site</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-slate-800">Date</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-center">Time</TableHead>
                   <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-center">Grade</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-right">Quantity (m³)</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-right">Amount (₹)</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-center">Status</TableHead>
-                  <TableHead className="w-[80px] text-[10px] font-bold uppercase text-slate-800 text-center no-print">Action</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-right">Quantity</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800">Vehicle</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-right">Net Price</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800">Plant</TableHead>
+                  <TableHead className="text-[10px] font-bold uppercase text-slate-800 text-center">Is Bill Received?</TableHead>
+                  <TableHead className="w-[120px] text-[10px] font-bold uppercase text-slate-800 text-center no-print">OPTION</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-10 text-xs text-slate-400 font-medium animate-pulse">Loading invoices...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={13} className="text-center py-10 text-xs text-slate-400 font-medium animate-pulse">Loading invoices...</TableCell></TableRow>
                 ) : pageRows.length === 0 ? (
-                  <TableRow><TableCell colSpan={9} className="text-center py-10 text-xs text-slate-400 font-bold">No records matching your filters</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={13} className="text-center py-10 text-xs text-slate-400 font-bold">No records matching your filters</TableCell></TableRow>
                 ) : (
                   pageRows.map((inv) => (
                     <TableRow key={inv.id} className="group hover:bg-slate-50/50 transition-colors border-b">
                       <TableCell className="py-2.5 text-center"><span className="text-[10px] font-black bg-slate-100 text-slate-600 px-2 py-0.5 rounded">{inv.id}</span></TableCell>
                       <TableCell className="font-extrabold text-[#1e40af] text-xs py-2.5">{inv.invoiceNumber}</TableCell>
-                      <TableCell className="text-xs py-2.5">
-                        <div className="font-black text-slate-800">{inv.customerName}</div>
-                        <div className="text-[10px] text-slate-500 font-medium truncate max-w-[200px] mt-0.5">{inv.site || "No site specified"}</div>
-                      </TableCell>
+                      <TableCell className="text-xs py-2.5 font-bold text-slate-800">{inv.customerName}</TableCell>
+                      <TableCell className="text-xs py-2.5 text-slate-500 font-medium truncate max-w-[150px]">{inv.site || "—"}</TableCell>
                       <TableCell className="text-[11px] font-semibold text-slate-600 py-2.5">
                         {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN", {day: '2-digit', month: '2-digit', year: 'numeric'}) : "—"}
                       </TableCell>
+                      <TableCell className="text-[11px] text-slate-500 text-center py-2.5">{inv.invoiceTime || "—"}</TableCell>
                       <TableCell className="text-center py-2.5">
                         <span className="text-[10px] font-black border border-[#1e40af]/20 bg-blue-50/50 text-[#1e40af] px-2 py-0.5 rounded-full">
                           {inv.grade || "—"}
                         </span>
                       </TableCell>
                       <TableCell className="text-right font-bold text-xs text-slate-700 py-2.5">{Number(inv.quantity ?? 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-xs text-slate-600 py-2.5">{inv.vehicleNo || "—"}</TableCell>
                       <TableCell className="text-right font-extrabold text-xs text-slate-800 py-2.5">
-                        ₹{Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDigits: 2})}
+                        {inv.netPrice ? `₹${Number(inv.netPrice).toLocaleString("en-IN", {minimumFractionDigits: 2})}` : "—"}
                       </TableCell>
+                      <TableCell className="text-xs text-slate-600 py-2.5">{inv.plant || "—"}</TableCell>
                       <TableCell className="text-center py-2.5">
                         <div className="no-print flex justify-center">
                           <Checkbox 

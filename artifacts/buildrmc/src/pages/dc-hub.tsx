@@ -283,14 +283,14 @@ export default function DCHub() {
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col space-y-3 min-w-0 ${printDC ? "print:hidden" : ""}`}>
         {/* Header / Breadcrumb */}
-        <div className="flex items-center justify-between px-1 print:hidden">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-gray-800">DC List</h2>
-            <div className="h-4 w-px bg-gray-300 mx-1" />
-            <nav className="text-[11px] text-muted-foreground flex items-center gap-1 uppercase font-medium">
-              <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
-              <ChevronRight className="h-3 w-3" />
-              <span className="text-gray-900">Delivery Challan</span>
+        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
+          <div className="flex items-center gap-3">
+            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">DC List</h2>
+            <div className="h-4 w-px bg-gray-300" />
+            <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
+              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+              <ChevronRight className="h-2.5 w-2.5" />
+              <span className="text-[#1e40af]">Delivery Challan</span>
             </nav>
           </div>
           <div className="flex items-center gap-2">

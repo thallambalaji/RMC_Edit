@@ -291,16 +291,16 @@ export default function PaymentFollowUpList() {
         {/* Table Data */}
         <div className="border border-gray-100 rounded-lg overflow-hidden shadow-sm print:border-none print:shadow-none print:overflow-visible">
           <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="hover:bg-transparent border-b">
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase py-3 text-center">FollowUp ID</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Customer Name</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">FollowUp Date & Time</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Next FollowUp Date</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Description</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center">Created By</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center">Status</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center print:hidden">ACTIONS</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">FollowUp ID</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">FollowUp Date & Time</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Next FollowUp Date</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Description</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Created By</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

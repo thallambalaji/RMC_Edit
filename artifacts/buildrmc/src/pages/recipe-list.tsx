@@ -26,6 +26,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   ChevronRight, 
   FlaskConical, 
@@ -43,7 +49,8 @@ import {
   FileCode,
   FileDown,
   Printer,
-  Edit
+  Edit,
+  MoreVertical
 } from "lucide-react";
 import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
@@ -380,16 +387,16 @@ export default function RecipeList() {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-slate-200">
               <Table>
-                <TableHeader className="bg-slate-50">
-                  <TableRow>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 py-4 px-4 whitespace-nowrap">S/L No</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Recipe Code</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Customer</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Site Name</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Grade</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Plant</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 whitespace-nowrap">Slump</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 text-center whitespace-nowrap">ACTION</TableHead>
+                <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+                  <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Grade</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Slump</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -407,46 +414,56 @@ export default function RecipeList() {
                         <TableCell className="text-[10px] font-black text-slate-800 px-4">{r.grade}</TableCell>
                         <TableCell className="text-[10px] font-bold text-slate-600 px-4">{r.plant}</TableCell>
                         <TableCell className="text-[10px] font-black text-slate-600 px-4">{r.slump}</TableCell>
-                        <TableCell className="px-4 text-center">
-                          <div className="flex items-center justify-center gap-1">
-                            {/* 1. PDF/Print */}
-                            <Button variant="ghost" size="icon" onClick={() => handlePrint(r)} className="h-7 w-7 text-rose-600 hover:bg-rose-50" title="Print Recipe">
-                              <Printer className="h-3.5 w-3.5" />
-                            </Button>
-
-                            {/* 2. Copy */}
-                            <Button variant="ghost" size="icon" onClick={() => {
-                              const csv = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"].join(",") + "\n" + [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump].join(",");
-                              navigator.clipboard.writeText(csv);
-                              toast({ title: "Copied", description: "Recipe data copied." });
-                            }} className="h-7 w-7 text-cyan-600 hover:bg-cyan-50" title="Copy">
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-
-                            {/* 3. CSV */}
-                            <Button variant="ghost" size="icon" onClick={() => {
-                              const headers = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"];
-                              const row = [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump];
-                              const csvContent = [headers, row].map(e => e.join(",")).join("\n");
-                              const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-                              const link = document.createElement("a");
-                              link.href = URL.createObjectURL(blob);
-                              link.download = `Recipe_${r.recipeCode}.csv`;
-                              link.click();
-                            }} className="h-7 w-7 text-emerald-600 hover:bg-emerald-50" title="CSV">
-                              <FileCode className="h-3.5 w-3.5" />
-                            </Button>
-
-                            {/* 4. Edit */}
-                            <Button variant="ghost" size="icon" onClick={() => setEditingItem(r)} className="h-7 w-7 text-blue-600 hover:bg-blue-50" title="Edit">
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-
-                            {/* 5. Delete */}
-                            <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)} className="h-7 w-7 text-rose-500 hover:bg-rose-50" title="Delete">
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
+                        <TableCell className="text-center py-2 no-print">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                              >
+                                <MoreVertical className="h-4 w-4 text-slate-500" />
+                                <span className="sr-only">Open options</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                              <DropdownMenuItem onClick={() => {
+                                const csv = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"].join(",") + "\n" + [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump].join(",");
+                                navigator.clipboard.writeText(csv);
+                                toast({ title: "Copied", description: "Recipe data copied." });
+                              }} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                <span>Copy Details</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                const headers = ["Recipe Code", "Customer", "Site Name", "Grade", "Plant", "Slump"];
+                                const row = [r.recipeCode, r.customer, r.siteName, r.grade, r.plant, r.slump];
+                                const csvContent = [headers, row].map(e => e.join(",")).join("\n");
+                                const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                                const link = document.createElement("a");
+                                link.href = URL.createObjectURL(blob);
+                                link.download = `Recipe_${r.recipeCode}.csv`;
+                                link.click();
+                              }} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <FileCode className="h-3.5 w-3.5 text-teal-600" />
+                                <span>Download CSV</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handlePrint(r)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Printer className="h-3.5 w-3.5 text-red-500" />
+                                <span>Print Recipe</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setEditingItem(r)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Edit className="h-3.5 w-3.5 text-blue-600" />
+                                <span>Edit Recipe</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(r.id)} 
+                                className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                <span>Delete Recipe</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))

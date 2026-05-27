@@ -12,6 +12,8 @@ function toApi(invoice: any) {
       id: String(obj._id || obj.id || ""),
       customerId: obj.customerId ? String(obj.customerId?._id || obj.customerId) : null,
       customerName: obj.customerId?.name || "Unknown",
+      vehicleNo: obj.vehicleNo || obj.vehicleId?.registrationNo || "—",
+      vehicleId: obj.vehicleId ? String(obj.vehicleId?._id || obj.vehicleId) : null,
     };
   } catch (e) {
     return invoice;
@@ -21,7 +23,7 @@ function toApi(invoice: any) {
 router.get("/invoices", async (_req, res): Promise<void> => {
   try {
     await connectMongo();
-    const invoices = await Invoice.find().populate("customerId").sort({ createdAt: -1 });
+    const invoices = await Invoice.find().populate("customerId").populate("vehicleId").sort({ createdAt: -1 });
     res.json(invoices.map(toApi));
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -48,16 +50,17 @@ router.post("/invoices", async (req, res): Promise<void> => {
     };
 
     delete data.customerid;
-    if (data.vehicleid) {
-      if (Types.ObjectId.isValid(String(data.vehicleid))) {
-        data.vehicleId = new Types.ObjectId(String(data.vehicleid));
+    const vehicleIdStr = rawData.vehicleId || rawData.vehicleid;
+    if (vehicleIdStr) {
+      if (Types.ObjectId.isValid(String(vehicleIdStr))) {
+        data.vehicleId = new Types.ObjectId(String(vehicleIdStr));
       }
       delete data.vehicleid;
     }
 
     const invoice = new Invoice(data);
     await invoice.save();
-    const populated = await invoice.populate("customerId");
+    const populated = await invoice.populate(["customerId", "vehicleId"]);
     res.status(201).json(toApi(populated));
   } catch (error: any) {
     console.error("CRITICAL ERROR:", error);
@@ -72,7 +75,7 @@ router.post("/invoices", async (req, res): Promise<void> => {
 router.get("/invoices/:id", async (req, res): Promise<void> => {
   try {
     await connectMongo();
-    const invoice = await Invoice.findById(req.params.id).populate("customerId");
+    const invoice = await Invoice.findById(req.params.id).populate("customerId").populate("vehicleId");
     if (!invoice) {
       res.status(404).json({ error: "Invoice not found" });
       return;
@@ -100,7 +103,7 @@ router.put("/invoices/:id", async (req, res): Promise<void> => {
       req.params.id,
       { $set: rawData },
       { new: true }
-    ).populate("customerId");
+    ).populate("customerId").populate("vehicleId");
 
     if (!updated) {
       res.status(404).json({ error: "Invoice not found" });

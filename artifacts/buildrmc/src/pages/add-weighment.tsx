@@ -296,11 +296,11 @@ export default function AddWeighment() {
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
                     {availableVehicles.length > 0 ? availableVehicles.map(v => (
-                      <SelectItem key={v.id} value={v.id}>{v.reg}</SelectItem>
+                      <SelectItem key={v.id} value={v.reg}>{v.reg}</SelectItem>
                     )) : (
                       <>
-                        <SelectItem value="v1">TS07UP 1459</SelectItem>
-                        <SelectItem value="v2">TS07UP 1789</SelectItem>
+                        <SelectItem value="TS07UP 1459">TS07UP 1459</SelectItem>
+                        <SelectItem value="TS07UP 1789">TS07UP 1789</SelectItem>
                       </>
                     )}
                   </SelectContent>

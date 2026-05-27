@@ -28,7 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download, Plus, Filter } from "lucide-react";
+import { ChevronRight, Loader2, Search, RotateCcw, Copy, Printer, Trash2, Pencil, Download, Plus, Filter, MoreVertical } from "lucide-react";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -402,7 +402,7 @@ export default function SalesOrderList() {
                     </div>
                   </TableHead>
                   <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">STATUS</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center text-[10px] uppercase">ACTIONS</TableHead>
+                  <TableHead className="text-white font-bold px-2 text-center text-[10px] uppercase w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -453,63 +453,51 @@ export default function SalesOrderList() {
                     </TableCell>
 
                     <TableCell className="text-center align-middle py-1.5">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {/* 1. Print (Printer Icon) */}
-                        <Button 
-                          onClick={() => handlePrintSingle(order)}
-                          title="Print PDF" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
-                        >
-                          <Printer className="h-4 w-4" />
-                        </Button>
-
-                        {/* 2. CSV (Download Icon) */}
-                        <Button 
-                          onClick={() => handleExportCSVResponseSingle(order)}
-                          title="Download CSV" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-
-                        {/* 3. Copy (Copy Icon) */}
-                        <Button 
-                          onClick={() => handleCopySingle(order)}
-                          title="Copy Details" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-
-                        {/* 4. Edit (Pencil Icon) */}
-                        <Button 
-                          onClick={() => {
-                            toast({
-                              title: "Edit restricted",
-                              description: `Approved Sales Order ${order.poNumber} is locked.`,
-                              variant: "destructive"
-                            });
-                          }}
-                          title="Edit Order" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        {/* 5. Delete (Trash Icon) */}
-                        <Button 
-                          onClick={() => handleDelete(order.id)}
-                          title="Delete Order" 
-                          variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                          >
+                            <MoreVertical className="h-4 w-4 text-slate-500" />
+                            <span className="sr-only">Open options</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                          <DropdownMenuItem onClick={() => handlePrintSingle(order)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Printer className="h-3.5 w-3.5 text-red-500" />
+                            <span>Print PDF</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExportCSVResponseSingle(order)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Download className="h-3.5 w-3.5 text-emerald-600" />
+                            <span>Download CSV</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleCopySingle(order)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                            <span>Copy Details</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              toast({
+                                title: "Edit restricted",
+                                description: `Approved Sales Order ${order.poNumber} is locked.`,
+                                variant: "destructive"
+                              });
+                            }}
+                            className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded"
+                          >
+                            <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                            <span>Edit Order</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(order.id)} 
+                            className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                            <span>Delete Order</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))}

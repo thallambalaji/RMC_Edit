@@ -341,16 +341,16 @@ export default function EnquiryList() {
         {/* Dynamic Table */}
         <div className="border border-gray-100 rounded-lg overflow-hidden shadow-sm print:border-none print:shadow-none print:overflow-visible">
           <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="hover:bg-transparent border-b">
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase py-3 text-center">Enquiry ID</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Contact Name</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Date & Time</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Phone</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase">Designation</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center">Requirements</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center">Status</TableHead>
-                <TableHead className="text-slate-800 font-bold text-[10px] uppercase text-center print:hidden">Action</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Enquiry ID</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Contact Name</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date & Time</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Phone</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Designation</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Requirements</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -535,14 +535,14 @@ export default function EnquiryList() {
               </h4>
               <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm">
                 <Table>
-                  <TableHeader className="bg-slate-50/50">
-                    <TableRow>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800">Project Name</TableHead>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800">Locality</TableHead>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800">Material</TableHead>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800 text-right">Quantity</TableHead>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800 text-right">Est. Rate</TableHead>
-                      <TableHead className="font-bold text-[10px] uppercase text-slate-800 text-center">Stage of Construction</TableHead>
+                  <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+                    <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Project Name</TableHead>
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Locality</TableHead>
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Material</TableHead>
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity</TableHead>
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Est. Rate</TableHead>
+                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Stage of Construction</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

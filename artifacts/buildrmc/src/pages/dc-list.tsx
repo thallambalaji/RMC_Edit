@@ -390,21 +390,21 @@ export default function DCList() {
 
         <div className="overflow-x-auto print:overflow-visible">
           <Table className="print:text-[10px]">
-            <TableHeader>
-              <TableRow className="bg-white hover:bg-white border-b-2 border-gray-300">
-                <TableHead className="text-gray-900 font-bold py-4 px-4 whitespace-nowrap text-center print:py-2">DC No</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Customer</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Site</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Date</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Time</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Grade</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Quantity</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Rate</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Amount</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center">Vehicle</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center print:hidden">Invoice No</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center print:hidden">Plant</TableHead>
-                <TableHead className="text-gray-900 font-bold px-4 whitespace-nowrap text-center print:hidden">ACTIONS</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">DC No</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Customer</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Site</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Time</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Quantity</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Rate</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Amount</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Vehicle</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Invoice No</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Plant</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

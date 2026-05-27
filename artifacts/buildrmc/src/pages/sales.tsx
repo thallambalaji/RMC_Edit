@@ -409,7 +409,7 @@ export default function Sales() {
                 ) : (
                   (document.body.classList.contains("print-mode") ? filtered : pageRows).map((order) => (
                     <TableRow key={order.id} className="group hover:bg-gray-50/80 transition-colors print:border-b print:border-gray-200">
-                      <TableCell className="py-2"><span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded print:bg-transparent print:text-black">{order.id}</span></TableCell>
+                      <TableCell className="py-2"><span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded print:bg-transparent print:text-black">{String(order.id).slice(-6).toUpperCase()}</span></TableCell>
                       <TableCell className="font-bold text-[#1e40af] text-xs py-2 print:text-black">{order.poNumber}</TableCell>
                       <TableCell className="text-xs py-2">
                         <div className="font-semibold text-gray-800 max-w-[200px] truncate print:whitespace-normal print:max-w-none">{order.customerName}</div>

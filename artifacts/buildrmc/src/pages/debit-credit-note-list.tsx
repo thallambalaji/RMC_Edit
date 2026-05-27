@@ -587,21 +587,21 @@ export default function DebitCreditNoteList() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="py-3 text-slate-800 font-black text-[10px] uppercase text-center">Note No</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Invoice No</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Invoice Type</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Note Type</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Date</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center bg-cyan-50/50">Item Grade</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right bg-cyan-50/50">Quantity (M³)</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right bg-cyan-50/50">Booked Rate</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right bg-cyan-50/50">Current Rate</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right bg-cyan-50/50">Amount</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">TCS Amount</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">Net Amount</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Actions</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice Type</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note Type</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Item Grade</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity (M³)</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Booked Rate</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Current Rate</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Amount</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">TCS Amount</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amount</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -733,8 +733,8 @@ export default function DebitCreditNoteList() {
 
       {/* View Note details Dialog */}
       <Dialog open={!!viewNote} onOpenChange={() => setViewNote(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Note Adjustment Sheet</DialogTitle>
               <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewNote?.noteNo} ({viewNote?.noteType})</p>
@@ -756,63 +756,61 @@ export default function DebitCreditNoteList() {
           </DialogHeader>
 
           {viewNote && (
-            <div className="p-6 space-y-5">
+            <div className="p-4 space-y-3.5">
               {/* Logo head */}
-              <div className="flex items-center gap-4 border-b pb-5">
-                <div className="w-14 h-14 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
+              <div className="flex items-center gap-3 border-b pb-3">
+                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
                 <div>
-                  <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-                  <p className="text-xs text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-                  <p className="text-xs text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+                  <h1 className="text-sm font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
+                  <p className="text-[10px] text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
+                  <p className="text-[10px] text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
                 </div>
               </div>
 
-              <h2 className="text-base font-extrabold uppercase text-[#1e40af] tracking-wide border-b pb-2">Note Information</h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border p-3.5 rounded-xl bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Adjustment Note No</p>
-                  <p className="text-sm font-black text-slate-800">{viewNote.noteNo}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border p-2.5 rounded-lg bg-slate-50/50">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Adjustment Note No</p>
+                  <p className="text-xs font-black text-slate-800">{viewNote.noteNo}</p>
                 </div>
-                <div className="border p-3.5 rounded-xl bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Reference Invoice No</p>
-                  <p className="text-sm font-black text-[#1e40af]">{viewNote.invoiceNo}</p>
+                <div className="border p-2.5 rounded-lg bg-slate-50/50">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Reference Invoice No</p>
+                  <p className="text-xs font-black text-[#1e40af]">{viewNote.invoiceNo}</p>
                 </div>
               </div>
 
-              <div className="border rounded-xl p-4 space-y-2.5">
+              <div className="border rounded-lg p-3 space-y-2">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Note Type</p>
-                  <p className={`text-sm font-black ${viewNote.noteType === "Debit Note" ? "text-emerald-600" : "text-rose-600"}`}>{viewNote.noteType}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Note Type</p>
+                  <p className={`text-xs font-black ${viewNote.noteType === "Debit Note" ? "text-emerald-600" : "text-rose-600"}`}>{viewNote.noteType}</p>
                 </div>
-                <div className="border-t pt-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
+                <div className="border-t pt-1.5">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
                   <p className="text-xs font-bold text-slate-800">{viewNote.customerName}</p>
                 </div>
-                <div className="border-t pt-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Adjustment Date</p>
+                <div className="border-t pt-1.5">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Adjustment Date</p>
                   <p className="text-xs font-semibold text-slate-700">{viewNote.date}</p>
                 </div>
               </div>
 
               {/* Adjustment rate sheets breakdown */}
-              <table className="w-full text-left border-collapse border border-slate-200 rounded-xl overflow-hidden text-xs">
+              <table className="w-full text-left border-collapse border border-slate-200 rounded-lg overflow-hidden text-xs">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="p-2.5 font-black text-slate-600 uppercase border-r border-slate-200">Item Grade</th>
-                    <th className="p-2.5 font-black text-slate-600 uppercase border-r border-slate-200 text-right">Qty (M³)</th>
-                    <th className="p-2.5 font-black text-slate-600 uppercase border-r border-slate-200 text-right">Booked Rate</th>
-                    <th className="p-2.5 font-black text-slate-600 uppercase border-r border-slate-200 text-right">Current Rate</th>
-                    <th className="p-2.5 font-black text-slate-600 uppercase text-right">Net Amount</th>
+                    <th className="p-2 font-black text-slate-600 uppercase border-r border-slate-200 text-[9px]">Item Grade</th>
+                    <th className="p-2 font-black text-slate-600 uppercase border-r border-slate-200 text-right text-[9px]">Qty (M³)</th>
+                    <th className="p-2 font-black text-slate-600 uppercase border-r border-slate-200 text-right text-[9px]">Booked Rate</th>
+                    <th className="p-2 font-black text-slate-600 uppercase border-r border-slate-200 text-right text-[9px]">Current Rate</th>
+                    <th className="p-2 font-black text-slate-600 uppercase text-right text-[9px]">Net Amount</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b border-slate-100">
-                    <td className="p-3 font-extrabold text-slate-800 border-r border-slate-200">{viewNote.item}</td>
-                    <td className="p-3 font-semibold text-right border-r border-slate-200">{viewNote.quantity.toFixed(2)}</td>
-                    <td className="p-3 font-semibold text-right border-r border-slate-200">₹{viewNote.bookedRate.toFixed(2)}</td>
-                    <td className="p-3 font-semibold text-right border-r border-slate-200">₹{viewNote.currentRate.toFixed(2)}</td>
-                    <td className="p-3 font-black text-right text-[#1e40af]">₹{viewNote.netAmount.toLocaleString("en-IN")}</td>
+                    <td className="p-2 font-extrabold text-slate-800 border-r border-slate-200 text-xs">{viewNote.item}</td>
+                    <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">{viewNote.quantity.toFixed(2)}</td>
+                    <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">₹{viewNote.bookedRate.toFixed(2)}</td>
+                    <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">₹{viewNote.currentRate.toFixed(2)}</td>
+                    <td className="p-2 font-black text-right text-[#1e40af] text-xs">₹{viewNote.netAmount.toLocaleString("en-IN")}</td>
                   </tr>
                 </tbody>
               </table>
@@ -823,8 +821,8 @@ export default function DebitCreditNoteList() {
 
       {/* Create Note Dialog Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+        <DialogContent hideCloseButton className="max-w-xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-3 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
             <DialogTitle className="text-white font-black text-base flex items-center gap-1.5">
               <Sparkles className="h-5 w-5 text-yellow-300 fill-yellow-300" /> Create Adjustment Note
             </DialogTitle>
@@ -833,8 +831,8 @@ export default function DebitCreditNoteList() {
             </Button>
           </DialogHeader>
 
-          <form onSubmit={handleSaveNote} className="p-5 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={handleSaveNote} className="p-4 space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-gray-500 uppercase">Adjustment Note Type</Label>
                 <Select
@@ -844,7 +842,7 @@ export default function DebitCreditNoteList() {
                     triggerAutoNoteNo(val);
                   }}
                 >
-                  <SelectTrigger className="bg-gray-50 h-9 text-xs border-gray-200">
+                  <SelectTrigger className="bg-gray-50 h-8 text-xs border-gray-200">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="text-xs">
@@ -857,7 +855,7 @@ export default function DebitCreditNoteList() {
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-gray-500 uppercase">Select Reference Invoice <span className="text-rose-500">*</span></Label>
                 <Select value={selectedInvoiceId} onValueChange={setSelectedInvoiceId} required>
-                  <SelectTrigger className="bg-gray-50 h-9 text-xs border-gray-200">
+                  <SelectTrigger className="bg-gray-50 h-8 text-xs border-gray-200">
                     <SelectValue placeholder="Choose live invoice" />
                   </SelectTrigger>
                   <SelectContent className="text-xs">
@@ -872,18 +870,18 @@ export default function DebitCreditNoteList() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border-t pt-4">
+            <div className="grid grid-cols-2 gap-3 border-t pt-3">
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-gray-500 uppercase">Note Number</Label>
                 <div className="flex gap-1">
                   <Input
                     required
                     placeholder="Auto-generated"
-                    className="bg-gray-50 h-9 text-xs border-gray-200"
+                    className="bg-gray-50 h-8 text-xs border-gray-200"
                     value={formNoteNo}
                     onChange={(e) => setFormNoteNo(e.target.value)}
                   />
-                  <Button type="button" onClick={() => triggerAutoNoteNo(formNoteType)} className="h-9 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs">
+                  <Button type="button" onClick={() => triggerAutoNoteNo(formNoteType)} className="h-8 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs">
                     Auto
                   </Button>
                 </div>
@@ -894,18 +892,18 @@ export default function DebitCreditNoteList() {
                 <Input
                   type="date"
                   required
-                  className="bg-gray-50 h-9 text-xs border-gray-200"
+                  className="bg-gray-50 h-8 text-xs border-gray-200"
                   value={formDate}
                   onChange={(e) => setFormDate(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 border-t pt-4">
+            <div className="grid grid-cols-3 gap-2.5 border-t pt-3">
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-gray-500 uppercase">Item Grade</Label>
                 <Input
-                  className="bg-gray-100 h-9 text-xs border-gray-200 font-extrabold text-slate-800"
+                  className="bg-gray-100 h-8 text-xs border-gray-200 font-extrabold text-slate-800"
                   value={formItem}
                   disabled
                 />
@@ -915,7 +913,7 @@ export default function DebitCreditNoteList() {
                 <Input
                   type="number"
                   step="0.01"
-                  className="bg-gray-50 h-9 text-xs border-gray-200"
+                  className="bg-gray-50 h-8 text-xs border-gray-200"
                   value={formQuantity || ""}
                   onChange={(e) => setFormQuantity(parseFloat(e.target.value) || 0)}
                 />
@@ -925,14 +923,14 @@ export default function DebitCreditNoteList() {
                 <Input
                   type="number"
                   step="0.01"
-                  className="bg-gray-100 h-9 text-xs border-gray-200 font-bold"
+                  className="bg-gray-100 h-8 text-xs border-gray-200 font-bold"
                   value={formBookedRate || ""}
                   disabled
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <Label className="text-[10px] font-bold text-gray-500 uppercase">Adjusted Rate (₹) <span className="text-cyan-500">*</span></Label>
                 <Input
@@ -940,7 +938,7 @@ export default function DebitCreditNoteList() {
                   step="0.01"
                   required
                   placeholder="Enter current rate"
-                  className="bg-gray-50 h-9 text-xs border-cyan-100 focus-visible:ring-cyan-400 font-bold"
+                  className="bg-gray-50 h-8 text-xs border-cyan-100 focus-visible:ring-cyan-400 font-bold"
                   value={formCurrentRate || ""}
                   onChange={(e) => setFormCurrentRate(parseFloat(e.target.value) || 0)}
                 />
@@ -951,14 +949,14 @@ export default function DebitCreditNoteList() {
                   type="number"
                   step="0.01"
                   placeholder="TCS adjust"
-                  className="bg-gray-50 h-9 text-xs border-gray-200"
+                  className="bg-gray-50 h-8 text-xs border-gray-200"
                   value={formTcsAmount || ""}
                   onChange={(e) => setFormTcsAmount(parseFloat(e.target.value) || 0)}
                 />
               </div>
             </div>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-dashed flex justify-between items-center text-xs">
+            <div className="bg-slate-50 rounded-lg p-3 border border-dashed flex justify-between items-center text-xs">
               <div>
                 <span className="font-bold text-slate-500">Difference Amount: </span>
                 <span className="font-extrabold text-slate-700">₹{formComputedTotals.amt.toLocaleString()}</span>
@@ -969,11 +967,11 @@ export default function DebitCreditNoteList() {
               </div>
             </div>
 
-            <div className="flex gap-2 justify-end pt-3">
-              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="h-9 text-xs font-bold text-slate-600">
+            <div className="flex gap-2 justify-end pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="h-8 text-xs font-bold text-slate-600">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[#1e40af] hover:bg-blue-700 text-white font-black text-xs h-9 px-6">
+              <Button type="submit" className="bg-[#1e40af] hover:bg-blue-700 text-white font-black text-xs h-8 px-6">
                 Register Adjustment
               </Button>
             </div>

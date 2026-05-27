@@ -285,6 +285,7 @@ export default function AddSalesDocument() {
         site: siteName,
         remark,
         invoiceTime,
+        vehicleId: vehicles?.find(v => v.registrationNo === vehicleNo)?.id || undefined,
         vehicleNo,
         quantity: items.reduce((acc, it) => acc + (parseFloat(it.qty) || 0), 0),
         netAmount: totals.taxable,
@@ -320,6 +321,7 @@ export default function AddSalesDocument() {
         site: siteName,
         remark,
         invoiceTime,
+        vehicleId: vehicles?.find(v => v.registrationNo === vehicleNo)?.id || undefined,
         vehicleNo,
         quantity: items.reduce((acc, it) => acc + (parseFloat(it.qty) || 0), 0),
         netAmount: totals.taxable,
@@ -603,8 +605,19 @@ export default function AddSalesDocument() {
                 </Select>
               </div>
               <div>
-                <Label className={labelStyle}>Vehicle No</Label>
-                <Input placeholder="Vehicle NO" value={vehicleNo} onChange={e => setVehicleNo(e.target.value)} className={inputStyle} />
+                <Label className={labelStyle}>Vehicle No <span className="text-red-500">*</span></Label>
+                <Select value={vehicleNo} onValueChange={setVehicleNo}>
+                  <SelectTrigger className={inputStyle}>
+                    <SelectValue placeholder="Choose Vehicle" />
+                  </SelectTrigger>
+                  <SelectContent className="text-xs">
+                    {vehicles?.map(v => (
+                      <SelectItem key={v.id} value={v.registrationNo} className="text-xs">
+                        {v.registrationNo}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label className={labelStyle}>Site Name</Label>

@@ -379,11 +379,19 @@ export default function SalesDocumentList() {
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-slate-700 hover:bg-slate-700">
-                {["Invoice No","Date","Time","Customer","Site Address","Vehicle","Taxable Amt","Tax Amt","Net Amt.","Plant","Actions"].map(h => (
-                  <TableHead key={h} className={`text-white font-bold py-3 text-xs uppercase ${["Taxable Amt","Tax Amt","Net Amt."].includes(h) ? "text-right" : h === "Actions" ? "text-center w-28" : ""}`}>{h}</TableHead>
-                ))}
+            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Invoice No</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Time</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Address</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Vehicle</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Taxable Amt</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Tax Amt</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amt.</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center w-28">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -491,14 +499,14 @@ export default function SalesDocumentList() {
 
       {/* View Details Modal */}
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg">
+        <DialogContent hideCloseButton className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg">
             <div className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-white font-black text-lg tracking-tight">Invoice Details</DialogTitle>
+                <DialogTitle className="text-white font-black text-base tracking-tight">Invoice Details</DialogTitle>
                 <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline"
                   className="h-8 text-xs font-bold border-white/30 text-white hover:bg-white/10 bg-transparent gap-1.5"
                   onClick={() => {
@@ -519,24 +527,27 @@ export default function SalesDocumentList() {
                   onClick={() => window.print()}>
                   <Printer className="h-3.5 w-3.5" /> PDF / Print
                 </Button>
+                <Button size="sm" variant="ghost" onClick={() => setViewInv(null)} className="text-white hover:bg-white/10 h-8 w-8 p-0">
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </DialogHeader>
 
           {viewInv && (
-            <div className="p-6 space-y-5">
+            <div className="p-4 space-y-3.5">
               {/* Company header in modal */}
-              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
-                <div className="w-12 h-12 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
+              <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
                 <div>
-                  <p className="font-black text-slate-900 text-base uppercase tracking-tight">BuildRMC Enterprises</p>
-                  <p className="text-xs text-slate-500 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
-                  <p className="text-xs text-slate-500">GSTIN: 36AAAAA1111A1Z1 | contact@buildrmc.com</p>
+                  <p className="font-black text-slate-900 text-sm uppercase tracking-tight">BuildRMC Enterprises</p>
+                  <p className="text-[10px] text-slate-500 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
+                  <p className="text-[10px] text-slate-500">GSTIN: 36AAAAA1111A1Z1 | contact@buildrmc.com</p>
                 </div>
               </div>
 
               {/* Meta grid */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 {[
                   ["Invoice Number", viewInv.invoiceNumber],
                   ["Invoice Date", viewInv.invoiceDate ? new Date(viewInv.invoiceDate).toLocaleDateString("en-IN") : "—"],
@@ -545,51 +556,51 @@ export default function SalesDocumentList() {
                   ["Vehicle No", viewInv.vehicleNo || "—"],
                   ["Remark", viewInv.remark || "—"],
                 ].map(([label, value]) => (
-                  <div key={label} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1">{label}</p>
+                  <div key={label} className="bg-gray-50 rounded-lg p-2.5 border border-gray-100">
+                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-wider mb-0.5">{label}</p>
                     <p className="text-xs font-extrabold text-slate-800">{value}</p>
                   </div>
                 ))}
               </div>
 
               {/* Customer / Site */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border border-slate-100 p-4 rounded-lg bg-white">
-                  <p className="text-[10px] font-black text-[#1e40af] uppercase tracking-wider mb-2 pb-1 border-b">Customer</p>
-                  <p className="font-black text-slate-800 text-sm">{viewInv.customerName || "—"}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border border-slate-100 p-3 rounded-lg bg-white">
+                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Customer</p>
+                  <p className="font-black text-slate-800 text-xs">{viewInv.customerName || "—"}</p>
                 </div>
-                <div className="border border-slate-100 p-4 rounded-lg bg-white">
-                  <p className="text-[10px] font-black text-[#1e40af] uppercase tracking-wider mb-2 pb-1 border-b">Site / Destination</p>
-                  <p className="font-black text-slate-800 text-sm">{viewInv.site || "—"}</p>
+                <div className="border border-slate-100 p-3 rounded-lg bg-white">
+                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Site / Destination</p>
+                  <p className="font-black text-slate-800 text-xs">{viewInv.site || "—"}</p>
                 </div>
               </div>
 
               {/* Financials */}
               <div className="border border-slate-100 rounded-lg overflow-hidden">
-                <div className="bg-slate-700 text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider">Financial Summary</div>
+                <div className="bg-slate-700 text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-wider">Financial Summary</div>
                 <div className="divide-y">
                   {[
                     ["Taxable Amount", `₹${parseFloat(String(viewInv.netAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`],
                     ["CGST (9%)", `₹${(parseFloat(String(viewInv.totalAmount || 0)) - parseFloat(String(viewInv.netAmount || 0))).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`],
                     ["Total Tax", `₹${(parseFloat(String(viewInv.totalAmount || 0)) - parseFloat(String(viewInv.netAmount || 0))).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`],
                   ].map(([label, val]) => (
-                    <div key={label} className="flex justify-between items-center px-4 py-2.5 text-xs">
+                    <div key={label} className="flex justify-between items-center px-3.5 py-1.5 text-xs">
                       <span className="text-slate-500 font-semibold">{label}</span>
                       <span className="font-bold text-slate-800">{val}</span>
                     </div>
                   ))}
-                  <div className="flex justify-between items-center px-4 py-3 bg-slate-50">
-                    <span className="text-sm font-black text-slate-900">Net Total Payable</span>
-                    <span className="text-lg font-black text-[#1e40af]">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <div className="flex justify-between items-center px-3.5 py-2 bg-slate-50">
+                    <span className="text-xs font-black text-slate-900">Net Total Payable</span>
+                    <span className="text-sm font-black text-[#1e40af]">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setViewInv(null)} className="text-xs font-bold h-9 px-5 gap-1.5">
+                <Button size="sm" variant="outline" onClick={() => setViewInv(null)} className="text-xs font-bold h-8 px-4 gap-1.5">
                   <X className="h-3.5 w-3.5" /> Close
                 </Button>
-                <Button onClick={() => handleDelete(viewInv.id)} className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold h-9 px-5 gap-1.5">
+                <Button size="sm" onClick={() => handleDelete(viewInv.id)} className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold h-8 px-4 gap-1.5">
                   <Trash2 className="h-3.5 w-3.5" /> Delete Record
                 </Button>
               </div>

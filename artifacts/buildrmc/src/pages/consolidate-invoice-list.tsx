@@ -499,14 +499,14 @@ export default function ConsolidateInvoiceList() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="bg-slate-50/50">
-                <TableRow>
-                  <TableHead className="py-3 text-slate-800 font-black text-[10px] uppercase text-center">Consolidate No</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Customer</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Generated Date</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">Net Quantity (M³)</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">Net Amount</TableHead>
-                  <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">ACTIONS</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Consolidate No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Customer</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Generated Date</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Quantity (M³)</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amount</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -631,8 +631,8 @@ export default function ConsolidateInvoiceList() {
 
       {/* View Details Dialog */}
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Consolidated Invoice Details</DialogTitle>
               <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
@@ -645,62 +645,60 @@ export default function ConsolidateInvoiceList() {
           </DialogHeader>
 
           {viewInv && (
-            <div className="p-6 space-y-5">
+            <div className="p-4 space-y-3.5">
               {/* Company Logo Header */}
-              <div className="flex items-center gap-4 border-b pb-5">
-                <div className="w-14 h-14 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
+              <div className="flex items-center gap-3 border-b pb-3">
+                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
                 <div>
-                  <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-                  <p className="text-xs text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-                  <p className="text-xs text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
+                  <h1 className="text-sm font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
+                  <p className="text-[10px] text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
+                  <p className="text-[10px] text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
                 </div>
               </div>
 
-              <h2 className="text-base font-extrabold uppercase text-[#1e40af] tracking-wide border-b pb-2">Invoice Information</h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border p-3.5 rounded-xl bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Invoice Number</p>
-                  <p className="text-sm font-black text-slate-800">{viewInv.invoiceNumber}</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border p-2.5 rounded-lg bg-slate-50/50">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Invoice Number</p>
+                  <p className="text-xs font-black text-slate-800">{viewInv.invoiceNumber}</p>
                 </div>
-                <div className="border p-3.5 rounded-xl bg-slate-50/50">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Invoice Date</p>
-                  <p className="text-sm font-bold text-slate-800">
+                <div className="border p-2.5 rounded-lg bg-slate-50/50">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Invoice Date</p>
+                  <p className="text-xs font-bold text-slate-800">
                     {viewInv.invoiceDate ? new Date(viewInv.invoiceDate).toLocaleDateString("en-IN") : "—"}
                   </p>
                 </div>
               </div>
 
-              <div className="border rounded-xl p-4 space-y-3">
+              <div className="border rounded-lg p-3 space-y-2">
                 <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
-                  <p className="text-sm font-black text-[#1e40af]">{viewInv.customerName || "—"}</p>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
+                  <p className="text-xs font-black text-[#1e40af]">{viewInv.customerName || "—"}</p>
                 </div>
-                <div className="border-t pt-2">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Site Address</p>
+                <div className="border-t pt-1.5">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Site Address</p>
                   <p className="text-xs font-semibold text-slate-700">{viewInv.site || "—"}</p>
                 </div>
               </div>
 
               {/* Table breakdown */}
-              <table className="w-full text-left border-collapse border border-slate-200 rounded-xl overflow-hidden">
+              <table className="w-full text-left border-collapse border border-slate-200 rounded-lg overflow-hidden">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="p-2.5 font-black text-slate-600 text-[10px] uppercase border-r border-slate-200">Item Grade</th>
-                    <th className="p-2.5 font-black text-slate-600 text-[10px] uppercase border-r border-slate-200 text-right">Net Quantity (M³)</th>
-                    <th className="p-2.5 font-black text-slate-600 text-[10px] uppercase text-right">Net Amount (₹)</th>
+                    <th className="p-2 font-black text-slate-600 text-[9px] uppercase border-r border-slate-200">Item Grade</th>
+                    <th className="p-2 font-black text-slate-600 text-[9px] uppercase border-r border-slate-200 text-right">Net Quantity (M³)</th>
+                    <th className="p-2 font-black text-slate-600 text-[9px] uppercase text-right">Net Amount (₹)</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b border-slate-100">
-                    <td className="p-3 text-xs border-r border-slate-200 font-extrabold text-slate-800">{viewInv.grade || "—"}</td>
-                    <td className="p-3 text-xs border-r border-slate-200 font-bold text-right text-slate-700">{Number(viewInv.quantity ?? 0).toFixed(2)}</td>
-                    <td className="p-3 text-xs font-black text-right text-[#1e40af]">₹{Number(viewInv.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-2 text-xs border-r border-slate-200 font-extrabold text-slate-800">{viewInv.grade || "—"}</td>
+                    <td className="p-2 text-xs border-r border-slate-200 font-bold text-right text-slate-700">{Number(viewInv.quantity ?? 0).toFixed(2)}</td>
+                    <td className="p-2 text-xs font-black text-right text-[#1e40af]">₹{Number(viewInv.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                   </tr>
                 </tbody>
               </table>
 
-              <div className="text-center text-[10px] text-slate-400 border-t pt-4 font-medium">
+              <div className="text-center text-[9px] text-slate-400 border-t pt-2.5 font-medium">
                 This is a computer generated document and requires no signature.
               </div>
             </div>

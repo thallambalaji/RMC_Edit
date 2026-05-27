@@ -24,9 +24,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ChevronRight, Search, RotateCcw, Plus, Copy, FileText, FileCode, Edit, Trash2, Layers } from "lucide-react";
+import { ChevronRight, Search, RotateCcw, Plus, Copy, FileText, Trash2, Layers, MoreVertical, Printer, Download, Pencil } from "lucide-react";
 import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
@@ -48,35 +54,23 @@ interface MixDesignItem {
   admix2: string;
 }
 
-const INITIAL_DATA: MixDesignItem[] = [
-  { id: 1, recipeCode: "M20 SCREED", recipeName: "M20 SCR", grade: "M-20", aggr1: "20MM : 100", aggr2: "10MM : 972", aggr3: "R SAND : 0", aggr4: "M SAND : 823", cem1: "CEM1 : 288", cem2: "GGBS : 52", cem3: "CEM3 : 0", water: "WATER : 160", admix1: "ADD-1 : 2", admix2: "Admix2 : 0" },
-  { id: 2, recipeCode: "M35 SWASTHI", recipeName: "M35", grade: "M-35", aggr1: "20MM : 670", aggr2: "10MM : 420", aggr3: "R SAND : 0", aggr4: "CRF : 740", cem1: "CEM1 : 340", cem2: "FLAYASH : 60", cem3: "CEM3 : 0", water: "WATER : 170", admix1: "ADD-1 : 2.6", admix2: "Admix2 : 0" },
-  { id: 3, recipeCode: "M30 FC A1", recipeName: "M30 FC", grade: "M-30", aggr1: "20MM : 620", aggr2: "10MM : 400", aggr3: "R SAND : 0", aggr4: "M SAND : 760", cem1: "CEM1 : 370", cem2: "CEM2 : 0", cem3: "CEM3 : 0", water: "WATER : 160", admix1: "ADD-1 : 1", admix2: "Admix2 : 0" },
-  { id: 4, recipeCode: "M20 FC & VDF & WPC", recipeName: "M20FC", grade: "M-20", aggr1: "20MM : 635", aggr2: "10MM : 438", aggr3: "R SAND : 0", aggr4: "SAND : 848", cem1: "CEM1 : 320", cem2: "CEM2 : 0", cem3: "CEM3 : 0", water: "WATER : 165", admix1: "ADMIX1 : 2.2", admix2: "Admix2 : 0" },
-  { id: 5, recipeCode: "M25FC SCREED", recipeName: "M25FC SCREED", grade: "M-25", aggr1: "20MM : 0", aggr2: "10MM : 999", aggr3: "R SAND : 0", aggr4: "SAND : 880", cem1: "CEM1 : 340", cem2: "CEM2 : 0", cem3: "CEM3 : 0", water: "WATER : 170", admix1: "AD1 : 2.5", admix2: "Admix2 : 0" },
-  { id: 6, recipeCode: "M30 KEYSTONE", recipeName: "M30", grade: "M-30", aggr1: "20MM : 630", aggr2: "12MM : 410", aggr3: "R SAND : 405", aggr4: "SAND : 405", cem1: "CEM1 : 320", cem2: "CEM2 : 80", cem3: "CEM3 : 0", water: "WATER : 150", admix1: "AD1 : 2.8", admix2: "Admix2 : 0" },
-  { id: 7, recipeCode: "M25 SCC VEEDHA", recipeName: "M25 SCC", grade: "M-25", aggr1: "20MM : 0", aggr2: "12MM : 920", aggr3: "R SAND : 0", aggr4: "SAND : 880", cem1: "CEM1 : 280", cem2: "CEM2 : 165", cem3: "CEM3 : 0", water: "WATER : 170", admix1: "ADMIX1 : 2", admix2: "Admix2 : 0" },
-  { id: 8, recipeCode: "M25 FC", recipeName: "M25 FC", grade: "M-25", aggr1: "20MM : 655", aggr2: "12MM : 423", aggr3: "R SAND : 0", aggr4: "M SAND : 812", cem1: "CEM1 : 340", cem2: "CEM2 : 0", cem3: "CEM3 : 0", water: "WATER : 168", admix1: "ADMIX1 : 2.8", admix2: "Admix2 : 0" },
-  { id: 9, recipeCode: "M30 PCH RIVER EDGE LLP", recipeName: "M30", grade: "M-30", aggr1: "20MM : 620", aggr2: "12MM : 418", aggr3: "R SAND : 0", aggr4: "M SAND : 774", cem1: "CEM1 : 273", cem2: "GGBS : 117", cem3: "CEM3 : 0", water: "WATER : 183", admix1: "ADMIX1 : 1.38", admix2: "Admix2 : 0" },
-  { id: 10, recipeCode: "M35 SAADCRETE", recipeName: "M35", grade: "M-35", aggr1: "20MM : 632", aggr2: "12MM : 422", aggr3: "M SAND : 749", aggr4: "R SAND : 0", cem1: "CEM1 : 285", cem2: "GGBS : 135", cem3: "CEM3 : 0", water: "WATER : 177", admix1: "ADMIX1 : 1.3", admix2: "Admix2 : 0" },
-];
+
 
 export default function MixDesignList() {
   const { showFilters } = useQcFilters();
   const { toast } = useToast();
   const [items, setItems] = useState<MixDesignItem[]>([]);
 
-  // Load from localStorage or initialize with screenshot data
   const fetchItems = async () => {
     try {
       const res = await fetch("/api/mix-designs");
       if (res.ok) {
         const data = await res.json();
-        setItems(data.length > 0 ? data : INITIAL_DATA);
+        setItems(data);
       }
     } catch (error) {
       console.error("Failed to fetch mix designs", error);
-      setItems(INITIAL_DATA);
+      setItems([]);
     }
   };
 
@@ -348,21 +342,21 @@ export default function MixDesignList() {
         {/* Data Grid Table matching screenshot */}
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-slate-100/80">
-              <TableRow className="border-b border-slate-200">
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 whitespace-nowrap">Recipe Code</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Recipe Name</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr1</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr2</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr3</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Aggr4</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem1</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem2</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Cem3</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Water</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix1</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">Admix2</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center whitespace-nowrap">ACTION</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Name</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr1</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr2</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr3</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr4</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem1</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem2</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem3</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Water</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix1</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix2</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -387,52 +381,43 @@ export default function MixDesignList() {
                     <TableCell className="text-xs font-bold text-blue-600 px-3 whitespace-nowrap">{item.water}</TableCell>
                     <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix1}</TableCell>
                     <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix2}</TableCell>
-                    <TableCell className="px-4 py-3 text-center whitespace-nowrap print:hidden">
-                      <div className="flex items-center justify-center gap-1.5">
-                        <Button
-                          variant="ghost" size="icon"
-                          onClick={() => handleExport("copy", item)}
-                          className="h-7 w-7 text-slate-500 hover:bg-slate-100"
-                          title="Copy Row"
-                        >
-                          <Copy className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost" size="icon"
-                          onClick={() => handleExport("csv", item)}
-                          className="h-7 w-7 text-emerald-600 hover:bg-emerald-50"
-                          title="Download CSV"
-                        >
-                          <FileCode className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost" size="icon"
-                          onClick={() => handleExport("pdf", item)}
-                          className="h-7 w-7 text-rose-600 hover:bg-rose-50"
-                          title="Print Record"
-                        >
-                          <FileText className="h-3.5 w-3.5" />
-                        </Button>
-
-                        <div className="w-px h-4 bg-gray-200 mx-1" />
-
-                        <Button
-                          variant="ghost" size="icon"
-                          onClick={() => setEditingItem(item)}
-                          className="h-7 w-7 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                          title="Edit"
-                        >
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost" size="icon"
-                          onClick={() => handleDelete(item.id)}
-                          className="h-7 w-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
+                    <TableCell className="text-center py-2.5 no-print">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                          >
+                            <MoreVertical className="h-4 w-4 text-slate-500" />
+                            <span className="sr-only">Open options</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                          <DropdownMenuItem onClick={() => handleExport("copy", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                            <span>Copy Details</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExport("csv", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Download className="h-3.5 w-3.5 text-teal-600" />
+                            <span>Download CSV</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleExport("pdf", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Printer className="h-3.5 w-3.5 text-red-500" />
+                            <span>Print Record</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingItem(item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                            <span>Edit Formulation</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDelete(item.id)} 
+                            className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                            <span>Delete Mix Design</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))

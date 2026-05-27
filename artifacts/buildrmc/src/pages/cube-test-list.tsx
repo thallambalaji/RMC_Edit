@@ -10,6 +10,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   ChevronRight, 
   FlaskConical, 
@@ -20,7 +26,8 @@ import {
   Copy,
   FileCode,
   Trash2,
-  Calendar
+  Calendar,
+  MoreVertical
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -482,19 +489,19 @@ export default function CubeTestList() {
             {/* High-density Table */}
             <div className="border border-slate-100 rounded overflow-hidden">
               <Table>
-                <TableHeader className="bg-slate-50">
-                  <TableRow>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 py-4 px-4 text-center border-r">S/L No</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r">Test No</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r">Customer Name</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r">Site Name</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r text-center">Grade</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r text-center">Dimension</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r text-center">No Of Casting</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r text-center">Casting Date</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r text-center">Age</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 border-r">Plant</TableHead>
-                    <TableHead className="text-[10px] font-black uppercase text-slate-600 px-4 text-center">ACTION</TableHead>
+                <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
+                  <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Test No</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Dimension</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">No Of Casting</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Casting Date</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Age</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -535,21 +542,39 @@ export default function CubeTestList() {
                           <TableCell className="text-[10px] border-r text-center text-slate-600 font-bold px-4">{format(castingDate, "dd/MM/yyyy")}</TableCell>
                           <TableCell className="text-[10px] border-r text-center font-black text-rose-600 px-4">{age} Days</TableCell>
                           <TableCell className="text-[10px] border-r font-bold text-slate-600 px-4 uppercase">{e.plant || "FORTUNE CONCRETE"}</TableCell>
-                          <TableCell className="px-4">
-                            <div className="flex items-center justify-center gap-1">
-                              <Button variant="ghost" size="icon" onClick={() => handleCopyRow(e)} className="h-7 w-7 text-slate-400 hover:text-emerald-600" title="Copy Info">
-                                <Copy className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleExportRowCSV(e)} className="h-7 w-7 text-slate-400 hover:text-slate-600" title="Export CSV">
-                                <FileCode className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handlePrintItem(e)} className="h-7 w-7 text-slate-400 hover:text-blue-600" title="Print Strength Report">
-                                <Printer className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDelete(e.id || e._id)} className="h-7 w-7 text-slate-400 hover:text-rose-600" title="Delete Entry">
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
+                          <TableCell className="text-center py-2 no-print">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                                >
+                                  <MoreVertical className="h-4 w-4 text-slate-500" />
+                                  <span className="sr-only">Open options</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                                <DropdownMenuItem onClick={() => handleCopyRow(e)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                  <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                  <span>Copy Details</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExportRowCSV(e)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                  <FileCode className="h-3.5 w-3.5 text-teal-600" />
+                                  <span>Download CSV</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handlePrintItem(e)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                  <Printer className="h-3.5 w-3.5 text-red-500" />
+                                  <span>Print Strength Report</span>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleDelete(e.id || e._id)} 
+                                  className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                  <span>Delete Entry</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       );

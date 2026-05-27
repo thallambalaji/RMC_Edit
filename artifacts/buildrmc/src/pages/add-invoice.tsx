@@ -110,8 +110,8 @@ export default function AddInvoice() {
   }, [employees]);
 
   // Form State
-  const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber());
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [plant, setPlant] = useState("");
   const [kmReading, setKmReading] = useState("");
   const [customerId, setCustomerId] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().slice(0, 10));
@@ -159,7 +159,7 @@ export default function AddInvoice() {
 
   // Collect all unique grades from ALL sales orders belonging to this customer
   const customerGrades = useMemo(() => {
-    if (!customerId || !allSalesOrders) return GRADES;
+    if (!customerId || !allSalesOrders) return [];
     const orders = (allSalesOrders as any[]).filter(
       (o) => String(o.customerId) === customerId
     );
@@ -169,8 +169,7 @@ export default function AddInvoice() {
         if (item.grade) gradeSet.add(item.grade);
       });
     });
-    // If no sales orders found, fall back to standard grades
-    return gradeSet.size > 0 ? Array.from(gradeSet) : GRADES;
+    return Array.from(gradeSet);
   }, [customerId, allSalesOrders]);
 
   // When customer changes: auto-select first site, reset grade to first customer grade
@@ -189,9 +188,53 @@ export default function AddInvoice() {
     if (customerGrades.length > 0) {
       setGrade(customerGrades[0]);
       setLoadedGrade(customerGrades[0]);
+    } else {
+      setGrade("");
+      setLoadedGrade("");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId, availableSites.join(","), customerGrades.join(",")]);
+
+  // Auto-fetch rate from sales order when customer, site name, or grade changes
+  useEffect(() => {
+    if (!customerId || !grade || !allSalesOrders) {
+      setNetAmount("0");
+      return;
+    }
+    const customerOrders = (allSalesOrders as any[]).filter(
+      (o) => String(o.customerId) === customerId
+    );
+    
+    // Attempt site-specific order match first
+    const siteMatchingOrders = customerOrders.filter(
+      (o) => o.siteAddress && (
+        o.siteAddress.toLowerCase().includes(siteName.toLowerCase()) || 
+        siteName.toLowerCase().includes(o.siteAddress.toLowerCase())
+      )
+    );
+    
+    let rateFound = "";
+    for (const order of siteMatchingOrders) {
+      const match = (order.items || []).find((item: any) => item.grade === grade);
+      if (match && match.rate !== undefined && match.rate !== null) {
+        rateFound = String(match.rate);
+        break;
+      }
+    }
+    
+    // Fallback to any order of the customer with this grade
+    if (!rateFound) {
+      for (const order of customerOrders) {
+        const match = (order.items || []).find((item: any) => item.grade === grade);
+        if (match && match.rate !== undefined && match.rate !== null) {
+          rateFound = String(match.rate);
+          break;
+        }
+      }
+    }
+    
+    setNetAmount(rateFound || "0");
+  }, [customerId, siteName, grade, allSalesOrders]);
 
   // Financial Calculations
   const totals = useMemo(() => {
@@ -217,8 +260,8 @@ export default function AddInvoice() {
   }, [quantity, loadedQuantity, netAmount, cgstRate, sgstRate, igstRate, pumpCharge, transportCharge]);
 
   const handleClear = () => {
-    setInvoiceNumber(generateInvoiceNumber());
-    setPlant("FORTUNE CONCRETE");
+    setInvoiceNumber("");
+    setPlant("");
     setKmReading("");
     setCustomerId("");
     setInvoiceDate(new Date().toISOString().slice(0, 10));
@@ -226,9 +269,9 @@ export default function AddInvoice() {
     setSiteName("");
     setInvoiceTime(new Date().toTimeString().slice(0, 8));
     setDriverName("");
-    setGrade("M25");
+    setGrade("");
     setLoadedQuantity("0");
-    setLoadedGrade("M25");
+    setLoadedGrade("");
     setRemark("");
     setQuantity("0");
     setVehicleId("");
@@ -249,12 +292,28 @@ export default function AddInvoice() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!invoiceNumber) {
+      toast({ title: "Enter Invoice Number", description: "Invoice number is required.", variant: "destructive" });
+      return;
+    }
+    if (!plant) {
+      toast({ title: "Select Plant", description: "Choosing a plant is required.", variant: "destructive" });
+      return;
+    }
     if (!customerId) {
       toast({ title: "Select Customer", description: "Choosing a customer is required.", variant: "destructive" });
       return;
     }
     if (!siteName) {
       toast({ title: "Select Site Name", description: "Choosing an active site location is required.", variant: "destructive" });
+      return;
+    }
+    if (!grade) {
+      toast({ title: "Select Grade", description: "Choosing a concrete grade is required.", variant: "destructive" });
+      return;
+    }
+    if (!loadedGrade) {
+      toast({ title: "Select Loaded Grade", description: "Choosing a loaded concrete grade is required.", variant: "destructive" });
       return;
     }
 
@@ -271,6 +330,7 @@ export default function AddInvoice() {
         remark,
         invoiceTime,
         vehicleId: vehicleId || null,   // MongoDB ObjectId string or null
+        vehicleNo: vehicles?.find(v => String(v.id) === vehicleId)?.registrationNo || undefined,
         grade,
         loadedGrade,
         loadedQuantity: parseFloat(loadedQuantity),
@@ -306,7 +366,7 @@ export default function AddInvoice() {
       });
       queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
       // Generate a fresh invoice number for the next entry, but keep the rest of the form intact
-      setInvoiceNumber(generateInvoiceNumber());
+      setInvoiceNumber("");
     } catch (err: any) {
       toast({
         title: "Submission Failed",
@@ -350,7 +410,12 @@ export default function AddInvoice() {
           <div className="space-y-4">
             <div>
               <Label className={labelStyle}>Invoice No <span className="text-red-500">*</span></Label>
-              <Input value={invoiceNumber} readOnly className={`${inputStyle} bg-slate-50/80 font-black text-[#1e40af] tracking-wide cursor-not-allowed`} />
+              <Input
+                value={invoiceNumber}
+                onChange={e => setInvoiceNumber(e.target.value)}
+                placeholder="Enter Invoice Number"
+                className={inputStyle}
+              />
             </div>
             
             <div>
@@ -442,7 +507,7 @@ export default function AddInvoice() {
             <div>
               <Label className={labelStyle}>Plant <span className="text-red-500">*</span></Label>
               <Select value={plant} onValueChange={setPlant}>
-                <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                 <SelectContent className="text-xs">
                   {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                 </SelectContent>

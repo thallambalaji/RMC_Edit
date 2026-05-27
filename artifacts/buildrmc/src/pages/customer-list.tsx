@@ -32,6 +32,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   ChevronRight, 
   Plus, 
@@ -46,6 +52,7 @@ import {
   Search,
   RotateCcw,
   Filter,
+  MoreVertical,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
@@ -467,7 +474,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                     <TableHead className={headerStyle}>Plant</TableHead>
                     <TableHead className={headerStyle}>Sales Person</TableHead>
                     <TableHead className={headerStyle}>Reg Date</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTIONS</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -494,63 +501,46 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                       
                       {/* Direct action buttons - 100% bug-free, ultra-premium colored buttons */}
                       <TableCell className="text-center py-1.5 px-3">
-                        <div className="flex items-center justify-center gap-1">
-                          
-                          <Button 
-                            onClick={() => setViewingCustomer(customer)}
-                            title="View Profile Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-slate-50 text-slate-600 cursor-pointer"
-                          >
-                            <Eye className="h-3.5 w-3.5 text-[#1e40af]" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => handleStartEdit(customer)}
-                            title="Edit Customer Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 cursor-pointer"
-                          >
-                            <Edit2 className="h-3.5 w-3.5" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => setPrintTarget(customer)}
-                            title="Print Customer Profile" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-rose-50 text-rose-600 cursor-pointer"
-                          >
-                            <Printer className="h-3.5 w-3.5" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => handleCSVSingle(customer)}
-                            title="Export CSV File" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 cursor-pointer"
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => handleCopySingle(customer)}
-                            title="Copy Details" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 cursor-pointer"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-
-                          <Button 
-                            onClick={() => handleDelete(customer.id)}
-                            title="Delete Customer" 
-                            variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-rose-50 text-rose-600 cursor-pointer"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-
-                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                            >
+                              <MoreVertical className="h-4 w-4 text-slate-500" />
+                              <span className="sr-only">Open options</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                            <DropdownMenuItem onClick={() => setViewingCustomer(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <Eye className="h-3.5 w-3.5 text-[#1e40af]" />
+                              <span>View Profile</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStartEdit(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <Edit2 className="h-3.5 w-3.5 text-blue-600" />
+                              <span>Edit Customer</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setPrintTarget(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <Printer className="h-3.5 w-3.5 text-red-500" />
+                              <span>Print Profile</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCSVSingle(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <Download className="h-3.5 w-3.5 text-emerald-600" />
+                              <span>Export CSV</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCopySingle(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                              <span>Copy Details</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(customer.id)} 
+                              className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                              <span>Delete Customer</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}

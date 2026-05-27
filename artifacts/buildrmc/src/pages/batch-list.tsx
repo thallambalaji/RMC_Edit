@@ -20,6 +20,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { QcLayout, useQcFilters } from "@/components/qc-layout";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
@@ -38,7 +44,8 @@ import {
   RefreshCw,
   TrendingUp,
   Activity,
-  CheckCircle2
+  CheckCircle2,
+  MoreVertical
 } from "lucide-react";
 
 export default function BatchList() {
@@ -616,34 +623,34 @@ export default function BatchList() {
           {/* Data Grid Table */}
           <div className="flex-1 overflow-auto bg-white">
             <Table>
-              <TableHeader className="sticky top-0 bg-slate-100/90 z-10">
-                <TableRow className="border-b border-slate-200">
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 whitespace-nowrap">
+              <TableHeader className="sticky top-0 bg-[#1e40af] border-b border-white/10 z-10">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Batch No
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Date
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Customer
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Site
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Grade
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">
                     Quantity
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">
                     Batched Quantity
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">
                     Vehicle No
                   </TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center whitespace-nowrap">
-                    ACTION
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">
+                    OPTIONS
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -692,46 +699,39 @@ export default function BatchList() {
                       <TableCell className="text-xs font-bold text-slate-700 px-3 whitespace-nowrap">
                         {item.vehicleNo}
                       </TableCell>
-                      <TableCell className="px-4 py-2.5 text-center whitespace-nowrap print:hidden">
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleExport("copy", item)}
-                            className="h-7 w-7 text-slate-500 hover:bg-slate-100"
-                            title="Copy Row"
-                          >
-                            <CopyIcon className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleExport("csv", item)}
-                            className="h-7 w-7 text-emerald-600 hover:bg-emerald-50"
-                            title="Download CSV"
-                          >
-                            <FileCode className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleExport("pdf", item)}
-                            className="h-7 w-7 text-rose-600 hover:bg-rose-50"
-                            title="Print Record"
-                          >
-                            <FileText className="h-3.5 w-3.5" />
-                          </Button>
-                          <div className="w-px h-4 bg-gray-200 mx-1" />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDelete(item._id || item.id)}
-                            className="h-7 w-7 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
+                      <TableCell className="text-center py-2 no-print">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                            >
+                              <MoreVertical className="h-4 w-4 text-slate-500" />
+                              <span className="sr-only">Open options</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                            <DropdownMenuItem onClick={() => handleExport("copy", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <CopyIcon className="h-3.5 w-3.5 text-cyan-600" />
+                              <span>Copy Details</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExport("csv", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <FileCode className="h-3.5 w-3.5 text-teal-600" />
+                              <span>Download CSV</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleExport("pdf", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                              <FileText className="h-3.5 w-3.5 text-red-500" />
+                              <span>Print Record</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDelete(item._id || item.id)} 
+                              className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                              <span>Delete Batch Log</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))

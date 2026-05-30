@@ -21,6 +21,12 @@ export interface ICustomer extends Document {
   siteName?: string;
   siteAddress?: string;
   creditTerms?: string;
+  panNo?: string;
+  location?: string;
+  pinCode?: string;
+  businessType?: string;
+  isTcsEnabled?: boolean;
+  isTdsEnabled?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +53,12 @@ const CustomerSchema: Schema = new Schema(
     siteName: { type: String },
     siteAddress: { type: String },
     creditTerms: { type: String },
+    panNo: { type: String },
+    location: { type: String },
+    pinCode: { type: String },
+    businessType: { type: String },
+    isTcsEnabled: { type: Boolean },
+    isTdsEnabled: { type: Boolean },
   },
   { timestamps: true }
 );

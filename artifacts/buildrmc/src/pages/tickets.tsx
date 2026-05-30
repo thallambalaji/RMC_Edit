@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 export default function Tickets() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Form State
   const [ticketNo, setTicketNo] = useState("");
@@ -305,14 +306,14 @@ export default function Tickets() {
             <div className="overflow-x-auto flex-1 bg-white">
               <Table className="data-table">
                 <TableHeader>
-                  <TableRow className="bg-slate-900 hover:bg-slate-900 border-b border-slate-800">
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Ticket NO</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Vehicle No</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Weight Type</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Weight</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Date & Time</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest">Created By</TableHead>
-                    <TableHead className="text-white font-black h-12 text-center text-[10px] uppercase tracking-widest print:hidden">ACTIONS</TableHead>
+                  <TableRow className="border-0 hover:bg-transparent">
+                    <TableHead className={headerStyle}>Ticket NO</TableHead>
+                    <TableHead className={headerStyle}>Vehicle No</TableHead>
+                    <TableHead className={headerStyle}>Weight Type</TableHead>
+                    <TableHead className={headerStyle}>Weight</TableHead>
+                    <TableHead className={headerStyle}>Date & Time</TableHead>
+                    <TableHead className={headerStyle}>Created By</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

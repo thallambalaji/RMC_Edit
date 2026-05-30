@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,6 +62,8 @@ export default function CubeTestList() {
   const [filterCustomer, setFilterCustomer] = useState("All Customer");
   const [filterSite, setFilterSite] = useState("All Site");
   const [filterGrade, setFilterGrade] = useState("All Grade");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Dynamic filter lists
   const [customers, setCustomers] = useState<string[]>([]);
@@ -96,27 +98,39 @@ export default function CubeTestList() {
     fetchEntries();
   }, [refreshKey]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterCastingDate, filterCustomer, filterSite, filterGrade, pageSize]);
+
   // Active filter matches
-  const filtered = entries
-    .filter(e => {
-      const tn = e.testNo || "";
-      const cn = e.customerName || "";
-      const matchesSearch = tn.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            cn.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesCustomer = filterCustomer === "All Customer" || e.customerName === filterCustomer;
-      const matchesSite = filterSite === "All Site" || e.siteName === filterSite;
-      const matchesGrade = filterGrade === "All Grade" || e.grade === filterGrade;
-      
-      let matchesDate = true;
-      if (filterCastingDate) {
-        const entryDate = format(new Date(e.createdAt), "yyyy-MM-dd");
-        matchesDate = entryDate === filterCastingDate;
-      }
-      
-      return matchesSearch && matchesCustomer && matchesSite && matchesGrade && matchesDate;
-    })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const filtered = useMemo(() => {
+    return entries
+      .filter(e => {
+        const tn = e.testNo || "";
+        const cn = e.customerName || "";
+        const matchesSearch = tn.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              cn.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        const matchesCustomer = filterCustomer === "All Customer" || e.customerName === filterCustomer;
+        const matchesSite = filterSite === "All Site" || e.siteName === filterSite;
+        const matchesGrade = filterGrade === "All Grade" || e.grade === filterGrade;
+        
+        let matchesDate = true;
+        if (filterCastingDate) {
+          const entryDate = format(new Date(e.createdAt), "yyyy-MM-dd");
+          matchesDate = entryDate === filterCastingDate;
+        }
+        
+        return matchesSearch && matchesCustomer && matchesSite && matchesGrade && matchesDate;
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [entries, searchQuery, filterCastingDate, filterCustomer, filterSite, filterGrade]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageRows = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize]);
 
   // Individual record deletion
   const handleDelete = async (id: string) => {
@@ -167,7 +181,7 @@ export default function CubeTestList() {
       ];
     }) || [];
 
-    const csvContent = [headers, ...rows].map(e => e.map((val: any) => `"${val}"`).join(",")).join("\n");
+    const csvContent = [headers, ...rows].map((e: any) => e.map((val: any) => `"${val}"`).join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -186,16 +200,16 @@ export default function CubeTestList() {
   // Global Actions for Whole List
   const handleCopyList = () => {
     const headers = ["Test No", "Customer Name", "Site Name", "Grade", "Dimension", "Casting Count", "Plant"];
-    const rows = filtered.map(e => [e.testNo, e.customerName, e.siteName, e.grade, e.cubeDimension, e.noOfCasting, e.plant]);
-    const csvContent = [headers, ...rows].map(r => r.join(",")).join("\n");
+    const rows = filtered.map((e: any) => [e.testNo, e.customerName, e.siteName, e.grade, e.cubeDimension, e.noOfCasting, e.plant]);
+    const csvContent = [headers, ...rows].map((r: any) => r.join(",")).join("\n");
     navigator.clipboard.writeText(csvContent);
     toast({ title: "Copied", description: "Full filtered list copied to clipboard." });
   };
 
   const handleExportListCSV = () => {
     const headers = ["Test No", "Customer Name", "Site Name", "Grade", "Dimension", "Casting Count", "Plant"];
-    const rows = filtered.map(e => [e.testNo, e.customerName, e.siteName, e.grade, e.cubeDimension, e.noOfCasting, e.plant]);
-    const csvContent = [headers, ...rows].map(e => e.map(val => `"${val}"`).join(",")).join("\n");
+    const rows = filtered.map((e: any) => [e.testNo, e.customerName, e.siteName, e.grade, e.cubeDimension, e.noOfCasting, e.plant]);
+    const csvContent = [headers, ...rows].map((e: any) => e.map((val: any) => `"${val}"`).join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -252,7 +266,7 @@ export default function CubeTestList() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((e, idx) => (
+              {filtered.map((e: any, idx: number) => (
                 <tr key={idx} className="border border-slate-800">
                   <td className="border border-slate-800 p-1.5 text-center">{idx + 1}</td>
                   <td className="border border-slate-800 p-1.5 font-bold uppercase">{e.testNo}</td>
@@ -445,7 +459,16 @@ export default function CubeTestList() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={fetchEntries} className="bg-[#10b981] hover:bg-emerald-600 h-10 font-bold text-xs uppercase tracking-wider">Search</Button>
+              <Button 
+                onClick={() => {
+                  setCurrentPage(1);
+                  fetchEntries();
+                  toast({ title: "Search Applied", description: `Found ${filtered.length} cube test entries.` });
+                }} 
+                className="bg-[#10b981] hover:bg-emerald-600 h-10 font-bold text-xs uppercase tracking-wider"
+              >
+                Search
+              </Button>
               <Button 
                 variant="outline" 
                 className="bg-[#f43f5e] hover:bg-rose-600 text-white border-none h-10 font-bold text-xs uppercase tracking-wider"
@@ -455,6 +478,8 @@ export default function CubeTestList() {
                   setFilterSite("All Site");
                   setFilterGrade("All Grade");
                   setFilterCastingDate("");
+                  setCurrentPage(1);
+                  toast({ title: "Filters Cleared", description: "Showing all cube test records." });
                 }}
               >
                 Clear
@@ -466,7 +491,7 @@ export default function CubeTestList() {
             <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-4">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
                 <span>Show</span>
-                <Select defaultValue="10">
+                <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setCurrentPage(1); }}>
                   <SelectTrigger className="h-9 w-16 text-xs border-slate-200">
                     <SelectValue />
                   </SelectTrigger>
@@ -514,7 +539,7 @@ export default function CubeTestList() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : filtered.length === 0 ? (
+                  ) : pageRows.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={11} className="h-40 text-center text-slate-400">
                         <div className="flex flex-col items-center gap-1.5">
@@ -525,12 +550,12 @@ export default function CubeTestList() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filtered.map((e, idx) => {
+                    pageRows.map((e: any, idx: number) => {
                       const castingDate = new Date(e.createdAt);
                       const age = differenceInDays(new Date(), castingDate);
                       return (
                         <TableRow key={e.id || e._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors">
-                          <TableCell className="text-[10px] font-bold text-slate-400 text-center border-r py-3 px-4">{filtered.length - idx}</TableCell>
+                          <TableCell className="text-[10px] font-bold text-slate-400 text-center border-r py-3 px-4">{(currentPage - 1) * pageSize + idx + 1}</TableCell>
                           <TableCell className="text-[11px] border-r font-black text-blue-800 px-4 uppercase">{e.testNo}</TableCell>
                           <TableCell className="text-[10px] border-r font-bold text-slate-700 px-4 uppercase">{e.customerName}</TableCell>
                           <TableCell className="text-[10px] border-r font-bold text-slate-500 px-4 uppercase">{e.siteName}</TableCell>
@@ -587,14 +612,38 @@ export default function CubeTestList() {
             {/* Pagination Footer */}
             <div className="mt-4 flex items-center justify-between flex-wrap gap-4 pt-2">
               <p className="text-[10px] font-black text-slate-500 uppercase tracking-tight">
-                Showing 1 to {Math.min(10, filtered.length)} of {filtered.length} entries
+                Showing {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
               </p>
-              <div className="flex items-center gap-1">
-                <Button variant="outline" disabled className="h-8 text-[10px] font-black uppercase border-slate-200">Previous</Button>
-                <Button className="h-8 w-8 bg-[#06b6d4] text-white text-[10px] font-black border-none">1</Button>
-                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold border-slate-200">2</Button>
-                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold border-slate-200">3</Button>
-                <Button variant="outline" className="h-8 text-[10px] font-black uppercase border-slate-200">Next</Button>
+              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={currentPage <= 1} 
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                  className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <Button 
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`text-xs font-black w-8 h-8 ${currentPage === pageNum ? "bg-[#06b6d4] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
+                  >
+                    {pageNum}
+                  </Button>
+                ))}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={currentPage >= totalPages} 
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+                >
+                  Next
+                </Button>
               </div>
             </div>
 

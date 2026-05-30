@@ -32,6 +32,7 @@ export default function WeighmentList() {
   const queryClient = useQueryClient();
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [printRecord, setPrintRecord] = useState<any>(null);
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const { data: records, isLoading } = useGetDCs();
   const { data: customers } = useGetCustomers();
@@ -394,16 +395,16 @@ export default function WeighmentList() {
         <div className="overflow-x-auto bg-white">
           <Table className="data-table">
             <TableHeader>
-              <TableRow className="bg-slate-900 hover:bg-slate-900 border-b border-slate-800 print:bg-slate-100 print:text-slate-800">
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Delivery No</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Customer</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Site</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Date</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Item</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Weights (E/L/N)</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Vehicle</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest">Plant</TableHead>
-                <TableHead className="text-white print:text-slate-800 font-black h-12 !text-center !bg-transparent text-[10px] uppercase tracking-widest print:hidden">ACTIONS</TableHead>
+              <TableRow className="border-0 hover:bg-transparent print:border-b-2 print:border-gray-800 print:bg-transparent">
+                <TableHead className={headerStyle}>Delivery No</TableHead>
+                <TableHead className={headerStyle}>Customer</TableHead>
+                <TableHead className={headerStyle}>Site</TableHead>
+                <TableHead className={headerStyle}>Date</TableHead>
+                <TableHead className={headerStyle}>Item</TableHead>
+                <TableHead className={headerStyle}>Weights (E/L/N)</TableHead>
+                <TableHead className={headerStyle}>Vehicle</TableHead>
+                <TableHead className={headerStyle}>Plant</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

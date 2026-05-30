@@ -53,6 +53,7 @@ export default function SecurityCheckList() {
   const [logs, setLogs] = useState<SecurityData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Filter States
   const [filterSecurityNo, setFilterSecurityNo] = useState("");
@@ -473,7 +474,7 @@ export default function SecurityCheckList() {
       title="SECURITY CHECK LIST"
       activePath="/transport/security/list"
     >
-      <div className="w-full py-4 px-4 bg-[#f8fafc] min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
+      <div className="w-full py-4 px-4 bg-white min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
         
         {/* Filters Panel Grid matching Image */}
         {showFilters && (
@@ -581,18 +582,18 @@ export default function SecurityCheckList() {
         {/* Security Logs List Table */}
         <div className="border border-slate-200/60 rounded-md overflow-hidden bg-white shadow-xs">
           <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="border-b border-slate-200">
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 py-3 px-3 text-center">Security No</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Gate No</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Gate Passing</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Date</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Time</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Vehicle No</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3">Driver Name</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Type of movement</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-3 text-center">Plant</TableHead>
-                <TableHead className="text-[10px] font-black uppercase text-slate-800 px-4 text-center w-[220px]">ACTION</TableHead>
+            <TableHeader>
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead className={headerStyle}>Security No</TableHead>
+                <TableHead className={headerStyle}>Gate No</TableHead>
+                <TableHead className={headerStyle}>Gate Passing</TableHead>
+                <TableHead className={headerStyle}>Date</TableHead>
+                <TableHead className={headerStyle}>Time</TableHead>
+                <TableHead className={headerStyle}>Vehicle No</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Driver Name</TableHead>
+                <TableHead className={headerStyle}>Type of movement</TableHead>
+                <TableHead className={headerStyle}>Plant</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-4 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[220px]">ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

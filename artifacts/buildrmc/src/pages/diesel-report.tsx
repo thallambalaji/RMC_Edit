@@ -46,6 +46,7 @@ interface FuelData {
 export default function DieselReport() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -774,14 +775,14 @@ export default function DieselReport() {
               {reportType === "Diesel Consolidate Report" ? (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
                   <Table>
-                    <TableHeader className="bg-[#00c0a5] hover:bg-[#00c0a5]">
-                      <TableRow className="border-b border-[#00a890] hover:bg-transparent">
-                        <TableHead className="text-white text-[11px] font-black uppercase py-3.5 px-4 w-20">S.No</TableHead>
-                        <TableHead className="text-white text-[11px] font-black uppercase px-3">Vehicle No</TableHead>
-                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Total Volume (Ltrs)</TableHead>
-                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Total Cost (₹)</TableHead>
-                        <TableHead className="text-white text-[11px] font-black uppercase px-3 text-right">Avg Refuel Size (Ltrs)</TableHead>
-                        <TableHead className="text-white text-[11px] font-black uppercase px-4 text-center w-32">Trip Count</TableHead>
+                    <TableHeader className="bg-[#1e40af] hover:bg-[#1e40af]">
+                      <TableRow className="border-0 hover:bg-transparent">
+                        <TableHead className={`${headerStyle} w-20`}>S.No</TableHead>
+                        <TableHead className={`${headerStyle} text-left`}>Vehicle No</TableHead>
+                        <TableHead className={`${headerStyle} text-right`}>Total Volume (Ltrs)</TableHead>
+                        <TableHead className={`${headerStyle} text-right`}>Total Cost (₹)</TableHead>
+                        <TableHead className={`${headerStyle} text-right`}>Avg Refuel Size (Ltrs)</TableHead>
+                        <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-32">Trip Count</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -806,23 +807,23 @@ export default function DieselReport() {
               ) : (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
                   <Table>
-                    <TableHeader className="bg-[#00c0a5] hover:bg-[#00c0a5]">
-                      <TableRow className="border-b border-[#00a890] hover:bg-transparent">
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase py-3.5 px-4 align-middle w-24">S.No</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Vehicle No</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Date</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Quantity</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Rate</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle text-right">Amount</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-3 align-middle">Plant</TableHead>
-                        <TableHead colSpan={4} className="text-white text-[11px] font-black uppercase text-center border-b border-[#00a890]/40 py-2">Engine</TableHead>
-                        <TableHead rowSpan={2} className="text-white text-[11px] font-black uppercase px-4 text-center align-middle w-40">Actions</TableHead>
+                    <TableHeader className="bg-[#1e40af] hover:bg-[#1e40af]">
+                      <TableRow className="border-0 hover:bg-transparent">
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle w-24`}>S.No</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Vehicle No</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Date</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-right`}>Quantity</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-right`}>Rate</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-right`}>Amount</TableHead>
+                        <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Plant</TableHead>
+                        <TableHead colSpan={4} className="bg-[#1e40af] text-white font-black py-1 px-2 text-center text-[9px] border-r border-white/10 uppercase tracking-tighter border-b border-white/10">Engine</TableHead>
+                        <TableHead rowSpan={2} className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter align-middle w-40">Actions</TableHead>
                       </TableRow>
-                      <TableRow className="border-b border-[#00a890] hover:bg-transparent bg-[#00c0a5]">
-                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3">Engine Type</TableHead>
-                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3">Type</TableHead>
-                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3 text-right">Opening</TableHead>
-                        <TableHead className="text-white text-[10px] font-bold uppercase py-2 px-3 text-right">Closing</TableHead>
+                      <TableRow className="border-0 hover:bg-transparent bg-[#1e40af]">
+                        <TableHead className={headerStyle}>Engine Type</TableHead>
+                        <TableHead className={headerStyle}>Type</TableHead>
+                        <TableHead className={`${headerStyle} text-right`}>Opening</TableHead>
+                        <TableHead className={`${headerStyle} text-right`}>Closing</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

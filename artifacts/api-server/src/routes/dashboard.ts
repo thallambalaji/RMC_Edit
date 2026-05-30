@@ -8,7 +8,7 @@ const router: IRouter = Router();
 router.get("/dashboard/accounts-overview", async (req, res): Promise<void> => {
   try {
     await connectMongo();
-    const plants = ["FORTUNE CONCRETE", "NARVAL RMC"];
+    const plants = ["FORTUNE CONCRETE", "MARVAL RMC"];
     const today = new Date().toISOString().split("T")[0];
     const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split("T")[0];
 

@@ -100,11 +100,25 @@ export default function CustomerList() {
 
   const [editForm, setEditForm] = useState({
     name: "",
+    legalName: "",
     contact: "",
+    email: "",
     address: "",
     gstNumber: "",
-    plant: "",
-    marketingPerson: ""
+    creditTerms: "30 Days",
+    state: "JAMMU AND KASHMIR",
+    marketingPerson: "Fortune Concrete",
+    creditLimit: "",
+    creditDays: "",
+    openingBalance: "",
+    businessGroup: "READY MIX CONCRETE",
+    contactPersonName: "",
+    contactPersonPhone: "",
+    sourceType: "direct",
+    designation: "owner",
+    plant: "All Plant",
+    siteName: "",
+    siteAddress: ""
   });
 
   // Filter and Memoize customers lists against active search states
@@ -245,11 +259,25 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
     setEditingCustomer(customer);
     setEditForm({
       name: customer.name || "",
+      legalName: customer.legalName || "",
       contact: customer.contact || "",
+      email: customer.email || "",
       address: customer.address || "",
       gstNumber: customer.gstNumber || "",
-      plant: customer.plant || "",
-      marketingPerson: customer.marketingPerson || ""
+      creditTerms: customer.creditTerms || "30 Days",
+      state: customer.state || "JAMMU AND KASHMIR",
+      marketingPerson: customer.marketingPerson || "Fortune Concrete",
+      creditLimit: customer.creditLimit !== undefined && customer.creditLimit !== null ? String(customer.creditLimit) : "",
+      creditDays: customer.creditDays !== undefined && customer.creditDays !== null ? String(customer.creditDays) : "",
+      openingBalance: customer.openingBalance !== undefined && customer.openingBalance !== null ? String(customer.openingBalance) : "",
+      businessGroup: customer.businessGroup || "READY MIX CONCRETE",
+      contactPersonName: customer.contactPersonName || "",
+      contactPersonPhone: customer.contactPersonPhone || "",
+      sourceType: customer.sourceType || "direct",
+      designation: customer.designation || "owner",
+      plant: customer.plant || "All Plant",
+      siteName: customer.siteName || "",
+      siteAddress: customer.siteAddress || ""
     });
   };
 
@@ -259,9 +287,32 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       return;
     }
 
+    const payload = {
+      name: editForm.name.trim(),
+      legalName: editForm.legalName.trim() || undefined,
+      contact: editForm.contact.trim(),
+      email: editForm.email.trim() || undefined,
+      address: editForm.address.trim(),
+      gstNumber: editForm.gstNumber.trim() || undefined,
+      state: editForm.state || undefined,
+      businessGroup: editForm.businessGroup || undefined,
+      marketingPerson: editForm.marketingPerson || undefined,
+      creditLimit: editForm.creditLimit ? parseFloat(editForm.creditLimit) : undefined,
+      creditDays: editForm.creditDays ? parseInt(editForm.creditDays) : undefined,
+      openingBalance: editForm.openingBalance ? parseFloat(editForm.openingBalance) : undefined,
+      contactPersonName: editForm.contactPersonName.trim() || undefined,
+      contactPersonPhone: editForm.contactPersonPhone.trim() || undefined,
+      sourceType: editForm.sourceType || undefined,
+      designation: editForm.designation || undefined,
+      plant: editForm.plant || undefined,
+      siteName: editForm.siteName.trim() || undefined,
+      siteAddress: editForm.siteAddress.trim() || undefined,
+      creditTerms: editForm.creditTerms || undefined,
+    };
+
     updateCustomerMutation.mutate({
       id: editingCustomer.id,
-      data: editForm
+      data: payload
     }, {
       onSuccess: () => {
         toast({ title: "Profile Updated ✨", description: "Customer details updated permanently in MongoDB Atlas." });
@@ -620,64 +671,242 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
 
       {/* Inline Edit Customer Dialog */}
       <Dialog open={!!editingCustomer} onOpenChange={() => setEditingCustomer(null)}>
-        <DialogContent className="max-w-md p-5 bg-white rounded-lg border">
+        <DialogContent className="max-w-4xl p-5 bg-white rounded-lg border">
           <DialogHeader className="border-b pb-2 mb-3">
             <DialogTitle className="text-sm font-black text-[#1e40af] uppercase tracking-wider">Update Customer Profile</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-0.5">
-              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Customer Name</Label>
-              <Input 
-                value={editForm.name} 
-                onChange={e => setEditForm({ ...editForm, name: e.target.value })} 
-                className="h-8 text-xs border-gray-200"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-0.5">
-                <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Customer Phone</Label>
-                <Input 
-                  value={editForm.contact} 
-                  onChange={e => setEditForm({ ...editForm, contact: e.target.value })} 
-                  className="h-8 text-xs border-gray-200"
-                />
+          <div className="max-h-[65vh] overflow-y-auto pr-1 space-y-4 scrollbar-thin scrollbar-thumb-gray-100">
+            
+            {/* Business Identity */}
+            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-slate-200 pb-1.5">
+                <span className="text-[9px] font-black text-slate-800 uppercase tracking-wider">Business Identity</span>
               </div>
-              <div className="space-y-0.5">
-                <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">GSTIN Number</Label>
-                <Input 
-                  value={editForm.gstNumber} 
-                  onChange={e => setEditForm({ ...editForm, gstNumber: e.target.value })} 
-                  className="h-8 text-xs border-gray-200"
-                />
+              <div className="grid grid-cols-4 gap-3">
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Customer Name *</Label>
+                  <Input 
+                    value={editForm.name} 
+                    onChange={e => setEditForm({ ...editForm, name: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Legal Name</Label>
+                  <Input 
+                    value={editForm.legalName} 
+                    onChange={e => setEditForm({ ...editForm, legalName: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Customer Phone *</Label>
+                  <Input 
+                    value={editForm.contact} 
+                    onChange={e => setEditForm({ ...editForm, contact: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Customer Email</Label>
+                  <Input 
+                    value={editForm.email} 
+                    onChange={e => setEditForm({ ...editForm, email: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="col-span-2 space-y-0.5">
+                  <Label className={labelStyle}>Customer Address</Label>
+                  <Input 
+                    value={editForm.address} 
+                    onChange={e => setEditForm({ ...editForm, address: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>GSTIN Number</Label>
+                  <Input 
+                    value={editForm.gstNumber} 
+                    onChange={e => setEditForm({ ...editForm, gstNumber: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>State</Label>
+                  <Select value={editForm.state} onValueChange={v => setEditForm({ ...editForm, state: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="JAMMU AND KASHMIR" className="text-[10px] font-bold">JAMMU AND KASHMIR</SelectItem>
+                      <SelectItem value="TELANGANA" className="text-[10px] font-bold">TELANGANA</SelectItem>
+                      <SelectItem value="KARNATAKA" className="text-[10px] font-bold">KARNATAKA</SelectItem>
+                      <SelectItem value="ANDHRA PRADESH" className="text-[10px] font-bold">ANDHRA PRADESH</SelectItem>
+                      <SelectItem value="TAMIL NADU" className="text-[10px] font-bold">TAMIL NADU</SelectItem>
+                      <SelectItem value="MAHARASHTRA" className="text-[10px] font-bold">MAHARASHTRA</SelectItem>
+                      <SelectItem value="DELHI" className="text-[10px] font-bold">DELHI</SelectItem>
+                      <SelectItem value="GUJARAT" className="text-[10px] font-bold">GUJARAT</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-0.5">
-                <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Assigned Plant</Label>
-                <Input 
-                  value={editForm.plant} 
-                  onChange={e => setEditForm({ ...editForm, plant: e.target.value })} 
-                  className="h-8 text-xs border-gray-200"
-                  placeholder="e.g. Hyderabad Plant"
-                />
+
+            {/* Financial & Classification */}
+            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-slate-200 pb-1.5">
+                <span className="text-[9px] font-black text-slate-800 uppercase tracking-wider">Financial & Classification</span>
               </div>
-              <div className="space-y-0.5">
-                <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Sales Person</Label>
-                <Input 
-                  value={editForm.marketingPerson} 
-                  onChange={e => setEditForm({ ...editForm, marketingPerson: e.target.value })} 
-                  className="h-8 text-xs border-gray-200"
-                />
+              <div className="grid grid-cols-4 gap-3">
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Credit Limit</Label>
+                  <Input 
+                    type="number"
+                    value={editForm.creditLimit} 
+                    onChange={e => setEditForm({ ...editForm, creditLimit: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Credit Days</Label>
+                  <Input 
+                    type="number"
+                    value={editForm.creditDays} 
+                    onChange={e => setEditForm({ ...editForm, creditDays: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Opening Balance</Label>
+                  <Input 
+                    type="number"
+                    value={editForm.openingBalance} 
+                    onChange={e => setEditForm({ ...editForm, openingBalance: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Credit Terms</Label>
+                  <Select value={editForm.creditTerms} onValueChange={v => setEditForm({ ...editForm, creditTerms: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="30 Days" className="text-[10px] font-bold">30 Days</SelectItem>
+                      <SelectItem value="45 Days" className="text-[10px] font-bold">45 Days</SelectItem>
+                      <SelectItem value="60 Days" className="text-[10px] font-bold">60 Days</SelectItem>
+                      <SelectItem value="COD" className="text-[10px] font-bold">COD</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Business Group</Label>
+                  <Select value={editForm.businessGroup} onValueChange={v => setEditForm({ ...editForm, businessGroup: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="READY MIX CONCRETE" className="text-[10px] font-bold">READY MIX CONCRETE</SelectItem>
+                      <SelectItem value="INFRASTRUCTURE BUILDERS" className="text-[10px] font-bold">INFRASTRUCTURE BUILDERS</SelectItem>
+                      <SelectItem value="REAL ESTATE DEVELOPERS" className="text-[10px] font-bold">REAL ESTATE DEVELOPERS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Source Type</Label>
+                  <Select value={editForm.sourceType} onValueChange={v => setEditForm({ ...editForm, sourceType: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="direct" className="text-[10px] font-bold">Direct</SelectItem>
+                      <SelectItem value="referral" className="text-[10px] font-bold">Referral</SelectItem>
+                      <SelectItem value="campaign" className="text-[10px] font-bold">Campaign</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Designation</Label>
+                  <Select value={editForm.designation} onValueChange={v => setEditForm({ ...editForm, designation: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="owner" className="text-[10px] font-bold">Owner</SelectItem>
+                      <SelectItem value="manager" className="text-[10px] font-bold">Manager</SelectItem>
+                      <SelectItem value="director" className="text-[10px] font-bold">Director</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Assigned Plant</Label>
+                  <Select value={editForm.plant} onValueChange={v => setEditForm({ ...editForm, plant: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="All Plant" className="text-[10px] font-bold">All Plant</SelectItem>
+                      <SelectItem value="Hyderabad Plant" className="text-[10px] font-bold">Hyderabad Plant</SelectItem>
+                      <SelectItem value="Medchal Plant" className="text-[10px] font-bold">Medchal Plant</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Marketing Person</Label>
+                  <Select value={editForm.marketingPerson} onValueChange={v => setEditForm({ ...editForm, marketingPerson: v })}>
+                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
+                      <SelectItem value="John Doe" className="text-[10px] font-bold">John Doe</SelectItem>
+                      <SelectItem value="Jane Smith" className="text-[10px] font-bold">Jane Smith</SelectItem>
+                      <SelectItem value="Balaji" className="text-[10px] font-bold">Balaji</SelectItem>
+                      <SelectItem value="Shiva Kumar" className="text-[10px] font-bold">Shiva Kumar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-            <div className="space-y-0.5">
-              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Address</Label>
-              <textarea 
-                value={editForm.address} 
-                onChange={e => setEditForm({ ...editForm, address: e.target.value })} 
-                className="w-full min-h-[60px] p-2 text-xs border rounded border-gray-200 focus:outline-none focus:ring-1 focus:ring-[#1e40af] font-medium text-slate-700"
-              />
+
+            {/* Contact Person Details */}
+            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-slate-200 pb-1.5">
+                <span className="text-[9px] font-black text-slate-800 uppercase tracking-wider">Contact Person Details</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Contact Person Name</Label>
+                  <Input 
+                    value={editForm.contactPersonName} 
+                    onChange={e => setEditForm({ ...editForm, contactPersonName: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Contact Person Phone</Label>
+                  <Input 
+                    value={editForm.contactPersonPhone} 
+                    onChange={e => setEditForm({ ...editForm, contactPersonPhone: e.target.value })} 
+                    className={inputStyle}
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* Site Locations */}
+            <div className="bg-slate-50/50 p-3 rounded-lg border border-slate-100">
+              <div className="flex items-center gap-1.5 mb-2 border-b border-slate-200 pb-1.5">
+                <span className="text-[9px] font-black text-slate-800 uppercase tracking-wider">Default Site Locations</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Site Name(s)</Label>
+                  <Input 
+                    value={editForm.siteName} 
+                    onChange={e => setEditForm({ ...editForm, siteName: e.target.value })} 
+                    className={inputStyle}
+                    placeholder="Site A | Site B"
+                  />
+                </div>
+                <div className="space-y-0.5">
+                  <Label className={labelStyle}>Site Address(es)</Label>
+                  <Input 
+                    value={editForm.siteAddress} 
+                    onChange={e => setEditForm({ ...editForm, siteAddress: e.target.value })} 
+                    className={inputStyle}
+                    placeholder="Address A (PIN: 123456) | Address B (PIN: 654321)"
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
           <DialogFooter className="mt-4 border-t pt-2 gap-2">
             <Button variant="outline" size="sm" onClick={() => setEditingCustomer(null)} className="h-7 uppercase text-[9px] font-black">Cancel</Button>

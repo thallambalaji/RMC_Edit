@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { connectMongo, WeighmentTicket } from "@workspace/mongo-db";
+import { connectMongo, InventoryTicket } from "@workspace/mongo-db";
 import { z } from "zod";
 
 const router: IRouter = Router();
@@ -14,18 +14,18 @@ const createTicketSchema = z.object({
   createdBy: z.string().optional(),
 });
 
-router.get("/weighment-tickets", async (_req, res): Promise<void> => {
+router.get("/inventory-tickets", async (_req, res): Promise<void> => {
   try {
     await connectMongo();
-    const tickets = await WeighmentTicket.find().sort({ createdAt: -1 });
+    const tickets = await InventoryTicket.find().sort({ createdAt: -1 });
     res.json(tickets);
   } catch (error) {
-    console.error("Failed to fetch tickets from MongoDB:", error);
+    console.error("Failed to fetch inventory tickets from MongoDB:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-router.post("/weighment-tickets", async (req, res): Promise<void> => {
+router.post("/inventory-tickets", async (req, res): Promise<void> => {
   try {
     const parsed = createTicketSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -34,25 +34,22 @@ router.post("/weighment-tickets", async (req, res): Promise<void> => {
     }
 
     await connectMongo();
-    const ticket = new WeighmentTicket({
+    const ticket = new InventoryTicket({
       ...parsed.data,
       weight: Number(parsed.data.weight),
       createdBy: parsed.data.createdBy || "Super Admin",
     });
 
     await ticket.save();
-    console.log("✅ Ticket saved successfully:", ticket._id);
+    console.log("✅ Inventory Ticket saved successfully:", ticket._id);
     res.status(201).json(ticket);
   } catch (error: any) {
-    console.error("❌ Failed to save ticket to MongoDB:");
-    console.error("Error Name:", error.name);
-    console.error("Error Message:", error.message);
-    if (error.errors) console.error("Validation Errors:", JSON.stringify(error.errors, null, 2));
+    console.error("❌ Failed to save inventory ticket to MongoDB:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
 
-router.put("/weighment-tickets/:id", async (req, res): Promise<void> => {
+router.put("/inventory-tickets/:id", async (req, res): Promise<void> => {
   try {
     const parsed = createTicketSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -61,7 +58,7 @@ router.put("/weighment-tickets/:id", async (req, res): Promise<void> => {
     }
 
     await connectMongo();
-    const result = await WeighmentTicket.findByIdAndUpdate(
+    const result = await InventoryTicket.findByIdAndUpdate(
       req.params.id,
       {
         ...parsed.data,
@@ -71,30 +68,29 @@ router.put("/weighment-tickets/:id", async (req, res): Promise<void> => {
     );
 
     if (!result) {
-      res.status(404).json({ error: "Ticket not found" });
+      res.status(404).json({ error: "Inventory ticket not found" });
       return;
     }
 
-    console.log("✅ Ticket updated successfully:", result._id);
+    console.log("✅ Inventory Ticket updated successfully:", result._id);
     res.json(result);
   } catch (error: any) {
-    console.error("❌ Failed to update ticket in MongoDB:", error);
+    console.error("❌ Failed to update inventory ticket in MongoDB:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
 
-
-router.delete("/weighment-tickets/:id", async (req, res): Promise<void> => {
+router.delete("/inventory-tickets/:id", async (req, res): Promise<void> => {
   try {
     await connectMongo();
-    const result = await WeighmentTicket.findByIdAndDelete(req.params.id);
+    const result = await InventoryTicket.findByIdAndDelete(req.params.id);
     if (!result) {
-      res.status(404).json({ error: "Ticket not found" });
+      res.status(404).json({ error: "Inventory ticket not found" });
       return;
     }
-    res.json({ message: "Ticket deleted successfully" });
+    res.json({ message: "Inventory ticket deleted successfully" });
   } catch (error) {
-    console.error("Failed to delete ticket from MongoDB:", error);
+    console.error("Failed to delete inventory ticket from MongoDB:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

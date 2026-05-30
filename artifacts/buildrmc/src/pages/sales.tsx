@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   useGetSalesOrders,
   useGetCustomers,
@@ -48,7 +48,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   ChevronRight, 
   Plus, 
-  MoreHorizontal, 
+  MoreVertical, 
   Search, 
   RotateCcw, 
   Download, 
@@ -87,6 +87,14 @@ interface ISalesOrder {
 
 export default function Sales() {
   const { toast } = useToast();
+  const [location] = useLocation();
+
+  const linkClass = (href: string) =>
+    `text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer block border ${
+      location === href
+        ? "bg-[#1e40af] text-white border-[#1e40af] shadow font-bold"
+        : "text-gray-600 hover:text-[#1e40af] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
+    }`;
   const { data, isLoading } = useGetSalesOrders();
   
   // Explicitly cast to the correct interface
@@ -204,31 +212,31 @@ export default function Sales() {
     }
   };
 
+  const getDefaultAccordions = () => {
+    if (location.startsWith("/sales/enquiry")) return ["sales-enquiry"];
+    if (location.startsWith("/sales/payment-follow-up")) return ["payment-followup"];
+    if (location.startsWith("/sales/settings")) return ["sales-settings"];
+    return [];
+  };
+
   return (
-    <div className="flex h-full gap-4 bg-[#f8fafc]">
+    <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm">Sales Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
-          <div className="mb-3 px-1 mt-1">
-            <Link href="/customer-po/sales-order/new">
-              <Button className="w-full bg-[#1e40af] hover:bg-[#1d4ed8] h-9 text-xs font-bold shadow-sm rounded-lg">
-                <Plus className="h-4 w-4 mr-2" /> New Sales Order
-              </Button>
-            </Link>
-          </div>
-          <Accordion type="multiple" className="w-full space-y-2">
+          <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
             <AccordionItem value="sales-enquiry" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><ClipboardList className="h-4 w-4 text-[#1e40af]"/> Sales Enquiry</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/sales/enquiry/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Enquiry</div></Link>
-                  <Link href="/sales/enquiry/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Enquiry List</div></Link>
-                  <Link href="/sales/enquiry"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Enquiry Hub</div></Link>
+                  <Link href="/sales/enquiry/new"><div className={linkClass("/sales/enquiry/new")}>Add Enquiry</div></Link>
+                  <Link href="/sales/enquiry/list"><div className={linkClass("/sales/enquiry/list")}>Enquiry List</div></Link>
+                  <Link href="/sales/enquiry"><div className={linkClass("/sales/enquiry")}>Enquiry Hub</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -239,9 +247,9 @@ export default function Sales() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/sales/payment-follow-up/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Payment Follow Up</div></Link>
-                  <Link href="/sales/payment-follow-up/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Payment Follow Up List</div></Link>
-                  <Link href="/sales/payment-follow-up"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Follow Up Hub</div></Link>
+                  <Link href="/sales/payment-follow-up/new"><div className={linkClass("/sales/payment-follow-up/new")}>Add Payment Follow Up</div></Link>
+                  <Link href="/sales/payment-follow-up/list"><div className={linkClass("/sales/payment-follow-up/list")}>Payment Follow Up List</div></Link>
+                  <Link href="/sales/payment-follow-up"><div className={linkClass("/sales/payment-follow-up")}>Follow Up Hub</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -252,8 +260,8 @@ export default function Sales() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/sales/settings/master"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Master</div></Link>
-                  <Link href="/sales/settings"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Settings Hub</div></Link>
+                  <Link href="/sales/settings/master"><div className={linkClass("/sales/settings/master")}>Sales Master</div></Link>
+                  <Link href="/sales/settings"><div className={linkClass("/sales/settings")}>Settings Hub</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -263,9 +271,9 @@ export default function Sales() {
 
       <div className="flex-1 flex flex-col space-y-3 min-w-0">
         {/* Top Breadcrumb & Actions Row */}
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
+        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
           <div className="flex items-center gap-3">
-            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Dashboard</h2>
+            <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Sales Dashboard</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
               <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
@@ -275,14 +283,20 @@ export default function Sales() {
               <span className="text-[#1e40af]">Sales Orders</span>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
+            <Link href="/customer-po/sales-order/new">
+              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
+                <Plus className="h-3.5 w-3.5" /> New Sales Order
+              </Button>
+            </Link>
             <Button 
-              variant="outline" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-8 text-[11px] font-bold ${showFilters ? "bg-gray-100" : ""}`}
+              className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
+                showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
             >
-              <Filter className="h-3 w-3 mr-1.5" /> {showFilters ? "Filters" : "Filters"}
+              <Filter className="h-3 w-3" /> Filters
             </Button>
           </div>
         </div>
@@ -333,20 +347,20 @@ export default function Sales() {
           </div>
           {/* Table Header / Filters Row */}
           {showFilters && (
-            <div className="p-3 border-b bg-gray-50/50 grid grid-cols-1 md:grid-cols-5 gap-3 items-end print:hidden">
+            <div className="p-3 border-b bg-white rounded-lg border border-gray-100 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3 items-end print:hidden">
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">PO Number</Label>
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">PO Number</Label>
                 <Input 
                   placeholder="Search PO..." 
-                  className="h-8 text-xs" 
+                  className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" 
                   value={poFilter} 
                   onChange={e => {setPoFilter(e.target.value); setPage(1);}}
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">Customer</Label>
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">Customer</Label>
                 <Select value={customerFilter} onValueChange={v => {setCustomerFilter(v); setPage(1);}}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-[10px] border-gray-200"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Customers</SelectItem>
                     {customers?.map((c: any) => (
@@ -356,16 +370,16 @@ export default function Sales() {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">From Date</Label>
-                <Input type="date" className="h-8 text-xs" value={fromDate} onChange={e => {setFromDate(e.target.value); setPage(1);}} />
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">From Date</Label>
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={fromDate} onChange={e => {setFromDate(e.target.value); setPage(1);}} />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">To Date</Label>
-                <Input type="date" className="h-8 text-xs" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">To Date</Label>
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold" onClick={handleSearch}>Search</Button>
-                <Button size="sm" variant="outline" onClick={handleClear} className="h-8 w-8 p-0"><RotateCcw className="h-3 w-3" /></Button>
+                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-7 flex-1 text-[10px] font-bold" onClick={handleSearch}><Search className="h-3 w-3 mr-1" />Search</Button>
+                <Button size="sm" variant="outline" onClick={handleClear} className="h-7 w-7 p-0 bg-rose-500 hover:bg-rose-600 text-white border-0"><RotateCcw className="h-3 w-3" /></Button>
               </div>
             </div>
           )}
@@ -389,16 +403,16 @@ export default function Sales() {
           {/* Table Body */}
           <div className="flex-1 overflow-auto print:overflow-visible">
             <Table className="print:text-[10px]">
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm print:shadow-none">
-                <TableRow className="hover:bg-transparent border-b print:border-gray-800 print:border-b-2">
-                  <TableHead className="w-[60px] text-[10px] font-bold uppercase text-gray-400 py-2 print:text-black">ID</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">PO Number</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Customer</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Date</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Items</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right print:text-black">Total Qty</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Status</TableHead>
-                  <TableHead className="w-[80px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">Action</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] print:shadow-none">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af] print:border-gray-800 print:border-b-2">
+                  <TableHead className="w-[60px] bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">ID</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">PO Number</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Customer</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Date</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Items</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-right print:text-black">Total Qty</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Status</TableHead>
+                  <TableHead className="w-[80px] bg-[#1e40af] text-white font-black text-[9px] py-1.5 px-3 text-center uppercase tracking-tighter last:border-0 print:hidden">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -428,13 +442,14 @@ export default function Sales() {
                       <TableCell className="text-center py-2 print:hidden">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 transition-opacity">
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto">
+                              <MoreVertical className="h-4 w-4 text-slate-500" />
+                              <span className="sr-only">Open options</span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="text-xs">
-                            <DropdownMenuItem onClick={() => setSelectedOrder(order)}>View Details</DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600" onClick={() => handleDelete(order.id)}>Delete</DropdownMenuItem>
+                          <DropdownMenuContent align="end" className="w-44 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                            <DropdownMenuItem onClick={() => setSelectedOrder(order)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">View Details</DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50" onClick={() => handleDelete(order.id)}>Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

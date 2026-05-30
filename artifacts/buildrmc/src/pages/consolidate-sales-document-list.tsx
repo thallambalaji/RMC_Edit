@@ -45,6 +45,7 @@ import { ChevronRight, Search, RotateCcw, Files, Printer, Download, Copy, Trash2
 export default function ConsolidateSalesDocumentList() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const { data: invoices, isLoading } = useGetInvoices();
   const { data: customers } = useGetCustomers();
   const deleteInvoice = useDeleteInvoice();
@@ -272,13 +273,13 @@ export default function ConsolidateSalesDocumentList() {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-white hover:bg-white border-b border-gray-100">
-                <TableHead className="text-gray-900 font-bold py-4 text-center">Consolidate Invoice ID</TableHead>
-                <TableHead className="text-gray-900 font-bold text-center">Customer</TableHead>
-                <TableHead className="text-gray-900 font-bold text-center">Generate Date</TableHead>
-                <TableHead className="text-gray-900 font-bold text-center">No Of Invoice</TableHead>
-                <TableHead className="text-gray-900 font-bold text-center">Plant Name</TableHead>
-                <TableHead className="text-gray-900 font-bold text-center">Action</TableHead>
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead className={headerStyle}>Consolidate Invoice ID</TableHead>
+                <TableHead className={headerStyle}>Customer</TableHead>
+                <TableHead className={headerStyle}>Generate Date</TableHead>
+                <TableHead className={headerStyle}>No Of Invoice</TableHead>
+                <TableHead className={headerStyle}>Plant Name</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

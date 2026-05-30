@@ -119,7 +119,25 @@ function getBatchMaterials(d: any, grade: string = "M25") {
 }
 
 export default function Billing() {
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
+
+  const getDefaultAccordions = () => {
+    if (location.startsWith("/billing/sales-document") || 
+        location === "/billing/consolidate-sales-document-list") return ["sales-invoice"];
+    if (location.startsWith("/billing/invoice-report") || 
+        location.startsWith("/billing/consolidate-invoice-list") ||
+        location.startsWith("/billing/generate-annexure") ||
+        location.startsWith("/billing/debit-credit-note-list") ||
+        location.startsWith("/billing/rmc-report")) return ["rmc-report"];
+    return [];
+  };
+
+  const linkClass = (href: string) =>
+    `text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer block border ${
+      location === href
+        ? "bg-[#1e40af] text-white border-[#1e40af] shadow font-bold"
+        : "text-gray-600 hover:text-[#1e40af] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
+    }`;
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: invoices, isLoading } = useGetInvoices({
@@ -446,7 +464,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
 
 
       {/* Main Screen Layout */}
-      <div className="flex h-full gap-4 bg-[#f8fafc] main-screen">
+      <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white main-screen">
 
       {/* Sidebar Navigation */}
       <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
@@ -454,24 +472,17 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
           <h3 className="font-bold text-gray-800 text-sm">Billing Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
-          <div className="mb-3 px-1 mt-1">
-            <Link href="/billing/new">
-              <Button className="w-full bg-[#1e40af] hover:bg-[#1d4ed8] h-9 text-xs font-bold shadow-sm rounded-lg">
-                <Plus className="h-4 w-4 mr-2" /> Add Invoice
-              </Button>
-            </Link>
-          </div>
-          <Accordion type="multiple" className="w-full space-y-2">
+          <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
             <AccordionItem value="sales-invoice" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><Receipt className="h-4 w-4 text-[#1e40af]"/> Sales Invoice</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/billing/sales-document/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Sales Document</div></Link>
-                  <Link href="/billing/sales-document"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Document List</div></Link>
-                  <Link href="/billing/sales-document-report"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Document Report</div></Link>
-                  <Link href="/billing/consolidate-sales-document-list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Consolidate Sales Document List</div></Link>
+                  <Link href="/billing/sales-document/new"><div className={linkClass("/billing/sales-document/new")}>Add Sales Document</div></Link>
+                  <Link href="/billing/sales-document"><div className={linkClass("/billing/sales-document")}>Sales Document List</div></Link>
+                  <Link href="/billing/sales-document-report"><div className={linkClass("/billing/sales-document-report")}>Sales Document Report</div></Link>
+                  <Link href="/billing/consolidate-sales-document-list"><div className={linkClass("/billing/consolidate-sales-document-list")}>Consolidate Sales Document List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -482,10 +493,10 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/billing/invoice-report"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Invoice Report</div></Link>
-                  <Link href="/billing/consolidate-invoice-list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Consolidate Invoice List</div></Link>
-                  <Link href="/billing/generate-annexure"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Generate Annexure</div></Link>
-                  <Link href="/billing/debit-credit-note-list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Debit Credit Note List</div></Link>
+                  <Link href="/billing/invoice-report"><div className={linkClass("/billing/invoice-report")}>Invoice Report</div></Link>
+                  <Link href="/billing/consolidate-invoice-list"><div className={linkClass("/billing/consolidate-invoice-list")}>Consolidate Invoice List</div></Link>
+                  <Link href="/billing/generate-annexure"><div className={linkClass("/billing/generate-annexure")}>Generate Annexure</div></Link>
+                  <Link href="/billing/debit-credit-note-list"><div className={linkClass("/billing/debit-credit-note-list")}>Debit Credit Note List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -515,10 +526,9 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
           </div>
         </div>
 
-        {/* Top Breadcrumb & Actions Row */}
         <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
           <div className="flex items-center gap-3">
-            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Invoice List</h2>
+            <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Billing Management</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
               <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
@@ -528,14 +538,20 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
               <span className="text-[#1e40af]">Invoice List</span>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
+            <Link href="/billing/new">
+              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
+                <Plus className="h-3.5 w-3.5" /> Add Invoice
+              </Button>
+            </Link>
             <Button 
-              variant="outline" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-8 text-[11px] font-bold ${showFilters ? "bg-gray-100" : ""}`}
+              className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
+                showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
             >
-              <Filter className="h-3 w-3 mr-1.5" /> Filters
+              <Filter className="h-3 w-3" /> Filters
             </Button>
           </div>
         </div>
@@ -577,28 +593,28 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
           
           {/* Table Header / Filters Row */}
           {showFilters && (
-            <div className="p-3 border-b bg-gray-50/50 grid grid-cols-1 md:grid-cols-5 gap-3 items-end no-print">
+            <div className="p-3 border-b bg-white rounded-lg border border-gray-100 shadow-sm grid grid-cols-1 md:grid-cols-5 gap-3 items-end no-print">
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">Invoice No</Label>
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">Invoice No</Label>
                 <Input 
                   placeholder="Search Inv..." 
-                  className="h-8 text-xs" 
+                  className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" 
                   value={invoiceNoFilter} 
                   onChange={e => {setInvoiceNoFilter(e.target.value); setPage(1);}}
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">From Date</Label>
-                <Input type="date" className="h-8 text-xs" value={fromDate} onChange={e => {setFromDate(e.target.value); setPage(1);}} />
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">From Date</Label>
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={fromDate} onChange={e => {setFromDate(e.target.value); setPage(1);}} />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">To Date</Label>
-                <Input type="date" className="h-8 text-xs" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">To Date</Label>
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
               </div>
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold uppercase text-gray-500">Customer</Label>
+                <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">Customer</Label>
                 <Select value={customerFilter} onValueChange={v => {setCustomerFilter(v); setPage(1);}}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-7 text-[10px] border-gray-200"><SelectValue /></SelectTrigger>
                   <SelectContent className="text-xs">
                     <SelectItem value="all">All Customers</SelectItem>
                     {customers?.map(c => <SelectItem key={c.id} value={String(c.id)} className="text-xs">{c.name}</SelectItem>)}
@@ -606,8 +622,8 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
                 </Select>
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleSearchSubmit} size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold uppercase tracking-wider">Search</Button>
-                <Button size="sm" variant="outline" onClick={handleClear} className="h-8 w-8 p-0 border-gray-200"><RotateCcw className="h-3 w-3" /></Button>
+                <Button onClick={handleSearchSubmit} size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-7 flex-1 text-[10px] font-bold"><Search className="h-3 w-3 mr-1" />Search</Button>
+                <Button size="sm" variant="outline" onClick={handleClear} className="h-7 w-7 p-0 bg-rose-500 hover:bg-rose-600 text-white border-0"><RotateCcw className="h-3 w-3" /></Button>
               </div>
             </div>
           )}

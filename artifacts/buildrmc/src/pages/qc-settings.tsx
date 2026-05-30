@@ -45,7 +45,7 @@ export default function QcSettings() {
   const [activeTab, setActiveTab] = useState<"moisture" | "cube" | "matching">("moisture");
 
   // Global Mock lists for Select fields
-  const plants = ["FORTUNE CONCRETE", "NAVAL RMC"];
+  const plants = ["FORTUNE CONCRETE", "MARVAL RMC"];
   const storeItemsList = [
     "Aggregate 20mm",
     "Aggregate 10mm",

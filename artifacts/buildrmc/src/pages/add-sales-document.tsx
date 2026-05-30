@@ -22,7 +22,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Plus, Clock, Trash2, RefreshCw, Printer, FileText, Sparkles, ReceiptText } from "lucide-react";
 
-const PLANTS = ["FORTUNE CONCRETE", "NARVAL RMC"];
+const PLANTS = ["FORTUNE CONCRETE", "MARVAL RMC"];
 
 const FY_PREFIX = (() => {
   const now = new Date();

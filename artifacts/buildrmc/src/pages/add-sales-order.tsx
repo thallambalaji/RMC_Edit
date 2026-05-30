@@ -295,11 +295,8 @@ export default function AddSalesOrder() {
                 <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="All Plant" className="text-xs">All Plant</SelectItem>
-                  <SelectItem value="Plant A" className="text-xs">Plant A</SelectItem>
-                  <SelectItem value="Plant B" className="text-xs">Plant B</SelectItem>
-                  <SelectItem value="Plant C" className="text-xs">Plant C</SelectItem>
-                  <SelectItem value="Whitefield Plant" className="text-xs">Whitefield Plant</SelectItem>
-                  <SelectItem value="Yelahanka Plant" className="text-xs">Yelahanka Plant</SelectItem>
+                  <SelectItem value="FORTUNE CONCRETE" className="text-xs">FORTUNE CONCRETE</SelectItem>
+                  <SelectItem value="MARVAL RMC" className="text-xs">MARVAL RMC</SelectItem>
                 </SelectContent>
               </Select>
             </div>

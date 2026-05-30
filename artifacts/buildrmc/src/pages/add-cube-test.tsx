@@ -108,11 +108,17 @@ export default function AddCubeTest() {
         setPlants(data);
         setPlant(data[0].name);
       } else {
-        setPlants([{ id: "default", name: "FORTUNE CONCRETE" }]);
+        setPlants([
+          { id: "fortune", name: "FORTUNE CONCRETE" },
+          { id: "marval", name: "MARVAL RMC" }
+        ]);
         setPlant("FORTUNE CONCRETE");
       }
     }).catch(() => {
-      setPlants([{ id: "default", name: "FORTUNE CONCRETE" }]);
+      setPlants([
+        { id: "fortune", name: "FORTUNE CONCRETE" },
+        { id: "marval", name: "MARVAL RMC" }
+      ]);
       setPlant("FORTUNE CONCRETE");
     });
   }, []);

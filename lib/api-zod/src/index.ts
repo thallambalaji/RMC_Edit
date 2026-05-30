@@ -17,11 +17,39 @@ export const CreateQuotationBody = zod.object({
   marketingPerson: zod.string(),
   rateIncludeTax: zod.boolean(),
   notes: zod.array(zod.string()).optional(),
-  items: zod.array(zod.object({
-    grade: zod.string(),
-    quantity: zod.number(),
-    rate: zod.number(),
-    recipeCode: zod.string().optional().nullable(),
-    cementType: zod.string().optional().nullable(),
-  })),
+  items: zod.array(
+    zod.object({
+      grade: zod.string(),
+      quantity: zod.number(),
+      rate: zod.number(),
+      recipeCode: zod.string().optional().nullable(),
+      cementType: zod.string().optional().nullable(),
+    }),
+  ),
+});
+
+export type * from "./generated/types";
+
+export const CreateScheduleBody = zod.object({
+  customerId: zod.string(),
+  salesOrderId: zod.string(),
+  plant: zod.string(),
+  pump1: zod.string(),
+  pump2: zod.string().optional(),
+  fromTime: zod.string(),
+  toTime: zod.string().optional(),
+  isStrict: zod.boolean().optional(),
+  status: zod.string().optional(),
+});
+
+export const UpdateScheduleBody = zod.object({
+  customerId: zod.string().optional(),
+  salesOrderId: zod.string().optional(),
+  plant: zod.string().optional(),
+  pump1: zod.string().optional(),
+  pump2: zod.string().optional(),
+  fromTime: zod.string().optional(),
+  toTime: zod.string().optional(),
+  isStrict: zod.boolean().optional(),
+  status: zod.string().optional(),
 });

@@ -135,7 +135,7 @@ export default function AddSecurityCheck() {
       title="ADD SECURITY CHECK"
       activePath="/transport/security/new"
     >
-      <div className="w-full py-4 px-4 bg-[#f8fafc] min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
+      <div className="w-full py-4 px-4 bg-white min-h-[calc(100vh-140px)] flex flex-col space-y-4 rounded-lg">
         
         {/* Navigation Toolbar */}
         <div className="flex select-none">

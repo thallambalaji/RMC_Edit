@@ -40,6 +40,9 @@ export { connectMongo };
 
 // Models
 export * from "./models/WeighmentTicket";
+export * from "./models/InventoryTicket";
+export * from "./models/StoreInventory";
+export * from "./models/StoreInventoryHistory";
 export * from "./models/Customer";
 export * from "./models/Invoice";
 export * from "./models/User";

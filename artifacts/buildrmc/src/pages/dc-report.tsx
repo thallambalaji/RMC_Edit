@@ -39,7 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const PLANTS = ["All Plant", "FORTUNE CONCRETE", "NARVAL RMC"];
+const PLANTS = ["All Plant", "FORTUNE CONCRETE", "MARVAL RMC"];
 const GRADES = ["All Item", "M20", "M25", "M30", "M35", "M40", "M45"];
 const REPORT_TYPES = ["Date Wise", "Customer Wise", "Plant Wise", "Grade Wise"];
 
@@ -71,6 +71,7 @@ export default function DCReport() {
   const queryClient = useQueryClient();
   const [selectedDC, setSelectedDC] = useState<any>(null);
   const [printDC, setPrintDC] = useState<any>(null);
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const [reportType, setReportType] = useState("Date Wise");
   const [fromDate, setFromDate] = useState("");
@@ -468,18 +469,18 @@ export default function DCReport() {
           <div className="overflow-x-auto print:overflow-visible">
             <Table className="print:text-xs">
               <TableHeader>
-                <TableRow className="bg-gray-50/80 print:border-b-2 print:border-gray-800 print:bg-transparent">
-                  <TableHead className="font-bold text-gray-700 text-center w-12 print:text-black print:px-2">S/L</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC No</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC Date</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">DC Time</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Customer</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Plant</TableHead>
-                  <TableHead className="font-bold text-gray-700 print:text-black print:px-2">Grade</TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right print:text-black print:px-2">Qty (m³)</TableHead>
-                  <TableHead className="font-bold text-gray-700 text-right print:text-black print:px-2">Net Amount</TableHead>
-                  <TableHead className="font-bold text-gray-700 text-center print:text-black print:px-2">Status</TableHead>
-                  <TableHead className="font-bold text-gray-700 text-center print:hidden">ACTIONS</TableHead>
+                <TableRow className="border-0 hover:bg-transparent print:border-b-2 print:border-gray-800 print:bg-transparent">
+                  <TableHead className={`${headerStyle} w-12`}>S/L</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>DC No</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>DC Date</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>DC Time</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Customer</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Plant</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Grade</TableHead>
+                  <TableHead className={`${headerStyle} text-right`}>Qty (m³)</TableHead>
+                  <TableHead className={`${headerStyle} text-right`}>Net Amount</TableHead>
+                  <TableHead className={headerStyle}>Status</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -68,6 +68,7 @@ export default function RecipeList() {
   const [searchSite, setSearchSite] = useState("all");
   const [searchGrade, setSearchGrade] = useState("all");
   const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   
   const [printingItem, setPrintingItem] = useState<any | null>(null);
   const [isPrintingList, setIsPrintingList] = useState(false);
@@ -92,19 +93,29 @@ export default function RecipeList() {
     fetchRecipes();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchCode, searchCustomer, searchSite, searchGrade, pageSize]);
+
   const uniqueCustomers = useMemo(() => Array.from(new Set(recipes.map(r => r.customer))), [recipes]);
   const uniqueSites = useMemo(() => Array.from(new Set(recipes.map(r => r.siteName))), [recipes]);
   const uniqueGrades = useMemo(() => Array.from(new Set(recipes.map(r => r.grade))), [recipes]);
 
   const filtered = useMemo(() => {
     return recipes.filter(r => {
-      if (searchCode && !r.recipeCode.toLowerCase().includes(searchCode.toLowerCase())) return false;
+      if (searchCode && !(r.recipeCode && r.recipeCode.toLowerCase().includes(searchCode.toLowerCase()))) return false;
       if (searchCustomer !== "all" && r.customer !== searchCustomer) return false;
       if (searchSite !== "all" && r.siteName !== searchSite) return false;
       if (searchGrade !== "all" && r.grade !== searchGrade) return false;
       return true;
     });
   }, [recipes, searchCode, searchCustomer, searchSite, searchGrade]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageRows = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filtered.slice(start, start + pageSize);
+  }, [filtered, currentPage, pageSize]);
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this recipe?")) return;
@@ -347,10 +358,27 @@ export default function RecipeList() {
                 </Select>
               </div>
               <div className="flex gap-2 lg:col-span-3">
-                <Button className="bg-[#10b981] hover:bg-[#059669] text-white font-black h-10 px-6 text-xs uppercase tracking-widest flex-1">
+                <Button 
+                  onClick={() => {
+                    setCurrentPage(1);
+                    toast({ title: "Search Applied", description: `Found ${filtered.length} recipe formulations.` });
+                  }}
+                  className="bg-[#10b981] hover:bg-[#059669] text-white font-black h-10 px-6 text-xs uppercase tracking-widest flex-1"
+                >
                   Search
                 </Button>
-                <Button variant="destructive" onClick={() => { setSearchCode(""); setSearchCustomer("all"); setSearchSite("all"); setSearchGrade("all"); }} className="font-black h-10 px-6 text-xs uppercase tracking-widest flex-1">
+                <Button 
+                  variant="destructive" 
+                  onClick={() => { 
+                    setSearchCode(""); 
+                    setSearchCustomer("all"); 
+                    setSearchSite("all"); 
+                    setSearchGrade("all"); 
+                    setCurrentPage(1); 
+                    toast({ title: "Filters Cleared", description: "Showing all recipes." }); 
+                  }} 
+                  className="font-black h-10 px-6 text-xs uppercase tracking-widest flex-1"
+                >
                   Clear
                 </Button>
                 <Link href="/qc/recipe/new" className="flex-1">
@@ -366,7 +394,7 @@ export default function RecipeList() {
             <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
               <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase">
                 <span>Show</span>
-                <Select value={String(pageSize)} onValueChange={v => setPageSize(Number(v))}>
+                <Select value={String(pageSize)} onValueChange={v => { setPageSize(Number(v)); setCurrentPage(1); }}>
                   <SelectTrigger className="w-16 h-8 text-xs font-black border-slate-200">
                     <SelectValue />
                   </SelectTrigger>
@@ -402,12 +430,12 @@ export default function RecipeList() {
                 <TableBody>
                   {loading ? (
                     <TableRow><TableCell colSpan={8} className="text-center py-20 font-black text-slate-300 uppercase tracking-widest">Loading Database...</TableCell></TableRow>
-                  ) : filtered.length === 0 ? (
+                  ) : pageRows.length === 0 ? (
                     <TableRow><TableCell colSpan={8} className="text-center py-20 font-black text-slate-300 uppercase tracking-widest">No Records Found</TableCell></TableRow>
                   ) : (
-                    filtered.slice(0, pageSize).map((r, idx) => (
+                    pageRows.map((r, idx) => (
                       <TableRow key={r.id} className="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
-                        <TableCell className="font-bold text-slate-400 text-[10px] px-4">{idx + 1}</TableCell>
+                        <TableCell className="font-bold text-slate-400 text-[10px] px-4">{(currentPage - 1) * pageSize + idx + 1}</TableCell>
                         <TableCell className="font-black text-[#1e40af] text-[11px] px-4">{r.recipeCode}</TableCell>
                         <TableCell className="text-[10px] font-bold text-slate-700 px-4">{r.customer}</TableCell>
                         <TableCell className="text-[10px] font-bold text-slate-500 px-4">{r.siteName}</TableCell>
@@ -475,14 +503,38 @@ export default function RecipeList() {
             {/* Pagination Footer */}
             <div className="mt-6 flex items-center justify-between flex-wrap gap-4">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">
-                Showing 1 to {Math.min(pageSize, filtered.length)} of {filtered.length} entries
+                Showing {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filtered.length)} of {filtered.length} entries
               </p>
-              <div className="flex items-center gap-1">
-                <Button variant="outline" disabled className="h-8 text-[10px] font-bold uppercase">Previous</Button>
-                <Button className="h-8 w-8 bg-[#0ea5e9] text-white text-[10px] font-bold">1</Button>
-                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold">2</Button>
-                <Button variant="outline" className="h-8 w-8 text-[10px] font-bold">3</Button>
-                <Button variant="outline" className="h-8 text-[10px] font-bold uppercase">Next</Button>
+              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={currentPage <= 1} 
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                  className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+                >
+                  Previous
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <Button 
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`text-xs font-black w-8 h-8 ${currentPage === pageNum ? "bg-[#0ea5e9] text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
+                  >
+                    {pageNum}
+                  </Button>
+                ))}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  disabled={currentPage >= totalPages} 
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  className="text-xs font-black px-3 h-8 text-slate-600 hover:bg-slate-100"
+                >
+                  Next
+                </Button>
               </div>
             </div>
           </CardContent>

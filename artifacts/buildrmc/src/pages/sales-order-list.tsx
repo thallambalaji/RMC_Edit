@@ -226,6 +226,7 @@ export default function SalesOrderList() {
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
   const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
     <div className="space-y-4">
@@ -381,28 +382,28 @@ export default function SalesOrderList() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#1e40af] hover:bg-[#1e40af]">
-                  <TableHead className="text-white font-bold py-3 px-2 text-center border-r border-white/10 text-[10px] uppercase">S/L<br/>No</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">PO<br/>Number</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">PO Date</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Validity</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-left border-r border-white/10 text-[10px] uppercase">Customer</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-left border-r border-white/10 text-[10px] uppercase">Site Address</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Tax<br/>Include?</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">GST<br/>Percent</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Order<br/>Type</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-left border-r border-white/10 text-[10px] uppercase">Sales Person</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Plant</TableHead>
-                  <TableHead className="p-0 border-r border-white/10">
+                <TableRow className="border-0 hover:bg-transparent">
+                  <TableHead className={headerStyle}>S/L<br/>No</TableHead>
+                  <TableHead className={headerStyle}>PO<br/>Number</TableHead>
+                  <TableHead className={headerStyle}>PO Date</TableHead>
+                  <TableHead className={headerStyle}>Validity</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Customer</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Site Address</TableHead>
+                  <TableHead className={headerStyle}>Tax<br/>Include?</TableHead>
+                  <TableHead className={headerStyle}>GST<br/>Percent</TableHead>
+                  <TableHead className={headerStyle}>Order<br/>Type</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Sales Person</TableHead>
+                  <TableHead className={headerStyle}>Plant</TableHead>
+                  <TableHead className="p-0 border-r border-white/10 bg-[#1e40af]">
                     <div className="grid grid-cols-4 h-full">
-                      <div className="col-span-1 text-white font-bold text-center border-r border-white/10 text-[10px] uppercase flex items-center justify-center py-2.5">Grade</div>
-                      <div className="col-span-1 text-white font-bold text-center border-r border-white/10 text-[10px] uppercase flex items-center justify-center py-2.5">Quantity</div>
-                      <div className="col-span-1 text-white font-bold text-center border-r border-white/10 text-[10px] uppercase flex items-center justify-center py-2.5">Rate</div>
-                      <div className="col-span-1 text-white font-bold text-center text-[10px] uppercase flex items-center justify-center py-2.5">Rem.<br/>Qty</div>
+                      <div className="col-span-1 text-white font-black text-center border-r border-white/10 text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Grade</div>
+                      <div className="col-span-1 text-white font-black text-center border-r border-white/10 text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Quantity</div>
+                      <div className="col-span-1 text-white font-black text-center border-r border-white/10 text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Rate</div>
+                      <div className="col-span-1 text-white font-black text-center text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Rem.<br/>Qty</div>
                     </div>
                   </TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">STATUS</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center text-[10px] uppercase w-[70px]">OPTIONS</TableHead>
+                  <TableHead className={headerStyle}>STATUS</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

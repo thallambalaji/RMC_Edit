@@ -180,7 +180,7 @@ export default function AddScheduling() {
                 <SelectTrigger className="h-10 border-gray-300"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                  <SelectItem value="Plant B">Plant B</SelectItem>
+                  <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
                 </SelectContent>
               </Select>
             </div>

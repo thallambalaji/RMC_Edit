@@ -62,26 +62,101 @@ export default function AddRecipe() {
   // Data for dropdowns
   const [customers, setCustomers] = useState<any[]>([]);
   const [mixDesigns, setMixDesigns] = useState<any[]>([]);
+  const [salesOrders, setSalesOrders] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch customers
     fetch("/api/customers").then(res => res.json()).then(data => setCustomers(data)).catch(() => {});
     // Fetch mix designs for recipe codes
     fetch("/api/mix-designs").then(res => res.json()).then(data => setMixDesigns(data)).catch(() => {});
+    // Fetch sales orders to extract grades dynamically
+    fetch("/api/sales-orders").then(res => res.json()).then(data => {
+      if (Array.isArray(data)) {
+        setSalesOrders(data);
+      }
+    }).catch(() => {});
     // Fetch plants
     fetch("/api/masters?type=plant").then(res => res.json()).then(data => {
       if (data.length > 0) {
         setPlants(data);
         setPlant(data[0].name);
       } else {
-        setPlants([{ id: "default", name: "FORTUNE CONCRETE" }]);
+        setPlants([
+          { id: "fortune", name: "FORTUNE CONCRETE" },
+          { id: "marval", name: "MARVAL RMC" }
+        ]);
         setPlant("FORTUNE CONCRETE");
       }
     }).catch(() => {
-      setPlants([{ id: "default", name: "FORTUNE CONCRETE" }]);
+      setPlants([
+        { id: "fortune", name: "FORTUNE CONCRETE" },
+        { id: "marval", name: "MARVAL RMC" }
+      ]);
       setPlant("FORTUNE CONCRETE");
     });
   }, []);
+
+  // Reset site name and grade when customer changes to avoid mismatch
+  useEffect(() => {
+    setSiteName("");
+    setGrade("");
+  }, [customer]);
+
+  // Extract unique grades dynamically from Sales Orders (optionally filtered by selected customer)
+  const grades = useMemo(() => {
+    const uniqueGrades = new Set<string>();
+    
+    // Find customer ID to match against sales order customerId string
+    const selectedCustObj = customers.find(c => c.name === customer);
+    const selectedCustId = selectedCustObj?.id || selectedCustObj?._id;
+
+    const targetOrders = customer
+      ? salesOrders.filter(o => {
+          const matchByName = o.customerName?.trim().toLowerCase() === customer.trim().toLowerCase();
+          const matchById = selectedCustId && String(o.customerId) === String(selectedCustId);
+          return matchByName || matchById;
+        })
+      : salesOrders;
+
+    targetOrders.forEach((order: any) => {
+      if (Array.isArray(order.items)) {
+        order.items.forEach((item: any) => {
+          if (item && item.grade) {
+            uniqueGrades.add(item.grade);
+          }
+        });
+      }
+    });
+
+    // Fallback to all sales orders if selected customer has no grades
+    if (uniqueGrades.size === 0 && customer) {
+      salesOrders.forEach((order: any) => {
+        if (Array.isArray(order.items)) {
+          order.items.forEach((item: any) => {
+            if (item && item.grade) {
+              uniqueGrades.add(item.grade);
+            }
+          });
+        }
+      });
+    }
+
+    // Ultimate hardcoded fallback
+    if (uniqueGrades.size === 0) {
+      return ["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50"];
+    }
+    return Array.from(uniqueGrades).sort();
+  }, [salesOrders, customer, customers]);
+
+  // Extract unique site locations registered under the selected customer
+  const customerSites = useMemo(() => {
+    if (!customer) return [];
+    const found = customers.find(c => c.name === customer);
+    if (found && found.siteName) {
+      return found.siteName.split(" | ").map((s: string) => s.trim()).filter(Boolean);
+    }
+    return [];
+  }, [customer, customers]);
 
   const totalDensity = useMemo(() => {
     return ingredients.reduce((acc, row) => {
@@ -101,11 +176,18 @@ export default function AddRecipe() {
       setGrade(design.grade);
       // Auto-populate ingredients if they match
       setIngredients(prev => prev.map(ing => {
-        if (ing.type === "Aggregate-1") return { ...ing, product: design.aggr1.split(" : ")[0], qty: design.aggr1.split(" : ")[1] || "" };
-        if (ing.type === "Aggregate-2") return { ...ing, product: design.aggr2.split(" : ")[0], qty: design.aggr2.split(" : ")[1] || "" };
-        if (ing.type === "Cement-1") return { ...ing, product: design.cem1.split(" : ")[0], qty: design.cem1.split(" : ")[1] || "" };
-        if (ing.type === "Water") return { ...ing, qty: design.water.split(" : ")[1] || "" };
-        if (ing.type === "Admix1") return { ...ing, product: design.admix1.split(" : ")[0], qty: design.admix1.split(" : ")[1] || "" };
+        if (ing.type === "Aggregate-1" && design.aggr1) return { ...ing, product: design.aggr1.split(" : ")[0] || "", qty: design.aggr1.split(" : ")[1] || "" };
+        if (ing.type === "Aggregate-2" && design.aggr2) return { ...ing, product: design.aggr2.split(" : ")[0] || "", qty: design.aggr2.split(" : ")[1] || "" };
+        if (ing.type === "Aggregate-3" && design.aggr3) return { ...ing, product: design.aggr3.split(" : ")[0] || "", qty: design.aggr3.split(" : ")[1] || "" };
+        if (ing.type === "Aggregate-4" && design.aggr4) return { ...ing, product: design.aggr4.split(" : ")[0] || "", qty: design.aggr4.split(" : ")[1] || "" };
+        if (ing.type === "Cement-1" && design.cem1) return { ...ing, product: design.cem1.split(" : ")[0] || "", qty: design.cem1.split(" : ")[1] || "" };
+        if (ing.type === "Cement-2" && design.cem2) return { ...ing, product: design.cem2.split(" : ")[0] || "", qty: design.cem2.split(" : ")[1] || "" };
+        if (ing.type === "Cement-3" && design.cem3) return { ...ing, product: design.cem3.split(" : ")[0] || "", qty: design.cem3.split(" : ")[1] || "" };
+        if (ing.type === "Cement-4/FLYASH" && design.cem4) return { ...ing, product: design.cem4.split(" : ")[0] || "", qty: design.cem4.split(" : ")[1] || "" };
+        if (ing.type === "Cement-5" && design.cem5) return { ...ing, product: design.cem5.split(" : ")[0] || "", qty: design.cem5.split(" : ")[1] || "" };
+        if (ing.type === "Water" && design.water) return { ...ing, qty: design.water.split(" : ")[1] || "" };
+        if (ing.type === "Admix1" && design.admix1) return { ...ing, product: design.admix1.split(" : ")[0] || "", qty: design.admix1.split(" : ")[1] || "" };
+        if (ing.type === "Admix2" && design.admix2) return { ...ing, product: design.admix2.split(" : ")[0] || "", qty: design.admix2.split(" : ")[1] || "" };
         return ing;
       }));
     }
@@ -125,8 +207,12 @@ export default function AddRecipe() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customer || !recipeCode) {
-      toast({ title: "Validation Error", description: "Customer and Recipe Code are required.", variant: "destructive" });
+    if (!customer || !siteName || !grade || !recipeCode) {
+      toast({ 
+        title: "Validation Error", 
+        description: "Customer, Site Name, Grade, and Recipe Code are all required.", 
+        variant: "destructive" 
+      });
       return;
     }
 
@@ -214,9 +300,15 @@ export default function AddRecipe() {
                     <SelectValue placeholder="Choose Site" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="UPSIDE AVENUES" className="text-xs font-bold">UPSIDE AVENUES</SelectItem>
-                    <SelectItem value="Raaga" className="text-xs font-bold">Raaga</SelectItem>
-                    <SelectItem value="VELIMELA" className="text-xs font-bold">VELIMELA</SelectItem>
+                    {customerSites.length > 0 ? (
+                      customerSites.map((s: string) => <SelectItem key={s} value={s} className="text-xs font-bold">{s}</SelectItem>)
+                    ) : (
+                      <>
+                        <SelectItem value="UPSIDE AVENUES" className="text-xs font-bold">UPSIDE AVENUES</SelectItem>
+                        <SelectItem value="Raaga" className="text-xs font-bold">Raaga</SelectItem>
+                        <SelectItem value="VELIMELA" className="text-xs font-bold">VELIMELA</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -233,7 +325,7 @@ export default function AddRecipe() {
                     <SelectValue placeholder="Choose Grade" />
                   </SelectTrigger>
                   <SelectContent>
-                    {["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50"].map(g => (
+                    {grades.map(g => (
                       <SelectItem key={g} value={g} className="text-xs font-bold">{g}</SelectItem>
                     ))}
                   </SelectContent>

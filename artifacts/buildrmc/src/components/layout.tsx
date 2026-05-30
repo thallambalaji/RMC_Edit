@@ -26,13 +26,13 @@ import { useToast } from "../hooks/use-toast";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/customer-po", label: "Customer & PO", icon: Users },
-  { href: "/billing", label: "Billing", icon: FileText },
-  { href: "/dc", label: "DC", icon: Truck },
   { href: "/sales", label: "Sales", icon: BarChart3 },
+  { href: "/dc", label: "DC", icon: Truck },
+  { href: "/billing", label: "Billing", icon: FileText },
   { href: "/qc", label: "QC", icon: CheckSquare },
   { href: "/transport", label: "Transport", icon: Bus },
+  { href: "/store", label: "Store", icon: Package },
   { href: "/accounts", label: "Accounts", icon: BookOpen, comingSoon: true },
-  { href: "/store", label: "Store", icon: Package, comingSoon: true },
   { href: "/hrm", label: "HRM", icon: Users2, comingSoon: true },
   { href: "/reports", label: "Reports", icon: FileBarChart, comingSoon: true },
 ];

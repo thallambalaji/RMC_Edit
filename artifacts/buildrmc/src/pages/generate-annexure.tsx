@@ -67,6 +67,7 @@ import {
 export default function GenerateAnnexure() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Queries & Mutations
   const { data: invoices, isLoading: isLoadingInvoices } = useGetInvoices({
@@ -538,17 +539,17 @@ export default function GenerateAnnexure() {
               <div className="py-16 text-center text-slate-400 text-xs font-semibold">No annexure entries matched active parameters.</div>
             ) : (
               <Table>
-                <TableHeader className="bg-slate-50/50">
-                  <TableRow>
-                    <TableHead className="py-3 text-slate-800 font-black text-[10px] uppercase text-center">Challan / Inv No</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Customer</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Date</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Vehicle No</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Plant</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Grade</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">Quantity (M³)</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-right">Amount (₹)</TableHead>
-                    <TableHead className="text-slate-800 font-black text-[10px] uppercase text-center">Actions</TableHead>
+                <TableHeader>
+                  <TableRow className="border-0 hover:bg-transparent">
+                    <TableHead className={headerStyle}>Challan / Inv No</TableHead>
+                    <TableHead className={headerStyle}>Customer</TableHead>
+                    <TableHead className={headerStyle}>Date</TableHead>
+                    <TableHead className={headerStyle}>Vehicle No</TableHead>
+                    <TableHead className={headerStyle}>Plant</TableHead>
+                    <TableHead className={headerStyle}>Grade</TableHead>
+                    <TableHead className={`${headerStyle} text-right`}>Quantity (M³)</TableHead>
+                    <TableHead className={`${headerStyle} text-right`}>Amount (₹)</TableHead>
+                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -27,6 +27,7 @@ import {
 
 export default function SalesDocumentReport() {
   const { toast } = useToast();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const { data: invoices } = useGetInvoices({
     query: { queryKey: getGetInvoicesQueryKey() },
@@ -485,10 +486,19 @@ export default function SalesDocumentReport() {
                     </div>
                     <Table>
                       <TableHeader>
-                        <TableRow className="bg-slate-700 hover:bg-slate-700">
-                          {["Invoice No", "Date", "Time", "Customer", "Site", "Vehicle", "Plant", "Taxable Amt", "Tax Amt", "Net Amt", "Actions"].map(h => (
-                            <TableHead key={h} className={`text-white font-bold text-[10px] uppercase py-2 ${["Taxable Amt", "Tax Amt", "Net Amt"].includes(h) ? "text-right" : h === "Actions" ? "text-center w-16" : ""}`}>{h}</TableHead>
-                          ))}
+                        <TableRow className="border-0 hover:bg-transparent">
+                          {["Invoice No", "Date", "Time", "Customer", "Site", "Vehicle", "Plant", "Taxable Amt", "Tax Amt", "Net Amt", "Actions"].map(h => {
+                            const align = ["Taxable Amt", "Tax Amt", "Net Amt"].includes(h) 
+                              ? "text-right" 
+                              : h === "Actions" 
+                                ? "text-center w-16" 
+                                : "text-left";
+                            return (
+                              <TableHead key={h} className={`${headerStyle} ${align}`}>
+                                {h}
+                              </TableHead>
+                            );
+                          })}
                         </TableRow>
                       </TableHeader>
                       <TableBody>

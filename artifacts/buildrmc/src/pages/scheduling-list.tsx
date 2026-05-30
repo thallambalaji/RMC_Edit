@@ -326,6 +326,7 @@ export default function SchedulingList() {
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
   const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
     <div className="space-y-4">
@@ -494,18 +495,18 @@ export default function SchedulingList() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-[#1e40af] hover:bg-[#1e40af]">
-                  <TableHead className="text-white font-bold py-3 px-2 text-center border-r border-white/10 text-[10px] uppercase">S/L<br/>No</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-left border-r border-white/10 text-[10px] uppercase">Customer</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">PO Number</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Plant</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Start Time</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">End Time</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Pump 1</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Pump 2</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">Strict</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center border-r border-white/10 text-[10px] uppercase">STATUS</TableHead>
-                  <TableHead className="text-white font-bold px-2 text-center text-[10px] uppercase w-[70px]">OPTIONS</TableHead>
+                <TableRow className="border-0 hover:bg-transparent">
+                  <TableHead className={headerStyle}>S/L<br/>No</TableHead>
+                  <TableHead className={`${headerStyle} text-left`}>Customer</TableHead>
+                  <TableHead className={headerStyle}>PO Number</TableHead>
+                  <TableHead className={headerStyle}>Plant</TableHead>
+                  <TableHead className={headerStyle}>Start Time</TableHead>
+                  <TableHead className={headerStyle}>End Time</TableHead>
+                  <TableHead className={headerStyle}>Pump 1</TableHead>
+                  <TableHead className={headerStyle}>Pump 2</TableHead>
+                  <TableHead className={headerStyle}>Strict</TableHead>
+                  <TableHead className={headerStyle}>STATUS</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

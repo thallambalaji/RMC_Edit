@@ -220,6 +220,7 @@ export default function AddWeighment() {
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
                     <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
+                    <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

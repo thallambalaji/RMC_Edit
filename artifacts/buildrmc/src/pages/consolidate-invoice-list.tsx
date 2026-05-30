@@ -66,6 +66,7 @@ import {
 export default function ConsolidateInvoiceList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Queries & Mutations
   const { data: invoices, isLoading: isLoadingInvoices } = useGetInvoices({
@@ -501,12 +502,12 @@ export default function ConsolidateInvoiceList() {
             <Table>
               <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
                 <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Consolidate No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Customer</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Generated Date</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Quantity (M³)</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amount</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">ACTIONS</TableHead>
+                  <TableHead className={headerStyle}>Consolidate No</TableHead>
+                  <TableHead className={headerStyle}>Customer</TableHead>
+                  <TableHead className={headerStyle}>Generated Date</TableHead>
+                  <TableHead className={`${headerStyle} text-right`}>Net Quantity (M³)</TableHead>
+                  <TableHead className={`${headerStyle} text-right`}>Net Amount</TableHead>
+                  <TableHead className={headerStyle}>ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

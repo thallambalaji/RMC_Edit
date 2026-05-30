@@ -12,9 +12,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ExportDropdown } from "@/components/export-dropdown";
 import { useToast } from "@/hooks/use-toast";
 import { TransportLayout, useTransportFilters } from "@/components/transport-layout";
-import { Plus, Trash2, Edit, Printer, Copy, Download } from "lucide-react";
+import { Plus, Trash2, Edit, Printer, Copy, Download, MoreVertical, ChevronRight } from "lucide-react";
 
 interface VehicleData {
   _id?: string;
@@ -176,7 +183,7 @@ export default function VehicleList() {
 
   return (
     <TransportLayout
-      breadcrumbs={[{ label: "Transport Master" }, { label: "Vehicles" }]}
+      breadcrumbs={[{ label: "Vehicles" }]}
       title="VEHICLES LIST"
       activePath="/transport/vehicle/list"
     >
@@ -203,65 +210,81 @@ export default function VehicleList() {
           </div>
         </div>
 
-        {/* Clean full screen width container list table */}
-        <Card className="border shadow-md bg-white rounded-lg overflow-hidden flex flex-col flex-1 min-h-0 w-full">
-          {/* Header Panel */}
-          {showFilters && (
-          <div className="p-4 bg-slate-50/50 border-b flex items-center justify-between gap-4 shrink-0 flex-wrap">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 uppercase">Show</span>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  className="h-8 rounded border border-slate-300 bg-white px-2 py-0.5 text-xs font-bold text-slate-800 focus:outline-none"
-                >
-                  <option value={5}>5</option>
-                  <option value={10}>10</option>
-                  <option value={20}>20</option>
-                  <option value={50}>50</option>
-                </select>
-                <span className="text-xs font-bold text-slate-500 uppercase">entries</span>
-              </div>
-
-              {/* Add New Vehicle Button */}
-              <Link href="/transport/vehicle/new">
-                <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-extrabold px-5 h-8 text-[11px] uppercase tracking-wider shadow-sm transition-all flex items-center gap-1.5">
-                  <Plus className="h-3.5 w-3.5" /> Add Vehicle
-                </Button>
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-500 uppercase">Search:</span>
+        {/* Filter Card Matching Customer & PO */}
+        {showFilters && (
+        <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm shrink-0">
+          <div className="flex flex-wrap gap-3 items-end">
+            <div className="flex-1 min-w-[200px]">
+              <Label className="text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter">Search Vehicles</Label>
               <Input
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="Search registered vehicles..."
-                className="h-8 w-56 text-xs font-semibold border-slate-300 bg-white"
+                placeholder="Search by registration or model..."
+                className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white"
               />
             </div>
+            
+            <div className="flex gap-1.5 h-7">
+              <Button 
+                onClick={() => setCurrentPage(1)} 
+                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+              >
+                Search
+              </Button>
+              <Button 
+                onClick={() => setSearchQuery("")} 
+                className="bg-rose-500 hover:bg-rose-600 text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+              >
+                Clear
+              </Button>
+            </div>
           </div>
-          )}
+        </div>
+        )}
+
+        {/* Clean full screen width container list table */}
+        <Card className="border shadow-md bg-white rounded-lg overflow-hidden flex flex-col flex-1 min-h-0 w-full">
+          {/* Table Toolbar Header */}
+          <div className="p-3 border-b border-gray-100 flex items-center justify-between bg-slate-50/30">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black text-gray-500 uppercase">Show</span>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-14 h-6 bg-white border border-gray-200 text-[10px] font-bold rounded"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+              <span className="text-[9px] font-black text-gray-500 uppercase">entries</span>
+            </div>
+            <ExportDropdown
+              onCopy={() => {}}
+              onCSV={() => {}}
+              onPDF={() => window.print()}
+            />
+          </div>
 
           {/* Datatable Scroll Container */}
           <div className="flex-1 overflow-auto">
             <Table>
-              <TableHeader className="bg-slate-50 border-b">
-                <TableRow>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4">S/L No</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle No</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle Name</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Transporter Name</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle Type</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Vehicle Category</TableHead>
-                  <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center">ACTION</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#1e40af]">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">S/L No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Name</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Transporter Name</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Type</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Category</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -296,54 +319,43 @@ export default function VehicleList() {
                         <TableCell className="font-medium text-slate-600 text-xs px-3">{item.transporter || "N/A"}</TableCell>
                         <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleType || "own"}</TableCell>
                         <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleCategory || "km"}</TableCell>
-                        <TableCell className="px-4 py-2.5 text-center">
-                          <div className="flex items-center justify-center gap-1 select-none">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleExportRow(item, idx, "pdf")}
-                              className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
-                              title="Print PDF"
-                            >
-                              <Printer className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleExportRow(item, idx, "copy")}
-                              className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
-                              title="Copy TSV"
-                            >
-                              <Copy className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleExportRow(item, idx, "csv")}
-                              className="h-7 w-7 text-emerald-600 hover:bg-emerald-50 rounded border border-emerald-200"
-                              title="Download CSV"
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleEdit(item)}
-                              className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
-                              title="Edit"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteVehicle(item._id || item.id!)}
-                              className="h-7 w-7 text-rose-600 hover:bg-rose-50 rounded border border-rose-200"
-                              title="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </div>
+                        <TableCell className="text-center py-1.5 px-3">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto"
+                              >
+                                <MoreVertical className="h-4 w-4 text-slate-500" />
+                                <span className="sr-only">Open options</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                              <DropdownMenuItem onClick={() => handleEdit(item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Edit className="h-3.5 w-3.5 text-blue-600" />
+                                <span>Edit Vehicle</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportRow(item, idx, "pdf")} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Printer className="h-3.5 w-3.5 text-red-500" />
+                                <span>Print Details</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportRow(item, idx, "csv")} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Download className="h-3.5 w-3.5 text-emerald-600" />
+                                <span>Export CSV</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportRow(item, idx, "copy")} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                                <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                <span>Copy Details</span>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDeleteVehicle(item._id || item.id!)} 
+                                className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                                <span>Delete Vehicle</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     );
@@ -354,40 +366,32 @@ export default function VehicleList() {
           </div>
 
           {/* Datatable Footer Pagination Panel */}
-          <div className="p-4 bg-slate-50/50 border-t flex items-center justify-between shrink-0">
-            <span className="text-xs font-semibold text-slate-500">
-              Showing {Math.min(filtered.length, (currentPage - 1) * pageSize + 1)} to{" "}
-              {Math.min(filtered.length, currentPage * pageSize)} of {filtered.length} entries
-            </span>
-
+          {/* Datatable Footer Pagination Panel */}
+          <div className="flex items-center justify-between p-3 border-t bg-white shrink-0">
+            <div className="text-[9px] font-black text-gray-500 uppercase">
+              Showing {filtered.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to {Math.min(filtered.length, currentPage * pageSize)} of {filtered.length} entries
+            </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              <Button 
+                variant="outline" 
+                size="sm" 
                 disabled={currentPage === 1}
-                className="h-8 text-xs font-extrabold uppercase px-3"
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                className="h-6 w-6 p-0 border-gray-200 text-gray-400 bg-white"
               >
-                Previous
+                <ChevronRight className="h-3 w-3 rotate-180" />
               </Button>
-              {Array.from({ length: totalPages }).map((_, pIdx) => (
-                <Button
-                  key={pIdx}
-                  variant={currentPage === pIdx + 1 ? "default" : "outline"}
-                  onClick={() => setCurrentPage(pIdx + 1)}
-                  className={`h-8 w-8 text-xs font-extrabold ${
-                    currentPage === pIdx + 1 ? "bg-[#00c0a5] hover:bg-[#00a991] text-white" : ""
-                  }`}
-                >
-                  {pIdx + 1}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="h-8 text-xs font-extrabold uppercase px-3"
+              <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">
+                {currentPage}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={currentPage >= totalPages || totalPages === 0}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                className="h-6 w-6 p-0 border-gray-200 text-gray-400 bg-white"
               >
-                Next
+                <ChevronRight className="h-3 w-3" />
               </Button>
             </div>
           </div>

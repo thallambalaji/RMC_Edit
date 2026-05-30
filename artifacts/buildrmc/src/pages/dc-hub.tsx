@@ -11,7 +11,7 @@ import {
   ChevronRight,
   Printer,
   Download,
-  MoreHorizontal,
+  MoreVertical,
   FileText,
   Calendar,
   Loader2,
@@ -64,6 +64,13 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export default function DCHub() {
   const [location, setLocation] = useLocation();
+
+  const linkClass = (href: string) =>
+    `text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer block border ${
+      location === href
+        ? "bg-[#1e40af] text-white border-[#1e40af] shadow font-bold"
+        : "text-gray-600 hover:text-[#1e40af] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
+    }`;
   const { toast } = useToast();
 
   const getDefaultAccordions = () => {
@@ -236,30 +243,22 @@ export default function DCHub() {
   };
 
   return (
-    <div className="flex h-full gap-4 bg-[#f8fafc]">
+    <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 print:hidden">
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
         <div className="p-4 bg-gray-50 border-b">
-          <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider">DC Navigation</h3>
+          <h3 className="font-bold text-gray-800 text-sm">DC Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
-          <div className="mb-3 px-1 mt-1">
-            <Link href="/dc/new">
-              <Button className="w-full bg-[#1e40af] hover:bg-[#1d4ed8] h-9 text-xs font-bold shadow-sm rounded-lg">
-                <Plus className="h-4 w-4 mr-2" /> Add DC
-              </Button>
-            </Link>
-          </div>
-          
-          <Accordion type="multiple" defaultValue={getDefaultAccordions()} className="w-full space-y-2">
+          <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
             <AccordionItem value="dc-ops" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><Truck className="h-4 w-4 text-[#1e40af]"/> DC Operations</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/dc/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">DC List</div></Link>
-                  <Link href="/dc/report"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">DC Report</div></Link>
+                  <Link href="/dc/list"><div className={linkClass("/dc/list")}>DC List</div></Link>
+                  <Link href="/dc/report"><div className={linkClass("/dc/report")}>DC Report</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -270,9 +269,9 @@ export default function DCHub() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/dc/weighment/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Weighment</div></Link>
-                  <Link href="/dc/weighment/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Weighment List</div></Link>
-                  <Link href="/dc/weighment/tickets"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Weighment Tickets</div></Link>
+                  <Link href="/dc/weighment/new"><div className={linkClass("/dc/weighment/new")}>Add Weighment</div></Link>
+                  <Link href="/dc/weighment/list"><div className={linkClass("/dc/weighment/list")}>Weighment List</div></Link>
+                  <Link href="/dc/weighment/tickets"><div className={linkClass("/dc/weighment/tickets")}>Weighment Tickets</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -283,53 +282,59 @@ export default function DCHub() {
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col space-y-3 min-w-0 ${printDC ? "print:hidden" : ""}`}>
         {/* Header / Breadcrumb */}
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
+        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
           <div className="flex items-center gap-3">
-            <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">DC List</h2>
+            <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">DC List</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
               <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
               <ChevronRight className="h-2.5 w-2.5" />
+              <Link href="/dc" className="hover:text-[#1e40af] transition-colors">DC</Link>
+              <ChevronRight className="h-2.5 w-2.5" />
               <span className="text-[#1e40af]">Delivery Challan</span>
             </nav>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
+            <Link href="/dc/new">
+              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
+                <Plus className="h-3.5 w-3.5" /> Add DC
+              </Button>
+            </Link>
             <Button 
-              variant="outline" 
               size="sm" 
               onClick={() => setShowFilters(!showFilters)}
-              className={`h-8 text-[11px] font-bold ${showFilters ? "bg-gray-100" : ""}`}
+              className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
+                showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              }`}
             >
-              <Filter className="h-3 w-3 mr-1.5" /> Filters
+              <Filter className="h-3 w-3" /> Filters
             </Button>
           </div>
         </div>
 
         {/* Filters Section */}
         {showFilters && (
-          <div className="bg-white rounded-lg border shadow-sm p-4 grid grid-cols-1 md:grid-cols-5 gap-3 items-end transition-all print:hidden">
+          <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-3 grid grid-cols-1 md:grid-cols-5 gap-3 items-end transition-all print:hidden">
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold uppercase text-gray-500">DC No</Label>
-              <Input placeholder="Search DC..." className="h-8 text-xs" value={dcNo} onChange={e => setDcNo(e.target.value)} />
+              <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">DC No</Label>
+              <Input placeholder="Search DC..." className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={dcNo} onChange={e => setDcNo(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold uppercase text-gray-500">From Date</Label>
+              <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">From Date</Label>
               <div className="relative">
-                <Input type="date" className="h-8 text-xs pl-8" value={fromDate} onChange={e => setFromDate(e.target.value)} />
-                <Calendar className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={fromDate} onChange={e => setFromDate(e.target.value)} />
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold uppercase text-gray-500">To Date</Label>
+              <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">To Date</Label>
               <div className="relative">
-                <Input type="date" className="h-8 text-xs pl-8" value={toDate} onChange={e => setToDate(e.target.value)} />
-                <Calendar className="absolute left-2.5 top-2 h-3.5 w-3.5 text-gray-400" />
+                <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={toDate} onChange={e => setToDate(e.target.value)} />
               </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-bold uppercase text-gray-500">Customer</Label>
+              <Label className="text-[9px] font-black uppercase tracking-tighter text-gray-600">Customer</Label>
               <Select value={customer} onValueChange={setCustomer}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-7 text-[10px] border-gray-200"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Customers</SelectItem>
                   {availableCustomers.map((c: any) => (
@@ -339,8 +344,8 @@ export default function DCHub() {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-8 flex-1 text-[11px] font-bold" onClick={handleSearch}>Search</Button>
-              <Button size="sm" variant="outline" onClick={handleClear} className="h-8 w-8 p-0"><RotateCcw className="h-3 w-3" /></Button>
+              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-7 flex-1 text-[10px] font-bold" onClick={handleSearch}><Search className="h-3 w-3 mr-1" />Search</Button>
+              <Button size="sm" variant="outline" onClick={handleClear} className="h-7 w-7 p-0 bg-rose-500 hover:bg-rose-600 text-white border-0"><RotateCcw className="h-3 w-3" /></Button>
             </div>
           </div>
         )}
@@ -378,15 +383,15 @@ export default function DCHub() {
           {/* Table Body */}
           <div className="flex-1 overflow-auto print:overflow-visible">
             <Table className="print:text-[10px]">
-              <TableHeader className="sticky top-0 z-10 bg-white shadow-sm print:shadow-none">
-                <TableRow className="hover:bg-transparent border-b print:border-gray-800 print:border-b-2">
-                  <TableHead className="w-[100px] text-[10px] font-bold uppercase text-gray-400 py-3 text-center print:text-black">DC No</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 print:text-black">Customer & Site</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Date</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Grade</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-right print:text-black">Quantity</TableHead>
-                  <TableHead className="text-[10px] font-bold uppercase text-gray-400 text-center print:text-black">Vehicle</TableHead>
-                  <TableHead className="w-[180px] text-[10px] font-bold uppercase text-gray-400 text-center print:hidden">ACTION</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] print:shadow-none">
+                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af] print:border-gray-800 print:border-b-2">
+                  <TableHead className="w-[100px] bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">DC No</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Customer & Site</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Date</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Grade</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-right print:text-black">Quantity</TableHead>
+                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Vehicle</TableHead>
+                  <TableHead className="w-[80px] bg-[#1e40af] text-white font-black text-[9px] py-1.5 px-3 text-center uppercase tracking-tighter last:border-0 print:hidden">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -420,58 +425,23 @@ export default function DCHub() {
                         </TableCell>
                         <TableCell className="text-right font-bold text-xs py-3 print:text-black">{Number(row.quantity || 0).toFixed(2)} <span className="text-[9px] font-normal text-gray-400 ml-0.5 print:text-black">m³</span></TableCell>
                         <TableCell className="text-center py-3 font-medium text-[11px] text-gray-700 print:text-black">{row.vehicleReg}</TableCell>
-                        <TableCell className="text-center py-3 print:hidden">
-                          <div className="flex items-center justify-center gap-1.5">
-                            {/* 1. Print (Printer Icon) */}
-                            <Button 
-                              onClick={() => handlePrintSingleDC(row)}
-                              title="Print DC Slip" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 hover:bg-red-50 text-red-500 hover:text-red-600 cursor-pointer"
-                            >
-                              <Printer className="h-4 w-4" />
-                            </Button>
-
-                            {/* 2. CSV (Download Icon) */}
-                            <Button 
-                              onClick={() => handleExportRowCSV(row)}
-                              title="Download CSV" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 hover:bg-emerald-50 text-emerald-600 hover:text-emerald-700 cursor-pointer"
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-
-                            {/* 3. Copy (Copy Icon) */}
-                            <Button 
-                              onClick={() => handleCopyRow(row)}
-                              title="Copy Details" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-
-                            {/* 4. Edit (Pencil Icon) */}
-                            <Button 
-                              onClick={() => handleEditDC(row)}
-                              title="Edit Record" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-
-                            {/* 5. Delete (Trash Icon) */}
-                            <Button 
-                              onClick={() => handleDelete(row.id || row._id)}
-                              title="Delete Record" 
-                              variant="ghost" 
-                              className="h-6 w-6 p-0 hover:bg-rose-50 text-red-500 hover:text-red-600 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
+                        <TableCell className="text-center py-2 print:hidden">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full cursor-pointer flex items-center justify-center mx-auto">
+                                <MoreVertical className="h-4 w-4 text-slate-500" />
+                                <span className="sr-only">Open options</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
+                              <DropdownMenuItem onClick={() => setSelectedDC(row)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">View Details</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handlePrintSingleDC(row)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">Print DC Slip</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleExportRowCSV(row)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">Download CSV</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleCopyRow(row)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">Copy Details</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditDC(row)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">Edit Record</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDelete(row.id || row._id)} className="gap-2 cursor-pointer hover:bg-red-50 p-2 rounded text-red-600 focus:text-red-600 focus:bg-red-50">Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     );

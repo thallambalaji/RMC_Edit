@@ -280,27 +280,10 @@ export interface DeliveryChallan {
 export interface CreateDeliveryChallanBody {
   dcNumber: string;
   dcDate: string;
-  dcTime?: string;
-  plant: string;
-  customerid: string;
-  vehicleid: string;
-  siteId?: string | null;
-  driverName?: string;
-  grade: string;
-  quantity: number;
-  netAmount: number;
-  cementName?: string;
-  cementGrade?: string;
-  pumpType?: string;
-  slump?: number | null;
-  wcRatio?: number | null;
-  admixture?: string;
-  waitingTime?: number | null;
-  loadedPlant?: string;
-  loadedQuantity?: number | null;
-  loadedGrade?: string;
-  transportCharge?: number | null;
-  pumpCharge?: number | null;
+  /** @nullable */
+  invoiceId?: number | null;
+  /** @nullable */
+  vehicleId?: number | null;
   status: string;
   destination: string;
 }

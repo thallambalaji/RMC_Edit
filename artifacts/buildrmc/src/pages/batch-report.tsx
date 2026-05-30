@@ -41,6 +41,7 @@ import { PrintHeader } from "@/components/print-header";
 export default function BatchReport() {
   const { toast } = useToast();
   const { showFilters } = useQcFilters();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -633,23 +634,13 @@ export default function BatchReport() {
                 {generatedReport.type === "Production Sheet" ? (
                   /* Production Sheet Layout: Grouped by Grade */
                   <Table>
-                    <TableHeader className="sticky top-0 bg-slate-100/90 z-10">
-                      <TableRow className="border-b border-slate-200">
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4">
-                          Concrete Grade
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">
-                          No. of Batches
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">
-                          Total Ordered Qty
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">
-                          Total Batched Qty
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right">
-                          Volumetric Variance
-                        </TableHead>
+                    <TableHeader>
+                      <TableRow className="border-0 hover:bg-transparent">
+                        <TableHead className={`${headerStyle} text-left px-4`}>Concrete Grade</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>No. of Batches</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>Total Ordered Qty</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>Total Batched Qty</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>Volumetric Variance</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -696,35 +687,17 @@ export default function BatchReport() {
                 ) : (
                   /* Date Wise or Date with Time Wise List */
                   <Table>
-                    <TableHeader className="sticky top-0 bg-slate-100/90 z-10">
-                      <TableRow className="border-b border-slate-200">
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 whitespace-nowrap">
-                          Batch No
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
-                          Date
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
-                          Customer
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
-                          Site
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
-                          Grade
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right whitespace-nowrap">
-                          Target Qty
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 text-right whitespace-nowrap">
-                          Batched Qty
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3 whitespace-nowrap">
-                          Vehicle No
-                        </TableHead>
-                        <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center whitespace-nowrap">
-                          ACTION
-                        </TableHead>
+                    <TableHeader>
+                      <TableRow className="border-0 hover:bg-transparent">
+                        <TableHead className={`${headerStyle} text-left px-4`}>Batch No</TableHead>
+                        <TableHead className={headerStyle}>Date</TableHead>
+                        <TableHead className={`${headerStyle} text-left`}>Customer</TableHead>
+                        <TableHead className={`${headerStyle} text-left`}>Site</TableHead>
+                        <TableHead className={headerStyle}>Grade</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>Target Qty</TableHead>
+                        <TableHead className={`${headerStyle} text-right px-3`}>Batched Qty</TableHead>
+                        <TableHead className={headerStyle}>Vehicle No</TableHead>
+                        <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

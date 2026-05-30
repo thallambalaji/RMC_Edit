@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -56,9 +57,6 @@
   --ring: 225 73% 40%;
   --radius: 0.5rem;
 }
-
-/* ── Google Font ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 /* ══════════════════════════════════════════
    KEYFRAMES
@@ -468,3 +466,10 @@ button[role="combobox"]:focus  { border-color: #1e40af !important; box-shadow: 0
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .dropdown-anim { animation: dropIn 0.2s cubic-bezier(.22,1,.36,1) both; }
+
+/* Print utility matching Customer & PO */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

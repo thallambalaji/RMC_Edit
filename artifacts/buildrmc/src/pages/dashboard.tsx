@@ -65,7 +65,7 @@ const FilterBar = ({ plant, setPlant, fromDate, setFromDate, toDate, setToDate, 
         <SelectContent>
           <SelectItem value="All Plant">All Plants</SelectItem>
           <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-          <SelectItem value="NARVAL RMC">NARVAL RMC</SelectItem>
+          <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
         </SelectContent>
       </Select>
     </div>
@@ -504,7 +504,7 @@ export default function Dashboard() {
                   <SelectContent>
                     <SelectItem value="All Plant">All Plants</SelectItem>
                     <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                    <SelectItem value="NARVAL RMC">NARVAL RMC</SelectItem>
+                    <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

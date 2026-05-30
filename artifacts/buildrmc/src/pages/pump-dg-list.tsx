@@ -39,6 +39,7 @@ interface PumpDGData {
 export default function PumpDgList() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
+  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [items, setItems] = useState<PumpDGData[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchName, setSearchName] = useState("");
@@ -374,12 +375,12 @@ export default function PumpDgList() {
         {/* Table container */}
         <div className="flex-1 overflow-auto">
           <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="border-b border-slate-200">
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 py-3.5 px-4 w-20">S.No</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Type of Pump</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-3">Name</TableHead>
-                <TableHead className="text-[11px] font-black uppercase text-slate-800 px-4 text-center">ACTION</TableHead>
+            <TableHeader>
+              <TableRow className="border-0 hover:bg-transparent">
+                <TableHead className={`${headerStyle} w-20`}>S.No</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Type of Pump</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Name</TableHead>
+                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

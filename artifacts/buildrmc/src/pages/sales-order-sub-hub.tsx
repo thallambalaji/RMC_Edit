@@ -12,14 +12,14 @@ export default function SalesOrderSubHub() {
   const [location] = useLocation();
 
   return (
-    <div className="flex h-full gap-4 bg-[#f8fafc]">
+    <div className="flex h-full gap-4 bg-white">
       {/* Sidebar with Accordion Navigation */}
       <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
         <div className="p-4 bg-gray-50 border-b">
           <h3 className="font-bold text-gray-800 text-sm">Customer & PO Nav</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
-          <Accordion type="multiple" defaultValue={["sales-order"]} className="w-full space-y-2">
+          <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
             
             <AccordionItem value="customer" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">

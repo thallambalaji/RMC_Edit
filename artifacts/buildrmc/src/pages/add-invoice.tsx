@@ -35,7 +35,7 @@ import {
   Trash2 
 } from "lucide-react";
 
-const PLANTS = ["FORTUNE CONCRETE", "NARVAL RMC"];
+const PLANTS = ["FORTUNE CONCRETE", "MARVAL RMC"];
 const BLOCKS = ["Block A", "Block B", "Block C", "Block D", "Tower 1", "Tower 2"];
 const GRADES = ["M10", "M15", "M20", "M25", "M30", "M35", "M40", "M45", "M50"];
 const PUMPS = ["Boom Pump", "Line Pump", "Stationary Pump", "No Pump"];

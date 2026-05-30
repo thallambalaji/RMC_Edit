@@ -1,7 +1,7 @@
-import { Router } from "express";
+import { Router, type IRouter } from "express";
 import { connectMongo, SalesEnquiry } from "@workspace/mongo-db";
 
-const router = Router();
+const router: IRouter = Router();
 
 // GET /api/enquiries
 router.get("/enquiries", async (req, res) => {

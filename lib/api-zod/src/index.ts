@@ -28,7 +28,7 @@ export const CreateQuotationBody = zod.object({
   ),
 });
 
-export type * from "./generated/types";
+
 
 export const CreateScheduleBody = zod.object({
   customerId: zod.string(),

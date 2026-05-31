@@ -398,31 +398,85 @@ const CubeEntrySchema = new Schema({
 export const CubeEntry = mongoose.models.CubeEntry || mongoose.model<ICubeEntry>("CubeEntry", CubeEntrySchema);
 
 // Batch Entry (For Batching List)
+export interface IBatchIngredientQty {
+  aggr1: number; aggr2: number; aggr3: number; aggr4: number;
+  cem1: number; cem2: number; cem3: number;
+  water: number; admix1: number; admix2: number;
+}
+
+export interface IBatchLoad {
+  loadNo: number;
+  aggr1: number; aggr2: number; aggr3: number; aggr4: number;
+  cem1: number; cem2: number; cem3: number;
+  water: number; admix1: number; admix2: number;
+}
+
 export interface IBatchEntry extends Document {
   batchNo: string;
   date: string;
   customerName: string;
   siteName: string;
   grade: string;
+  recipeCode?: string;
+  cementName?: string;
+  slump?: string;
   quantity: number;
   batchedQty: number;
   vehicleNo: string;
   plant: string;
+  noOfBatches?: number;
+  batchVolume?: number;
+  // Ingredient product names (from Recipe)
+  ingredientProducts?: Record<string, string>;
+  // Designed quantities per m³ (from Recipe)
+  designedQty?: IBatchIngredientQty;
+  // Moisture % per aggregate (from MoistureSetting)
+  moisture?: { aggr1: number; aggr2: number; aggr3: number; aggr4: number; };
+  // Actual per-load ingredient quantities
+  batchLoads?: IBatchLoad[];
 }
 
+const BatchIngredientQtySchema = {
+  aggr1: { type: Number, default: 0 }, aggr2: { type: Number, default: 0 },
+  aggr3: { type: Number, default: 0 }, aggr4: { type: Number, default: 0 },
+  cem1:  { type: Number, default: 0 }, cem2:  { type: Number, default: 0 },
+  cem3:  { type: Number, default: 0 }, water: { type: Number, default: 0 },
+  admix1: { type: Number, default: 0 }, admix2: { type: Number, default: 0 },
+};
+
 const BatchEntrySchema = new Schema({
-  batchNo: { type: String, required: true },
-  date: { type: String, required: true },
-  customerName: { type: String, required: true },
-  siteName: { type: String, required: true },
-  grade: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  batchedQty: { type: Number, required: true },
-  vehicleNo: { type: String, required: true },
-  plant: { type: String, default: "FORTUNE CONCRETE" },
+  batchNo:       { type: String, required: true },
+  date:          { type: String, required: true },
+  customerName:  { type: String, required: true },
+  siteName:      { type: String, required: true },
+  grade:         { type: String, required: true },
+  recipeCode:    { type: String },
+  cementName:    { type: String },
+  slump:         { type: String },
+  quantity:      { type: Number, required: true },
+  batchedQty:    { type: Number, required: true },
+  vehicleNo:     { type: String, required: true },
+  plant:         { type: String, default: "FORTUNE CONCRETE" },
+  noOfBatches:   { type: Number, default: 1 },
+  batchVolume:   { type: Number, default: 6 },
+  ingredientProducts: { type: Schema.Types.Mixed, default: {} },
+  designedQty:   { type: BatchIngredientQtySchema, default: () => ({}) },
+  moisture:      {
+    aggr1: { type: Number, default: 0 }, aggr2: { type: Number, default: 0 },
+    aggr3: { type: Number, default: 0 }, aggr4: { type: Number, default: 0 },
+  },
+  batchLoads: [{
+    loadNo: { type: Number },
+    aggr1: { type: Number, default: 0 }, aggr2: { type: Number, default: 0 },
+    aggr3: { type: Number, default: 0 }, aggr4: { type: Number, default: 0 },
+    cem1:  { type: Number, default: 0 }, cem2:  { type: Number, default: 0 },
+    cem3:  { type: Number, default: 0 }, water: { type: Number, default: 0 },
+    admix1: { type: Number, default: 0 }, admix2: { type: Number, default: 0 },
+  }],
 }, { timestamps: true });
 
 export const BatchEntry = mongoose.models.BatchEntry || mongoose.model<IBatchEntry>("BatchEntry", BatchEntrySchema);
+
 
 // Moisture Setting Interface
 export interface IMoistureSetting extends Document {

@@ -959,15 +959,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
             </div>
           ) : viewInv && (
             <div className="p-4 space-y-3.5">
-              {/* Company Header */}
-              <div className="flex items-center gap-3 border-b-2 border-[#1e40af] pb-3">
-                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
-                <div>
-                  <h1 className="text-sm font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
-                  <p className="text-[10px] text-slate-600 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
-                  <p className="text-[10px] text-slate-600">GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</p>
-                </div>
-              </div>
+
 
               {/* Grid info */}
               <div className="grid grid-cols-2 gap-3">
@@ -1026,23 +1018,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
       <div id="print-root" style={{ display: "none" }}>
         {viewInv && (
           <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-            {/* Header */}
-            <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                <div style={{ width: "56px", height: "56px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "20px", borderRadius: "8px" }}>BM</div>
-                <div>
-                  <div style={{ fontSize: "22px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
-                  <div style={{ fontSize: "11px", color: "#475569" }}>GSTIN: 36AAAAA1111A1Z1 | +91 98765 43210</div>
-                </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Sales Invoice</div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>Date: {viewInv.invoiceDate ? new Date(viewInv.invoiceDate).toLocaleDateString("en-IN") : "—"}</div>
-              </div>
-            </div>
 
-            <h2 style={{ fontSize: "14px", fontWeight: 800, textTransform: "uppercase", color: "#1e40af", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", marginBottom: "14px" }}>Invoice Details</h2>
 
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", marginBottom: "24px" }}>
               <tbody>

@@ -196,6 +196,30 @@ router.delete("/recipes/:id", async (req, res): Promise<void> => {
   }
 });
 
+// Lookup recipe by customer + siteName + grade (for batch sheet auto-fill)
+router.get("/recipes/lookup", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const { customer, siteName, grade } = req.query as Record<string, string>;
+    if (!grade) {
+      res.status(400).json({ error: "grade is required" });
+      return;
+    }
+    // Build query — grade is always required; customer & siteName are optional filters
+    const query: Record<string, string | RegExp> = { grade };
+    if (customer) query.customer = new RegExp(customer, "i");
+    if (siteName) query.siteName = new RegExp(siteName, "i");
+    const recipe = await Recipe.findOne(query).sort({ createdAt: -1 });
+    if (!recipe) {
+      res.status(404).json({ error: "No recipe found for the given parameters" });
+      return;
+    }
+    res.json(toApi(recipe));
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 // --- Cube Entry Routes ---
 
 router.get("/cube-entries", async (_req, res): Promise<void> => {
@@ -245,6 +269,20 @@ router.get("/batch-entries", async (_req, res): Promise<void> => {
     res.json(entries.map(toApi));
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/batch-entries/:id", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const entry = await BatchEntry.findById(req.params.id);
+    if (!entry) {
+      res.status(404).json({ error: "Batch entry not found" });
+      return;
+    }
+    res.json(toApi(entry));
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID" });
   }
 });
 

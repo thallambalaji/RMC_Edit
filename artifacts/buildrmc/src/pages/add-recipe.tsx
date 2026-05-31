@@ -54,11 +54,9 @@ export default function AddRecipe() {
   const [siteName, setSiteName] = useState("");
   const [grade, setGrade] = useState("");
   const [recipeCode, setRecipeCode] = useState("");
-  const [plant, setPlant] = useState("");
   const [cementName, setCementName] = useState("");
   const [slump, setSlump] = useState("100+/-20");
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(INITIAL_INGREDIENTS);
-  const [plants, setPlants] = useState<any[]>([]);
 
   const { data: dbGrades } = useGetMasters("grade");
 
@@ -78,15 +76,7 @@ export default function AddRecipe() {
         setSalesOrders(data);
       }
     }).catch(() => {});
-    // Fetch plants
-    fetch("/api/masters?type=plant").then(res => res.json()).then(data => {
-      if (Array.isArray(data)) {
-        setPlants(data);
-        if (data.length > 0) {
-          setPlant(data[0].name);
-        }
-      }
-    }).catch(() => {});
+
   }, []);
 
   // Reset site name and grade when customer changes to avoid mismatch
@@ -181,7 +171,6 @@ export default function AddRecipe() {
     setSiteName("");
     setGrade("");
     setRecipeCode("");
-    setPlant("");
     setCementName("");
     setSlump("100+/-20");
     setIngredients(INITIAL_INGREDIENTS);
@@ -204,7 +193,6 @@ export default function AddRecipe() {
       siteName,
       grade,
       recipeCode,
-      plant,
       cementName,
       slump,
       ingredients,
@@ -264,17 +252,7 @@ export default function AddRecipe() {
                 </Select>
               </div>
 
-              <div className="space-y-1.5 col-span-2 md:col-span-1">
-                <Label className="text-[10px] font-black uppercase text-slate-500">Plant <span className="text-red-500">*</span></Label>
-                <Select value={plant} onValueChange={setPlant}>
-                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
-                    <SelectValue placeholder="Select Plant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {plants.map(p => <SelectItem key={p.id} value={p.name} className="text-xs font-bold">{p.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+
 
               <div className="space-y-1.5 col-span-2 md:col-span-1">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Site Name <span className="text-red-500">*</span></Label>

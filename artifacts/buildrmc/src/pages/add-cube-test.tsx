@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
+import { useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,32 +96,36 @@ export default function AddCubeTest() {
   const [manualTestNo, setManualTestNo] = useState("");
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
-  // Dropdown Data
   const [customers, setCustomers] = useState<any[]>([]);
-  const [sites, setSites] = useState<string[]>(["UPSIDE AVENUES", "Raaga", "VELIMELA"]);
-  const [grades, setGrades] = useState<string[]>(["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40"]);
   const [plants, setPlants] = useState<any[]>([]);
+
+  const customerSites = useMemo(() => {
+    if (!customerName) return [];
+    const found = customers.find(c => c.name === customerName);
+    if (found && found.siteName) {
+      return found.siteName.split(" | ").map((s: string) => s.trim()).filter(Boolean);
+    }
+    return [];
+  }, [customerName, customers]);
+
+  const { data: dbGrades } = useGetMasters("grade");
+  const gradesList = useMemo(() => {
+    if (dbGrades && dbGrades.length > 0) {
+      return dbGrades.map((g: any) => g.name);
+    }
+    return [];
+  }, [dbGrades]);
 
   useEffect(() => {
     fetch("/api/customers").then(res => res.json()).then(data => setCustomers(data)).catch(() => {});
     fetch("/api/masters?type=plant").then(res => res.json()).then(data => {
-      if (data.length > 0) {
+      if (Array.isArray(data)) {
         setPlants(data);
-        setPlant(data[0].name);
-      } else {
-        setPlants([
-          { id: "fortune", name: "FORTUNE CONCRETE" },
-          { id: "marval", name: "MARVAL RMC" }
-        ]);
-        setPlant("FORTUNE CONCRETE");
+        if (data.length > 0) {
+          setPlant(data[0].name);
+        }
       }
-    }).catch(() => {
-      setPlants([
-        { id: "fortune", name: "FORTUNE CONCRETE" },
-        { id: "marval", name: "MARVAL RMC" }
-      ]);
-      setPlant("FORTUNE CONCRETE");
-    });
+    }).catch(() => {});
   }, []);
 
   const handleAddRow = () => {
@@ -283,21 +288,29 @@ export default function AddCubeTest() {
                       <SelectValue placeholder="Choose Site" />
                     </SelectTrigger>
                     <SelectContent>
-                      {sites.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      {customerSites.map((s: string) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-[11px] font-black uppercase text-slate-500">Grade <span className="text-red-500">*</span></Label>
-                  <Select value={grade} onValueChange={setGrade}>
-                    <SelectTrigger className="h-11 text-xs font-bold border-slate-200">
-                      <SelectValue placeholder="Choose Grade" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {grades.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-1">
+                    <Input
+                      value={grade}
+                      onChange={e => setGrade(e.target.value)}
+                      placeholder="Grade"
+                      className="h-11 text-xs font-bold border-slate-200 bg-white text-slate-700 flex-1"
+                    />
+                    <Select value={gradesList.includes(grade) ? grade : ""} onValueChange={setGrade}>
+                      <SelectTrigger className="h-11 w-10 shrink-0 border-slate-200 text-slate-600 px-1 bg-white">
+                        <span className="text-[10px]">▼</span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white text-slate-700">
+                        {gradesList.map((g: any) => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 

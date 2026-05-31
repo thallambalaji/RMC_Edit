@@ -32,13 +32,14 @@ export default function AddDiesel() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
+  const [plants, setPlants] = useState<any[]>([]);
 
   // Get edit route parameters
   const [match, params] = useRoute("/transport/diesel/edit/:id");
   const logId = match ? params.id : null;
 
   // Form State
-  const [plant, setPlant] = useState("Fortune Concrete");
+  const [plant, setPlant] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [vehicleNo, setVehicleNo] = useState("");
   const [driverName, setDriverName] = useState("");
@@ -65,6 +66,20 @@ export default function AddDiesel() {
       }
     };
     fetchVehicles();
+
+    const fetchPlants = async () => {
+      try {
+        const res = await fetch("/api/masters?type=plant");
+        if (res.ok) {
+          const data = await res.json();
+          setPlants(data);
+          if (data.length > 0 && !logId) setPlant(data[0].name);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPlants();
   }, [logId]);
 
   useEffect(() => {
@@ -74,7 +89,7 @@ export default function AddDiesel() {
           const res = await fetch(`/api/diesel-consumptions/${logId}?t=${Date.now()}`);
           if (res.ok) {
             const data = await res.json();
-            setPlant(data.plant || "Fortune Concrete");
+            setPlant(data.plant || "");
             setDate(data.date || "");
             setVehicleNo(data.vehicleNo || "");
             setDriverName(data.driverName || "");
@@ -126,7 +141,7 @@ export default function AddDiesel() {
       setLocation(window.location.pathname);
       return;
     }
-    setPlant("Fortune Concrete");
+    setPlant(plants.length > 0 ? plants[0].name : "");
     setDate(new Date().toISOString().split("T")[0]);
     setVehicleNo(vehicles.length > 0 ? vehicles[0].registrationNo : "");
     setDriverName("");
@@ -228,8 +243,12 @@ export default function AddDiesel() {
                     onChange={(e) => setPlant(e.target.value)}
                     className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
                   >
-                    <option value="Fortune Concrete">Fortune Concrete</option>
-                    <option value="Marval RMC">Marval RMC</option>
+                    <option value="">Choose Plant</option>
+                    {plants.map((p: any) => (
+                      <option key={p._id || p.id} value={p.name}>
+                        {p.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 

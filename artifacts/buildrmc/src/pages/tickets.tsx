@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { customFetch, useGetVehicles } from "@workspace/api-client-react";
+import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Tickets() {
@@ -30,7 +30,7 @@ export default function Tickets() {
 
   // Form State
   const [ticketNo, setTicketNo] = useState("");
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
   const [weightType, setWeightType] = useState("Empty Weight");
   const [weight, setWeight] = useState("");
@@ -43,6 +43,13 @@ export default function Tickets() {
 
   // Dynamic Data
   const { data: vehicles } = useGetVehicles();
+  const { data: dbPlants } = useGetMasters("plant");
+
+  useEffect(() => {
+    if (dbPlants && dbPlants.length > 0 && !plant) {
+      setPlant(String(dbPlants[0].name || dbPlants[0].id || ""));
+    }
+  }, [dbPlants, plant]);
   const availableVehicles = useMemo(() => {
     if (!vehicles) return [];
     return vehicles.map((v: any) => v.registrationNo || v.registrationNumber || v.vehicleNumber || v.regNo).filter(Boolean);
@@ -201,10 +208,16 @@ export default function Tickets() {
                 <Label className="f-label text-slate-600">Plant <span className="text-rose-500">*</span></Label>
                 <Select value={plant} onValueChange={setPlant}>
                   <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">
-                    <SelectValue />
+                    <SelectValue placeholder="Choose Plant" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
+                    {dbPlants && dbPlants.length > 0 ? (
+                      dbPlants.map((p: any) => (
+                        <SelectItem key={p.id || p._id} value={p.name || p.id}>{p.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -226,11 +239,7 @@ export default function Tickets() {
                         <SelectItem key={idx} value={v}>{v}</SelectItem>
                       ))
                     ) : (
-                      <>
-                        <SelectItem value="TS07UP 1459">TS07UP 1459</SelectItem>
-                        <SelectItem value="TS07UP 1789">TS07UP 1789</SelectItem>
-                        <SelectItem value="TS07UP 1679">TS07UP 1679</SelectItem>
-                      </>
+                      <SelectItem value="_empty" disabled>No vehicles registered</SelectItem>
                     )}
                   </SelectContent>
                 </Select>

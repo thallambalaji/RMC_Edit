@@ -6,6 +6,7 @@ import {
   useDeleteSchedule,
   useUpdateSchedule,
   getSchedulesQueryKey,
+  useGetMasters,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -112,6 +113,7 @@ export default function SchedulingList() {
 
   const { data: schedules, isLoading } = useGetSchedules();
   const { data: customers } = useGetCustomers();
+  const { data: dbPlants } = useGetMasters("plant");
 
   // Hook up update mutation
   const { mutate: updateSchedule } = useUpdateSchedule({
@@ -432,8 +434,11 @@ export default function SchedulingList() {
               <SelectTrigger className="h-8 text-[10px] border-gray-200 rounded font-bold px-2 bg-white"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="text-[10px] font-bold">All Plant</SelectItem>
-                <SelectItem value="FORTUNE CONCRETE" className="text-[10px] font-bold">FORTUNE CONCRETE</SelectItem>
-                <SelectItem value="Plant B" className="text-[10px] font-bold">Plant B</SelectItem>
+                {dbPlants?.map((p: any) => (
+                  <SelectItem key={p.id || p._id} value={p.name} className="text-[10px] font-bold">
+                    {p.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

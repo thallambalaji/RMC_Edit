@@ -7,8 +7,9 @@ import {
   useGetMasters,
   useGetSalesOrders,
   getGetInvoicesQueryKey,
+  useGetInvoices,
 } from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,10 +36,7 @@ import {
   Trash2 
 } from "lucide-react";
 
-const PLANTS = ["FORTUNE CONCRETE", "MARVAL RMC"];
-const BLOCKS = ["Block A", "Block B", "Block C", "Block D", "Tower 1", "Tower 2"];
-const GRADES = ["M10", "M15", "M20", "M25", "M30", "M35", "M40", "M45", "M50"];
-const PUMPS = ["Boom Pump", "Line Pump", "Stationary Pump", "No Pump"];
+
 
 const FY_PREFIX = (() => {
   const now = new Date();
@@ -49,9 +47,24 @@ const FY_PREFIX = (() => {
   return `${String(fyStart % 100).padStart(2, "0")}-${String(fyEnd).padStart(2, "0")}`;
 })();
 
-function generateInvoiceNumber() {
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `INV/${FY_PREFIX}/${rand}`;
+function getNextInvoiceNumber(invoices: any[], fyPrefix: string): string {
+  if (!invoices || invoices.length === 0) {
+    return `INV/${fyPrefix}/0001`;
+  }
+  const numbers = invoices
+    .map(inv => inv.invoiceNumber || inv.invoiceNo)
+    .filter(num => typeof num === "string" && num.startsWith(`INV/${fyPrefix}/`))
+    .map(num => {
+      const parts = num.split("/");
+      const lastPart = parts[parts.length - 1];
+      const parsed = parseInt(lastPart, 10);
+      return isNaN(parsed) ? 0 : parsed;
+    });
+
+  const maxNum = numbers.length > 0 ? Math.max(...numbers) : 0;
+  const nextNum = maxNum + 1;
+  const paddedNum = String(nextNum).padStart(4, "0");
+  return `INV/${fyPrefix}/${paddedNum}`;
 }
 
 function numberToWordsINR(num: number): string {
@@ -93,25 +106,54 @@ export default function AddInvoice() {
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const { data: invoices } = useGetInvoices({
+    query: { queryKey: getGetInvoicesQueryKey() },
+  });
+
   // Master Data Hook Queries
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
-  const { data: employees } = useGetEmployees();
   const { data: sites } = useGetMasters("site");
   const { data: allSalesOrders } = useGetSalesOrders();
+  const { data: dbPlants } = useGetMasters("plant");
+  const { data: dbBlocks } = useGetMasters("block");
+
+  // Fetch drivers from transport module endpoint
+  const { data: transportDrivers } = useQuery<any[]>({
+    queryKey: ["/api/drivers"],
+    queryFn: async () => {
+      const res = await fetch("/api/drivers");
+      if (!res.ok) throw new Error("Failed to fetch drivers");
+      return res.json();
+    }
+  });
+
+  // Fetch pump-dgs from transport module endpoint
+  const { data: pumpDgs } = useQuery<any[]>({
+    queryKey: ["/api/pump-dgs"],
+    queryFn: async () => {
+      const res = await fetch("/api/pump-dgs");
+      if (!res.ok) throw new Error("Failed to fetch pump-dgs");
+      return res.json();
+    }
+  });
+
+  const plantsList = useMemo(() => (dbPlants || []).map((p: any) => p.name || p.id), [dbPlants]);
+  const blocksList = useMemo(() => (dbBlocks || []).map((b: any) => b.name || b.id), [dbBlocks]);
+
+  const pumpsList = useMemo(() => {
+    return (pumpDgs || [])
+      .filter((p: any) => p.type === "Pump" && p.status !== "inactive" && p.status !== "deactivated")
+      .map((p: any) => p.name);
+  }, [pumpDgs]);
 
   const drivers = useMemo(() => {
-    if (!employees) return [];
-    return (employees as any[]).filter(e => 
-      e.designation?.toLowerCase().includes("driver") || 
-      e.role?.toLowerCase().includes("driver") ||
-      true
-    );
-  }, [employees]);
+    return (transportDrivers || []).filter((d: any) => d.status !== "inactive" && d.status !== "deactivated");
+  }, [transportDrivers]);
 
   // Form State
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [plant, setPlant] = useState("");
+  const [plant, setPlant] = useState("FORTUNE CONCRETE");
   const [kmReading, setKmReading] = useState("");
   const [customerId, setCustomerId] = useState<string>("");
   const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().slice(0, 10));
@@ -125,14 +167,30 @@ export default function AddInvoice() {
   const [remark, setRemark] = useState("");
   const [quantity, setQuantity] = useState<string>("0");
   const [vehicleId, setVehicleId] = useState<string>("");
-  const [pump, setPump] = useState<string>("No Pump");
+  const [pump, setPump] = useState<string>("");
   const [netAmount, setNetAmount] = useState<string>("0");
 
   // Advanced Form State (Now fully active and functional!)
   const [showAdvance, setShowAdvance] = useState(false);
   const [pumpCharge, setPumpCharge] = useState<string>("0");
   const [transportCharge, setTransportCharge] = useState<string>("0");
-  const [loadedPlant, setLoadedPlant] = useState<string>("FORTUNE CONCRETE");
+  const [loadedPlant, setLoadedPlant] = useState<string>("");
+
+  useEffect(() => {
+    if (plantsList.length > 0) {
+      if (!plant || plant === "FORTUNE CONCRETE") {
+        setPlant(plantsList[0]);
+      }
+      if (!loadedPlant) setLoadedPlant(plantsList[0]);
+    }
+  }, [plantsList, plant, loadedPlant]);
+
+  useEffect(() => {
+    if (invoices && !invoiceNumber) {
+      const nextNum = getNextInvoiceNumber(invoices, FY_PREFIX);
+      setInvoiceNumber(nextNum);
+    }
+  }, [invoices, invoiceNumber]);
 
   // Mock Upload state variables with premium tickmarks
   const [dcFile, setDcFile] = useState<string | null>(null);
@@ -176,8 +234,8 @@ export default function AddInvoice() {
   useEffect(() => {
     if (!customerId) {
       setSiteName("");
-      setGrade("M25");
-      setLoadedGrade("M25");
+      setGrade("");
+      setLoadedGrade("");
       return;
     }
     if (availableSites.length > 0) {
@@ -279,7 +337,7 @@ export default function AddInvoice() {
     setNetAmount("0");
     setPumpCharge("0");
     setTransportCharge("0");
-    setLoadedPlant("FORTUNE CONCRETE");
+    setLoadedPlant("");
     setDcFile(null);
     setWeighmentFile(null);
     setAnnexureFile(null);
@@ -294,10 +352,6 @@ export default function AddInvoice() {
     e.preventDefault();
     if (!invoiceNumber) {
       toast({ title: "Enter Invoice Number", description: "Invoice number is required.", variant: "destructive" });
-      return;
-    }
-    if (!plant) {
-      toast({ title: "Select Plant", description: "Choosing a plant is required.", variant: "destructive" });
       return;
     }
     if (!customerId) {
@@ -365,8 +419,16 @@ export default function AddInvoice() {
         description: `Invoice ${invoiceNumber} has been saved to the database.` 
       });
       queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
-      // Generate a fresh invoice number for the next entry, but keep the rest of the form intact
-      setInvoiceNumber("");
+      // Generate a fresh sequential invoice number for the next entry, but keep the rest of the form intact
+      const parts = invoiceNumber.split("/");
+      const lastPart = parts[parts.length - 1];
+      const parsed = parseInt(lastPart, 10);
+      if (!isNaN(parsed)) {
+        const nextPadded = String(parsed + 1).padStart(4, "0");
+        setInvoiceNumber(`INV/${FY_PREFIX}/${nextPadded}`);
+      } else {
+        setInvoiceNumber("");
+      }
     } catch (err: any) {
       toast({
         title: "Submission Failed",
@@ -379,11 +441,11 @@ export default function AddInvoice() {
   };
 
   const labelStyle = "text-[11px] font-black text-gray-500 uppercase tracking-wider mb-1 block";
-  const inputStyle = "h-8 text-xs border-gray-200 focus:ring-[#1e40af] focus:border-[#1e40af] rounded-md shadow-sm bg-white text-slate-800 font-medium w-full transition-shadow hover:border-slate-300";
+  const inputStyle = "h-8 text-xs border-gray-200 focus:ring-[#4f46e5] focus:border-[#4f46e5] rounded-md shadow-sm bg-white text-slate-800 font-medium w-full transition-shadow hover:border-slate-300";
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen pb-12">
-      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden mt-6">
+    <div className="pb-6">
+      <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
         
         {/* Header Breadcrumb */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50/50">
@@ -391,14 +453,14 @@ export default function AddInvoice() {
             <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Add New Invoice</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase tracking-tight font-bold">
-              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+              <Link href="/dashboard" className="hover:text-[#4f46e5] transition-colors">Home</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <Link href="/billing" className="hover:text-[#1e40af] transition-colors">Billing</Link>
+              <Link href="/billing" className="hover:text-[#4f46e5] transition-colors">Billing</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <span className="text-[#1e40af]">Create Invoice</span>
+              <span className="text-[#4f46e5]">Create Invoice</span>
             </nav>
           </div>
-          <div className="flex items-center gap-1 text-[10px] bg-blue-50 border border-blue-100 text-[#1e40af] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-1 text-[10px] bg-indigo-50 border border-indigo-100 text-[#4f46e5] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 mr-1" /> Active Database Connection
           </div>
         </div>
@@ -412,9 +474,9 @@ export default function AddInvoice() {
               <Label className={labelStyle}>Invoice No <span className="text-red-500">*</span></Label>
               <Input
                 value={invoiceNumber}
-                onChange={e => setInvoiceNumber(e.target.value)}
-                placeholder="Enter Invoice Number"
-                className={inputStyle}
+                readOnly
+                placeholder="Generating sequential number..."
+                className={`${inputStyle} bg-slate-50 cursor-not-allowed select-none`}
               />
             </div>
             
@@ -495,25 +557,10 @@ export default function AddInvoice() {
               <Label className={labelStyle}>Quantity (m³) <span className="text-red-500">*</span></Label>
               <Input type="number" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} className={inputStyle} />
             </div>
-            
-            <div>
-              <Label className={labelStyle}>Rate per m³ (₹) <span className="text-red-500">*</span></Label>
-              <Input type="number" step="0.01" value={netAmount} onChange={e => setNetAmount(e.target.value)} className={inputStyle} />
-            </div>
           </div>
 
           {/* Column 2 */}
           <div className="space-y-4">
-            <div>
-              <Label className={labelStyle}>Plant <span className="text-red-500">*</span></Label>
-              <Select value={plant} onValueChange={setPlant}>
-                <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Plant" /></SelectTrigger>
-                <SelectContent className="text-xs">
-                  {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            
             <div>
               <Label className={labelStyle}>Invoice Date <span className="text-red-500">*</span></Label>
               <Input type="date" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} className={inputStyle} />
@@ -549,7 +596,11 @@ export default function AddInvoice() {
               <Select value={pump} onValueChange={setPump}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Pump" /></SelectTrigger>
                 <SelectContent className="text-xs">
-                  {PUMPS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                  {pumpsList.length > 0 ? (
+                    pumpsList.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)
+                  ) : (
+                    <SelectItem value="_empty" disabled className="text-xs">No pumps configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -567,7 +618,11 @@ export default function AddInvoice() {
               <Select value={block} onValueChange={setBlock}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Block" /></SelectTrigger>
                 <SelectContent className="text-xs">
-                  {BLOCKS.map(b => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)}
+                  {blocksList.length > 0 ? (
+                    blocksList.map(b => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)
+                  ) : (
+                    <SelectItem value="_empty" disabled className="text-xs">No blocks configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -582,7 +637,7 @@ export default function AddInvoice() {
                       <SelectItem key={d.id} value={d.name} className="text-xs">{d.name}</SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="John Doe" className="text-xs">John Doe (Fallback Driver)</SelectItem>
+                    <SelectItem value="_empty" disabled className="text-xs">No drivers registered</SelectItem>
                   )}
                 </SelectContent>
               </Select>
@@ -595,7 +650,7 @@ export default function AddInvoice() {
                 onClick={() => setShowAdvance(!showAdvance)} 
                 className={`w-full text-xs h-9 px-4 font-black uppercase tracking-wider flex items-center justify-center gap-2 border shadow-sm transition-all ${
                   showAdvance 
-                    ? "bg-blue-600 border-blue-600 text-white hover:bg-blue-700 hover:text-white" 
+                    ? "bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 hover:text-white" 
                     : "bg-slate-100 border-gray-200 text-slate-700 hover:bg-slate-200"
                 }`}
               >
@@ -611,7 +666,7 @@ export default function AddInvoice() {
           showAdvance ? "max-h-[1000px] opacity-100 bg-slate-50/40 p-6" : "max-h-0 opacity-0 p-0 border-transparent pointer-events-none"
         }`}>
           <div className="max-w-[1400px] mx-auto space-y-6">
-            <h3 className="text-xs font-black text-[#1e40af] uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
+            <h3 className="text-xs font-black text-[#4f46e5] uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
               <Settings2 className="w-4 h-4" /> Advanced Billing Configurations & Upload Attachments
             </h3>
 
@@ -644,9 +699,13 @@ export default function AddInvoice() {
               <div className="space-y-1">
                 <Label className={labelStyle}>Loaded Plant</Label>
                 <Select value={loadedPlant} onValueChange={setLoadedPlant}>
-                  <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                   <SelectContent className="text-xs">
-                    {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                    {plantsList.length > 0 ? (
+                      plantsList.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)
+                    ) : (
+                      <SelectItem value="_empty" disabled className="text-xs">No plants configured</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -657,7 +716,7 @@ export default function AddInvoice() {
               
               {/* Delivery Challan File */}
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
-                <Label className={`${labelStyle} text-[#1e40af]`}>Delivery Challan (DC) Document</Label>
+                <Label className={`${labelStyle} text-[#4f46e5]`}>Delivery Challan (DC) Document</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload copy of original signed DC paper</p>
                 
                 {dcFile ? (
@@ -671,7 +730,7 @@ export default function AddInvoice() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
                     <input 
                       type="file" 
                       accept=".pdf,.png,.jpg,.jpeg"
@@ -684,7 +743,7 @@ export default function AddInvoice() {
                         }
                       }}
                     />
-                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-indigo-500 transition-colors mb-1.5" />
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload DC</span>
                     <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
                   </div>
@@ -693,7 +752,7 @@ export default function AddInvoice() {
 
               {/* Weighment Slip File */}
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
-                <Label className={`${labelStyle} text-[#1e40af]`}>Weighment Ticket Slip</Label>
+                <Label className={`${labelStyle} text-[#4f46e5]`}>Weighment Ticket Slip</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload authorized weighbridge receipts</p>
                 
                 {weighmentFile ? (
@@ -707,7 +766,7 @@ export default function AddInvoice() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
                     <input 
                       type="file" 
                       accept=".pdf,.png,.jpg,.jpeg"
@@ -720,7 +779,7 @@ export default function AddInvoice() {
                         }
                       }}
                     />
-                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-indigo-500 transition-colors mb-1.5" />
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload Slip</span>
                     <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
                   </div>
@@ -729,7 +788,7 @@ export default function AddInvoice() {
 
               {/* Annexure Statement File */}
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
-                <Label className={`${labelStyle} text-[#1e40af]`}>Annexure statement Document</Label>
+                <Label className={`${labelStyle} text-[#4f46e5]`}>Annexure statement Document</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload additional supporting calculations</p>
                 
                 {annexureFile ? (
@@ -743,7 +802,7 @@ export default function AddInvoice() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-blue-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
+                  <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
                     <input 
                       type="file" 
                       accept=".pdf,.png,.jpg,.jpeg"
@@ -756,7 +815,7 @@ export default function AddInvoice() {
                         }
                       }}
                     />
-                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-blue-500 transition-colors mb-1.5" />
+                    <Upload className="w-5 h-5 mx-auto text-slate-400 group-hover:text-indigo-500 transition-colors mb-1.5" />
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Click to upload Doc</span>
                     <span className="text-[9px] text-slate-400 block mt-0.5">PDF, PNG, JPG up to 5MB</span>
                   </div>
@@ -770,7 +829,7 @@ export default function AddInvoice() {
         {/* Summary Section Redesign */}
         <div className="mt-4 px-6 pb-6">
           <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2 border-gray-100">
-            <ReceiptText className="w-4 h-4 text-[#1e40af]"/> Invoice Calculations & Preview
+            <ReceiptText className="w-4 h-4 text-[#4f46e5]"/> Invoice Calculations & Preview
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
             
@@ -791,7 +850,7 @@ export default function AddInvoice() {
                 <div>
                   <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Site Info</p>
                   <p className="text-xs font-medium text-gray-600 flex items-start gap-1.5 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-[#1e40af] shrink-0 mt-0.5" /> {siteName || "—"}
+                    <MapPin className="w-3.5 h-3.5 text-[#4f46e5] shrink-0 mt-0.5" /> {siteName || "—"}
                   </p>
                 </div>
               </div>
@@ -805,7 +864,7 @@ export default function AddInvoice() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Grade</p>
-                  <p className="text-base font-black text-[#1e40af]">{grade}</p>
+                  <p className="text-base font-black text-[#4f46e5]">{grade}</p>
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Quantity</p>
@@ -869,7 +928,7 @@ export default function AddInvoice() {
                 <div className="pt-3 mt-3 border-t border-dashed border-gray-300">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-extrabold text-gray-800">Net Price</span>
-                    <span className="text-xl font-black text-[#1e40af]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                    <span className="text-xl font-black text-[#4f46e5]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
                   </div>
                 </div>
               </div>
@@ -877,9 +936,9 @@ export default function AddInvoice() {
           </div>
           
           {/* Amount In Words (Full Width) */}
-          <div className="mt-5 bg-blue-50/40 border border-blue-100 rounded-xl p-4 flex items-center gap-4">
+          <div className="mt-5 bg-indigo-50/40 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
             <div className="p-2.5 bg-white rounded-full shadow-sm">
-              <Wallet className="w-5 h-5 text-[#1e40af]" />
+              <Wallet className="w-5 h-5 text-[#4f46e5]" />
             </div>
             <div>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Amount in words</p>
@@ -892,7 +951,7 @@ export default function AddInvoice() {
         <div className="p-6 flex justify-center gap-4 bg-slate-50 border-t border-gray-100">
           <Button 
             type="submit" 
-            className="bg-[#1e40af] hover:bg-blue-800 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
+            className="bg-[#4f46e5] hover:bg-indigo-700 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Submit Invoice"}

@@ -50,6 +50,30 @@ export default function AddDriver() {
       });
       return;
     }
+    if (!phone) {
+      toast({
+        title: "Validation Error",
+        description: "Driver Phone is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!licenseNo) {
+      toast({
+        title: "Validation Error",
+        description: "Licence No is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!licenseValidity) {
+      toast({
+        title: "Validation Error",
+        description: "Licence Validity is required.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const url = driverId ? `/api/drivers/${driverId}` : "/api/drivers";
@@ -135,39 +159,42 @@ export default function AddDriver() {
             {/* Driver Phone */}
             <div className="space-y-1">
               <Label className="text-sm font-bold text-gray-700">
-                Driver Phone :
+                Driver Phone <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter Driver Phone."
                 className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                required
               />
             </div>
 
             {/* Licence No */}
             <div className="space-y-1">
               <Label className="text-sm font-bold text-gray-700">
-                Licence No :
+                Licence No <span className="text-red-500">*</span>
               </Label>
               <Input
                 value={licenseNo}
                 onChange={(e) => setLicenseNo(e.target.value)}
                 placeholder="Enter Licence No"
                 className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded uppercase"
+                required
               />
             </div>
 
             {/* Licence Validity */}
             <div className="space-y-1">
               <Label className="text-sm font-bold text-gray-700">
-                Licence Validity :
+                Licence Validity <span className="text-red-500">*</span>
               </Label>
               <Input
                 type="date"
                 value={licenseValidity}
                 onChange={(e) => setLicenseValidity(e.target.value)}
                 className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                required
               />
             </div>
 

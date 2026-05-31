@@ -8,12 +8,12 @@ import {
 
 const router: IRouter = Router();
 
-let adminPassword = "admin123";
+let adminPassword = "admin@2026";
 const adminUser = {
   id: "1",
-  username: "admin",
-  fullName: "Super Admin",
-  email: "sadmin@fortune.com",
+  username: "admin@aeccentric.com",
+  fullName: "Admin",
+  email: "admin@aeccentric.com",
   role: "admin",
 };
 
@@ -26,32 +26,14 @@ router.post("/auth/login", async (req, res): Promise<void> => {
 
   const { username, password } = parsed.data;
 
-  // Hardcoded Admin
-  if (username === "admin" && password === adminPassword) {
-    res.cookie("userId", "1", { httpOnly: false, maxAge: 86400000 });
-    res.json(LoginResponse.parse(adminUser));
+  // Strict Temporary Restriction
+  if (username !== "admin@aeccentric.com" || password !== adminPassword) {
+    res.status(401).json({ error: "Invalid credentials. Temporary restriction: Only admin@aeccentric.com is permitted." });
     return;
   }
 
-  try {
-    await connectMongo();
-    const user = await User.findOne({ username });
-    if (!user || user.passwordHash !== password) {
-      res.status(401).json({ error: "Invalid credentials" });
-      return;
-    }
-    res.cookie("userId", String(user._id), { httpOnly: false, maxAge: 86400000 });
-    res.json(LoginResponse.parse({
-      id: String(user._id),
-      username: user.username,
-      fullName: user.username, // MongoDB schema has no fullName yet, using username
-      email: user.username + "@fortune.com",
-      role: user.role,
-    }));
-  } catch (err) {
-    console.error("Critical login error (check MONGODB_URI):", err);
-    res.status(500).json({ error: "Internal server error" });
-  }
+  res.cookie("userId", "1", { httpOnly: false, maxAge: 86400000 });
+  res.json(LoginResponse.parse(adminUser));
 });
 
 router.post("/auth/logout", async (_req, res): Promise<void> => {
@@ -237,7 +219,7 @@ router.get("/auth/permissions", async (req, res): Promise<void> => {
   try {
     await connectMongo();
     const records = await RolePermission.find();
-    
+
     // If no records in database, seed/return default permissions
     if (records.length === 0) {
       const formatted = DEFAULT_PERMISSIONS.map(p => ({
@@ -276,7 +258,7 @@ router.put("/auth/permissions", async (req, res): Promise<void> => {
       if (user && user.role === "admin") {
         isAdmin = true;
       }
-    } catch {}
+    } catch { }
   }
 
   if (!isAdmin) {

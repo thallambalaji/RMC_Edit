@@ -20,6 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { ExportDropdown } from "@/components/export-dropdown";
+import { useGetMasters } from "@workspace/api-client-react";
 
 interface EngineData {
   engineType: string;
@@ -46,6 +47,7 @@ interface FuelData {
 export default function DieselReport() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
+  const { data: dbPlants } = useGetMasters("plant");
   const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -94,7 +96,7 @@ export default function DieselReport() {
     const filtered = logs.filter((l) => {
       // Plant filter
       if (plant !== "All plant") {
-        const itemPlant = l.plant || "Fortune Concrete";
+        const itemPlant = l.plant || "";
         if (itemPlant.toLowerCase() !== plant.toLowerCase()) {
           return false;
         }
@@ -259,7 +261,7 @@ export default function DieselReport() {
             <div class="info-box">
               <p><strong>Log ID:</strong> ${item._id || item.id || "N/A"}</p>
               <p><strong>Consumption Date:</strong> ${formatDate(item.date)}</p>
-              <p><strong>Plant Name:</strong> ${item.plant || "Fortune Concrete"}</p>
+              <p><strong>Plant Name:</strong> ${item.plant || ""}</p>
               <p><strong>Fuel Pump Source:</strong> ${item.takenFrom === "From Plant Stock" ? "Stock" : (item.takenFrom || "Stock")}</p>
             </div>
             <div class="info-box">
@@ -306,7 +308,7 @@ export default function DieselReport() {
   };
 
   const copySingleLog = (item: FuelData) => {
-    const text = `Date: ${formatDate(item.date)}\tVehicle No: ${item.vehicleNo}\tQuantity: ${item.litres} Ltrs\tRate: ₹${item.dieselRate || 0}\tAmount: ₹${item.amount}\tPlant: ${item.plant || "Fortune Concrete"}\tTaken From: ${item.takenFrom || "Stock"}\tDriver: ${item.driverName || item.pumpOperator || "Super Admin"}`;
+    const text = `Date: ${formatDate(item.date)}\tVehicle No: ${item.vehicleNo}\tQuantity: ${item.litres} Ltrs\tRate: ₹${item.dieselRate || 0}\tAmount: ₹${item.amount}\tPlant: ${item.plant || ""}\tTaken From: ${item.takenFrom || "Stock"}\tDriver: ${item.driverName || item.pumpOperator || "Super Admin"}`;
     navigator.clipboard.writeText(text);
     toast({
       title: "Copied Details",
@@ -316,7 +318,7 @@ export default function DieselReport() {
 
   const downloadSingleCSV = (item: FuelData) => {
     const headers = "Vehicle No,Date,Quantity,Rate,Amount,Driver,Plant,Taken From";
-    const row = `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || "Fortune Concrete"}","${item.takenFrom || "Stock"}"`;
+    const row = `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || ""}","${item.takenFrom || "Stock"}"`;
     const csvContent = "data:text/csv;charset=utf-8," + [headers, row].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
@@ -468,7 +470,7 @@ export default function DieselReport() {
           <td style="padding: 8px; border: 1px solid #eee; text-align: right;">₹${item.dieselRate || 0}</td>
           <td style="padding: 8px; border: 1px solid #eee; text-align: right; font-weight: bold;">₹${item.amount?.toLocaleString() || 0}</td>
           <td style="padding: 8px; border: 1px solid #eee;">${item.driverName || item.pumpOperator || "Super Admin"}</td>
-          <td style="padding: 8px; border: 1px solid #eee;">${item.plant || "Fortune Concrete"}</td>
+          <td style="padding: 8px; border: 1px solid #eee;">${item.plant || ""}</td>
           <td style="padding: 8px; border: 1px solid #eee; font-size: 10px; color: #555;">${enginesSummary}</td>
         </tr>
       `;
@@ -598,7 +600,7 @@ export default function DieselReport() {
     } else {
       const headers = "Vehicle No\tDate\tQuantity (Ltrs)\tRate (₹)\tAmount (₹)\tDriver\tPlant\tTaken From";
       const rows = reportResults.map(item =>
-        `${item.vehicleNo}\t${formatDate(item.date)}\t${item.litres}\t${item.dieselRate || 0}\t${item.amount || 0}\t${item.driverName || item.pumpOperator || "Super Admin"}\t${item.plant || "Fortune Concrete"}\t${item.takenFrom || "Stock"}`
+        `${item.vehicleNo}\t${formatDate(item.date)}\t${item.litres}\t${item.dieselRate || 0}\t${item.amount || 0}\t${item.driverName || item.pumpOperator || "Super Admin"}\t${item.plant || ""}\t${item.takenFrom || "Stock"}`
       ).join("\n");
       navigator.clipboard.writeText(`${headers}\n${rows}`);
     }
@@ -621,7 +623,7 @@ export default function DieselReport() {
     } else {
       const headers = "Vehicle No,Date,Quantity (Ltrs),Rate (₹),Amount (₹),Driver,Plant,Taken From";
       const rows = reportResults.map(item =>
-        `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || "Fortune Concrete"}","${item.takenFrom || "Stock"}"`
+        `"${item.vehicleNo}","${formatDate(item.date)}",${item.litres},${item.dieselRate || 0},${item.amount || 0},"${item.driverName || item.pumpOperator || "Super Admin"}","${item.plant || ""}","${item.takenFrom || "Stock"}"`
       );
       csvContent = [headers, ...rows].join("\n");
     }
@@ -716,8 +718,11 @@ export default function DieselReport() {
               className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
             >
               <option value="All plant">All plant</option>
-              <option value="Fortune Concrete">Fortune Concrete</option>
-              <option value="Marval RMC">Marval RMC</option>
+              {dbPlants?.map((p: any) => (
+                <option key={p.id || p._id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -840,7 +845,7 @@ export default function DieselReport() {
                           <TableCell className="font-black text-slate-800 text-xs px-3 text-right">{item.litres}</TableCell>
                           <TableCell className="font-medium text-slate-500 text-xs px-3 text-right">₹{item.dieselRate || 0}</TableCell>
                           <TableCell className="font-black text-slate-800 text-xs px-3 text-right">₹{item.amount?.toLocaleString() || 0}</TableCell>
-                          <TableCell className="font-semibold text-slate-650 text-xs px-3">{item.plant || "Fortune Concrete"}</TableCell>
+                          <TableCell className="font-semibold text-slate-650 text-xs px-3">{item.plant || ""}</TableCell>
 
                           {/* Engine sub-rows span */}
                           <TableCell className="p-0" colSpan={4}>

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useCreateCustomer } from "@workspace/api-client-react";
+import { useCreateCustomer, useGetMasters, useGetEmployees } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,14 +12,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronRight, Loader2, Save, UserPlus, SlidersHorizontal, Building2, UserCircle2, Tags, MapPin, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ChevronRight, Loader2, Save, UserPlus, SlidersHorizontal, Building2, UserCircle2, Tags, MapPin, CheckCircle2, XCircle, AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+
+type GstinStatus = "idle" | "loading" | "verified" | "invalid" | "unverified";
 
 export default function AddCustomer() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // GSTIN verification state
+  const [gstinStatus, setGstinStatus] = useState<GstinStatus>("idle");
+  const [gstinVerifiedData, setGstinVerifiedData] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,11 +35,11 @@ export default function AddCustomer() {
     address: "",
     gstNumber: "",
     creditTerms: "30 Days",
-    state: "JAMMU AND KASHMIR",
+    state: "TELANGANA",
     pinCode: "",
     location: "",
     panNo: "",
-    marketingPerson: "Fortune Concrete",
+    marketingPerson: "",
     creditLimit: "",
     creditDays: "",
     openingBalance: "",
@@ -42,11 +48,37 @@ export default function AddCustomer() {
     contactPersonPhone: "",
     sourceType: "direct",
     designation: "owner",
-    plant: "All Plant",
+    plant: "",
     businessType: "B2B",
     isTcsEnabled: true,
     isTdsEnabled: false,
   });
+
+  const { data: plants } = useGetMasters("plant");
+  const { data: employees } = useGetEmployees();
+
+  const marketingStaff = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).filter(e => 
+      e.designation?.toLowerCase().includes("sales") || 
+      e.designation?.toLowerCase().includes("marketing") ||
+      e.role?.toLowerCase().includes("sales") ||
+      e.role?.toLowerCase().includes("marketing") ||
+      true
+    );
+  }, [employees]);
+
+  useEffect(() => {
+    if (plants && plants.length > 0 && !formData.plant) {
+      setFormData(prev => ({ ...prev, plant: plants[0].name }));
+    }
+  }, [plants, formData.plant]);
+
+  useEffect(() => {
+    if (marketingStaff.length > 0 && !formData.marketingPerson) {
+      setFormData(prev => ({ ...prev, marketingPerson: marketingStaff[0].name || marketingStaff[0].fullName }));
+    }
+  }, [marketingStaff, formData.marketingPerson]);
 
   // Multiple Sites state representing dynamic list of site inputs
   const [sites, setSites] = useState<Array<{ name: string; address: string; pinCode: string }>>([
@@ -86,58 +118,82 @@ export default function AddCustomer() {
     }
   });
 
-  // Robust Indian GSTIN Validator & Auto-filler
-  const handleValidateGSTIN = () => {
+  // Real GSTIN Verification — calls backend which hits official GST API
+  const handleValidateGSTIN = async () => {
     const gst = formData.gstNumber.trim().toUpperCase();
     if (!gst) {
-      toast({ title: "Validation Error", description: "Please input a GSTIN number to validate.", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Please enter a GSTIN number first.", variant: "destructive" });
       return;
     }
     if (gst.length !== 15) {
-      toast({ title: "Invalid GSTIN format", description: "Indian GSTIN must be precisely 15 alphanumeric characters long.", variant: "destructive" });
+      toast({ title: "Invalid GSTIN", description: "GSTIN must be exactly 15 characters.", variant: "destructive" });
       return;
     }
 
-    // Extract PAN card ID from indices 2 to 12
-    const pan = gst.substring(2, 12);
-    
-    // Comprehensive Indian state code list mapping
-    const stateCode = gst.substring(0, 2);
-    const stateMap: Record<string, string> = {
-      "01": "JAMMU AND KASHMIR",
-      "02": "HIMACHAL PRADESH",
-      "03": "PUNJAB",
-      "04": "CHANDIGARH",
-      "05": "UTTARAKHAND",
-      "06": "HARYANA",
-      "07": "DELHI",
-      "08": "RAJASTHAN",
-      "09": "UTTAR PRADESH",
-      "10": "BIHAR",
-      "19": "WEST BENGAL",
-      "24": "GUJARAT",
-      "27": "MAHARASHTRA",
-      "29": "KARNATAKA",
-      "33": "TAMIL NADU",
-      "36": "TELANGANA",
-      "37": "ANDHRA PRADESH"
-    };
+    setGstinStatus("loading");
+    setGstinVerifiedData(null);
 
-    const resolvedState = stateMap[stateCode] || "JAMMU AND KASHMIR";
-    const inferredLegalName = formData.name ? formData.name.toUpperCase() + " PRIVATE LIMITED" : "RECONCILED LEGAL ENTITY";
+    try {
+      const res = await fetch(`/api/verify-gstin/${encodeURIComponent(gst)}`);
+      const data = await res.json();
 
-    setFormData(prev => ({
-      ...prev,
-      gstNumber: gst,
-      panNo: pan,
-      state: resolvedState,
-      legalName: prev.legalName ? prev.legalName : inferredLegalName
-    }));
+      if (!res.ok || !data.valid) {
+        setGstinStatus("invalid");
+        setGstinVerifiedData(data);
+        toast({
+          title: "❌ GSTIN Not Valid",
+          description: data.error || "This GSTIN is not registered on the GST portal.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    toast({
-      title: "GSTIN Validated successfully!",
-      description: `State detected: ${resolvedState}. PAN Code: ${pan}`,
-    });
+      // Auto-fill form fields from verified GST data
+      setFormData(prev => ({
+        ...prev,
+        gstNumber: gst,
+        panNo: data.pan || prev.panNo,
+        state: data.state || prev.state,
+        legalName: data.legalName || prev.legalName,
+        name: prev.name || data.tradeName || data.legalName || prev.name,
+      }));
+
+      setGstinVerifiedData(data);
+
+      if (data.verified) {
+        // Status check
+        const status = (data.status || "").toUpperCase();
+        if (status === "CANCELLED" || status === "SUSPENDED") {
+          setGstinStatus("invalid");
+          toast({
+            title: "⚠️ GSTIN Registration Cancelled/Suspended",
+            description: `This GSTIN belongs to "${data.legalName || data.tradeName}" but its registration is ${data.status}. Proceed with caution.`,
+            variant: "destructive",
+          });
+        } else {
+          setGstinStatus("verified");
+          toast({
+            title: "✅ GSTIN Verified Successfully!",
+            description: `Registered to: ${data.legalName || data.tradeName || "N/A"} | State: ${data.state} | Status: ${data.status || "Active"}`,
+          });
+        }
+      } else {
+        // Format valid but not live-verified
+        setGstinStatus("unverified");
+        toast({
+          title: "⚠️ Format Valid — Live Verification Pending",
+          description: data.warning || "GSTIN format is correct. Add GSTIN_API_KEY to .env for live GST portal verification.",
+        });
+      }
+
+    } catch (err: any) {
+      setGstinStatus("invalid");
+      toast({
+        title: "Verification Failed",
+        description: "Could not connect to the GST verification service. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -231,21 +287,66 @@ export default function AddCustomer() {
                 <span className="text-[9px] font-black text-slate-800 uppercase tracking-wider">Business Identity</span>
              </div>
              <div className="grid grid-cols-4 gap-x-3 gap-y-2">
-                
-                {/* GSTIN Field with functional Validation */}
-                <div className="col-span-1">
-                  <Label className={labelStyle}>Customer GSTIN</Label>
-                  <div className="flex gap-1">
-                    <Input placeholder="ENTER GSTIN" className={`${inputStyle} flex-1 uppercase`} value={formData.gstNumber} onChange={e => handleChange("gstNumber", e.target.value)} />
-                    <Button 
-                      type="button" 
-                      onClick={handleValidateGSTIN}
-                      className="h-7 text-[8px] font-black uppercase bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-2.5 flex items-center gap-1 shadow-none border-0 cursor-pointer"
-                    >
-                      <CheckCircle2 className="h-3 w-3" /> Validate
-                    </Button>
-                  </div>
-                </div>
+                 {/* GSTIN Field with Real GST Portal Verification */}
+                 <div className="col-span-1">
+                   <Label className={labelStyle}>Customer GSTIN</Label>
+                   <div className="relative">
+                     <Input
+                       placeholder="ENTER GSTIN"
+                       className={`${inputStyle} uppercase pr-[75px] ${
+                         gstinStatus === "verified" ? "border-emerald-400 bg-emerald-50/30" :
+                         gstinStatus === "invalid" ? "border-rose-400 bg-rose-50/30" :
+                         gstinStatus === "unverified" ? "border-amber-400 bg-amber-50/30" : ""
+                       }`}
+                       value={formData.gstNumber}
+                       onChange={e => { handleChange("gstNumber", e.target.value); setGstinStatus("idle"); setGstinVerifiedData(null); }}
+                     />
+                     <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                       {gstinStatus === "verified" && (
+                         <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                       )}
+                       {gstinStatus === "invalid" && (
+                         <XCircle className="h-3 w-3 text-rose-500" />
+                       )}
+                       {gstinStatus === "unverified" && (
+                         <AlertTriangle className="h-3 w-3 text-amber-500" />
+                       )}
+                       <Button
+                         type="button"
+                         variant="ghost"
+                         onClick={handleValidateGSTIN}
+                         disabled={gstinStatus === "loading" || !formData.gstNumber}
+                         className="h-5 min-h-0 text-[8px] font-extrabold uppercase bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-0 flex items-center gap-1 shadow-none border border-blue-200 rounded-[4px] cursor-pointer disabled:opacity-50"
+                       >
+                         {gstinStatus === "loading" ? (
+                           <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                         ) : (
+                           <CheckCircle2 className="h-2.5 w-2.5" />
+                         )}
+                         {gstinStatus === "loading" ? "..." : "Verify"}
+                       </Button>
+                     </div>
+                   </div>
+                   {/* Live verification result badge */}
+                   {gstinVerifiedData && gstinStatus === "verified" && (
+                     <div className="mt-1 px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-[8px] font-bold text-emerald-700 flex items-center gap-1">
+                       <CheckCircle2 className="h-2.5 w-2.5 shrink-0" />
+                       <span>✅ Live Verified · {gstinVerifiedData.legalName || gstinVerifiedData.tradeName} · {gstinVerifiedData.status}</span>
+                     </div>
+                   )}
+                   {gstinVerifiedData && gstinStatus === "unverified" && (
+                     <div className="mt-1 px-2 py-1 bg-amber-50 border border-amber-200 rounded text-[8px] font-bold text-amber-700 flex items-center gap-1">
+                       <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                       <span>⚠️ Format valid · Add API key for live verification</span>
+                     </div>
+                   )}
+                   {gstinVerifiedData && gstinStatus === "invalid" && (
+                     <div className="mt-1 px-2 py-1 bg-rose-50 border border-rose-200 rounded text-[8px] font-bold text-rose-700 flex items-center gap-1">
+                       <XCircle className="h-2.5 w-2.5 shrink-0" />
+                       <span>❌ {gstinVerifiedData.error || "Not registered on GST portal"}</span>
+                     </div>
+                   )}
+                 </div>
 
                 <div className="col-span-1">
                   <Label className={labelStyle}>Customer Name <span className="text-rose-500">*</span></Label>
@@ -286,14 +387,8 @@ export default function AddCustomer() {
                   <Select value={formData.state} onValueChange={v => handleChange("state", v)}>
                     <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="JAMMU AND KASHMIR" className="text-[10px] font-bold">JAMMU AND KASHMIR</SelectItem>
                       <SelectItem value="TELANGANA" className="text-[10px] font-bold">TELANGANA</SelectItem>
-                      <SelectItem value="KARNATAKA" className="text-[10px] font-bold">KARNATAKA</SelectItem>
                       <SelectItem value="ANDHRA PRADESH" className="text-[10px] font-bold">ANDHRA PRADESH</SelectItem>
-                      <SelectItem value="TAMIL NADU" className="text-[10px] font-bold">TAMIL NADU</SelectItem>
-                      <SelectItem value="MAHARASHTRA" className="text-[10px] font-bold">MAHARASHTRA</SelectItem>
-                      <SelectItem value="DELHI" className="text-[10px] font-bold">DELHI</SelectItem>
-                      <SelectItem value="GUJARAT" className="text-[10px] font-bold">GUJARAT</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -302,11 +397,15 @@ export default function AddCustomer() {
                   <Select value={formData.marketingPerson} onValueChange={v => handleChange("marketingPerson", v)}>
                     <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Person" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
-                      <SelectItem value="John Doe" className="text-[10px] font-bold">John Doe</SelectItem>
-                      <SelectItem value="Jane Smith" className="text-[10px] font-bold">Jane Smith</SelectItem>
-                      <SelectItem value="Balaji" className="text-[10px] font-bold">Balaji</SelectItem>
-                      <SelectItem value="Shiva Kumar" className="text-[10px] font-bold">Shiva Kumar</SelectItem>
+                      {marketingStaff.length > 0 ? (
+                        marketingStaff.map((m: any) => (
+                          <SelectItem key={m.id || m._id} value={m.name || m.fullName} className="text-[10px] font-bold">
+                            {m.name || m.fullName}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="_empty" disabled className="text-[10px] font-bold">No sales person registered</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -366,17 +465,7 @@ export default function AddCustomer() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label className={labelStyle}>Plant <span className="text-rose-500">*</span></Label>
-                  <Select value={formData.plant} onValueChange={v => handleChange("plant", v)}>
-                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All Plant" className="text-[10px] font-bold">All Plant</SelectItem>
-                      <SelectItem value="Hyderabad Plant" className="text-[10px] font-bold">Hyderabad Plant</SelectItem>
-                      <SelectItem value="Medchal Plant" className="text-[10px] font-bold">Medchal Plant</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
                 <div>
                   <Label className={labelStyle}>Business Type <span className="text-rose-500">*</span></Label>
                   <Select value={formData.businessType} onValueChange={v => handleChange("businessType", v)}>

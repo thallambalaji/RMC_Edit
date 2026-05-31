@@ -1,7 +1,7 @@
 // v1.0.3 - Customer site auto-fill + grade text+dropdown
 import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useGetCustomers, useCreateSalesOrder, useGetEmployees } from "@workspace/api-client-react";
+import { useGetCustomers, useCreateSalesOrder, useGetEmployees, useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,14 +58,36 @@ export default function AddSalesOrder() {
   const [poNumber, setPoNumber] = useState("");
   const [poDate, setPoDate] = useState(new Date().toISOString().split('T')[0]);
   const [validity, setValidity] = useState("");
-  const [plant, setPlant] = useState("All Plant");
+  const [plant, setPlant] = useState("");
   const [siteName, setSiteName] = useState("");
   const [siteAddress, setSiteAddress] = useState("");
   const [taxInclude, setTaxInclude] = useState(true);
   const [gstPercent, setGstPercent] = useState("18.0");
   const [orderType, setOrderType] = useState("OPEN ORDER");
-  const [marketingPerson, setMarketingPerson] = useState("FORTUNE CONCRETE");
+  const [marketingPerson, setMarketingPerson] = useState("");
   const [gradeRows, setGradeRows] = useState<GradeRow[]>([{ id: 1, grade: "", qty: "", rate: "" }]);
+
+  const { data: plants } = useGetMasters("plant");
+  const { data: dbGrades } = useGetMasters("grade");
+
+  const gradesList = useMemo(() => {
+    if (dbGrades && dbGrades.length > 0) {
+      return dbGrades.map((g: any) => g.name || g.id);
+    }
+    return [];
+  }, [dbGrades]);
+
+  useEffect(() => {
+    if (plants && plants.length > 0 && !plant) {
+      setPlant(plants[0].name);
+    }
+  }, [plants, plant]);
+
+  useEffect(() => {
+    if (salesStaff.length > 0 && !marketingPerson) {
+      setMarketingPerson(salesStaff[0].name || (salesStaff[0] as any).fullName);
+    }
+  }, [salesStaff, marketingPerson]);
 
   // Derive selected customer object
   const selectedCustomer = useMemo(
@@ -131,13 +153,13 @@ export default function AddSalesOrder() {
     setPoNumber("");
     setPoDate(new Date().toISOString().split('T')[0]);
     setValidity("");
-    setPlant("All Plant");
+    setPlant(plants && plants.length > 0 ? plants[0].name : "");
     setSiteName("");
     setSiteAddress("");
     setTaxInclude(true);
     setGstPercent("18.0");
     setOrderType("OPEN ORDER");
-    setMarketingPerson("FORTUNE CONCRETE");
+    setMarketingPerson(salesStaff.length > 0 ? (salesStaff[0].name || (salesStaff[0] as any).fullName) : "");
     setGradeRows([{ id: 1, grade: "", qty: "", rate: "" }]);
     toast({ title: "Form Cleared", description: "All inputs have been reset successfully." });
   };
@@ -292,11 +314,15 @@ export default function AddSalesOrder() {
             <div className="space-y-1">
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Plant <span className="text-rose-500">*</span></Label>
               <Select value={plant} onValueChange={setPlant}>
-                <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="All Plant" className="text-xs">All Plant</SelectItem>
-                  <SelectItem value="FORTUNE CONCRETE" className="text-xs">FORTUNE CONCRETE</SelectItem>
-                  <SelectItem value="MARVAL RMC" className="text-xs">MARVAL RMC</SelectItem>
+                  {plants && plants.length > 0 ? (
+                    plants.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name} className="text-xs">{p.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled className="text-xs">No plants configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -327,12 +353,15 @@ export default function AddSalesOrder() {
             <div className="space-y-1">
               <Label className="text-[10px] font-bold text-gray-500 uppercase">Marketing Person</Label>
               <Select value={marketingPerson} onValueChange={setMarketingPerson}>
-                <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs border-gray-300"><SelectValue placeholder="Choose Person" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="FORTUNE CONCRETE" className="text-xs">FORTUNE CONCRETE</SelectItem>
-                  {salesStaff?.map((e: any) => (
-                    <SelectItem key={e.id || e._id} value={e.name} className="text-xs">{e.name}</SelectItem>
-                  ))}
+                  {salesStaff.length > 0 ? (
+                    salesStaff.map((e: any) => (
+                      <SelectItem key={e.id || e._id} value={e.name || e.fullName} className="text-xs">{e.name || e.fullName}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled className="text-xs">No sales staff registered</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -379,16 +408,20 @@ export default function AddSalesOrder() {
                         className="h-8 text-xs border-gray-200 flex-1"
                       />
                       <Select
-                        value={["M10","M15","M20","M25","M30","M35","M40","M45","M50"].includes(row.grade) ? row.grade : ""}
+                        value={gradesList.includes(row.grade) ? row.grade : ""}
                         onValueChange={(v) => updateRow(row.id, "grade", v)}
                       >
                         <SelectTrigger className="h-8 w-10 shrink-0 border-gray-200 rounded-md px-1">
                           <span className="text-[10px] text-gray-500">▾</span>
                         </SelectTrigger>
                         <SelectContent>
-                          {["M10","M15","M20","M25","M30","M35","M40","M45","M50"].map(g => (
-                            <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>
-                          ))}
+                          {gradesList.length > 0 ? (
+                            gradesList.map(g => (
+                              <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="_empty" disabled className="text-xs">No grades configured</SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>

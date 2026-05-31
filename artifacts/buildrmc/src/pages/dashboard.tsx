@@ -8,7 +8,8 @@ import {
   useDashboardSchedulingOverview,
   useDashboardPaymentFollowup,
   useDashboardCurrentStock,
-  useDashboardStats
+  useDashboardStats,
+  useGetMasters
 } from "@workspace/api-client-react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,15 +58,18 @@ const SectionHeader = ({ title, icon: Icon, action }: any) => (
   </div>
 );
 
-const FilterBar = ({ plant, setPlant, fromDate, setFromDate, toDate, setToDate, onClear }: any) => (
+const FilterBar = ({ plant, setPlant, fromDate, setFromDate, toDate, setToDate, onClear, dbPlants }: any) => (
   <div className="flex gap-2 items-center flex-wrap bg-white p-3 border-b border-slate-100">
     <div className="w-[140px]">
       <Select value={plant} onValueChange={setPlant}>
         <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50"><SelectValue /></SelectTrigger>
         <SelectContent>
           <SelectItem value="All Plant">All Plants</SelectItem>
-          <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-          <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+          {dbPlants?.map((p: any) => (
+            <SelectItem key={p.id || p._id} value={p.name}>
+              {p.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
@@ -86,6 +90,7 @@ export default function Dashboard() {
   const [fromDate, setFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [toDate, setToDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [printData, setPrintData] = useState<any>(null);
+  const { data: dbPlants } = useGetMasters("plant");
 
   const filterParams = { plant, from: fromDate, to: toDate };
 
@@ -381,7 +386,7 @@ export default function Dashboard() {
                 invoicesData
               )}
             />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} />
+            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
             <div className="overflow-x-auto flex-1">
               <Table>
                 <TableHeader>
@@ -420,7 +425,7 @@ export default function Dashboard() {
                 dcsData
               )}
             />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} />
+            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
             <div className="overflow-x-auto flex-1">
               <Table>
                 <TableHeader>
@@ -462,7 +467,7 @@ export default function Dashboard() {
                 inventoryData
               )}
             />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} />
+            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
             <div className="overflow-x-auto flex-1">
               <Table>
                 <TableHeader>
@@ -503,8 +508,11 @@ export default function Dashboard() {
                   <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="All Plant">All Plants</SelectItem>
-                    <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                    <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                    {dbPlants?.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name}>
+                        {p.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -553,7 +561,7 @@ export default function Dashboard() {
               schedulingData
             )}
           />
-          <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} />
+          <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>

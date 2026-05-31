@@ -11,7 +11,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { customFetch, useGetVehicles } from "@workspace/api-client-react";
+import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { StoreLayout } from "@/components/store-layout";
 
 export default function AddInventory() {
@@ -19,7 +19,7 @@ export default function AddInventory() {
   const { toast } = useToast();
   
   // Form States
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [inventoryNo, setInventoryNo] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [itemName, setItemName] = useState("");
@@ -31,9 +31,7 @@ export default function AddInventory() {
   const [gatepassNo, setGatepassNo] = useState("");
   const [royaltyNo, setRoyaltyNo] = useState("");
   const [unit, setUnit] = useState("KG");
-  const [deliveryAddress, setDeliveryAddress] = useState(
-    "Flat no. 805, Rakesh Residency, Road no.7, PJR Colony, Chanda Nagar, Ranga Reddy, Telangana"
-  );
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   
   const [vehicleNo, setVehicleNo] = useState("");
   const [loadedWeight, setLoadedWeight] = useState("");
@@ -50,6 +48,16 @@ export default function AddInventory() {
       .map((v: any) => v.registrationNo || v.registrationNumber || v.vehicleNumber || v.regNo)
       .filter(Boolean);
   }, [vehicles]);
+
+  const { data: plants } = useGetMasters("plant");
+  const { data: suppliers } = useGetMasters("supplier");
+  const { data: items } = useGetMasters("item");
+
+  useEffect(() => {
+    if (plants && plants.length > 0 && !plant) {
+      setPlant(String(plants[0].name || plants[0].id || ""));
+    }
+  }, [plants, plant]);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -118,7 +126,7 @@ export default function AddInventory() {
 
   // Clear Form
   const handleClear = () => {
-    setPlant("FORTUNE CONCRETE");
+    setPlant("");
     generateInventoryNo();
     setSupplierName("");
     setItemName("");
@@ -127,7 +135,7 @@ export default function AddInventory() {
     setGatepassNo("");
     setRoyaltyNo("");
     setUnit("KG");
-    setDeliveryAddress("Flat no. 805, Rakesh Residency, Road no.7, PJR Colony, Chanda Nagar, Ranga Reddy, Telangana");
+    setDeliveryAddress("");
     setVehicleNo("");
     setLoadedWeight("");
     setEmptyWeight("");
@@ -224,11 +232,16 @@ export default function AddInventory() {
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Plant *</Label>
                 <Select value={plant} onValueChange={setPlant}>
                   <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
-                    <SelectValue />
+                    <SelectValue placeholder="Choose Plant" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                    <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                    {plants && plants.length > 0 ? (
+                      plants.map((p: any) => (
+                        <SelectItem key={p.id || p._id} value={p.name || p.id}>{p.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -251,11 +264,13 @@ export default function AddInventory() {
                     <SelectValue placeholder="Choose Supplier" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="ACC Cements">ACC Cements</SelectItem>
-                    <SelectItem value="Local Quarry">Local Quarry</SelectItem>
-                    <SelectItem value="Ramesh Quarry">Ramesh Quarry</SelectItem>
-                    <SelectItem value="BASF India">BASF India</SelectItem>
-                    <SelectItem value="NTPC Fly Ash">NTPC Fly Ash</SelectItem>
+                    {suppliers && suppliers.length > 0 ? (
+                      suppliers.map((s: any) => (
+                        <SelectItem key={s.id || s._id} value={s.name}>{s.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No suppliers registered</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -268,12 +283,13 @@ export default function AddInventory() {
                     <SelectValue placeholder="Choose Inventory Item" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="Cement OPC 53">Cement OPC 53</SelectItem>
-                    <SelectItem value="River Sand (Coarse)">River Sand (Coarse)</SelectItem>
-                    <SelectItem value="20mm Granite Chips">20mm Granite Chips</SelectItem>
-                    <SelectItem value="10mm Granite Chips">10mm Granite Chips</SelectItem>
-                    <SelectItem value="Admixture (Plasticizer)">Admixture (Plasticizer)</SelectItem>
-                    <SelectItem value="Fly Ash">Fly Ash</SelectItem>
+                    {items && items.length > 0 ? (
+                      items.map((i: any) => (
+                        <SelectItem key={i.id || i._id} value={i.name}>{i.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No items configured</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>

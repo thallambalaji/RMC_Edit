@@ -13,7 +13,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useCreateQuotation } from "@workspace/api-client-react";
+import { useCreateQuotation, useGetMasters, useGetEmployees } from "@workspace/api-client-react";
 import { format, parseISO } from "date-fns";
 
 interface GradeRow { id: number; grade: string; qty: string; rate: string; recipe: string; cement: string; }
@@ -41,6 +41,27 @@ export default function AddQuotation() {
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<string[]>([]);
   const [dateVal, setDateVal] = useState(format(new Date(), "yyyy-MM-dd"));
+
+  const { data: dbGrades } = useGetMasters("grade");
+  const { data: employees } = useGetEmployees();
+
+  const marketingStaff = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).filter(e => 
+      e.designation?.toLowerCase().includes("sales") || 
+      e.designation?.toLowerCase().includes("marketing") ||
+      e.role?.toLowerCase().includes("sales") ||
+      e.role?.toLowerCase().includes("marketing") ||
+      true
+    );
+  }, [employees]);
+
+  const gradesList = useMemo(() => {
+    if (dbGrades && dbGrades.length > 0) {
+      return dbGrades.map((g: any) => g.name);
+    }
+    return [];
+  }, [dbGrades]);
 
   const [rows, setRows] = useState<GradeRow[]>([
     { id: 1, grade: "", qty: "", rate: "", recipe: "", cement: "opc" },
@@ -195,9 +216,15 @@ export default function AddQuotation() {
                 <Select value={marketingPerson} onValueChange={setMarketingPerson}>
                   <SelectTrigger className={inputStyle}><SelectValue placeholder="Select" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
-                    <SelectItem value="Karan Kumar" className="text-[10px] font-bold">Karan Kumar</SelectItem>
-                    <SelectItem value="Aravind S" className="text-[10px] font-bold">Aravind S</SelectItem>
+                    {marketingStaff.length > 0 ? (
+                      marketingStaff.map((m: any) => (
+                        <SelectItem key={m.id || m._id} value={m.name || m.fullName} className="text-[10px] font-bold">
+                          {m.name || m.fullName}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled className="text-[10px] font-bold">No sales staff registered</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
              </div>
@@ -235,14 +262,22 @@ export default function AddQuotation() {
                  {rows.map((row, idx) => (
                    <div key={row.id} className="flex border-b items-center hover:bg-cyan-50/20 group">
                      <div className="w-10 text-center text-[10px] font-bold text-gray-400 border-r py-1">{idx + 1}</div>
-                     <div className="flex-1 border-r h-full">
-                        <Select value={row.grade} onValueChange={v => updateRow(row.id, "grade", v)}>
-                          <SelectTrigger className="h-7 border-0 focus:ring-0 text-[10px] px-2 shadow-none font-bold"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                          <SelectContent>
-                            {["M7.5", "M10", "M15", "M20", "M25", "M30", "M35", "M40"].map(g => <SelectItem key={g} value={g} className="text-[10px] font-bold">{g}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                     </div>
+                      <div className="flex-1 border-r h-full flex items-center gap-0.5 w-full">
+                         <Input
+                           value={row.grade}
+                           onChange={e => updateRow(row.id, "grade", e.target.value)}
+                           placeholder="Grade"
+                           className="h-7 border-0 focus-visible:ring-0 text-[10px] font-bold px-2 shadow-none flex-1 bg-transparent"
+                         />
+                         <Select value={gradesList.includes(row.grade) ? row.grade : ""} onValueChange={v => updateRow(row.id, "grade", v)}>
+                           <SelectTrigger className="h-7 w-6 shrink-0 border-0 focus:ring-0 text-[8px] text-slate-400 px-0 shadow-none bg-transparent">
+                             <span>▼</span>
+                           </SelectTrigger>
+                           <SelectContent>
+                             {gradesList.map(g => <SelectItem key={g} value={g} className="text-[10px] font-bold">{g}</SelectItem>)}
+                           </SelectContent>
+                         </Select>
+                      </div>
                      <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} placeholder="0" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-cyan-600 shadow-none px-2" /></div>
                      <div className="w-24 border-r h-full"><Input value={row.rate} onChange={e => updateRow(row.id, "rate", e.target.value)} placeholder="0.00" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-bold shadow-none px-2 text-emerald-600" /></div>
                      <div className="w-32 border-r h-full">

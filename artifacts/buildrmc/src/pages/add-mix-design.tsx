@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "wouter";
+import { useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -56,6 +57,14 @@ export default function AddMixDesign() {
   const [recipeName, setRecipeName] = useState("");
   const [grade, setGrade] = useState("");
   const [rows, setRows] = useState<IngredientRow[]>(INITIAL_ROWS);
+
+  const { data: dbGrades } = useGetMasters("grade");
+  const gradesList = useMemo(() => {
+    if (dbGrades && dbGrades.length > 0) {
+      return dbGrades.map((g: any) => g.name);
+    }
+    return [];
+  }, [dbGrades]);
 
   const totalDensity = useMemo(() => {
     return rows.reduce((acc, row) => {
@@ -154,16 +163,26 @@ export default function AddMixDesign() {
                 <Label htmlFor="grade" className="text-xs font-black uppercase text-slate-700 flex items-center gap-1">
                   Grade <span className="text-red-500">*</span>
                 </Label>
-                <Select value={grade} onValueChange={setGrade}>
-                  <SelectTrigger className="h-11 text-sm bg-slate-50/50 border-slate-300 font-bold text-slate-800">
-                    <SelectValue placeholder="Select Grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50", "M-55", "M-60"].map(g => (
-                      <SelectItem key={g} value={g} className="font-bold">{g}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-1">
+                  <Input
+                    id="grade"
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    placeholder="Grade"
+                    className="h-11 text-sm bg-slate-50/50 border-slate-300 focus:bg-white transition-all font-bold text-slate-800 flex-1"
+                    required
+                  />
+                  <Select value={gradesList.includes(grade) ? grade : ""} onValueChange={setGrade}>
+                    <SelectTrigger className="h-11 w-10 shrink-0 border-slate-300 bg-slate-50/50 text-slate-600 px-1">
+                      <span className="text-[10px]">▼</span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {gradesList.map(g => (
+                        <SelectItem key={g} value={g} className="font-bold">{g}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Action Buttons row matching user screenshot */}
@@ -226,15 +245,15 @@ export default function AddMixDesign() {
                       <TableCell className="font-bold text-slate-700 text-xs py-2">{row.type}</TableCell>
                       <TableCell className="py-2">
                         {row.fixedProduct ? (
-                          <div className="h-9 px-3 flex items-center bg-slate-100 border border-slate-200 rounded text-xs font-bold text-slate-600">
+                          <div className="h-8 px-3 flex items-center bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-600">
                             {row.product}
                           </div>
                         ) : (
                           <Input
                             value={row.product}
                             onChange={e => handleProductChange(row.sl, e.target.value)}
-                            placeholder={row.productPlaceholder}
-                            className="h-9 text-xs bg-white border-slate-200 font-medium placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500"
+                            placeholder="Product"
+                            className="h-8 text-[10px] bg-white border-slate-200 font-medium placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500"
                           />
                         )}
                       </TableCell>
@@ -244,8 +263,8 @@ export default function AddMixDesign() {
                           step="any"
                           value={row.qty}
                           onChange={e => handleQtyChange(row.sl, e.target.value)}
-                          placeholder={row.qtyPlaceholder}
-                          className="h-9 text-xs bg-white border-slate-200 font-bold placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500 text-right pr-3"
+                          placeholder="Qty"
+                          className="h-8 text-[10px] bg-white border-slate-200 font-bold placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500 text-right pr-3"
                         />
                       </TableCell>
                     </TableRow>

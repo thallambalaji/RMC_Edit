@@ -16,17 +16,19 @@ import {
   useGetCustomers, 
   useGetVehicles, 
   useGetProducts, 
-  useGetEmployees 
+  useGetEmployees,
+  useGetMasters
 } from "@workspace/api-client-react";
 
 export default function AddWeighment() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
 
-  const [deliveryNo] = useState("DEL1/2627/0257");
+  const [deliveryNo] = useState(() => "DEL/" + Math.floor(100000 + Math.random() * 900000));
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
+  const ticketNo = useMemo(() => "TKT-" + Math.floor(1000 + Math.random() * 9000), []);
   
   // Form State
   const [mobileNo, setMobileNo] = useState("");
@@ -45,6 +47,13 @@ export default function AddWeighment() {
   const { data: vehicles } = useGetVehicles();
   const { data: products } = useGetProducts();
   const { data: employees } = useGetEmployees();
+  const { data: plants } = useGetMasters("plant");
+
+  useEffect(() => {
+    if (plants && plants.length > 0 && !plant) {
+      setPlant(String(plants[0].name || plants[0].id || ""));
+    }
+  }, [plants, plant]);
 
   useEffect(() => {
     const updateTime = () => {
@@ -128,7 +137,7 @@ export default function AddWeighment() {
     { label: "Site Name", value: siteAddress },
     { label: "Site Address", value: siteAddress },
     { label: "Grade", value: selectedProductName },
-    { label: "Ticket No", value: "TKT-9921" },
+    { label: "Ticket No", value: ticketNo },
     { label: "Ticket Time", value: time },
   ];
 
@@ -216,11 +225,16 @@ export default function AddWeighment() {
                 <Label className="f-label text-slate-600">Plant <span className="text-rose-500">*</span></Label>
                 <Select value={plant} onValueChange={setPlant}>
                   <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">
-                    <SelectValue />
+                    <SelectValue placeholder="Choose Plant" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                    <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                    {plants && plants.length > 0 ? (
+                      plants.map((p: any) => (
+                        <SelectItem key={p.id || p._id} value={p.name || p.id}>{p.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -264,22 +278,24 @@ export default function AddWeighment() {
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Grade <span className="text-rose-500">*</span></Label>
-                <Select value={grade} onValueChange={setGrade}>
-                  <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">
-                    <SelectValue placeholder="Choose Product" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    {availableProducts.length > 0 ? availableProducts.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    )) : (
-                      <>
-                        <SelectItem value="m10">M10</SelectItem>
-                        <SelectItem value="m20">M20</SelectItem>
-                        <SelectItem value="m30">M30</SelectItem>
-                      </>
-                    )}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-1">
+                  <Input
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    placeholder="Grade"
+                    className="f-input bg-white border-slate-200 text-slate-700 font-semibold flex-1"
+                  />
+                  <Select value={availableProducts.some(p => p.id === grade || p.name === grade) ? (availableProducts.find(p => p.name === grade)?.id || grade) : ""} onValueChange={setGrade}>
+                    <SelectTrigger className="bg-white border-slate-200 text-slate-700 font-semibold h-10 w-10 shrink-0 px-1">
+                      <span className="text-[10px]">▼</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200 text-slate-700">
+                      {availableProducts.map(p => (
+                        <SelectItem key={p.id} value={p.id || p.name}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-1.5">
@@ -296,13 +312,12 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Vehicle" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    {availableVehicles.length > 0 ? availableVehicles.map(v => (
-                      <SelectItem key={v.id} value={v.reg}>{v.reg}</SelectItem>
-                    )) : (
-                      <>
-                        <SelectItem value="TS07UP 1459">TS07UP 1459</SelectItem>
-                        <SelectItem value="TS07UP 1789">TS07UP 1789</SelectItem>
-                      </>
+                    {availableVehicles.length > 0 ? (
+                      availableVehicles.map(v => (
+                        <SelectItem key={v.id} value={v.reg}>{v.reg}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No vehicles registered</SelectItem>
                     )}
                   </SelectContent>
                 </Select>
@@ -315,13 +330,12 @@ export default function AddWeighment() {
                     <SelectValue placeholder="Choose Driver" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    {availableDrivers.length > 0 ? availableDrivers.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                    )) : (
-                      <>
-                        <SelectItem value="d1">Rajesh Kumar</SelectItem>
-                        <SelectItem value="d2">Suresh Singh</SelectItem>
-                      </>
+                    {availableDrivers.length > 0 ? (
+                      availableDrivers.map(d => (
+                        <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="_empty" disabled>No drivers registered</SelectItem>
                     )}
                   </SelectContent>
                 </Select>

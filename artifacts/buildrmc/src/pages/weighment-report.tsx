@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
+import { useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,11 @@ export default function WeighmentReport() {
   const { toast } = useToast();
   const [category, setCategory] = useState("Weighment Report");
   const [type, setType] = useState("Date Wise");
+
+  const { data: dbPlants } = useGetMasters("plant");
+  const { data: dbGrades } = useGetMasters("grade");
+  const plantsList = useMemo(() => (dbPlants || []).map((p: any) => p.name).filter(Boolean), [dbPlants]);
+  const gradesList = useMemo(() => (dbGrades || []).map((g: any) => g.name).filter(Boolean), [dbGrades]);
 
   const handleGenerate = () => {
     toast({ title: "Generating Report", description: "Your report is being compiled. This may take a few seconds." });
@@ -102,8 +108,9 @@ export default function WeighmentReport() {
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-200 text-slate-700">
                 <SelectItem value="all">All Items</SelectItem>
-                <SelectItem value="m10">M10</SelectItem>
-                <SelectItem value="m20">M20</SelectItem>
+                {gradesList.map(g => (
+                  <SelectItem key={g} value={g}>{g}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -116,7 +123,9 @@ export default function WeighmentReport() {
               </SelectTrigger>
               <SelectContent className="bg-white border-slate-200 text-slate-700">
                 <SelectItem value="all">All Plants</SelectItem>
-                <SelectItem value="p1">FORTUNE CONCRETE</SelectItem>
+                {plantsList.map(p => (
+                  <SelectItem key={p} value={p}>{p}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

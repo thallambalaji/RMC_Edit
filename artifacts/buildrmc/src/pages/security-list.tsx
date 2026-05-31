@@ -27,6 +27,7 @@ import {
   Download,
 } from "lucide-react";
 import { ExportDropdown } from "@/components/export-dropdown";
+import { useGetMasters } from "@workspace/api-client-react";
 
 interface SecurityData {
   _id?: string;
@@ -53,6 +54,7 @@ export default function SecurityCheckList() {
   const [logs, setLogs] = useState<SecurityData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
+  const { data: dbPlants } = useGetMasters("plant");
   const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Filter States
@@ -70,7 +72,7 @@ export default function SecurityCheckList() {
 
   // Edit Modal State
   const [editItem, setEditItem] = useState<SecurityData | null>(null);
-  const [editPlant, setEditPlant] = useState("FORTUNE CONCRETE");
+  const [editPlant, setEditPlant] = useState("");
   const [editGatePassing, setEditGatePassing] = useState("Entry");
   const [editGateNo, setEditGateNo] = useState("1");
   const [editTypeOfMovement, setEditTypeOfMovement] = useState("Sales");
@@ -139,7 +141,7 @@ export default function SecurityCheckList() {
 
   const handleOpenEdit = (item: SecurityData) => {
     setEditItem(item);
-    setEditPlant(item.plant || "FORTUNE CONCRETE");
+    setEditPlant(item.plant || "");
     setEditGatePassing(item.gatePassing || "Entry");
     setEditGateNo(item.gateNo || "1");
     setEditTypeOfMovement(item.typeOfMovement || "Sales");
@@ -720,8 +722,12 @@ export default function SecurityCheckList() {
                   onChange={(e) => setEditPlant(e.target.value)}
                   className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
                 >
-                  <option value="FORTUNE CONCRETE">FORTUNE CONCRETE</option>
-                  <option value="MARVAL RMC">MARVAL RMC</option>
+                  <option value="">Select Plant</option>
+                  {dbPlants?.map((p: any) => (
+                    <option key={p.id || p._id} value={p.name}>
+                      {p.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

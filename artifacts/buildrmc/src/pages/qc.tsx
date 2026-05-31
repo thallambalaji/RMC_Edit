@@ -96,7 +96,41 @@ export default function QC() {
   const stats = useMemo(() => {
     const totalMixes = items.length;
     const activeGrades = new Set(items.map(i => i.grade)).size;
-    return { totalMixes, activeGrades };
+
+    // Calculate dynamic average water/cement ratio (Water / sum(Cem1, Cem2, Cem3))
+    let totalWCRatio = 0;
+    let validWCCount = 0;
+
+    items.forEach(item => {
+      const waterQty = parseFloat(item.water);
+      const cementQty = (parseFloat(item.cem1) || 0) + (parseFloat(item.cem2) || 0) + (parseFloat(item.cem3) || 0);
+
+      if (!isNaN(waterQty) && cementQty > 0) {
+        totalWCRatio += waterQty / cementQty;
+        validWCCount++;
+      }
+    });
+
+    const avgWCRatio = validWCCount > 0 ? (totalWCRatio / validWCCount).toFixed(2) : "0.00";
+
+    // Calculate Top Grade (grade with the most mix designs)
+    const gradeCounts: Record<string, number> = {};
+    items.forEach(item => {
+      if (item.grade) {
+        gradeCounts[item.grade] = (gradeCounts[item.grade] || 0) + 1;
+      }
+    });
+
+    let topGrade = "N/A";
+    let maxCount = 0;
+    Object.entries(gradeCounts).forEach(([grade, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        topGrade = grade;
+      }
+    });
+
+    return { totalMixes, activeGrades, avgWCRatio, topGrade };
   }, [items]);
 
   const cards = [
@@ -178,14 +212,14 @@ export default function QC() {
             <div className="p-2 bg-amber-50 rounded-full"><Activity className="h-4 w-4 text-amber-600" /></div>
             <div>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Avg W/C Ratio</p>
-              <p className="text-sm font-extrabold text-slate-800">0.45</p>
+              <p className="text-sm font-extrabold text-slate-800">{stats.avgWCRatio}</p>
             </div>
           </div>
           <div className="bg-[#1e40af] rounded-lg p-3 flex items-center gap-3 shadow-sm text-white">
             <div className="p-2 bg-white/20 rounded-full"><TrendingUp className="h-4 w-4 text-white" /></div>
             <div>
               <p className="text-[10px] font-bold text-white/80 uppercase tracking-wider">Top Grade</p>
-              <p className="text-sm font-extrabold">M-35</p>
+              <p className="text-sm font-extrabold">{stats.topGrade}</p>
             </div>
           </div>
         </div>

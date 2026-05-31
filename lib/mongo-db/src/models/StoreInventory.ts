@@ -26,7 +26,7 @@ export interface IStoreInventory extends Document {
 
 const StoreInventorySchema: Schema = new Schema(
   {
-    plant: { type: String, required: true, enum: ["FORTUNE CONCRETE", "MARVAL RMC"] },
+    plant: { type: String, required: true },
     inventoryNo: { type: String, required: true, unique: true },
     supplierName: { type: String, required: true },
     itemName: { type: String, required: true },

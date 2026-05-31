@@ -38,12 +38,7 @@ const navItems = [
 ];
 
 // Mock notifications
-const notifications = [
-  { id: 1, title: "New Invoice Created", desc: "Invoice #INV-2026-0042 was created", time: "2 min ago", read: false, href: "/billing" },
-  { id: 2, title: "DC Pending Approval", desc: "DC #DC-0088 is awaiting approval", time: "15 min ago", read: false, href: "/dc" },
-  { id: 3, title: "Payment Follow-up Due", desc: "Kumar Builders payment due today", time: "1 hr ago", read: true, href: "/sales/payment-follow-up/list" },
-  { id: 4, title: "Sales Enquiry Received", desc: "New enquiry from Ramesh Constructions", time: "3 hrs ago", read: true, href: "/sales/enquiry/list" },
-];
+const notifications: any[] = [];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location, navigate] = useLocation();
@@ -53,7 +48,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const [notifList, setNotifList] = useState(notifications);
+  const [notifList, setNotifList] = useState<any[]>([]);
+
+  useEffect(() => {
+    setNotifList([]);
+  }, []);
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
@@ -107,7 +106,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     },
     logoBox: {
       display: "flex", alignItems: "center", justifyContent: "center",
-      color: "#1e40af",
+      color: "#4f46e5",
     },
     iconBtn: {
       width: "34px", height: "34px", borderRadius: "9px",
@@ -164,7 +163,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <div style={s.logoBox}><Building2 size={24} strokeWidth={2.5} /></div>
                 <div>
                   <div style={{ fontSize: "16px", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>
-                    FORTUNE<span style={{ color: "#1e40af" }}>MIX</span>
+                    FORTUNE<span style={{ color: "#4f46e5" }}>MIX</span>
                   </div>
                   <div style={{ fontSize: "8px", color: "rgba(255,255,255,0.5)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>
                     ENTERPRISE PLATFORM
@@ -220,34 +219,40 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   {/* Header */}
                   <div style={{ padding: "12px 16px", background: "linear-gradient(135deg,#0d1f2d,#162635)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span style={{ fontSize: "12px", fontWeight: 800, color: "#fff" }}>Notifications</span>
-                    <span style={{ fontSize: "10px", background: "#1e40af", color: "#fff", borderRadius: "10px", padding: "2px 8px", fontWeight: 700 }}>{unread} new</span>
+                    <span style={{ fontSize: "10px", background: "#4f46e5", color: "#fff", borderRadius: "10px", padding: "2px 8px", fontWeight: 700 }}>{unread} new</span>
                   </div>
                   {/* Items */}
                   <div style={{ maxHeight: "280px", overflowY: "auto" }}>
-                    {notifList.map((n) => (
-                      <div
-                        key={n.id}
-                        onClick={() => markRead(n.id, n.href)}
-                        style={{
-                          display: "flex", gap: "10px", padding: "10px 16px",
-                          borderBottom: "1px solid #f1f5f9",
-                          background: n.read ? "#fff" : "#f0fdfa",
-                          cursor: "pointer",
-                          transition: "background 0.15s",
-                        }}
-                      >
-                        <div style={{ width: "6px", height: "6px", borderRadius: "50%", marginTop: "5px", flexShrink: 0, background: n.read ? "#cbd5e1" : "#1e40af" }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b" }}>{n.title}</div>
-                          <div style={{ fontSize: "11px", color: "#64748b", marginTop: "1px" }}>{n.desc}</div>
-                          <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "3px" }}>{n.time}</div>
+                    {notifList.length > 0 ? (
+                      notifList.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => markRead(n.id, n.href)}
+                          style={{
+                            display: "flex", gap: "10px", padding: "10px 16px",
+                            borderBottom: "1px solid #f1f5f9",
+                            background: n.read ? "#fff" : "#f0fdfa",
+                            cursor: "pointer",
+                            transition: "background 0.15s",
+                          }}
+                        >
+                          <div style={{ width: "6px", height: "6px", borderRadius: "50%", marginTop: "5px", flexShrink: 0, background: n.read ? "#cbd5e1" : "#1e40af" }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: "12px", fontWeight: 700, color: "#1e293b" }}>{n.title}</div>
+                            <div style={{ fontSize: "11px", color: "#64748b", marginTop: "1px" }}>{n.desc}</div>
+                            <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "3px" }}>{n.time}</div>
+                          </div>
                         </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: "20px 16px", textTransform: "uppercase", fontSize: "10px", fontWeight: "bold", textAlign: "center", color: "#94a3b8", letterSpacing: "0.05em" }}>
+                        No new notifications
                       </div>
-                    ))}
+                    )}
                   </div>
                   {/* Footer */}
                   <div style={{ padding: "10px 16px", textAlign: "center", borderTop: "1px solid #f1f5f9" }}>
-                    <button onClick={() => { setNotifOpen(false); navigate("/billing"); }} style={{ fontSize: "11px", fontWeight: 700, color: "#1e40af", background: "none", border: "none", cursor: "pointer" }}>
+                    <button onClick={() => { setNotifOpen(false); navigate("/billing"); }} style={{ fontSize: "11px", fontWeight: 700, color: "#4f46e5", background: "none", border: "none", cursor: "pointer" }}>
                       View all notifications →
                     </button>
                   </div>
@@ -272,7 +277,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   transition: "all 0.2s",
                 }}
               >
-                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "linear-gradient(135deg,#1e40af,#1a9ca6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 900, color: "#fff", letterSpacing: "0.04em" }}>
+                <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "linear-gradient(135deg,#4f46e5,#1a9ca6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: 900, color: "#fff", letterSpacing: "0.04em" }}>
                   {initials}
                 </div>
                 <div style={{ textAlign: "left" }}>
@@ -288,12 +293,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <div style={s.dropdown}>
                   {/* Profile banner */}
                   <div style={{ padding: "16px", background: "linear-gradient(135deg,#0d1f2d,#162635)", display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg,#1e40af,#1a9ca6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px", fontWeight: 900, color: "#fff" }}>
+                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", background: "linear-gradient(135deg,#4f46e5,#1a9ca6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px", fontWeight: 900, color: "#fff" }}>
                       {initials}
                     </div>
                     <div>
                       <div style={{ fontSize: "13px", fontWeight: 800, color: "#fff" }}>{user?.fullName || user?.username}</div>
-                      <div style={{ fontSize: "10px", color: "#1e40af", fontWeight: 600, letterSpacing: "0.06em", marginTop: "2px" }}>● SUPER ADMIN</div>
+                      <div style={{ fontSize: "10px", color: "#4f46e5", fontWeight: 600, letterSpacing: "0.06em", marginTop: "2px" }}>● SUPER ADMIN</div>
                     </div>
                   </div>
 
@@ -310,7 +315,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         onMouseEnter={(e) => (e.currentTarget.style.background = "#f0fdfa")}
                         onMouseLeave={(e) => (e.currentTarget.style.background = "")}
                       >
-                        <item.icon size={13} style={{ color: "#1e40af" }} />
+                        <item.icon size={13} style={{ color: "#4f46e5" }} />
                         {item.label}
                       </div>
                     </Link>
@@ -337,6 +342,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <main className="print:p-0 print:block" style={{ flex: 1, padding: "16px 28px 28px", maxWidth: "1680px", width: "100%", margin: "0 auto" }}>
         {children}
       </main>
+
+      {/* ═══ FOOTER ═════════════════════════════════ */}
+      <footer className="print:hidden" style={{
+        textAlign: "center",
+        padding: "10px 20px",
+        fontSize: "9px",
+        fontWeight: 800,
+        color: "#64748b",
+        letterSpacing: "0.05em",
+        textTransform: "uppercase",
+        borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+        background: "#edf2f7",
+        flexShrink: 0
+      }}>
+        &copy; 2026 Designed and developed by <a href="https://aeccentric.com/" target="_blank" rel="noopener noreferrer" style={{ color: "#4f46e5", textDecoration: "none" }} onMouseEnter={(e) => e.currentTarget.style.textDecoration = "underline"} onMouseLeave={(e) => e.currentTarget.style.textDecoration = "none"}>aeccentric solutions</a>
+      </footer>
     </div>
   );
 }

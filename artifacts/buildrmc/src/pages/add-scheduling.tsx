@@ -4,6 +4,7 @@ import {
   useGetCustomers,
   useGetSalesOrders,
   useCreateSchedule,
+  useGetMasters,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,9 +29,18 @@ export default function AddScheduling() {
   // Form state
   const [customerId, setCustomerId] = useState("");
   const [salesOrderId, setSalesOrderId] = useState("");
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [pump1, setPump1] = useState("");
   const [pump2, setPump2] = useState("");
+
+  const { data: plants } = useGetMasters("plant");
+  const { data: pumps } = useGetMasters("pump");
+
+  useMemo(() => {
+    if (plants && plants.length > 0 && !plant) {
+      setPlant(String(plants[0].name || plants[0].id || ""));
+    }
+  }, [plants, plant]);
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [isStrict, setIsStrict] = useState(false);
@@ -176,11 +186,16 @@ export default function AddScheduling() {
               <Label className="text-sm font-semibold text-gray-700">
                 Plant <span className="text-rose-500">*</span>
               </Label>
-              <Select value={plant} onValueChange={setPlant}>
-                <SelectTrigger className="h-10 border-gray-300"><SelectValue /></SelectTrigger>
+             <Select value={plant} onValueChange={setPlant}>
+                <SelectTrigger className="h-10 border-gray-300"><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                  <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                  {plants && plants.length > 0 ? (
+                    plants.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -221,9 +236,13 @@ export default function AddScheduling() {
                   <SelectValue placeholder="Choose Pump" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Pump A">Pump A</SelectItem>
-                  <SelectItem value="Pump B">Pump B</SelectItem>
-                  <SelectItem value="Pump C">Pump C</SelectItem>
+                  {pumps && pumps.length > 0 ? (
+                    pumps.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled>No pumps configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -250,9 +269,11 @@ export default function AddScheduling() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="Pump A">Pump A</SelectItem>
-                  <SelectItem value="Pump B">Pump B</SelectItem>
-                  <SelectItem value="Pump C">Pump C</SelectItem>
+                  {pumps && pumps.length > 0 && (
+                    pumps.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>

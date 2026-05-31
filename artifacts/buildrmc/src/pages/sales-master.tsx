@@ -24,11 +24,12 @@ import {
   X, 
   Plus, 
   Trash2, 
-  Loader2
+  Loader2,
+  FlaskConical
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type TabId = "source" | "locality" | "material";
+type TabId = "source" | "locality" | "material" | "grade";
 
 interface TabConfig {
   id: TabId;
@@ -67,6 +68,15 @@ const tabs: TabConfig[] = [
     gradient: "from-purple-500 to-violet-500",
     placeholder: "Enter Material Type...",
     columnLabel: "Material Type",
+  },
+  {
+    id: "grade",
+    label: "Concrete Grade",
+    icon: FlaskConical,
+    color: "text-amber-600",
+    gradient: "from-amber-500 to-yellow-500",
+    placeholder: "Enter Concrete Grade (e.g. M-25, M-30)...",
+    columnLabel: "Grade Name",
   },
 ];
 

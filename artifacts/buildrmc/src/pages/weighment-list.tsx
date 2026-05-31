@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/table";
 import { ChevronRight, Search, Plus, Trash2, Filter, FileText, Download, Printer, Eye, Pencil, Copy, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useGetDCs, useGetCustomers } from "@workspace/api-client-react";
+import { useGetDCs, useGetCustomers, useGetMasters } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -36,6 +36,7 @@ export default function WeighmentList() {
 
   const { data: records, isLoading } = useGetDCs();
   const { data: customers } = useGetCustomers();
+  const { data: dbPlants } = useGetMasters("plant");
 
   // Filters state
   const [searchNo, setSearchNo] = useState("");
@@ -57,9 +58,12 @@ export default function WeighmentList() {
   }, [customers]);
 
   const availablePlants = useMemo(() => {
-    // If plant API exists, use it, otherwise derive from current DC records
     const plants = new Set<string>();
-    plants.add("FORTUNE CONCRETE"); // Add default plant
+    if (dbPlants) {
+      dbPlants.forEach((p: any) => {
+        if (p.name) plants.add(p.name);
+      });
+    }
     if (records) {
       records.forEach((r: any) => {
         if (r.plant) plants.add(r.plant);
@@ -67,7 +71,7 @@ export default function WeighmentList() {
       });
     }
     return Array.from(plants).sort();
-  }, [records]);
+  }, [records, dbPlants]);
 
   // Apply filters
   const filteredData = useMemo(() => {

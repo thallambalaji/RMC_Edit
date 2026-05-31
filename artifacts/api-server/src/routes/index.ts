@@ -21,6 +21,7 @@ import schedulingRouter from "./scheduling";
 import enquiriesRouter from "./enquiries";
 import paymentFollowUpsRouter from "./paymentFollowUps";
 import quotationsRouter from "./quotations";
+import gstinRouter from "./gstin";
 
 const router: IRouter = Router();
 
@@ -46,5 +47,6 @@ router.use(schedulingRouter);
 router.use(enquiriesRouter);
 router.use(paymentFollowUpsRouter);
 router.use(quotationsRouter);
+router.use(gstinRouter);
 
 export default router;

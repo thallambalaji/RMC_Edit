@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
+import { useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,19 +45,11 @@ export default function QcSettings() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"moisture" | "cube" | "matching">("moisture");
 
-  // Global Mock lists for Select fields
-  const plants = ["FORTUNE CONCRETE", "MARVAL RMC"];
-  const storeItemsList = [
-    "Aggregate 20mm",
-    "Aggregate 10mm",
-    "River Sand",
-    "M-Sand",
-    "Cement OPC 53 Grade",
-    "Fly Ash",
-    "GGBS",
-    "Water",
-    "Admixture 1",
-  ];
+  // Dynamic data from masters API
+  const { data: dbPlants } = useGetMasters("plant");
+  const { data: dbStoreItems } = useGetMasters("store-item");
+  const plants = useMemo(() => (dbPlants || []).map((p: any) => p.name).filter(Boolean), [dbPlants]);
+  const storeItemsList = useMemo(() => (dbStoreItems || []).map((s: any) => s.name).filter(Boolean), [dbStoreItems]);
 
   // ══════════════════════════════════════════════════════════════════
   // TAB 1: MOISTURE SETTING STATE & LOGIC

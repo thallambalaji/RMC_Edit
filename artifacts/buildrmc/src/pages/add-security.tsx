@@ -19,7 +19,8 @@ export default function AddSecurityCheck() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
+  const [plants, setPlants] = useState<any[]>([]);
   const [gatePassing, setGatePassing] = useState("Entry");
   const [gateNo, setGateNo] = useState("1");
   const [typeOfMovement, setTypeOfMovement] = useState("Sales");
@@ -65,6 +66,22 @@ export default function AddSecurityCheck() {
       }
     };
     fetchVehicles();
+
+    const fetchPlants = async () => {
+      try {
+        const res = await fetch("/api/masters?type=plant");
+        if (res.ok) {
+          const data = await res.json();
+          setPlants(data);
+          if (data.length > 0) {
+            setPlant(data[0].name);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPlants();
   }, []);
 
   const handleVehicleChange = (val: string) => {
@@ -168,8 +185,12 @@ export default function AddSecurityCheck() {
                       onChange={(e) => setPlant(e.target.value)}
                       className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5] transition-all"
                     >
-                      <option value="FORTUNE CONCRETE">FORTUNE CONCRETE</option>
-                      <option value="MARVAL RMC">MARVAL RMC</option>
+                      <option value="">Choose Plant</option>
+                      {plants.map((p) => (
+                        <option key={p._id || p.id} value={p.name}>
+                          {p.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 

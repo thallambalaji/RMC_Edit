@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { useGetDCs, useGetCustomers } from "@workspace/api-client-react";
+import { useGetDCs, useGetCustomers, useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,8 +39,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const PLANTS = ["All Plant", "FORTUNE CONCRETE", "MARVAL RMC"];
-const GRADES = ["All Item", "M20", "M25", "M30", "M35", "M40", "M45"];
 const REPORT_TYPES = ["Date Wise", "Customer Wise", "Plant Wise", "Grade Wise"];
 
 function formatDate(dateStr: string) {
@@ -82,6 +80,8 @@ export default function DCReport() {
 
   const { data: dcs, isLoading: dcsLoading } = useGetDCs();
   const { data: customers } = useGetCustomers();
+  const { data: dbPlants } = useGetMasters("plant");
+  const { data: dbGrades } = useGetMasters("grade");
 
   const customerMap = useMemo(() => {
     const map: Record<string, string> = {};
@@ -91,14 +91,21 @@ export default function DCReport() {
     return map;
   }, [customers]);
 
-  // Derive unique grades from live data + predefined
+  // Derive unique grades from live DC data + master grades (no hardcoded values)
   const availableGrades = useMemo(() => {
-    const grades = new Set(GRADES);
-    dcs?.forEach((dc: any) => {
-      if (dc.grade) grades.add(dc.grade);
-    });
-    return ["All Item", ...Array.from(grades).filter((g) => g !== "All Item")];
-  }, [dcs]);
+    const grades = new Set<string>();
+    dbGrades?.forEach((g: any) => { if (g.name) grades.add(g.name); });
+    dcs?.forEach((dc: any) => { if (dc.grade) grades.add(dc.grade); });
+    return ["All Item", ...Array.from(grades)];
+  }, [dcs, dbGrades]);
+
+  // Derive available plants from masters (no hardcoded values)
+  const availablePlants = useMemo(() => {
+    const plants = new Set<string>();
+    dbPlants?.forEach((p: any) => { if (p.name) plants.add(p.name); });
+    dcs?.forEach((dc: any) => { if (dc.plant) plants.add(dc.plant); });
+    return ["All Plant", ...Array.from(plants)];
+  }, [dbPlants, dcs]);
 
   const handleGenerate = () => {
     if (!fromDate || !toDate) {
@@ -386,7 +393,7 @@ export default function DCReport() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {PLANTS.map((p) => (
+                {availablePlants.map((p) => (
                   <SelectItem key={p} value={p}>
                     {p}
                   </SelectItem>

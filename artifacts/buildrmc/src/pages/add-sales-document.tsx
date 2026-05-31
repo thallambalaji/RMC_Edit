@@ -6,6 +6,7 @@ import {
   useGetDeliveryChallans,
   useCreateInvoice,
   getGetInvoicesQueryKey,
+  useGetMasters,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Plus, Clock, Trash2, RefreshCw, Printer, FileText, Sparkles, ReceiptText } from "lucide-react";
 
-const PLANTS = ["FORTUNE CONCRETE", "MARVAL RMC"];
 
 const FY_PREFIX = (() => {
   const now = new Date();
@@ -80,9 +80,11 @@ export default function AddSalesDocument() {
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
   const { data: allDcs } = useGetDeliveryChallans();
+  const { data: dbPlants } = useGetMasters("plant");
+  const plantsList = useMemo(() => (dbPlants || []).map((p: any) => p.name).filter(Boolean), [dbPlants]);
 
   // Form State
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber());
   const [customerId, setCustomerId] = useState<string>("");
   const [siteName, setSiteName] = useState("");
@@ -112,7 +114,7 @@ export default function AddSalesDocument() {
 
   // Line Items State
   const [items, setItems] = useState<any[]>([
-    { id: 1, name: "RMC M25", qty: 0, rate: 0, taxRate: 18, includeTax: false }
+    { id: 1, name: "", qty: 0, rate: 0, taxRate: 18, includeTax: false }
   ]);
 
   useEffect(() => {
@@ -194,7 +196,7 @@ export default function AddSalesDocument() {
     setVehicleNo("");
     setRemark("");
     setInvoiceNumber(generateInvoiceNumber());
-    setItems([{ id: Date.now() + Math.random(), name: "RMC M25", qty: 0, rate: 0, taxRate: 18, includeTax: false }]);
+    setItems([{ id: Date.now() + Math.random(), name: "", qty: 0, rate: 0, taxRate: 18, includeTax: false }]);
     setIsAutoTime(true);
     toast({ title: "Form Reset", description: "Form fields cleared." });
   };
@@ -558,9 +560,9 @@ export default function AddSalesDocument() {
               <div>
                 <Label className={labelStyle}>Plant <span className="text-red-500">*</span></Label>
                 <Select value={plant} onValueChange={setPlant}>
-                  <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={inputStyle}><SelectValue placeholder="Select Plant" /></SelectTrigger>
                   <SelectContent className="text-xs">
-                    {PLANTS.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
+                    {plantsList.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

@@ -30,7 +30,7 @@ import {
   Pencil, Copy, Printer, Download, Eye, Undo 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { customFetch, useGetVehicles } from "@workspace/api-client-react";
+import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { StoreLayout } from "@/components/store-layout";
 
@@ -41,7 +41,7 @@ export default function InventoryTicketPage() {
 
   // Form & Editing States
   const [ticketNo, setTicketNo] = useState("");
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [vehicleNo, setVehicleNo] = useState("");
   const [weightType, setWeightType] = useState("Loaded Weight");
   const [weight, setWeight] = useState("");
@@ -66,6 +66,14 @@ export default function InventoryTicketPage() {
 
   // Load vehicles from react-query hook
   const { data: vehicles, refetch: refetchVehicles } = useGetVehicles();
+  const { data: dbPlants } = useGetMasters("plant");
+
+  useEffect(() => {
+    if (dbPlants && dbPlants.length > 0 && !editingId && !plant) {
+      setPlant(dbPlants[0].name);
+    }
+  }, [dbPlants, editingId, plant]);
+
   const availableVehicles = useMemo(() => {
     if (!vehicles) return [];
     return vehicles
@@ -315,8 +323,11 @@ export default function InventoryTicketPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-slate-200 text-slate-700">
-                      <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                      <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                      {dbPlants?.map((p: any) => (
+                        <SelectItem key={p.id || p._id} value={p.name}>
+                          {p.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

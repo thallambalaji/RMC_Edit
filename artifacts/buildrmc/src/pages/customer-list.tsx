@@ -3,7 +3,9 @@ import { Link } from "wouter";
 import { 
   useGetCustomers, 
   useDeleteCustomer, 
-  useUpdateCustomer 
+  useUpdateCustomer,
+  useGetMasters,
+  useGetEmployees
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,6 +78,14 @@ export default function CustomerList() {
   // Fetching live customers from MongoDB Database
   const { data: customersData, isLoading } = useGetCustomers();
   const customers = customersData as any[];
+  
+  const { data: dbPlants } = useGetMasters("plant");
+  const { data: employees } = useGetEmployees();
+
+  const marketingStaff = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).map(e => e.name || e.fullName).filter(Boolean);
+  }, [employees]);
   
   // Delete Customer mutation (Connected to live Atlas)
   const { mutate: deleteCustomer } = useDeleteCustomer({
@@ -175,7 +185,6 @@ Address: ${c.address || "—"}
 Phone: ${c.contact || "—"}
 GSTIN No: ${c.gstNumber || "—"}
 PAN No: ${c.gstNumber ? c.gstNumber.substring(2, 12) : "—"}
-Plant: ${c.plant || "All Plant"}
 Sales Person: ${c.marketingPerson || "—"}
 Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
     navigator.clipboard.writeText(text);
@@ -185,14 +194,13 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
   // Row CSV Action
   const handleCSVSingle = (c: any) => {
     if (!c) return;
-    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Plant", "Sales Person", "Reg Date"];
+    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Sales Person", "Reg Date"];
     const row = [
       `"${c.name.replace(/"/g, '""')}"`,
       `"${(c.address || "").replace(/"/g, '""')}"`,
       `"${c.contact || ""}"`,
       `"${c.gstNumber || "—"}"`,
       `"${c.gstNumber ? c.gstNumber.substring(2, 12) : "—"}"`,
-      `"${c.plant || "All Plant"}"`,
       `"${c.marketingPerson || "—"}"`,
       `"${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}"`
     ];
@@ -212,14 +220,13 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       toast({ title: "No data to copy", variant: "destructive" });
       return;
     }
-    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Plant", "Sales Person", "Reg Date"];
+    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Sales Person", "Reg Date"];
     const rows = filteredCustomers.map(c => [
       c.name,
       c.address || "—",
       c.contact,
       c.gstNumber || "—",
       c.gstNumber ? c.gstNumber.substring(2, 12) : "—",
-      c.plant || "All Plant",
       c.marketingPerson || "—",
       c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"
     ]);
@@ -234,14 +241,13 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       toast({ title: "No data to export", variant: "destructive" });
       return;
     }
-    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Plant", "Sales Person", "Reg Date"];
+    const headers = ["Customer Name", "Address", "Phone", "GSTIN No", "PAN No", "Sales Person", "Reg Date"];
     const rows = filteredCustomers.map(c => [
       `"${(c.name || "").replace(/"/g, '""')}"`,
       `"${(c.address || "").replace(/"/g, '""')}"`,
       `"${(c.contact || "").replace(/"/g, '""')}"`,
       `"${(c.gstNumber || "—").replace(/"/g, '""')}"`,
       `"${c.gstNumber ? c.gstNumber.substring(2, 12) : "—"}"`,
-      `"${c.plant || "All Plant"}"`,
       `"${c.marketingPerson || "—"}"`,
       `"${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}"`
     ]);
@@ -266,7 +272,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       gstNumber: customer.gstNumber || "",
       creditTerms: customer.creditTerms || "30 Days",
       state: customer.state || "JAMMU AND KASHMIR",
-      marketingPerson: customer.marketingPerson || "Fortune Concrete",
+      marketingPerson: customer.marketingPerson || "",
       creditLimit: customer.creditLimit !== undefined && customer.creditLimit !== null ? String(customer.creditLimit) : "",
       creditDays: customer.creditDays !== undefined && customer.creditDays !== null ? String(customer.creditDays) : "",
       openingBalance: customer.openingBalance !== undefined && customer.openingBalance !== null ? String(customer.openingBalance) : "",
@@ -275,7 +281,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       contactPersonPhone: customer.contactPersonPhone || "",
       sourceType: customer.sourceType || "direct",
       designation: customer.designation || "owner",
-      plant: customer.plant || "All Plant",
+      plant: customer.plant || "",
       siteName: customer.siteName || "",
       siteAddress: customer.siteAddress || ""
     });
@@ -522,7 +528,6 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                     <TableHead className={headerStyle}>Phone</TableHead>
                     <TableHead className={headerStyle}>GSTIN No</TableHead>
                     <TableHead className={headerStyle}>PAN No</TableHead>
-                    <TableHead className={headerStyle}>Plant</TableHead>
                     <TableHead className={headerStyle}>Sales Person</TableHead>
                     <TableHead className={headerStyle}>Reg Date</TableHead>
                     <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
@@ -531,7 +536,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                 <TableBody>
                   {filteredCustomers.length === 0 ? (
                      <TableRow>
-                      <TableCell colSpan={9} className="text-center py-10 text-[10px] text-gray-400 font-bold italic uppercase">
+                      <TableCell colSpan={8} className="text-center py-10 text-[10px] text-gray-400 font-bold italic uppercase">
                         No customer directories found in MongoDB Atlas.
                       </TableCell>
                      </TableRow>
@@ -544,7 +549,6 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                       <TableCell className="text-center text-[10px] font-semibold whitespace-nowrap">
                         {customer.gstNumber && customer.gstNumber.length >= 12 ? customer.gstNumber.substring(2, 12) : "—"}
                       </TableCell>
-                      <TableCell className="text-center text-[10px] font-semibold">{customer.plant || "All Plant"}</TableCell>
                       <TableCell className="text-center text-[10px] font-bold text-indigo-600">{customer.marketingPerson || "—"}</TableCell>
                       <TableCell className="text-center text-[10px] font-semibold whitespace-nowrap">
                         {customer.createdAt ? format(new Date(customer.createdAt), "dd/MM/yyyy") : "—"}
@@ -641,21 +645,15 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                   </p>
                 </div>
                 <div className="border p-2.5 rounded bg-slate-50/50">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Assigned Plant</p>
-                  <p className="font-bold text-slate-800">{viewingCustomer.plant || "All Plant"}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border p-2.5 rounded bg-slate-50/50">
                   <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Sales Person</p>
                   <p className="font-bold text-slate-800">{viewingCustomer.marketingPerson || "—"}</p>
                 </div>
-                <div className="border p-2.5 rounded bg-slate-50/50">
-                  <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Registration Date</p>
-                  <p className="font-bold text-slate-800">
-                    {viewingCustomer.createdAt ? format(new Date(viewingCustomer.createdAt), "dd/MM/yyyy") : "—"}
-                  </p>
-                </div>
+              </div>
+              <div className="border p-2.5 rounded bg-slate-50/50">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Registration Date</p>
+                <p className="font-bold text-slate-800">
+                  {viewingCustomer.createdAt ? format(new Date(viewingCustomer.createdAt), "dd/MM/yyyy") : "—"}
+                </p>
               </div>
               <div className="border p-2.5 rounded bg-slate-50/50">
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Registered Office Address</p>
@@ -828,27 +826,17 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-0.5">
-                  <Label className={labelStyle}>Assigned Plant</Label>
-                  <Select value={editForm.plant} onValueChange={v => setEditForm({ ...editForm, plant: v })}>
-                    <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="All Plant" className="text-[10px] font-bold">All Plant</SelectItem>
-                      <SelectItem value="Hyderabad Plant" className="text-[10px] font-bold">Hyderabad Plant</SelectItem>
-                      <SelectItem value="Medchal Plant" className="text-[10px] font-bold">Medchal Plant</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
                 <div className="space-y-0.5">
                   <Label className={labelStyle}>Marketing Person</Label>
                   <Select value={editForm.marketingPerson} onValueChange={v => setEditForm({ ...editForm, marketingPerson: v })}>
                     <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
-                      <SelectItem value="John Doe" className="text-[10px] font-bold">John Doe</SelectItem>
-                      <SelectItem value="Jane Smith" className="text-[10px] font-bold">Jane Smith</SelectItem>
-                      <SelectItem value="Balaji" className="text-[10px] font-bold">Balaji</SelectItem>
-                      <SelectItem value="Shiva Kumar" className="text-[10px] font-bold">Shiva Kumar</SelectItem>
+                      {marketingStaff.map((staffName: string) => (
+                        <SelectItem key={staffName} value={staffName} className="text-[10px] font-bold">
+                          {staffName}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -952,10 +940,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                   {printTarget.gstNumber && printTarget.gstNumber.length >= 12 ? printTarget.gstNumber.substring(2, 12) : "—"}
                 </td>
               </tr>
-              <tr className="border-b">
-                <th className="p-3 bg-slate-50 text-left font-bold text-gray-600">Allocated Supply Plant</th>
-                <td className="p-3 font-medium text-gray-800">{printTarget.plant || "All Plant"}</td>
-              </tr>
+
               <tr className="border-b">
                 <th className="p-3 bg-slate-50 text-left font-bold text-gray-600">Responsible Sales Account Manager</th>
                 <td className="p-3 font-bold text-indigo-600">{printTarget.marketingPerson || "—"}</td>
@@ -1005,7 +990,6 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                 <th className="border p-2 text-center">Contact Phone</th>
                 <th className="border p-2 text-center">GSTIN Identification</th>
                 <th className="border p-2 text-center">PAN Code</th>
-                <th className="border p-2 text-center">Assigned Plant</th>
                 <th className="border p-2 text-center">Sales Executive</th>
                 <th className="border p-2 text-center">Reg Date</th>
               </tr>
@@ -1021,7 +1005,6 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                   <td className="border p-2 text-center uppercase">
                     {c.gstNumber && c.gstNumber.length >= 12 ? c.gstNumber.substring(2, 12) : "—"}
                   </td>
-                  <td className="border p-2 text-center">{c.plant || "All Plant"}</td>
                   <td className="border p-2 text-center font-bold text-indigo-600">{c.marketingPerson || "—"}</td>
                   <td className="border p-2 text-center">
                     {c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}

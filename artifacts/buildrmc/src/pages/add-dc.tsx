@@ -37,7 +37,7 @@ export default function AddDC() {
   const [dcNo, setDcNo] = useState(`DC/26-27/${Math.floor(1000 + Math.random() * 9000)}`);
   const [dcDate, setDcDate] = useState(new Date().toISOString().split("T")[0]);
   const [dcTime, setDcTime] = useState(new Date().toLocaleTimeString("en-GB", { hour12: false }));
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [customerId, setCustomerId] = useState("");
   const [vehicleId, setVehicleId] = useState("");
   const [siteId, setSiteId] = useState("");
@@ -61,13 +61,27 @@ export default function AddDC() {
   const [transportCharge, setTransportCharge] = useState("");
   const [pumpCharge, setPumpCharge] = useState("");
 
-  // Data Fetching
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
   const { data: employees } = useGetEmployees();
   const { data: pumps } = useGetMasters("pump");
   const { data: grades } = useGetMasters("grade");
   const { data: sites } = useGetMasters("site");
+  const { data: plants } = useGetMasters("plant");
+
+  useMemo(() => {
+    if (plants && plants.length > 0) {
+      if (!plant) setPlant(String(plants[0].name || plants[0].id || ""));
+      if (!loadedPlant) setLoadedPlant(String(plants[0].name || plants[0].id || ""));
+    }
+  }, [plants, plant, loadedPlant]);
+
+  const gradesList = useMemo(() => {
+    if (grades && grades.length > 0) {
+      return grades.map((g: any) => g.name);
+    }
+    return [];
+  }, [grades]);
 
   const drivers = useMemo(() => {
     if (!employees) return [];
@@ -230,13 +244,18 @@ export default function AddDC() {
               <Input type="date" value={dcDate} onChange={e => setDcDate(e.target.value)} className="bg-white h-10" />
             </div>
 
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label className="text-sm font-semibold">Plant <span className="text-rose-500">*</span></Label>
               <Select value={plant} onValueChange={setPlant}>
-                <SelectTrigger className="bg-white h-10"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                  <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                  {plants && plants.length > 0 ? (
+                    plants.map((p: any) => (
+                      <SelectItem key={p.id || p._id} value={p.name || p.id}>{p.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -276,15 +295,17 @@ export default function AddDC() {
               </Select>
             </div>
 
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label className="text-sm font-semibold">Driver Name :</Label>
               <Select value={driverName} onValueChange={setDriverName}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Driver" /></SelectTrigger>
                 <SelectContent className="max-h-[200px]">
-                  {drivers.length > 0 ? drivers.map(d => (
-                    <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
-                  )) : (
-                    <SelectItem value="John Doe">John Doe (Fallback)</SelectItem>
+                  {drivers.length > 0 ? (
+                    drivers.map(d => (
+                      <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled>No drivers registered</SelectItem>
                   )}
                 </SelectContent>
               </Select>
@@ -292,13 +313,22 @@ export default function AddDC() {
 
             <div className="space-y-2">
               <Label className="text-sm font-semibold">DC Grade <span className="text-rose-500">*</span></Label>
-              <Select value={grade} onValueChange={setGrade}>
-                <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                <SelectContent>
-                  {grades?.map(g => <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>)}
-                  {["M10","M15","M20","M25","M30","M35"].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-1">
+                <Input
+                  value={grade}
+                  onChange={e => setGrade(e.target.value)}
+                  placeholder="Grade"
+                  className="bg-white h-10 flex-1 font-semibold border-slate-200 text-slate-700"
+                />
+                <Select value={gradesList.includes(grade) ? grade : ""} onValueChange={setGrade}>
+                  <SelectTrigger className="bg-white h-10 w-10 shrink-0 border-slate-200 text-slate-600 px-1">
+                    <span className="text-[10px]">▼</span>
+                  </SelectTrigger>
+                  <SelectContent className="bg-white text-slate-700">
+                    {gradesList.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -341,12 +371,7 @@ export default function AddDC() {
                       {pumps && pumps.length > 0 ? (
                         pumps.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)
                       ) : (
-                        <>
-                          <SelectItem value="BOOM PUMP">BOOM PUMP</SelectItem>
-                          <SelectItem value="LINE PUMP">LINE PUMP</SelectItem>
-                          <SelectItem value="STATIC PUMP">STATIC PUMP</SelectItem>
-                          <SelectItem value="MOBILE PUMP">MOBILE PUMP</SelectItem>
-                        </>
+                        <SelectItem value="_empty" disabled>No pumps configured</SelectItem>
                       )}
                     </SelectContent>
                   </Select>
@@ -417,13 +442,18 @@ export default function AddDC() {
                   <Label className="text-sm font-semibold text-gray-500">Waiting Time (min)</Label>
                   <Input type="number" placeholder="0" className="bg-white h-10" value={waitingTime} onChange={e => setWaitingTime(e.target.value)} />
                 </div>
-                <div className="space-y-2">
+                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-gray-500">Loaded Plant</Label>
                   <Select value={loadedPlant} onValueChange={setLoadedPlant}>
                     <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="FORTUNE CONCRETE">FORTUNE CONCRETE</SelectItem>
-                      <SelectItem value="MARVAL RMC">MARVAL RMC</SelectItem>
+                      {plants && plants.length > 0 ? (
+                        plants.map((p: any) => (
+                          <SelectItem key={p.id || p._id} value={p.name || p.id}>{p.name}</SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="_empty" disabled>No plants configured</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -433,12 +463,22 @@ export default function AddDC() {
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-gray-500">Loaded Grade</Label>
-                  <Select value={loadedGrade} onValueChange={setLoadedGrade}>
-                    <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Grade" /></SelectTrigger>
-                    <SelectContent>
-                      {["M10","M15","M20","M25","M30","M35"].map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex gap-1">
+                    <Input
+                      value={loadedGrade}
+                      onChange={e => setLoadedGrade(e.target.value)}
+                      placeholder="Loaded Grade"
+                      className="bg-white h-10 flex-1 font-semibold border-slate-200 text-slate-700"
+                    />
+                    <Select value={gradesList.includes(loadedGrade) ? loadedGrade : ""} onValueChange={setLoadedGrade}>
+                      <SelectTrigger className="bg-white h-10 w-10 shrink-0 border-slate-200 text-slate-600 px-1">
+                        <span className="text-[10px]">▼</span>
+                      </SelectTrigger>
+                      <SelectContent className="bg-white text-slate-700">
+                        {gradesList.map(g => <SelectItem key={g} value={g}>{g}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-gray-500">Transport Charge (₹)</Label>

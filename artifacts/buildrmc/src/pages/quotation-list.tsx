@@ -33,7 +33,7 @@ import {
   Loader2,
   Filter,
 } from "lucide-react";
-import { useGetQuotations, useDeleteQuotation } from "@workspace/api-client-react";
+import { useGetQuotations, useDeleteQuotation, useGetEmployees } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
@@ -59,6 +59,12 @@ export default function QuotationList() {
   const [printQuotation, setPrintQuotation] = useState<any | null>(null);
 
   const { data: quotations, isLoading } = useGetQuotations();
+  const { data: employees } = useGetEmployees();
+
+  const marketingStaff = useMemo(() => {
+    if (!employees) return [];
+    return (employees as any[]).map(e => e.name || e.fullName).filter(Boolean);
+  }, [employees]);
 
   const filteredQuotes = useMemo(() => {
     if (!Array.isArray(quotations)) return [];
@@ -321,9 +327,11 @@ export default function QuotationList() {
               <SelectTrigger className={inputStyle}><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all" className="text-[10px] font-bold">All Sales Person</SelectItem>
-                <SelectItem value="Fortune Concrete" className="text-[10px] font-bold">Fortune Concrete</SelectItem>
-                <SelectItem value="Karan Kumar" className="text-[10px] font-bold">Karan Kumar</SelectItem>
-                <SelectItem value="Aravind S" className="text-[10px] font-bold">Aravind S</SelectItem>
+                {marketingStaff.map((staffName: string) => (
+                  <SelectItem key={staffName} value={staffName} className="text-[10px] font-bold">
+                    {staffName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, Save, RotateCcw, ListFilter, User, Building2, MapPin, FlaskConical, Scale, Info } from "lucide-react";
 import { QcLayout } from "@/components/qc-layout";
+import { useGetMasters } from "@workspace/api-client-react";
 
 interface RecipeIngredient {
   sl: number;
@@ -53,11 +54,13 @@ export default function AddRecipe() {
   const [siteName, setSiteName] = useState("");
   const [grade, setGrade] = useState("");
   const [recipeCode, setRecipeCode] = useState("");
-  const [plant, setPlant] = useState("FORTUNE CONCRETE");
+  const [plant, setPlant] = useState("");
   const [cementName, setCementName] = useState("");
   const [slump, setSlump] = useState("100+/-20");
   const [ingredients, setIngredients] = useState<RecipeIngredient[]>(INITIAL_INGREDIENTS);
   const [plants, setPlants] = useState<any[]>([]);
+
+  const { data: dbGrades } = useGetMasters("grade");
 
   // Data for dropdowns
   const [customers, setCustomers] = useState<any[]>([]);
@@ -77,23 +80,13 @@ export default function AddRecipe() {
     }).catch(() => {});
     // Fetch plants
     fetch("/api/masters?type=plant").then(res => res.json()).then(data => {
-      if (data.length > 0) {
+      if (Array.isArray(data)) {
         setPlants(data);
-        setPlant(data[0].name);
-      } else {
-        setPlants([
-          { id: "fortune", name: "FORTUNE CONCRETE" },
-          { id: "marval", name: "MARVAL RMC" }
-        ]);
-        setPlant("FORTUNE CONCRETE");
+        if (data.length > 0) {
+          setPlant(data[0].name);
+        }
       }
-    }).catch(() => {
-      setPlants([
-        { id: "fortune", name: "FORTUNE CONCRETE" },
-        { id: "marval", name: "MARVAL RMC" }
-      ]);
-      setPlant("FORTUNE CONCRETE");
-    });
+    }).catch(() => {});
   }, []);
 
   // Reset site name and grade when customer changes to avoid mismatch
@@ -102,11 +95,18 @@ export default function AddRecipe() {
     setGrade("");
   }, [customer]);
 
-  // Extract unique grades dynamically from Sales Orders (optionally filtered by selected customer)
+  // Extract unique grades dynamically from Sales Orders and Database Masters
   const grades = useMemo(() => {
     const uniqueGrades = new Set<string>();
     
-    // Find customer ID to match against sales order customerId string
+    // 1. Add grades from DB masters
+    if (dbGrades && dbGrades.length > 0) {
+      dbGrades.forEach((g: any) => {
+        if (g.name) uniqueGrades.add(g.name);
+      });
+    }
+
+    // 2. Add grades from sales orders
     const selectedCustObj = customers.find(c => c.name === customer);
     const selectedCustId = selectedCustObj?.id || selectedCustObj?._id;
 
@@ -128,25 +128,8 @@ export default function AddRecipe() {
       }
     });
 
-    // Fallback to all sales orders if selected customer has no grades
-    if (uniqueGrades.size === 0 && customer) {
-      salesOrders.forEach((order: any) => {
-        if (Array.isArray(order.items)) {
-          order.items.forEach((item: any) => {
-            if (item && item.grade) {
-              uniqueGrades.add(item.grade);
-            }
-          });
-        }
-      });
-    }
-
-    // Ultimate hardcoded fallback
-    if (uniqueGrades.size === 0) {
-      return ["M-10", "M-15", "M-20", "M-25", "M-30", "M-35", "M-40", "M-45", "M-50"];
-    }
     return Array.from(uniqueGrades).sort();
-  }, [salesOrders, customer, customers]);
+  }, [salesOrders, customer, customers, dbGrades]);
 
   // Extract unique site locations registered under the selected customer
   const customerSites = useMemo(() => {
@@ -198,7 +181,7 @@ export default function AddRecipe() {
     setSiteName("");
     setGrade("");
     setRecipeCode("");
-    setPlant("FORTUNE CONCRETE");
+    setPlant("");
     setCementName("");
     setSlump("100+/-20");
     setIngredients(INITIAL_INGREDIENTS);
@@ -300,15 +283,7 @@ export default function AddRecipe() {
                     <SelectValue placeholder="Choose Site" />
                   </SelectTrigger>
                   <SelectContent>
-                    {customerSites.length > 0 ? (
-                      customerSites.map((s: string) => <SelectItem key={s} value={s} className="text-xs font-bold">{s}</SelectItem>)
-                    ) : (
-                      <>
-                        <SelectItem value="UPSIDE AVENUES" className="text-xs font-bold">UPSIDE AVENUES</SelectItem>
-                        <SelectItem value="Raaga" className="text-xs font-bold">Raaga</SelectItem>
-                        <SelectItem value="VELIMELA" className="text-xs font-bold">VELIMELA</SelectItem>
-                      </>
-                    )}
+                    {customerSites.map((s: string) => <SelectItem key={s} value={s} className="text-xs font-bold">{s}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -318,18 +293,26 @@ export default function AddRecipe() {
                 <Input value={cementName} onChange={e => setCementName(e.target.value)} placeholder="Enter Cement Name" className="h-10 text-xs font-bold border-slate-300" />
               </div>
 
-              <div className="space-y-1.5 col-span-2 md:col-span-1">
+               <div className="space-y-1.5 col-span-2 md:col-span-1">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Grade <span className="text-red-500">*</span></Label>
-                <Select value={grade} onValueChange={setGrade}>
-                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
-                    <SelectValue placeholder="Choose Grade" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {grades.map(g => (
-                      <SelectItem key={g} value={g} className="text-xs font-bold">{g}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-1">
+                  <Input
+                    value={grade}
+                    onChange={e => setGrade(e.target.value)}
+                    placeholder="Grade"
+                    className="h-10 text-xs font-bold border-slate-300 bg-white text-slate-800 flex-1"
+                  />
+                  <Select value={grades.includes(grade) ? grade : ""} onValueChange={setGrade}>
+                    <SelectTrigger className="h-10 w-10 shrink-0 border-slate-300 text-slate-600 px-1 bg-white">
+                      <span className="text-[10px]">▼</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white text-slate-700">
+                      {grades.map(g => (
+                        <SelectItem key={g} value={g} className="text-xs font-bold">{g}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div className="space-y-1.5 col-span-2 md:col-span-1">
@@ -339,14 +322,13 @@ export default function AddRecipe() {
 
               <div className="space-y-1.5 col-span-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Recipe Code <span className="text-red-500">*</span></Label>
-                <Select value={recipeCode} onValueChange={handleRecipeCodeChange}>
-                  <SelectTrigger className="h-10 text-xs font-bold border-slate-300">
-                    <SelectValue placeholder="Choose Recipe Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {mixDesigns.map(d => <SelectItem key={d.id} value={d.recipeCode} className="text-xs font-bold">{d.recipeCode}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Input
+                  value={recipeCode}
+                  onChange={e => handleRecipeCodeChange(e.target.value)}
+                  placeholder="Recipe Code"
+                  className="h-10 text-xs font-bold border-slate-300 bg-white"
+                  required
+                />
               </div>
             </CardContent>
           </Card>
@@ -392,7 +374,7 @@ export default function AddRecipe() {
                         <Input
                           value={ing.product}
                           onChange={e => handleIngredientChange(ing.sl, 'product', e.target.value)}
-                          placeholder={`Enter ${ing.type} Name`}
+                          placeholder="Product"
                           className="h-8 text-[10px] bg-white border-slate-200 font-medium placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500"
                         />
                       </TableCell>
@@ -400,7 +382,7 @@ export default function AddRecipe() {
                         <Input
                           value={ing.qty}
                           onChange={e => handleIngredientChange(ing.sl, 'qty', e.target.value)}
-                          placeholder={`Enter ${ing.type} Quantity`}
+                          placeholder="Qty"
                           className="h-8 text-[10px] bg-white border-slate-200 font-bold placeholder:text-slate-400 focus:ring-1 focus:ring-teal-500"
                         />
                       </TableCell>

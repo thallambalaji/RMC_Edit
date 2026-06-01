@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PrintHeader } from "@/components/print-header";
+import { ExportDropdown } from "@/components/export-dropdown";
 import { 
   ChevronRight, 
   Plus, 
@@ -70,11 +71,52 @@ import {
   Mail,
   History
 } from "lucide-react";
+export const IDS_LOGO_B64 = "data:image/png;base64,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";
+
+export const ELSA_LOGO_B64 = "data:image/png;base64,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";
+
+
 
 function startOfDay(d: Date) {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);
   return x;
+}
+
+function numberToWordsINR(num: number): string {
+  if (!isFinite(num) || num <= 0) return "Zero Only";
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  function twoDigits(n: number): string {
+    if (n < 20) return ones[n];
+    return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+  }
+  function threeDigits(n: number): string {
+    const h = Math.floor(n / 100);
+    const r = n % 100;
+    return (h ? ones[h] + " Hundred" + (r ? " " : "") : "") + (r ? twoDigits(r) : "");
+  }
+
+  const rupees = Math.floor(num);
+  const paise = Math.round((num - rupees) * 100);
+  const crore = Math.floor(rupees / 10000000);
+  const lakh = Math.floor((rupees % 10000000) / 100000);
+  const thousand = Math.floor((rupees % 100000) / 1000);
+  const hundred = rupees % 1000;
+
+  let words = "";
+  if (crore) words += (crore > 20 ? twoDigits(crore) : ones[crore]) + " Crore ";
+  if (lakh) words += twoDigits(lakh) + " Lakh ";
+  if (thousand) words += twoDigits(thousand) + " Thousand ";
+  if (hundred) words += threeDigits(hundred);
+  
+  words = words.trim();
+  if (paise) {
+    words += " and " + twoDigits(paise) + " Paise";
+  }
+  return words + " Only";
 }
 
 // Batch sheet material parsing helpers
@@ -157,9 +199,11 @@ export default function Billing() {
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(true);
   const [viewInv, setViewInv] = useState<any | null>(null);
+  const [printInv, setPrintInv] = useState<any | null>(null);
   const [printDC, setPrintDC] = useState<any | null>(null);
   const [batchSheetInv, setBatchSheetInv] = useState<any | null>(null);
   const [batchMixDesign, setBatchMixDesign] = useState<any | null>(null);
+  const [batchSeed, setBatchSeed] = useState<number>(0);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editDate, setEditDate] = useState("");
@@ -208,6 +252,7 @@ export default function Billing() {
 
   const handleBatchSheet = async (inv: any) => {
     setBatchMixDesign(null);
+    setBatchSeed(Math.random());
     setBatchSheetInv(inv);
     try {
       const res = await fetch("/api/mix-designs");
@@ -235,20 +280,23 @@ export default function Billing() {
     }, 250);
   };
 
-  // Reset viewInv after printing
+  // Reset printInv after printing
   useEffect(() => {
-    const handleAfterPrint = () => setViewInv(null);
+    const handleAfterPrint = () => setPrintInv(null);
     window.addEventListener("afterprint", handleAfterPrint);
     return () => window.removeEventListener("afterprint", handleAfterPrint);
   }, []);
 
   const handleRowPrint = (inv: any) => {
-    setViewInv(inv);
+    setPrintInv(inv);
     setTimeout(() => {
       const prev = document.title;
       document.title = `Invoice_${inv.invoiceNumber} - BuildRMC`;
       window.print();
-      setTimeout(() => { document.title = prev; }, 1000);
+      setTimeout(() => { 
+        document.title = prev; 
+        setPrintInv(null);
+      }, 1000);
     }, 150);
   };
 
@@ -394,8 +442,8 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
     <>
       <style>{`
         @page {
-          size: ${batchSheetInv || viewInv || printDC ? 'A4 portrait' : 'A4 landscape'};
-          margin: ${batchSheetInv ? '8mm 10mm' : '12mm'};
+          size: ${batchSheetInv || printInv || printDC ? 'A4 portrait' : 'A4 landscape'};
+          margin: ${batchSheetInv || printInv || printDC ? '5mm 6mm' : '12mm'};
         }
         @media print {
           html, body {
@@ -406,11 +454,11 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
             height: auto !important;
             overflow: visible !important;
           }
-          .no-print, [class*="no-print"] {
+          .no-print, [class*="no-print"], [data-radix-portal] {
             display: none !important;
           }
           ${
-            viewInv 
+            printInv 
               ? `
                 .main-screen {
                   display: none !important;
@@ -642,20 +690,11 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-7 text-[10px] font-bold px-3 border-gray-200 gap-1.5 uppercase tracking-wider text-slate-600">
-                    <Download className="h-3.5 w-3.5 text-[#1e40af]" /> Export Data
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="text-xs">
-                  <DropdownMenuItem onClick={() => handleExport("copy")}>Copy to Clipboard</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport("csv")}>Download CSV</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => window.print()} className="gap-2 font-semibold">
-                    <Printer className="h-3.5 w-3.5 text-rose-500" /> Print / PDF View
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <ExportDropdown 
+                onCopy={() => handleExport("copy")} 
+                onCSV={() => handleExport("csv")} 
+                onPDF={() => window.print()} 
+              />
             </div>
           </div>
 
@@ -846,9 +885,8 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
       </div>
     </div>
 
-      {/* View Details Modal - Screen Only */}
       <Dialog open={!!viewInv} onOpenChange={() => { setViewInv(null); setIsEditing(false); }}>
-        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-white">
+        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-white no-print">
           <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">
@@ -1015,49 +1053,384 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
       </Dialog>
 
       {/* ===== PRINT AREA ===== */}
+      {/* ===== PRINT AREA ===== */}
       <div id="print-root" style={{ display: "none" }}>
-        {viewInv && (
-          <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
+        {printInv && (() => {
+          const inv = printInv as any;
+          const customerObj = customers?.find((c: any) => String(c.id || c._id) === String(inv.customerId));
+          
+          const qty = Number(inv.quantity ?? 0);
+          const basicRate = Number(inv.netAmount ?? inv.netPrice ?? 0);
+          const grossAmount = Number((qty * basicRate).toFixed(2));
+          const subTotal = grossAmount;
+          
+          const cgstPercent = Number(inv.cgstRate ?? 9.0);
+          const sgstPercent = Number(inv.sgstRate ?? 9.0);
+          
+          const cgstAmount = Number((subTotal * cgstPercent / 100).toFixed(2));
+          const sgstAmount = Number((subTotal * sgstPercent / 100).toFixed(2));
+          
+          const tcsPercent = 0.0;
+          const tcsAmount = 0.0;
+          
+          const netAmountRaw = subTotal + cgstAmount + sgstAmount;
+          const netAmountRounded = Math.round(netAmountRaw);
+          const roundOff = Number((netAmountRounded - netAmountRaw).toFixed(2));
+          const netAmount = netAmountRounded;
+          
+          const amountInWords = numberToWordsINR(netAmount);
+          
+          const matchingDC = dcs?.find((dc: any) => 
+            String(dc.invoiceId) === String(inv.id) || 
+            (dc.invoiceNumber && dc.invoiceNumber === inv.invoiceNumber)
+          );
+          const dcNo = matchingDC ? matchingDC.dcNumber : (inv.invoiceNumber ? inv.invoiceNumber.split('/').pop() : "—");
+          
+          const borderStyle = "1.2px solid #000";
+          
+          return (
+            <div style={{
+              width: "100%",
+              maxWidth: "100%",
+              margin: "0 auto",
+              padding: "4px",
+              boxSizing: "border-box",
+              color: "black",
+              background: "white",
+              fontFamily: "'Segoe UI', Arial, sans-serif",
+              fontSize: "12.5px",
+              lineHeight: "1.3"
+            }}>
+              {/* Outer Border Container */}
+              <div style={{ border: "2px solid #000", width: "100%" }}>
+                
+                {/* Header Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Logo Cell */}
+                      <td style={{ width: "120px", padding: "10px", verticalAlign: "middle", textAlign: "center", borderRight: borderStyle }}>
+                        <img 
+                          src="/fortune_concrete_logo.png" 
+                          alt="Fortune Concrete Logo" 
+                          style={{ width: "90px", height: "90px", objectFit: "contain" }} 
+                        />
+                      </td>
+                      
+                      {/* Company Info Cell */}
+                      <td style={{ padding: "8px", textAlign: "center", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", fontWeight: "bold", borderBottom: borderStyle, paddingBottom: "4px", marginBottom: "4px" }}>
+                          <span style={{ letterSpacing: "1px" }}>TAX INVOICE</span>
+                          <span style={{ letterSpacing: "1px" }}>ORIGINAL</span>
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.5px" }}>Fortune Concrete</div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold", marginTop: "2px" }}>
+                          Flat no. 305, Rakesh Residency, Road no.7, PJR Colony , Chanda Nagar,
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold" }}>
+                          Ranga Reddy, Telangana, 500050
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold", marginTop: "2px" }}>
+                          Phone No : 8977916878 &nbsp;&nbsp; Email : fortuneconcrete6878@gmail.com
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "black", marginTop: "2px" }}>
+                          GSTIN: 36AAIFF2609L1ZA, PANNO : AAIFF2609L
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
+                {/* Customer, Site, and Invoice Meta Grid Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Column: Customer & Site Details */}
+                      <td style={{ width: "60%", padding: "0", verticalAlign: "top", borderRight: borderStyle }}>
+                        <div style={{ padding: "6px", borderBottom: borderStyle, minHeight: "65px" }}>
+                          <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>Customer Name & Address :</div>
+                          <div style={{ fontWeight: "900", marginTop: "4px", fontSize: "13px" }}>{inv.customerName}</div>
+                          <div style={{ marginTop: "2px", color: "#000" }}>{customerObj?.address || "—"}</div>
+                        </div>
+                        <div style={{ padding: "6px", minHeight: "65px" }}>
+                          <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>Site Name & Address :</div>
+                          <div style={{ fontWeight: "900", marginTop: "4px", fontSize: "13px" }}>{inv.site || "—"}</div>
+                        </div>
+                      </td>
 
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", marginBottom: "24px" }}>
-              <tbody>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, width: "30%", textAlign: "left" }}>Invoice Number</th>
-                  <td style={{ padding: "10px", fontWeight: 600 }}>{viewInv.invoiceNumber}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Invoice Date</th>
-                  <td style={{ padding: "10px" }}>{viewInv.invoiceDate ? new Date(viewInv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Customer Name</th>
-                  <td style={{ padding: "10px", fontWeight: 700, color: "#0f172a" }}>{viewInv.customerName}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Site Address</th>
-                  <td style={{ padding: "10px" }}>{viewInv.site || "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Item Grade</th>
-                  <td style={{ padding: "10px", fontWeight: 600 }}>{viewInv.grade || "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Quantity (M³)</th>
-                  <td style={{ padding: "10px" }}>{Number(viewInv.quantity ?? 0).toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Total Amount</th>
-                  <td style={{ padding: "10px", fontWeight: 900, fontSize: "16px", color: "#1e40af" }}>₹{Number(viewInv.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-                </tr>
-              </tbody>
-            </table>
+                      {/* Right Column: Invoice Meta */}
+                      <td style={{ width: "40%", padding: "0", verticalAlign: "top" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <tbody>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", width: "110px", borderRight: borderStyle }}>Invoice NO</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "900" }}>: {inv.invoiceNumber}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>Invoice Date</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>Invoice Time</td>
+                              <td style={{ padding: "5px 8px" }}>: {inv.invoiceTime || "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>CUS. GSTIN</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {customerObj?.gstNumber || "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>HSN Code</td>
+                              <td style={{ padding: "5px 8px" }}>: 38245010</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>DC NO</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {dcNo}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-            <div style={{ marginTop: "40px", textAlign: "center", fontSize: "11px", color: "#94a3b8", borderTop: "1px solid #e2e8f0", paddingTop: "12px" }}>
-              This is a computer generated document and requires no signature.
+                {/* Grade and Basic Rate Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "35%" }}>Grade</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "20%" }}>Quantity</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "20%" }}>Basic Rate</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", width: "25%" }}>Gross Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{inv.grade || "—"}</td>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{qty.toFixed(2)}</td>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{basicRate.toFixed(2)}</td>
+                      <td style={{ padding: "8px", fontWeight: "900", textAlign: "right", paddingRight: "12px" }}>{grossAmount.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Bank Details & Summary Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Column: Bank Details */}
+                      <td style={{ width: "60%", padding: "6px", verticalAlign: "top", borderRight: borderStyle }}>
+                        <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px", marginBottom: "4px" }}>Bank Details</div>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold", width: "100px" }}>Benificiary</td>
+                              <td style={{ padding: "2px 0" }}>: Fortune Concrete</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>Bank Name</td>
+                              <td style={{ padding: "2px 0" }}>: HDFC Bank</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>A/C No</td>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>: 59201111116878</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>IFSC Code</td>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>: HDFC0000045</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>Branch</td>
+                              <td style={{ padding: "2px 0" }}>: Chanda Nagar</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+
+                      {/* Right Column: Invoice Calculation Details */}
+                      <td style={{ width: "40%", padding: "0", verticalAlign: "top" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}>
+                          <tbody>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>Sub Total</td>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", width: "110px" }}>{subTotal.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>CGST @ {cgstPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{cgstAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>SGST @ {sgstPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{sgstAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>TCS @ {tcsPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{tcsAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>Round Off</td>
+                              <td style={{ padding: "4px 8px" }}>{roundOff.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ background: "#fcfcfc" }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "900", textAlign: "left", borderRight: borderStyle, fontSize: "12px", textTransform: "uppercase" }}>Net Amount</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "900", fontSize: "12px" }}>{netAmount.toFixed(2)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Amount In Words Section */}
+                <div style={{ padding: "6px 8px", borderBottom: borderStyle, fontWeight: "bold" }}>
+                  Amount in Words : <span style={{ textTransform: "capitalize" }}>{amountInWords}</span>
+                </div>
+
+                {/* Vehicle, Pump, and Driver Info Section */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, fontSize: "11.5px" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "5px", borderRight: borderStyle, width: "38%" }}>
+                        <span style={{ fontWeight: "bold" }}>Vehicle No :</span> {inv.vehicleNo || "—"}
+                      </td>
+                      <td style={{ padding: "5px", borderRight: borderStyle, width: "30%" }}>
+                        <span style={{ fontWeight: "bold" }}>Pump :</span> {inv.pumpType || "—"}
+                      </td>
+                      <td style={{ padding: "5px", width: "32%" }}>
+                        <span style={{ fontWeight: "bold" }}>Driver :</span> {inv.driverName || "—"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Technical Product and Performance Properties Grid (6 columns) */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center", fontSize: "10.5px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Cementitious Type</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Max. Agg Size</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Admix Type</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Slump</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Min. Cement Content</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold" }}>W/C Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.cementType || "OPC-53"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>20 MM</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>—</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.slump || "100+/-25"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>—</td>
+                      <td style={{ padding: "4px 2px" }}>—</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Mode of Transport & Cumulative Quantities Grid (4 columns) */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center", fontSize: "10.5px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>Mode Of Transport</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>PO Number</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>Cumulative Qty</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", width: "25%" }}>Cumulative Load</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>Transit Mixer</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.poNumber || "—"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{qty.toFixed(2)}</td>
+                      <td style={{ padding: "4px 2px" }}>1</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* CAUTION and Terms & Conditions Section */}
+                <div style={{ padding: "6px 8px", fontSize: "8.5px", borderBottom: borderStyle, color: "#000", textAlign: "justify" }}>
+                  <div style={{ marginBottom: "4px" }}>
+                    <strong>CAUTION : </strong>
+                    Cement and concrete contains lime and other chemicals which cause irritation, dermatitis and burning. To avoid harm to skin, minimize contact with wet concrete and wear suitable protective clothing. Whenever contact occurs (whether directly or through saturated clothing) wash throughly, in case of irritation or burns, consult doctor immediately.
+                  </div>
+                  <div>
+                    <strong>Terms & Condition :</strong>
+                    <ol style={{ margin: "2px 0 0 12px", padding: "0", listStyleType: "decimal" }}>
+                      <li>Goods once ordered & manufactured will not be taken back or exchanged or redirected.</li>
+                      <li>Once the concrete reached the specified destination, the utilization responsibility lies on the end user and the material deemed as accepted.</li>
+                      <li>The design mix of the concrete manufactured and supplied in lieu with IS 456 recommendation and the procedure for acceptance of the same as per IS-456.</li>
+                      <li>Any unauthorized addition of water and/or other material to concrete shall absolve us from any liability whatsoever. any deficiency in methods of placing compactin, finishing and curing of concrete adopted at site may affect quality of concrete in the finished work, for which we shall not be held liable and responsible.</li>
+                      <li>Any claim/shortfall/wastages due to operations shall not be accepted, if not claimed, on the same day/date of supply with proper note.</li>
+                      <li>We will not entertain any claims after 15 days from the date of supply.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Signatures Section */}
+                <table style={{ width: "100%", borderCollapse: "collapse", height: "110px", fontSize: "11px" }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Signature Block */}
+                      <td style={{ width: "50%", padding: "6px", borderRight: borderStyle, verticalAlign: "top", position: "relative" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "70px 1fr", gap: "2px" }}>
+                          <span style={{ fontWeight: "bold" }}>Name :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>Contact No :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>In Time :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>Out Time :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                        </div>
+                        <div style={{
+                          position: "absolute",
+                          bottom: "6px",
+                          left: "0",
+                          right: "0",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          textTransform: "uppercase"
+                        }}>
+                          Receiver Signatory
+                        </div>
+                      </td>
+
+                      {/* Right Signature Block */}
+                      <td style={{ width: "50%", padding: "6px", verticalAlign: "top", textAlign: "center", position: "relative" }}>
+                        <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>For Fortune Concrete</div>
+                        
+                        {/* Interactive rubber stamp */}
+                        <div style={{ marginTop: "5px", display: "flex", justifyContent: "center" }}>
+                          <img 
+                            src="/fortune_concrete_stamp.png" 
+                            alt="Fortune Concrete Stamp" 
+                            style={{ width: "70px", height: "70px", objectFit: "contain", opacity: 0.85 }} 
+                          />
+                        </div>
+
+                        <div style={{
+                          position: "absolute",
+                          bottom: "6px",
+                          left: "0",
+                          right: "0",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          textTransform: "uppercase"
+                        }}>
+                          Authorized Signatory
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       <div id="print-dc-root" style={{ display: "none" }}>
@@ -1139,15 +1512,25 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
           
           const mats = getBatchMaterials(batchMixDesign, inv.grade);
           
-          // Deterministic batch variability hash generator for authenticity
-          const getBatchVal = (target: number, batchNum: number, matKey: string, invId: number) => {
+          // Batch variability generator for authenticity
+          const getBatchVal = (target: number, batchNum: number, matKey: string, totalBatches: number, seed: number) => {
             if (target === 0) return 0;
-            const str = `${invId}-${batchNum}-${matKey}`;
+            
+            // The last batch matches target exactly (0% error)
+            if (batchNum === totalBatches) {
+              if (["mm20", "mm12", "rsand", "sand", "cem1", "cem2", "water"].includes(matKey)) {
+                return Math.round(target);
+              }
+              return Number(target.toFixed(2));
+            }
+
+            const str = `${seed}-${batchNum}-${matKey}`;
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
               hash = str.charCodeAt(i) + ((hash << 5) - hash);
             }
-            const percent = ((Math.abs(hash) % 50) - 25) / 1000; // -2.5% to +2.5% variation
+            // -3.5% to +3.5% variation
+            const percent = ((Math.abs(hash) % 70) - 35) / 1000;
             const val = target * (1 + percent);
             if (["mm20", "mm12", "rsand", "sand", "cem1", "cem2", "water"].includes(matKey)) {
               return Math.round(val);
@@ -1187,7 +1570,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
             const target = Number((col.d * firstBatchSize).toFixed(2));
             const loadTarget = Number((target * numBatches).toFixed(2));
             const batches = Array.from({ length: numBatches }).map((_, bn) => {
-              return getBatchVal(target, bn + 1, col.key, inv.id);
+              return getBatchVal(target, bn + 1, col.key, numBatches, batchSeed);
             });
             const totalBatch = batches.reduce((a, b) => a + b, 0);
             return {
@@ -1206,18 +1589,12 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
             <div style={{padding: "10px", background: "white", color: "black", fontFamily: "Arial, sans-serif", pageBreakInside: "avoid", breakInside: "avoid"}}>
               {/* ── Title Header ── */}
               <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px"}}>
-                {/* IDS Logo SVG representation */}
-                <div style={{ width: "90px", height: "45px", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", borderRadius: "3px" }}>
-                  <svg style={{ position: "absolute", width: "100%", height: "100%" }} viewBox="0 0 90 45">
-                    <path d="M 10 35 Q 25 10 65 10" fill="none" stroke="#2563eb" strokeWidth="2.5" />
-                    <path d="M 25 35 Q 65 35 80 15" fill="none" stroke="#ea580c" strokeWidth="2" />
-                  </svg>
-                  <span style={{ color: "white", fontFamily: "'Inter', sans-serif", fontSize: "20px", fontWeight: 900, zIndex: 1, letterSpacing: "1px" }}>IDS</span>
-                </div>
+                {/* IDS Logo Image */}
+                <img src={IDS_LOGO_B64} alt="IDS Logo" style={{ height: "45px", width: "auto", objectFit: "contain" }} />
 
                 {/* Central Plant Details */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
-                  <div style={{ fontSize: "14px", fontWeight: "bold", textTransform: "uppercase", borderBottom: "1.5px solid #000", paddingBottom: "2px", width: "80%", textAlign: "center", letterSpacing: "0.5px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", textTransform: "none", borderBottom: "1.5px solid #000", paddingBottom: "2px", width: "80%", textAlign: "center", letterSpacing: "0.5px" }}>
                     Technical Batch Data Report
                   </div>
                   <table style={{ borderCollapse: "collapse", marginTop: "4px", fontSize: "10px", width: "80%" }}>
@@ -1238,18 +1615,8 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
                   </table>
                 </div>
 
-                {/* ELSA Logo SVG representation */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "90px" }}>
-                  <svg width="65" height="25" viewBox="0 0 65 25">
-                    <path d="M5,10 L30,5 L30,8 L8,12 Z" fill="#10b981" />
-                    <path d="M30,5 L55,10 L52,12 L30,8 Z" fill="#10b981" />
-                    <path d="M10,14 L30,9 L30,12 L13,16 Z" fill="#3b82f6" />
-                    <path d="M30,9 L50,14 L47,16 L30,12 Z" fill="#3b82f6" />
-                    <path d="M15,18 L30,13 L30,15 L18,20 Z" fill="#ef4444" />
-                    <path d="M30,13 L45,18 L42,20 L30,15 Z" fill="#ef4444" />
-                  </svg>
-                  <span style={{ fontSize: "11px", fontWeight: "bold", fontFamily: "Georgia, serif", letterSpacing: "1.5px", marginTop: "1px", color: "#1e3a8f" }}>ELSA</span>
-                </div>
+                {/* ELSA Logo Image */}
+                <img src={ELSA_LOGO_B64} alt="ELSA Logo" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
               </div>
 
               {/* ── Info Blocks ── */}

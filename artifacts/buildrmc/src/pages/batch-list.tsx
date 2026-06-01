@@ -227,19 +227,87 @@ export default function BatchList() {
   }, []);
 
   // Keep loads array in sync with noOfLoads
-  useEffect(() => {
-    setNLoads(prev => {
-      const arr = [...prev];
-      while (arr.length < nNoLoads) arr.push(emptyIngr());
-      return arr.slice(0, nNoLoads);
-    });
-  }, [nNoLoads]);
-
   // ─── Computed targets ────────────────────────────────────────────────────
   const firstTarget = useMemo(() =>
     Object.fromEntries(INGR_KEYS.map(k => [k, +(nDesigned[k] * nBatchVol).toFixed(2)])) as Record<IngrKey, number>,
     [nDesigned, nBatchVol]
   );
+
+  // Keep loads array in sync with noOfLoads and firstTarget
+  useEffect(() => {
+    setNLoads(prev => {
+      const arr = [...prev];
+      
+      // If we are adding more loads, fill them with randomized variations
+      while (arr.length < nNoLoads) {
+        const batchNum = arr.length + 1;
+        const load: any = {};
+        INGR_KEYS.forEach(k => {
+          const val = firstTarget[k];
+          if (val === 0) {
+            load[k] = 0;
+            return;
+          }
+          const percent = (Math.random() * 0.07) - 0.035; // -3.5% to +3.5% variation
+          const v = val * (1 + percent);
+          load[k] = ["aggr1", "aggr2", "aggr3", "aggr4", "cem1", "cem2", "cem3", "water"].includes(k)
+            ? Math.round(v)
+            : Number(v.toFixed(2));
+        });
+        arr.push(load);
+      }
+      
+      const finalArr = arr.slice(0, nNoLoads);
+      
+      // Ensure the last load matches target exactly
+      if (finalArr.length > 0) {
+        const lastIdx = finalArr.length - 1;
+        const lastLoad = { ...finalArr[lastIdx] };
+        INGR_KEYS.forEach(k => {
+          const val = firstTarget[k];
+          if (val > 0) {
+            lastLoad[k] = ["aggr1", "aggr2", "aggr3", "aggr4", "cem1", "cem2", "cem3", "water"].includes(k)
+              ? Math.round(val)
+              : Number(val.toFixed(2));
+          }
+        });
+        finalArr[lastIdx] = lastLoad;
+      }
+      
+      return finalArr;
+    });
+  }, [nNoLoads, firstTarget]);
+
+  const handleAutoFill = () => {
+    const generatedLoads = Array.from({ length: nNoLoads }).map((_, bn) => {
+      const batchNum = bn + 1;
+      const load: any = {};
+      INGR_KEYS.forEach(k => {
+        const val = firstTarget[k];
+        if (val === 0) {
+          load[k] = 0;
+          return;
+        }
+        if (batchNum === nNoLoads) {
+          load[k] = ["aggr1", "aggr2", "aggr3", "aggr4", "cem1", "cem2", "cem3", "water"].includes(k)
+            ? Math.round(val)
+            : Number(val.toFixed(2));
+          return;
+        }
+        const percent = (Math.random() * 0.07) - 0.035;
+        const v = val * (1 + percent);
+        load[k] = ["aggr1", "aggr2", "aggr3", "aggr4", "cem1", "cem2", "cem3", "water"].includes(k)
+          ? Math.round(v)
+          : Number(v.toFixed(2));
+      });
+      return load;
+    });
+    setNLoads(generatedLoads);
+    toast({
+      title: "Batch Values Generated",
+      description: `Populated ${nNoLoads} batches with realistic variations.`,
+    });
+  };
 
   const loadTotals = useMemo(() =>
     Object.fromEntries(
@@ -651,9 +719,21 @@ export default function BatchList() {
               </div>
             </div>
 
-            {recipeLoading && (
-              <div className="text-xs text-blue-600 font-bold animate-pulse">⟳ Loading recipe data for {nGrade}...</div>
-            )}
+            <div className="flex items-center justify-between pb-1">
+              <div className="flex items-center gap-2">
+                {recipeLoading && (
+                  <span className="text-xs text-blue-600 font-bold animate-pulse">⟳ Loading recipe data for {nGrade}...</span>
+                )}
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleAutoFill}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-black h-8 text-[10px] uppercase px-4 shadow-sm gap-1.5 rounded"
+              >
+                <RefreshCw className="h-3 w-3 animate-none" /> Auto-Fill Variations
+              </Button>
+            </div>
 
             {/* ── Batch Detail Table ── */}
             <div className="overflow-x-auto rounded-lg border border-slate-200">

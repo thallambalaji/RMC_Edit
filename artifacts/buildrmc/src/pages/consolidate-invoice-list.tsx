@@ -6,6 +6,7 @@ import {
   useGetCustomers,
   useDeleteInvoice,
   getGetInvoicesQueryKey,
+  useGetDCs,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,42 @@ import {
   Pencil
 } from "lucide-react";
 
+function numberToWordsINR(num: number): string {
+  if (!isFinite(num) || num <= 0) return "Zero Only";
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  function twoDigits(n: number): string {
+    if (n < 20) return ones[n];
+    return tens[Math.floor(n / 10)] + (n % 10 ? " " + ones[n % 10] : "");
+  }
+  function threeDigits(n: number): string {
+    const h = Math.floor(n / 100);
+    const r = n % 100;
+    return (h ? ones[h] + " Hundred" + (r ? " " : "") : "") + (r ? twoDigits(r) : "");
+  }
+
+  const rupees = Math.floor(num);
+  const paise = Math.round((num - rupees) * 100);
+  const crore = Math.floor(rupees / 10000000);
+  const lakh = Math.floor((rupees % 10000000) / 100000);
+  const thousand = Math.floor((rupees % 100000) / 1000);
+  const hundred = rupees % 1000;
+
+  let words = "";
+  if (crore) words += (crore > 20 ? twoDigits(crore) : ones[crore]) + " Crore ";
+  if (lakh) words += twoDigits(lakh) + " Lakh ";
+  if (thousand) words += twoDigits(thousand) + " Thousand ";
+  if (hundred) words += threeDigits(hundred);
+  
+  words = words.trim();
+  if (paise) {
+    words += " and " + twoDigits(paise) + " Paise";
+  }
+  return words + " Only";
+}
+
 export default function ConsolidateInvoiceList() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -73,6 +110,7 @@ export default function ConsolidateInvoiceList() {
     query: { queryKey: getGetInvoicesQueryKey() },
   });
   const { data: customers } = useGetCustomers();
+  const { data: dcs } = useGetDCs();
   const deleteInvoice = useDeleteInvoice();
 
   // Filter States
@@ -97,6 +135,7 @@ export default function ConsolidateInvoiceList() {
     const hide = () => {
       const el = document.getElementById("rpt-print-root");
       if (el) el.style.display = "none";
+      setPrintInv(null);
     };
     window.addEventListener("beforeprint", show);
     window.addEventListener("afterprint", hide);
@@ -279,8 +318,8 @@ export default function ConsolidateInvoiceList() {
     <div className="space-y-4">
       <style>{`
         @page {
-          margin: 12mm;
-          size: A4 landscape;
+          size: ${printInv ? 'A4 portrait' : 'A4 landscape'};
+          margin: ${printInv ? '5mm 6mm' : '12mm'};
         }
         @media print {
           html, body {
@@ -348,54 +387,382 @@ export default function ConsolidateInvoiceList() {
 
       {/* ===== PRINT AREA - SINGLE ROW DETAIL SHEET (PORTRAIT) ===== */}
       <div id="row-print-root" style={{ display: "none" }}>
-        {printInv && (
-          <div style={{ padding: "30px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
-            <PrintHeader />
-            <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div>
-                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Consolidated Invoice Details</h2>
-              </div>
-              <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
-                <span>Invoice No: {printInv.invoiceNumber}</span>
+        {printInv && (() => {
+          const inv = printInv as any;
+          const customerObj = customers?.find((c: any) => String(c.id || c._id) === String(inv.customerId));
+          
+          const qty = Number(inv.quantity ?? 0);
+          const basicRate = Number(inv.netAmount ?? inv.netPrice ?? 0);
+          const grossAmount = Number((qty * basicRate).toFixed(2));
+          const subTotal = grossAmount;
+          
+          const cgstPercent = Number(inv.cgstRate ?? 9.0);
+          const sgstPercent = Number(inv.sgstRate ?? 9.0);
+          
+          const cgstAmount = Number((subTotal * cgstPercent / 100).toFixed(2));
+          const sgstAmount = Number((subTotal * sgstPercent / 100).toFixed(2));
+          
+          const tcsPercent = 0.0;
+          const tcsAmount = 0.0;
+          
+          const netAmountRaw = subTotal + cgstAmount + sgstAmount;
+          const netAmountRounded = Math.round(netAmountRaw);
+          const roundOff = Number((netAmountRounded - netAmountRaw).toFixed(2));
+          const netAmount = netAmountRounded;
+          
+          const amountInWords = numberToWordsINR(netAmount);
+          
+          const matchingDC = dcs?.find((dc: any) => 
+            String(dc.invoiceId) === String(inv.id) || 
+            (dc.invoiceNumber && dc.invoiceNumber === inv.invoiceNumber)
+          );
+          const dcNo = matchingDC ? matchingDC.dcNumber : (inv.invoiceNumber ? inv.invoiceNumber.split('/').pop() : "—");
+          
+          const borderStyle = "1.2px solid #000";
+          
+          return (
+            <div style={{
+              width: "100%",
+              maxWidth: "100%",
+              margin: "0 auto",
+              padding: "4px",
+              boxSizing: "border-box",
+              color: "black",
+              background: "white",
+              fontFamily: "'Segoe UI', Arial, sans-serif",
+              fontSize: "12.5px",
+              lineHeight: "1.3"
+            }}>
+              {/* Outer Border Container */}
+              <div style={{ border: "2px solid #000", width: "100%" }}>
+                
+                {/* Header Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Logo Cell */}
+                      <td style={{ width: "120px", padding: "10px", verticalAlign: "middle", textAlign: "center", borderRight: borderStyle }}>
+                        <img 
+                          src="/fortune_concrete_logo.png" 
+                          alt="Fortune Concrete Logo" 
+                          style={{ width: "90px", height: "90px", objectFit: "contain" }} 
+                        />
+                      </td>
+                      
+                      {/* Company Info Cell */}
+                      <td style={{ padding: "8px", textAlign: "center", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", fontWeight: "bold", borderBottom: borderStyle, paddingBottom: "4px", marginBottom: "4px" }}>
+                          <span style={{ letterSpacing: "1px" }}>TAX INVOICE</span>
+                          <span style={{ letterSpacing: "1px" }}>ORIGINAL</span>
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.5px" }}>Fortune Concrete</div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold", marginTop: "2px" }}>
+                          Flat no. 305, Rakesh Residency, Road no.7, PJR Colony , Chanda Nagar,
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold" }}>
+                          Ranga Reddy, Telangana, 500050
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "bold", marginTop: "2px" }}>
+                          Phone No : 8977916878 &nbsp;&nbsp; Email : fortuneconcrete6878@gmail.com
+                        </div>
+                        <div style={{ fontSize: "11.5px", fontWeight: "black", marginTop: "2px" }}>
+                          GSTIN: 36AAIFF2609L1ZA, PANNO : AAIFF2609L
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Customer, Site, and Invoice Meta Grid Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Column: Customer & Site Details */}
+                      <td style={{ width: "60%", padding: "0", verticalAlign: "top", borderRight: borderStyle }}>
+                        <div style={{ padding: "6px", borderBottom: borderStyle, minHeight: "65px" }}>
+                          <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>Customer Name & Address :</div>
+                          <div style={{ fontWeight: "900", marginTop: "4px", fontSize: "13px" }}>{inv.customerName}</div>
+                          <div style={{ marginTop: "2px", color: "#000" }}>{customerObj?.address || "—"}</div>
+                        </div>
+                        <div style={{ padding: "6px", minHeight: "65px" }}>
+                          <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>Site Name & Address :</div>
+                          <div style={{ fontWeight: "900", marginTop: "4px", fontSize: "13px" }}>{inv.site || "—"}</div>
+                        </div>
+                      </td>
+
+                      {/* Right Column: Invoice Meta */}
+                      <td style={{ width: "40%", padding: "0", verticalAlign: "top" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <tbody>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", width: "110px", borderRight: borderStyle }}>Invoice NO</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "900" }}>: {inv.invoiceNumber}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>Invoice Date</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>Invoice Time</td>
+                              <td style={{ padding: "5px 8px" }}>: {inv.invoiceTime || "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>CUS. GSTIN</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {customerObj?.gstNumber || "—"}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>HSN Code</td>
+                              <td style={{ padding: "5px 8px" }}>: 38245010</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold", borderRight: borderStyle }}>DC NO</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "bold" }}>: {dcNo}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Grade and Basic Rate Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "35%" }}>Grade</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "20%" }}>Quantity</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", borderRight: borderStyle, width: "20%" }}>Basic Rate</th>
+                      <th style={{ padding: "6px", fontWeight: "bold", width: "25%" }}>Gross Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ fontSize: "14px", fontWeight: "bold" }}>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{inv.grade || "—"}</td>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{qty.toFixed(2)}</td>
+                      <td style={{ padding: "8px", borderRight: borderStyle }}>{basicRate.toFixed(2)}</td>
+                      <td style={{ padding: "8px", fontWeight: "900", textAlign: "right", paddingRight: "12px" }}>{grossAmount.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Bank Details & Summary Table */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Column: Bank Details */}
+                      <td style={{ width: "60%", padding: "6px", verticalAlign: "top", borderRight: borderStyle }}>
+                        <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px", marginBottom: "4px" }}>Bank Details</div>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <tbody>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold", width: "100px" }}>Benificiary</td>
+                              <td style={{ padding: "2px 0" }}>: Fortune Concrete</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>Bank Name</td>
+                              <td style={{ padding: "2px 0" }}>: HDFC Bank</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>A/C No</td>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>: 59201111116878</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>IFSC Code</td>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>: HDFC0000045</td>
+                            </tr>
+                            <tr>
+                              <td style={{ padding: "2px 0", fontWeight: "bold" }}>Branch</td>
+                              <td style={{ padding: "2px 0" }}>: Chanda Nagar</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+
+                      {/* Right Column: Invoice Calculation Details */}
+                      <td style={{ width: "40%", padding: "0", verticalAlign: "top" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "right" }}>
+                          <tbody>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>Sub Total</td>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", width: "110px" }}>{subTotal.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>CGST @ {cgstPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{cgstAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>SGST @ {sgstPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{sgstAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>TCS @ {tcsPercent.toFixed(1)} %</td>
+                              <td style={{ padding: "4px 8px" }}>{tcsAmount.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ borderBottom: borderStyle }}>
+                              <td style={{ padding: "4px 8px", fontWeight: "bold", textAlign: "left", borderRight: borderStyle }}>Round Off</td>
+                              <td style={{ padding: "4px 8px" }}>{roundOff.toFixed(2)}</td>
+                            </tr>
+                            <tr style={{ background: "#fcfcfc" }}>
+                              <td style={{ padding: "5px 8px", fontWeight: "900", textAlign: "left", borderRight: borderStyle, fontSize: "12px", textTransform: "uppercase" }}>Net Amount</td>
+                              <td style={{ padding: "5px 8px", fontWeight: "900", fontSize: "12px" }}>{netAmount.toFixed(2)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Amount In Words Section */}
+                <div style={{ padding: "6px 8px", borderBottom: borderStyle, fontWeight: "bold" }}>
+                  Amount in Words : <span style={{ textTransform: "capitalize" }}>{amountInWords}</span>
+                </div>
+
+                {/* Vehicle, Pump, and Driver Info Section */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, fontSize: "11.5px" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "5px", borderRight: borderStyle, width: "38%" }}>
+                        <span style={{ fontWeight: "bold" }}>Vehicle No :</span> {inv.vehicleNo || "—"}
+                      </td>
+                      <td style={{ padding: "5px", borderRight: borderStyle, width: "30%" }}>
+                        <span style={{ fontWeight: "bold" }}>Pump :</span> {inv.pumpType || "—"}
+                      </td>
+                      <td style={{ padding: "5px", width: "32%" }}>
+                        <span style={{ fontWeight: "bold" }}>Driver :</span> {inv.driverName || "—"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Technical Product and Performance Properties Grid (6 columns) */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center", fontSize: "10.5px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Cementitious Type</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Max. Agg Size</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Admix Type</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Slump</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle }}>Min. Cement Content</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold" }}>W/C Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.cementType || "OPC-53"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>20 MM</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>—</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.slump || "100+/-25"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>—</td>
+                      <td style={{ padding: "4px 2px" }}>—</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* Mode of Transport & Cumulative Quantities Grid (4 columns) */}
+                <table style={{ width: "100%", borderCollapse: "collapse", borderBottom: borderStyle, textAlign: "center", fontSize: "10.5px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: borderStyle, background: "#fcfcfc" }}>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>Mode Of Transport</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>PO Number</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", borderRight: borderStyle, width: "25%" }}>Cumulative Qty</th>
+                      <th style={{ padding: "4px 2px", fontWeight: "bold", width: "25%" }}>Cumulative Load</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>Transit Mixer</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{inv.poNumber || "—"}</td>
+                      <td style={{ padding: "4px 2px", borderRight: borderStyle }}>{qty.toFixed(2)}</td>
+                      <td style={{ padding: "4px 2px" }}>1</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                {/* CAUTION and Terms & Conditions Section */}
+                <div style={{ padding: "6px 8px", fontSize: "8.5px", borderBottom: borderStyle, color: "#000", textAlign: "justify" }}>
+                  <div style={{ marginBottom: "4px" }}>
+                    <strong>CAUTION : </strong>
+                    Cement and concrete contains lime and other chemicals which cause irritation, dermatitis and burning. To avoid harm to skin, minimize contact with wet concrete and wear suitable protective clothing. Whenever contact occurs (whether directly or through saturated clothing) wash throughly, in case of irritation or burns, consult doctor immediately.
+                  </div>
+                  <div>
+                    <strong>Terms & Condition :</strong>
+                    <ol style={{ margin: "2px 0 0 12px", padding: "0", listStyleType: "decimal" }}>
+                      <li>Goods once ordered & manufactured will not be taken back or exchanged or redirected.</li>
+                      <li>Once the concrete reached the specified destination, the utilization responsibility lies on the end user and the material deemed as accepted.</li>
+                      <li>The design mix of the concrete manufactured and supplied in lieu with IS 456 recommendation and the procedure for acceptance of the same as per IS-456.</li>
+                      <li>Any unauthorized addition of water and/or other material to concrete shall absolve us from any liability whatsoever. any deficiency in methods of placing compactin, finishing and curing of concrete adopted at site may affect quality of concrete in the finished work, for which we shall not be held liable and responsible.</li>
+                      <li>Any claim/shortfall/wastages due to operations shall not be accepted, if not claimed, on the same day/date of supply with proper note.</li>
+                      <li>We will not entertain any claims after 15 days from the date of supply.</li>
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Signatures Section */}
+                <table style={{ width: "100%", borderCollapse: "collapse", height: "110px", fontSize: "11px" }}>
+                  <tbody>
+                    <tr>
+                      {/* Left Signature Block */}
+                      <td style={{ width: "50%", padding: "6px", borderRight: borderStyle, verticalAlign: "top", position: "relative" }}>
+                        <div style={{ display: "grid", gridTemplateColumns: "70px 1fr", gap: "2px" }}>
+                          <span style={{ fontWeight: "bold" }}>Name :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>Contact No :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>In Time :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                          
+                          <span style={{ fontWeight: "bold" }}>Out Time :</span>
+                          <span style={{ borderBottom: "1px dotted #ccc", height: "14px" }}></span>
+                        </div>
+                        <div style={{
+                          position: "absolute",
+                          bottom: "6px",
+                          left: "0",
+                          right: "0",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          textTransform: "uppercase"
+                        }}>
+                          Receiver Signatory
+                        </div>
+                      </td>
+
+                      {/* Right Signature Block */}
+                      <td style={{ width: "50%", padding: "6px", verticalAlign: "top", textAlign: "center", position: "relative" }}>
+                        <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "11.5px" }}>For Fortune Concrete</div>
+                        
+                        {/* Interactive rubber stamp */}
+                        <div style={{ marginTop: "5px", display: "flex", justifyContent: "center" }}>
+                          <img 
+                            src="/fortune_concrete_stamp.png" 
+                            alt="Fortune Concrete Stamp" 
+                            style={{ width: "70px", height: "70px", objectFit: "contain", opacity: 0.85 }} 
+                          />
+                        </div>
+
+                        <div style={{
+                          position: "absolute",
+                          bottom: "6px",
+                          left: "0",
+                          right: "0",
+                          textAlign: "center",
+                          fontWeight: "bold",
+                          textTransform: "uppercase"
+                        }}>
+                          Authorized Signatory
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
               </div>
             </div>
-
-            <h2 style={{ fontSize: "14px", fontWeight: 800, textTransform: "uppercase", color: "#1e40af", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", marginBottom: "14px" }}>Invoice Details</h2>
-
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", marginBottom: "24px" }}>
-              <tbody>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, width: "30%", textAlign: "left" }}>Invoice Number</th>
-                  <td style={{ padding: "10px", fontWeight: 600 }}>{printInv.invoiceNumber}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Invoice Date</th>
-                  <td style={{ padding: "10px" }}>{printInv.invoiceDate ? new Date(printInv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Customer Name</th>
-                  <td style={{ padding: "10px", fontWeight: 700, color: "#0f172a" }}>{printInv.customerName || "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Site Address</th>
-                  <td style={{ padding: "10px" }}>{printInv.site || "—"}</td>
-                </tr>
-                <tr style={{ borderBottom: "1px solid #f1f5f9" }}>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Quantity (M³)</th>
-                  <td style={{ padding: "10px" }}>{Number(printInv.quantity ?? 0).toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <th style={{ padding: "10px", background: "#f8fafc", fontWeight: 700, textAlign: "left" }}>Total Amount</th>
-                  <td style={{ padding: "10px", fontWeight: 900, fontSize: "16px", color: "#1e40af" }}>₹{Number(printInv.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <div style={{ marginTop: "40px", textAlign: "center", fontSize: "11px", color: "#94a3b8", borderTop: "1px solid #e2e8f0", paddingTop: "12px" }}>
-              This is a computer generated document and requires no signature.
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* ===== SCREEN UI ===== */}
@@ -632,7 +999,7 @@ export default function ConsolidateInvoiceList() {
 
       {/* View Details Dialog */}
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
-        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 no-print">
           <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Consolidated Invoice Details</DialogTitle>

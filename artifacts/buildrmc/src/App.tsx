@@ -39,6 +39,10 @@ import QC from "@/pages/qc";
 import Accounts from "@/pages/accounts";
 import Store from "@/pages/store";
 import StoreHub from "@/pages/store-hub";
+import StoreItems from "@/pages/store-items";
+import StoreSetting from "@/pages/store-setting";
+import AssetsMaster from "@/pages/assets-master";
+import StoreSuppliers from "@/pages/store-suppliers";
 import InventoryList from "@/pages/inventory-list";
 import AddInventory from "@/pages/add-inventory";
 import InventoryTicket from "@/pages/inventory-ticket";
@@ -202,6 +206,10 @@ function Router() {
       <Route path="/store/inventory/new"><ProtectedRoute component={AddInventory} /></Route>
       <Route path="/store/inventory/list"><ProtectedRoute component={InventoryList} /></Route>
       <Route path="/store/inventory/modified"><ProtectedRoute component={InventoryModifiedList} /></Route>
+      <Route path="/store/settings/items"><ProtectedRoute component={StoreItems} /></Route>
+      <Route path="/store/settings/suppliers"><ProtectedRoute component={StoreSuppliers} /></Route>
+      <Route path="/store/settings/assets"><ProtectedRoute component={AssetsMaster} /></Route>
+      <Route path="/store/settings"><ProtectedRoute component={StoreSetting} /></Route>
       <Route path="/store"><ProtectedRoute component={StoreHub} /></Route>
       <Route path="/transport/vehicle/new"><ProtectedRoute component={AddVehicle} /></Route>
       <Route path="/transport/vehicle/edit/:id"><ProtectedRoute component={AddVehicle} /></Route>

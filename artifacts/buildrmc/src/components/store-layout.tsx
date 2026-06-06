@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Archive,
   Filter,
+  Settings2,
 } from "lucide-react";
 import { createContext, useContext, useState, useEffect } from "react";
 
@@ -49,9 +50,10 @@ interface StoreLayoutProps {
   activePath?: string;
   breadcrumbs: { label: string; href?: string }[];
   title: string;
+  showFilterButton?: boolean;
 }
 
-export function StoreLayout({ children, activePath, breadcrumbs, title }: StoreLayoutProps) {
+export function StoreLayout({ children, activePath, breadcrumbs, title, showFilterButton = true }: StoreLayoutProps) {
   const [location] = useLocation();
   const currentPath = activePath || location;
   const { showFilters, toggleFilters } = useStoreFilters();
@@ -68,6 +70,7 @@ export function StoreLayout({ children, activePath, breadcrumbs, title }: StoreL
   // All others remain collapsed until the user manually clicks them.
   const getDefaultAccordions = (): string[] => {
     if (currentPath.startsWith("/store/inventory")) return ["inventory"];
+    if (currentPath.startsWith("/store/settings")) return ["store-settings"];
     return [];
   };
 
@@ -82,7 +85,7 @@ export function StoreLayout({ children, activePath, breadcrumbs, title }: StoreL
           <div className="flex-1 overflow-auto p-2">
             <Accordion
               type="multiple"
-              defaultValue={[]}
+              defaultValue={getDefaultAccordions()}
               className="w-full space-y-1"
             >
               {/* Inventory Accordion */}
@@ -115,6 +118,42 @@ export function StoreLayout({ children, activePath, breadcrumbs, title }: StoreL
                     <Link href="/store/inventory/modified">
                       <div className={getLinkClass("/store/inventory/modified")}>
                         Modified List
+                      </div>
+                    </Link>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Store Settings Accordion */}
+              <AccordionItem
+                value="store-settings"
+                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+              >
+                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="h-4 w-4 text-sky-600" /> Store Settings
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                  <div className="flex flex-col space-y-1 mt-2 px-2">
+                    <Link href="/store/settings/items">
+                      <div className={getLinkClass("/store/settings/items")}>
+                        Store Items
+                      </div>
+                    </Link>
+                    <Link href="/store/settings">
+                      <div className={getLinkClass("/store/settings")}>
+                        Store Setting
+                      </div>
+                    </Link>
+                    <Link href="/store/settings/suppliers">
+                      <div className={getLinkClass("/store/settings/suppliers")}>
+                        Add Supplier
+                      </div>
+                    </Link>
+                    <Link href="/store/settings/assets">
+                      <div className={getLinkClass("/store/settings/assets")}>
+                        Asset's Master
                       </div>
                     </Link>
                   </div>
@@ -166,15 +205,17 @@ export function StoreLayout({ children, activePath, breadcrumbs, title }: StoreL
                   <Plus className="h-3.5 w-3.5" /> Add Inventory
                 </Button>
               </Link>
-              <Button
-                size="sm"
-                onClick={toggleFilters}
-                className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
-                  showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Filter className="h-3 w-3" /> Filters
-              </Button>
+              {showFilterButton ? (
+                <Button
+                  size="sm"
+                  onClick={toggleFilters}
+                  className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
+                    showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <Filter className="h-3 w-3" /> Filters
+                </Button>
+              ) : null}
             </div>
           </div>
 

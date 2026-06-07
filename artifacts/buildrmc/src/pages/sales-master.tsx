@@ -104,7 +104,7 @@ export default function SalesMaster() {
     }
   };
 
-  const handleRemove = async (id: number) => {
+  const handleRemove = async (id: string) => {
     try {
       await deleteMaster.mutateAsync(id);
       toast({ title: "Entry deleted" });

@@ -7,8 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StoreLayout } from "@/components/store-layout";
 import { useToast } from "@/hooks/use-toast";
-import { customFetch } from "@workspace/api-client-react";
-import { Pencil, Trash2 } from "lucide-react";
+import { customFetch, useGetMasters, useCreateMaster, useDeleteMaster } from "@workspace/api-client-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 
 interface SupplierRecord {
   id: string;
@@ -38,6 +38,21 @@ export default function StoreSuppliers() {
   const [suppliers, setSuppliers] = useState<SupplierRecord[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const { data: dbMasters } = useGetMasters("supplier");
+  const createMaster = useCreateMaster();
+  const deleteMaster = useDeleteMaster();
+
+  const filteredSuppliers = useMemo(() => {
+    const value = searchText.trim().toLowerCase();
+    if (!value) return suppliers;
+    return suppliers.filter((supplier) =>
+      (supplier.name || "").toLowerCase().includes(value) ||
+      (supplier.phone || "").toLowerCase().includes(value) ||
+      (supplier.gstin || "").toLowerCase().includes(value)
+    );
+  }, [suppliers, searchText]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -71,29 +86,51 @@ export default function StoreSuppliers() {
     }
 
     setIsSaving(true);
-    const record: SupplierRecord = {
-      id: supplierId || String(Date.now()),
-      name: name.trim(),
-      gstin: gstin.trim().toUpperCase(),
-      pan: pan.trim().toUpperCase(),
-      phone: phone.trim(),
-      email: email.trim(),
-      address: address.trim(),
-      businessGroup,
-      openingBalance: openingBalance.trim(),
-    };
-
-    setSuppliers((prev) => {
-      const existing = prev.find((item) => item.id === record.id);
-      if (existing) {
-        return prev.map((item) => (item.id === record.id ? record : item));
+    try {
+      if (isEditing) {
+        const oldRecord = suppliers.find(s => s.id === supplierId);
+        if (oldRecord && oldRecord.name !== name.trim()) {
+          const oldMaster = dbMasters?.find(m => m.name === oldRecord.name);
+          if (oldMaster) {
+            await deleteMaster.mutateAsync(oldMaster.id);
+          }
+          await createMaster.mutateAsync({ type: "supplier", name: name.trim() });
+        }
+      } else {
+        const exists = dbMasters?.some(m => m.name === name.trim());
+        if (!exists) {
+          await createMaster.mutateAsync({ type: "supplier", name: name.trim() });
+        }
       }
-      return [record, ...prev];
-    });
 
-    setIsSaving(false);
-    toast({ title: `Supplier ${isEditing ? "updated" : "saved"}`, description: `${record.name} has been ${isEditing ? "updated" : "added"}.` });
-    resetForm();
+      const record: SupplierRecord = {
+        id: supplierId || String(Date.now()),
+        name: name.trim(),
+        gstin: gstin.trim().toUpperCase(),
+        pan: pan.trim().toUpperCase(),
+        phone: phone.trim(),
+        email: email.trim(),
+        address: address.trim(),
+        businessGroup,
+        openingBalance: openingBalance.trim(),
+      };
+
+      setSuppliers((prev) => {
+        const existing = prev.find((item) => item.id === record.id);
+        if (existing) {
+          return prev.map((item) => (item.id === record.id ? record : item));
+        }
+        return [record, ...prev];
+      });
+
+      toast({ title: `Supplier ${isEditing ? "updated" : "saved"}`, description: `${record.name} has been ${isEditing ? "updated" : "added"}.` });
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error saving supplier", description: "Failed to save supplier to database.", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleEdit = (supplier: SupplierRecord) => {
@@ -108,10 +145,22 @@ export default function StoreSuppliers() {
     setOpeningBalance(supplier.openingBalance);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    const record = suppliers.find(s => s.id === id);
     setSuppliers((prev) => prev.filter((supplier) => supplier.id !== id));
     toast({ title: "Supplier deleted", description: "The supplier record has been removed." });
     if (supplierId === id) resetForm();
+
+    if (record) {
+      const oldMaster = dbMasters?.find(m => m.name === record.name);
+      if (oldMaster) {
+        try {
+          await deleteMaster.mutateAsync(oldMaster.id);
+        } catch (error) {
+          console.error("Failed to delete master:", error);
+        }
+      }
+    }
   };
 
   const handleValidateGstin = async () => {
@@ -197,9 +246,20 @@ export default function StoreSuppliers() {
         </div>
 
         <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-base font-bold text-slate-900">Supplier List</h3>
-            <span className="text-sm text-slate-500">{suppliers.length} suppliers</span>
+          <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Supplier List</h3>
+              <span className="text-sm text-slate-500">{filteredSuppliers.length} suppliers</span>
+            </div>
+            <div className="flex items-center gap-2 rounded border border-slate-200 bg-slate-50 px-3 py-1.5 max-w-[200px]">
+              <Search className="h-4 w-4 text-slate-400" />
+              <Input
+                className="h-6 border-0 bg-transparent px-0 py-0 text-sm shadow-none focus-visible:ring-0"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search"
+              />
+            </div>
           </div>
           <Table>
             <TableHeader>
@@ -213,7 +273,7 @@ export default function StoreSuppliers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {suppliers.length ? suppliers.map((supplier) => (
+              {filteredSuppliers.length ? filteredSuppliers.map((supplier) => (
                 <TableRow key={supplier.id}>
                   <TableCell>{supplier.name}</TableCell>
                   <TableCell>{supplier.phone}</TableCell>

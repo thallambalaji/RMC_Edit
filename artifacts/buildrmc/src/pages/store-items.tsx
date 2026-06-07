@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StoreLayout } from "@/components/store-layout";
 import { useToast } from "@/hooks/use-toast";
+import { useGetMasters, useCreateMaster, useDeleteMaster } from "@workspace/api-client-react";
 import { Plus, RefreshCcw, Search, Edit3, Trash2 } from "lucide-react";
 
 interface StoreItemRecord {
@@ -35,6 +36,10 @@ export default function StoreItems() {
   const [status, setStatus] = useState("active");
   const [items, setItems] = useState<StoreItemRecord[]>([]);
   const [searchText, setSearchText] = useState("");
+
+  const { data: dbMasters } = useGetMasters("item");
+  const createMaster = useCreateMaster();
+  const deleteMaster = useDeleteMaster();
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -71,34 +76,55 @@ export default function StoreItems() {
     setStatus("active");
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim() || !type.trim() || !group.trim() || !unit.trim() || !openingStock.trim()) {
       toast({ title: "Missing required fields", description: "Please fill all required fields.", variant: "destructive" });
       return;
     }
 
-    const record: StoreItemRecord = {
-      id: itemId || String(Date.now()),
-      name: name.trim(),
-      type,
-      group,
-      unit,
-      hsnCode: hsnCode.trim(),
-      openingStock: openingStock.trim(),
-      department,
-      status,
-    };
-
-    setItems((prev) => {
-      const existing = prev.find((item) => item.id === record.id);
-      if (existing) {
-        return prev.map((item) => (item.id === record.id ? record : item));
+    try {
+      if (isEditing) {
+        const oldRecord = items.find(i => i.id === itemId);
+        if (oldRecord && oldRecord.name !== name.trim()) {
+          const oldMaster = dbMasters?.find(m => m.name === oldRecord.name);
+          if (oldMaster) {
+            await deleteMaster.mutateAsync(oldMaster.id);
+          }
+          await createMaster.mutateAsync({ type: "item", name: name.trim() });
+        }
+      } else {
+        const exists = dbMasters?.some(m => m.name === name.trim());
+        if (!exists) {
+          await createMaster.mutateAsync({ type: "item", name: name.trim() });
+        }
       }
-      return [record, ...prev];
-    });
 
-    toast({ title: `Store item ${isEditing ? "updated" : "saved"}`, description: `${record.name} has been ${isEditing ? "updated" : "added"}.` });
-    resetForm();
+      const record: StoreItemRecord = {
+        id: itemId || String(Date.now()),
+        name: name.trim(),
+        type,
+        group,
+        unit,
+        hsnCode: hsnCode.trim(),
+        openingStock: openingStock.trim(),
+        department,
+        status,
+      };
+
+      setItems((prev) => {
+        const existing = prev.find((item) => item.id === record.id);
+        if (existing) {
+          return prev.map((item) => (item.id === record.id ? record : item));
+        }
+        return [record, ...prev];
+      });
+
+      toast({ title: `Store item ${isEditing ? "updated" : "saved"}`, description: `${record.name} has been ${isEditing ? "updated" : "added"}.` });
+      resetForm();
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error saving item", description: "Failed to save item to database.", variant: "destructive" });
+    }
   };
 
   const handleEdit = (item: StoreItemRecord) => {
@@ -113,14 +139,26 @@ export default function StoreItems() {
     setStatus(item.status);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    const record = items.find(i => i.id === id);
     setItems((prev) => prev.filter((item) => item.id !== id));
     toast({ title: "Store item deleted", description: "The store item has been removed." });
     if (itemId === id) resetForm();
+
+    if (record) {
+      const oldMaster = dbMasters?.find(m => m.name === record.name);
+      if (oldMaster) {
+        try {
+          await deleteMaster.mutateAsync(oldMaster.id);
+        } catch (error) {
+          console.error("Failed to delete master:", error);
+        }
+      }
+    }
   };
 
   return (
-    <StoreLayout title="Store Items" breadcrumbs={[{ label: "Store Item" }]}> 
+    <StoreLayout title="Store Items" breadcrumbs={[{ label: "Store Item" }]} showFilterButton={false}> 
       <div className="grid gap-4 xl:grid-cols-[360px_minmax(0,1fr)]">
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <div className="mb-4">

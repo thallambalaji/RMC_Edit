@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { customFetch } from "./custom-fetch";
 
 export interface Master {
-  id: number;
+  id: string;
   type: string;
   name: string;
   createdAt: string;
@@ -36,7 +36,7 @@ export const useCreateMaster = () => {
 export const useDeleteMaster = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => 
+    mutationFn: (id: string) => 
       customFetch(`/api/masters/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["masters"] });

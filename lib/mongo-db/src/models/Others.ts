@@ -525,4 +525,20 @@ const BatchItemMatchingSchema = new Schema({
 }, { timestamps: true });
 export const BatchItemMatching = mongoose.models.BatchItemMatching || mongoose.model<IBatchItemMatching>("BatchItemMatching", BatchItemMatchingSchema);
 
+// Store Setting (Opening Stock)
+export interface IStoreSetting extends Document {
+  product: string;
+  unit: string;
+  openingStock: number;
+  plant: string;
+}
+const StoreSettingSchema = new Schema({
+  product: { type: String, required: true },
+  unit: { type: String, required: true },
+  openingStock: { type: Number, required: true },
+  plant: { type: String, required: true },
+}, { timestamps: true });
+export const StoreSetting = mongoose.models.StoreSetting || mongoose.model<IStoreSetting>("StoreSetting", StoreSettingSchema);
+
+
 

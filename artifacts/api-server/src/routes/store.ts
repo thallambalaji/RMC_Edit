@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
-import { connectMongo, Product } from "@workspace/mongo-db";
+import { connectMongo, Product, StoreSetting } from "@workspace/mongo-db";
+import { z } from "zod";
 import {
   CreateProductBody,
   UpdateProductBody,
@@ -99,6 +100,90 @@ router.delete("/products/:id", async (req, res): Promise<void> => {
 // Inventory entries would also be migrated similarly
 router.get("/inventory-entries", async (_req, res) => {
   res.json([]);
+});
+
+const createStoreSettingSchema = z.object({
+  product: z.string(),
+  unit: z.string(),
+  openingStock: z.string().or(z.number()),
+  plant: z.string(),
+});
+
+function toStoreSettingApi(s: any) {
+  const obj = s.toObject ? s.toObject() : s;
+  return {
+    ...obj,
+    id: String(obj._id),
+  };
+}
+
+router.get("/store-settings", async (_req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const settings = await StoreSetting.find().sort({ createdAt: -1 });
+    res.json(settings.map(toStoreSettingApi));
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.post("/store-settings", async (req, res): Promise<void> => {
+  try {
+    const parsed = createStoreSettingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    await connectMongo();
+    const setting = new StoreSetting({
+      ...parsed.data,
+      openingStock: Number(parsed.data.openingStock),
+    });
+    await setting.save();
+    res.status(201).json(toStoreSettingApi(setting));
+  } catch (error) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.put("/store-settings/:id", async (req, res): Promise<void> => {
+  try {
+    const parsed = createStoreSettingSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.message });
+      return;
+    }
+    await connectMongo();
+    const setting = await StoreSetting.findByIdAndUpdate(
+      req.params.id,
+      {
+        ...parsed.data,
+        openingStock: Number(parsed.data.openingStock),
+      },
+      { new: true }
+    );
+    if (!setting) {
+      res.status(404).json({ error: "Setting not found" });
+      return;
+    }
+    res.json(toStoreSettingApi(setting));
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID" });
+  }
+});
+
+router.delete("/store-settings/:id", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const setting = await StoreSetting.findByIdAndDelete(req.params.id);
+    if (!setting) {
+      res.status(404).json({ error: "Setting not found" });
+      return;
+    }
+    res.sendStatus(204);
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID" });
+  }
 });
 
 export default router;

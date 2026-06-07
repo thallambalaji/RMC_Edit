@@ -21,7 +21,7 @@ import { ExportDropdown } from "@/components/export-dropdown";
 
 export default function InventoryModifiedList() {
   const { toast } = useToast();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Data States
   const [historyLogs, setHistoryLogs] = useState<any[]>([]);
@@ -352,7 +352,7 @@ export default function InventoryModifiedList() {
                 <TableHead className={headerStyle}>Modification Type</TableHead>
                 <TableHead className={headerStyle}>Modified By</TableHead>
                 <TableHead className={headerStyle}>Comment</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTION</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -389,7 +389,7 @@ export default function InventoryModifiedList() {
                             ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
                             : row.modificationType === "delete"
                               ? "bg-rose-50 text-rose-600 border border-rose-100"
-                              : "bg-blue-50 text-blue-600 border border-blue-100"
+                              : "bg-orange-50/40 text-[#ea580c] border border-orange-100/50"
                         }`}>
                           {row.modificationType}
                         </span>
@@ -402,7 +402,7 @@ export default function InventoryModifiedList() {
                       <TableCell className="text-center py-3">
                         <button 
                           onClick={() => setSelectedLog(row)}
-                          className="p-1.5 hover:bg-cyan-50 rounded-full transition-colors group cursor-pointer border-0 bg-transparent"
+                          className="p-1.5 hover:bg-orange-50/40 rounded-full transition-colors group cursor-pointer border-0 bg-transparent"
                         >
                           <Eye className="h-4 w-4 text-[#00bcd4] group-hover:scale-110 transition-transform" />
                         </button>

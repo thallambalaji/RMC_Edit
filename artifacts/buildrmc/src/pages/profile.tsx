@@ -65,9 +65,9 @@ export default function Profile() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">My Profile</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Profile</span>
+            <span className="text-[#ea580c]">Profile</span>
           </nav>
         </div>
       </div>
@@ -76,7 +76,7 @@ export default function Profile() {
         {/* Left Side: Avatar Card */}
         <div className="bg-white rounded-lg border shadow-sm p-6 flex flex-col items-center justify-center text-center space-y-4">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-[#1e40af] to-[#0ea5e9] text-white flex items-center justify-center text-4xl font-extrabold shadow-md border-4 border-white">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-[#ea580c] to-[#0ea5e9] text-white flex items-center justify-center text-4xl font-extrabold shadow-md border-4 border-white">
               {initials}
             </div>
             <div className="absolute bottom-0 right-0 p-1.5 bg-green-500 rounded-full border-2 border-white" title="Active Session" />
@@ -88,7 +88,7 @@ export default function Profile() {
           </div>
 
           <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-100 border rounded-full text-[10px] font-black uppercase text-slate-700 tracking-wider">
-            <ShieldCheck className="h-3.5 w-3.5 text-[#1e40af]" />
+            <ShieldCheck className="h-3.5 w-3.5 text-[#ea580c]" />
             {user?.role || "User"}
           </div>
 
@@ -99,7 +99,7 @@ export default function Profile() {
             </div>
             <div className="flex justify-between items-center text-gray-600">
               <span className="font-semibold text-[10px] uppercase text-gray-400">Account Role</span>
-              <span className="font-medium text-gray-800 uppercase font-bold text-[#1e40af]">{user?.role}</span>
+              <span className="font-medium text-gray-800 uppercase font-bold text-[#ea580c]">{user?.role}</span>
             </div>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function Profile() {
               <Button 
                 type="submit" 
                 disabled={isSaving}
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {isSaving ? "Saving..." : "Save Changes"}

@@ -150,30 +150,30 @@ export default function AddQuotation() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
-  const tableHeaderStyle = "bg-[#1e40af] text-white text-[8px] font-black uppercase py-1.5 px-2 border-r border-white/10 last:border-0 text-center tracking-tighter";
+  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
+  const tableHeaderStyle = "bg-[#ea580c] text-white text-[8px] font-black uppercase py-1.5 px-2 border-r border-white/10 last:border-0 text-center tracking-tighter";
 
   return (
     <div className="bg-[#f8fafc] h-full overflow-hidden flex flex-col">
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-white shadow-sm overflow-hidden border-t-2 border-[#1e40af]">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-white shadow-sm overflow-hidden border-t-2 border-[#ea580c]">
         {/* Top Header */}
         <div className="flex items-center justify-between px-3 py-1.5 border-b bg-white shrink-0">
           <div className="flex items-center gap-2">
             <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">Add Quotation</h2>
             <div className="h-4 w-px bg-gray-300 mx-0.5" />
             <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
-              <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+              <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
               <ChevronRight className="h-2 w-2" />
-              <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+              <Link href="/customer-po" className="hover:text-[#ea580c]">Customer & PO</Link>
               <ChevronRight className="h-2 w-2" />
-              <span className="text-[#1e40af]">New Quotation</span>
+              <span className="text-[#ea580c]">New Quotation</span>
             </nav>
           </div>
           <div className="flex gap-1.5">
              <Link href="/customer-po/quotation">
-               <Button type="button" variant="outline" className="border-cyan-100 text-[#1e40af] hover:bg-cyan-50 font-black text-[9px] px-3 h-6 uppercase tracking-wider whitespace-nowrap cursor-pointer">Customer Quotation List</Button>
+               <Button type="button" variant="outline" className="border-orange-100/50 text-[#ea580c] hover:bg-orange-50/40 font-black text-[9px] px-3 h-6 uppercase tracking-wider whitespace-nowrap cursor-pointer">Customer Quotation List</Button>
              </Link>
-             <Button type="submit" disabled={isPending} className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center gap-1">
+             <Button type="submit" disabled={isPending} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center gap-1">
                {isPending ? "Saving..." : "Submit Quotation"}
              </Button>
           </div>
@@ -189,7 +189,7 @@ export default function AddQuotation() {
              </div>
              <div>
                 <Label className={labelStyle}>Quotation No <span className="text-rose-500">*</span></Label>
-                <Input value={quotationNo} onChange={e => setQuotationNo(e.target.value)} placeholder="QUOT/YYYYMMDD/123" className={`${inputStyle} text-[#1e40af] font-black border-[#1e40af]/20 focus:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/20`} />
+                <Input value={quotationNo} onChange={e => setQuotationNo(e.target.value)} placeholder="QUOT/YYYYMMDD/123" className={`${inputStyle} text-[#ea580c] font-black border-[#ea580c]/20 focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]/20`} />
              </div>
              <div>
                 <Label className={labelStyle}>Phone Number <span className="text-rose-500">*</span></Label>
@@ -249,7 +249,7 @@ export default function AddQuotation() {
 
           {/* Grade Selection Table */}
           <div className="flex-1 border border-gray-100 rounded overflow-hidden flex flex-col bg-white min-h-[150px]">
-             <div className="flex bg-[#1e40af] shrink-0">
+             <div className="flex bg-[#ea580c] shrink-0">
                 <div className={tableHeaderStyle + " w-10"}>S/L</div>
                 <div className={tableHeaderStyle + " flex-1 text-left"}>Grade / Concrete Type</div>
                 <div className={tableHeaderStyle + " w-24 text-right"}>Quantity</div>
@@ -260,7 +260,7 @@ export default function AddQuotation() {
              </div>
              <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-100">
                  {rows.map((row, idx) => (
-                   <div key={row.id} className="flex border-b items-center hover:bg-cyan-50/20 group">
+                   <div key={row.id} className="flex border-b items-center hover:bg-orange-50/40/20 group">
                      <div className="w-10 text-center text-[10px] font-bold text-gray-400 border-r py-1">{idx + 1}</div>
                       <div className="flex-1 border-r h-full flex items-center gap-0.5 w-full">
                          <Input
@@ -278,7 +278,7 @@ export default function AddQuotation() {
                            </SelectContent>
                          </Select>
                       </div>
-                     <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} placeholder="0" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-cyan-600 shadow-none px-2" /></div>
+                     <div className="w-24 border-r h-full"><Input value={row.qty} onChange={e => updateRow(row.id, "qty", e.target.value)} placeholder="0" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-black text-[#ea580c] shadow-none px-2" /></div>
                      <div className="w-24 border-r h-full"><Input value={row.rate} onChange={e => updateRow(row.id, "rate", e.target.value)} placeholder="0.00" className="h-7 border-0 focus-visible:ring-0 text-[10px] text-right font-bold shadow-none px-2 text-emerald-600" /></div>
                      <div className="w-32 border-r h-full">
                         <Select value={row.recipe} onValueChange={v => updateRow(row.id, "recipe", v)}>
@@ -306,7 +306,7 @@ export default function AddQuotation() {
                  ))}
              </div>
              <div className="p-1 border-t bg-slate-50 flex justify-end shrink-0">
-                <Button type="button" variant="ghost" onClick={addRow} className="h-6 text-[9px] font-black text-[#1e40af] uppercase tracking-wider px-3 hover:bg-white cursor-pointer"><Plus className="h-3 w-3 mr-1" /> Add Grade Row</Button>
+                <Button type="button" variant="ghost" onClick={addRow} className="h-6 text-[9px] font-black text-[#ea580c] uppercase tracking-wider px-3 hover:bg-white cursor-pointer"><Plus className="h-3 w-3 mr-1" /> Add Grade Row</Button>
              </div>
           </div>
 
@@ -317,14 +317,14 @@ export default function AddQuotation() {
                 <span className="text-[9px] text-gray-400 font-medium">Add custom terms such as "Validity", "Supply capacity", "Cement brand override", or specific credit clauses that will render on the official proposal PDF layout.</span>
              </div>
              <div className="flex gap-2">
-                <Input value={note} onChange={e => setNote(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addNote())} placeholder="Enter specific term details here..." className="h-8 bg-white border-gray-200 text-gray-800 text-[11px] flex-1 font-semibold focus-visible:ring-[#1e40af]" />
-                <Button type="button" onClick={addNote} className="h-8 bg-[#1e40af] hover:bg-blue-800 text-white text-[10px] font-bold px-5 uppercase cursor-pointer tracking-wider shrink-0 shadow-sm">Add Term</Button>
+                <Input value={note} onChange={e => setNote(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addNote())} placeholder="Enter specific term details here..." className="h-8 bg-white border-gray-200 text-gray-800 text-[11px] flex-1 font-semibold focus-visible:ring-[#ea580c]" />
+                <Button type="button" onClick={addNote} className="h-8 bg-[#ea580c] hover:bg-[#ea580c] text-white text-[10px] font-bold px-5 uppercase cursor-pointer tracking-wider shrink-0 shadow-sm">Add Term</Button>
              </div>
              {notes.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 max-h-[70px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 pt-1">
                   {notes.map((n, i) => (
                     <div key={i} className="bg-white text-gray-800 text-[10px] px-2.5 py-1 rounded-md flex items-center gap-2 border border-gray-200/80 font-bold shadow-sm">
-                       <span className="text-[#1e40af] font-black">{i+1}.</span> {n}
+                       <span className="text-[#ea580c] font-black">{i+1}.</span> {n}
                        <Trash2 onClick={() => setNotes(prev => prev.filter((_, idx) => idx !== i))} className="h-3 w-3 text-red-400 cursor-pointer hover:text-red-600 transition-colors shrink-0" />
                     </div>
                   ))}

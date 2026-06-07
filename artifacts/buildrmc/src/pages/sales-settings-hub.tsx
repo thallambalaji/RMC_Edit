@@ -7,7 +7,7 @@ export default function SalesSettingsHub() {
       href: "/sales/settings/master",
       label: "Sales Master",
       icon: Database,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

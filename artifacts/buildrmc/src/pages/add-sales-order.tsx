@@ -217,15 +217,15 @@ export default function AddSalesOrder() {
           <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">New Sales Order Registration</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
-            <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
             <ChevronRight className="h-2 w-2" />
-            <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+            <Link href="/customer-po" className="hover:text-[#ea580c]">Customer & PO</Link>
             <ChevronRight className="h-2 w-2" />
-            <span className="text-[#1e40af]">Add Sales Order</span>
+            <span className="text-[#ea580c]">Add Sales Order</span>
           </nav>
         </div>
         <Link href="/customer-po/sales-order">
-          <Button variant="outline" size="sm" className="h-6 text-[9px] font-black uppercase border-[#1e40af] text-[#1e40af] hover:bg-cyan-50 gap-2">
+          <Button variant="outline" size="sm" className="h-6 text-[9px] font-black uppercase border-[#ea580c] text-[#ea580c] hover:bg-orange-50/40 gap-2">
             <ListPlus className="h-3 w-3" /> Sales Order List
           </Button>
         </Link>
@@ -372,7 +372,7 @@ export default function AddSalesOrder() {
                   id="rate-tax" 
                   checked={taxInclude} 
                   onCheckedChange={(v) => setTaxInclude(!!v)}
-                  className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#1e40af] data-[state=checked]:border-[#1e40af]" 
+                  className="h-4 w-4 border-gray-300 data-[state=checked]:bg-[#ea580c] data-[state=checked]:border-[#ea580c]" 
                 />
                 <label htmlFor="rate-tax" className="text-[11px] font-bold text-gray-600">Rate Include Tax?</label>
               </div>
@@ -381,11 +381,11 @@ export default function AddSalesOrder() {
 
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2 border-b border-gray-100 pb-1">
-              <h3 className="text-xs font-bold text-[#1e40af] uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-bold text-[#ea580c] uppercase tracking-wider flex items-center gap-2">
                 <AlertCircle className="h-3.5 w-3.5" />
                 Grade Details
               </h3>
-              <Button type="button" onClick={addRow} variant="ghost" size="sm" className="h-7 text-[10px] text-[#1e40af] hover:bg-cyan-50 font-bold">
+              <Button type="button" onClick={addRow} variant="ghost" size="sm" className="h-7 text-[10px] text-[#ea580c] hover:bg-orange-50/40 font-bold">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add Grade
               </Button>
             </div>
@@ -466,7 +466,7 @@ export default function AddSalesOrder() {
               type="submit" 
               disabled={isSubmitting}
               size="sm"
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-10 h-9 text-xs font-bold uppercase tracking-widest shadow-md shadow-[#1e40af]/10 active:scale-95 transition-all"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white px-10 h-9 text-xs font-bold uppercase tracking-widest shadow-md shadow-[#ea580c]/10 active:scale-95 transition-all"
             >
               {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Create Sales Order

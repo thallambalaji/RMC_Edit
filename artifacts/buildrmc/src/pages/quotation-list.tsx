@@ -225,8 +225,8 @@ export default function QuotationList() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
     <div className="space-y-4">
@@ -257,16 +257,16 @@ export default function QuotationList() {
           <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Quotation Management</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Quotation List</span>
+            <span className="text-[#ea580c]">Quotation List</span>
           </nav>
         </div>
         <div className="flex gap-2">
           <Link href="/customer-po/quotation/new">
-            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+            <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
               <Plus className="h-3.5 w-3.5" /> Add Quotation
             </Button>
           </Link>
@@ -341,7 +341,7 @@ export default function QuotationList() {
             <Button 
               type="button"
               onClick={handleSearch}
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
             >
               <Search className="h-3 w-3" /> Search
             </Button>
@@ -378,7 +378,7 @@ export default function QuotationList() {
       <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-gray-100 no-print">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 bg-white">
-            <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
             <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Loading Customer Quotations from Atlas...</p>
           </div>
         ) : (
@@ -394,7 +394,7 @@ export default function QuotationList() {
                 <TableHead className={headerStyle}>Sales Person</TableHead>
                 <TableHead className={headerStyle}>Tax Inc?</TableHead>
                 <TableHead className={headerStyle}>Added By</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTIONS</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -407,7 +407,7 @@ export default function QuotationList() {
               ) : (
                 filteredQuotes.map((q: any) => (
                   <TableRow key={q.id} className="hover:bg-slate-50/50 border-b border-slate-100">
-                    <TableCell className="text-center text-[10px] font-black text-[#1e40af] py-2">{q.quotationNo}</TableCell>
+                    <TableCell className="text-center text-[10px] font-black text-[#ea580c] py-2">{q.quotationNo}</TableCell>
                     <TableCell className="text-center text-[10px] font-semibold">{q.date}</TableCell>
                     <TableCell className="text-left text-[10px] font-bold text-gray-800">{q.customerName}</TableCell>
                     <TableCell className="text-center text-[10px] font-semibold">{q.customerPhone}</TableCell>
@@ -443,7 +443,7 @@ export default function QuotationList() {
                           onClick={() => handleCopySingle(q)}
                           title="Copy Details" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] cursor-pointer"
                         >
                           <Copy className="h-3.5 w-3.5" />
                         </Button>
@@ -472,7 +472,7 @@ export default function QuotationList() {
         <div className="text-[9px] font-black text-gray-500 uppercase">Showing {filteredQuotes.length > 0 ? 1 : 0} to {filteredQuotes.length} of {filteredQuotes.length} entries</div>
         <div className="flex items-center gap-1">
           <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-gray-200 text-gray-400" disabled><ChevronLeft className="h-3 w-3" /></Button>
-          <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">1</div>
+          <div className="h-6 px-2 flex items-center justify-center bg-[#ea580c] text-white text-[9px] font-black rounded">1</div>
           <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-gray-200 text-gray-400" disabled><ChevronRight className="h-3 w-3" /></Button>
         </div>
       </div>
@@ -486,7 +486,7 @@ export default function QuotationList() {
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Proposal / Quotation Reference Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Proposal / Quotation Reference Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">PROPOSAL / QUOTATION</span>
             </div>
@@ -494,7 +494,7 @@ export default function QuotationList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-4 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Quotation Reference</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Quotation Reference</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Proposal Number: <span className="font-black text-gray-900 text-sm">{printQuotation.quotationNo}</span></p>
                 <p className="text-xs font-bold text-gray-700">Issue Date: <span className="font-medium text-gray-900">{printQuotation.date}</span></p>
@@ -503,7 +503,7 @@ export default function QuotationList() {
               </div>
             </div>
             <div className="bg-slate-50 p-4 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer Recipient</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer Recipient</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Client Name: <span className="font-black text-gray-900">{printQuotation.customerName}</span></p>
                 <p className="text-xs font-bold text-gray-700">Phone: <span className="font-medium text-gray-900">{printQuotation.customerPhone}</span></p>
@@ -517,7 +517,7 @@ export default function QuotationList() {
 
           <table className="w-full border collapse text-left mb-6">
             <thead>
-              <tr className="bg-[#1e40af] text-white text-[10px] font-black uppercase tracking-wider">
+              <tr className="bg-[#ea580c] text-white text-[10px] font-black uppercase tracking-wider">
                 <th className="border p-2 text-center w-16">S/No</th>
                 <th className="border p-2">Grade / Concrete Type</th>
                 <th className="border p-2 text-center w-28">Quantity (m³)</th>
@@ -533,7 +533,7 @@ export default function QuotationList() {
                   <td className="border p-2 font-black text-gray-800">{item.grade}</td>
                   <td className="border p-2 text-center font-medium">{item.quantity}</td>
                   <td className="border p-2 text-right font-semibold text-emerald-600">₹{(item.rate).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-                  <td className="border p-2 text-right font-black text-[#1e40af]">₹{(item.quantity * item.rate).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                  <td className="border p-2 text-right font-black text-[#ea580c]">₹{(item.quantity * item.rate).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                   <td className="border p-2 text-center font-bold uppercase">{item.cementType || "OPC"}</td>
                 </tr>
               ))}
@@ -554,7 +554,7 @@ export default function QuotationList() {
               </div>
               <div className="flex justify-between py-1 border-t mt-2 pt-2 text-sm font-black text-gray-900">
                 <span>Total Offer Sum:</span>
-                <span className="text-lg text-[#1e40af]">₹{(printQuotation.items?.reduce((sum: number, it: any) => sum + (it.quantity * it.rate), 0) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                <span className="text-lg text-[#ea580c]">₹{(printQuotation.items?.reduce((sum: number, it: any) => sum + (it.quantity * it.rate), 0) || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -580,7 +580,7 @@ export default function QuotationList() {
             <div className="text-right">
               <div className="h-px bg-gray-300 w-44 mb-2 ml-auto" />
               <p className="font-bold text-gray-500 text-[10px] uppercase">Authorized Proposal Signatory</p>
-              <p className="font-black text-[#1e40af] uppercase mt-1">Fortune Concrete</p>
+              <p className="font-black text-[#ea580c] uppercase mt-1">Fortune Concrete</p>
             </div>
           </div>
         </div>
@@ -591,7 +591,7 @@ export default function QuotationList() {
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">OFFICIAL QUOTATION SUMMARY REGISTER</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">OFFICIAL QUOTATION SUMMARY REGISTER</h2>
             <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 

@@ -104,7 +104,7 @@ export default function AddPumpDg() {
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
               >
                 <option value="Pump">Pump</option>
                 <option value="DG">DG</option>
@@ -120,7 +120,7 @@ export default function AddPumpDg() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Pump or DG Name.."
-                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                 required
               />
             </div>
@@ -129,7 +129,7 @@ export default function AddPumpDg() {
             <div className="flex gap-3 pt-2">
               <Button
                 type="submit"
-                className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 border-0 shadow-sm"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 border-0 shadow-sm"
               >
                 Save
               </Button>

@@ -231,7 +231,7 @@ export default function AddInventory() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Plant *</Label>
                 <Select value={plant} onValueChange={setPlant}>
-                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
+                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
                     <SelectValue placeholder="Choose Plant" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -260,7 +260,7 @@ export default function AddInventory() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Supplier Name *</Label>
                 <Select value={supplierName} onValueChange={setSupplierName}>
-                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
+                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
                     <SelectValue placeholder="Choose Supplier" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -279,7 +279,7 @@ export default function AddInventory() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Item Name *</Label>
                 <Select value={itemName} onValueChange={setItemName}>
-                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
+                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
                     <SelectValue placeholder="Choose Inventory Item" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -377,7 +377,7 @@ export default function AddInventory() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Unit *</Label>
                 <Select value={unit} onValueChange={setUnit}>
-                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
+                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -397,7 +397,7 @@ export default function AddInventory() {
                   value={deliveryAddress}
                   onChange={(e) => setDeliveryAddress(e.target.value)}
                   rows={2}
-                  className="w-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 p-2.5 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#1e40af] focus:border-[#1e40af]"
+                  className="w-full text-xs font-semibold bg-white border border-slate-200 text-slate-700 p-2.5 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#ea580c] focus:border-[#ea580c]"
                 />
               </div>
 
@@ -410,7 +410,7 @@ export default function AddInventory() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Vehicle No *</Label>
                 <Select value={vehicleNo} onValueChange={setVehicleNo}>
-                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#1e40af] focus:border-[#1e40af]">
+                  <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
                     <SelectValue placeholder="Choose Vehicle" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700 max-h-[200px]">

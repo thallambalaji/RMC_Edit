@@ -20,7 +20,7 @@ export function ExportDropdown({ onCopy, onCSV, onPDF }: ExportDropdownProps) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="h-7 px-2.5 text-[9px] font-black uppercase text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-none cursor-pointer flex items-center gap-1 focus:ring-[#1e40af] select-none"
+          className="h-7 px-2.5 text-[9px] font-black uppercase text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 rounded-md shadow-none cursor-pointer flex items-center gap-1 focus:ring-[#ea580c] select-none"
         >
           Export Data
           <ChevronDown className="h-3 w-3 text-gray-500 ml-0.5" />

@@ -6,7 +6,7 @@ export function PrintHeader() {
       {/* Decorative top gradient bar */}
       <div className="flex h-1.5 w-full shrink-0">
         <div className="w-[40%] bg-gradient-to-r from-[#a855f7] via-[#ec4899] to-[#db2777]" />
-        <div className="w-[30%] bg-gradient-to-r from-[#06b6d4] to-[#3b82f6]" />
+        <div className="w-[30%] bg-gradient-to-r from-[#06b6d4] to-[#ea580c]" />
         <div className="w-[30%] bg-gradient-to-r from-[#f97316] to-[#ef4444]" />
       </div>
 
@@ -22,7 +22,7 @@ export function PrintHeader() {
               </linearGradient>
               <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#06b6d4" />
-                <stop offset="60%" stopColor="#3b82f6" />
+                <stop offset="60%" stopColor="#ea580c" />
                 <stop offset="100%" stopColor="#f97316" />
               </linearGradient>
             </defs>

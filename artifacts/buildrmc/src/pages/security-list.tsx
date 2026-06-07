@@ -55,7 +55,7 @@ export default function SecurityCheckList() {
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
   const { data: dbPlants } = useGetMasters("plant");
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Filter States
   const [filterSecurityNo, setFilterSecurityNo] = useState("");
@@ -224,11 +224,11 @@ export default function SecurityCheckList() {
             <title>Security Receipt - ${secNo}</title>
             <style>
               body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
-              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
-              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; }
               .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
               .logo { height: 50px; width: 50px; }
-              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #ea580c; }
               .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
               .info-group { display: flex; flex-direction: column; }
               .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
@@ -239,7 +239,7 @@ export default function SecurityCheckList() {
           <body onload="window.print(); window.close();">
             <div style="display: flex; height: 6px; width: 100%;">
               <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
               <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
             </div>
             <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -252,7 +252,7 @@ export default function SecurityCheckList() {
                     </linearGradient>
                     <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#06b6d4" />
-                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="60%" stop-color="#ea580c" />
                       <stop offset="100%" stop-color="#f97316" />
                     </linearGradient>
                   </defs>
@@ -356,8 +356,8 @@ export default function SecurityCheckList() {
           <title>Security Check Report</title>
           <style>
             body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 20px; }
-            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 15px; margin-bottom: 20px; }
-            .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #1e3a8a; }
+            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; }
+            .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #0f172a; }
             .company-info p { margin: 3px 0 0 0; font-size: 10px; color: #64748b; font-weight: bold; }
             .logo { height: 45px; width: 45px; }
             .title { text-align: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; color: #0f172a; }
@@ -368,7 +368,7 @@ export default function SecurityCheckList() {
         <body onload="window.print(); window.close();">
           <div style="display: flex; height: 6px; width: 100%;">
             <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
             <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
           </div>
           <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -381,7 +381,7 @@ export default function SecurityCheckList() {
                   </linearGradient>
                   <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#06b6d4" />
-                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="60%" stop-color="#ea580c" />
                     <stop offset="100%" stop-color="#f97316" />
                   </linearGradient>
                 </defs>
@@ -522,7 +522,7 @@ export default function SecurityCheckList() {
               <select
                 value={filterVehicleNo}
                 onChange={(e) => setFilterVehicleNo(e.target.value)}
-                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
               >
                 <option value="">Select Vehicle</option>
                 {vehicles.map((v) => (
@@ -540,7 +540,7 @@ export default function SecurityCheckList() {
             <div className="flex items-center gap-2">
               <Button
                 onClick={handleSearch}
-                className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
               >
                 Search
               </Button>
@@ -553,7 +553,7 @@ export default function SecurityCheckList() {
             </div>
 
             <Link href="/transport/security/new">
-              <Button className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-5 rounded border-none active:scale-95 transition-all">
+              <Button className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-5 rounded border-none active:scale-95 transition-all">
                 + Add Security Check List
               </Button>
             </Link>
@@ -595,7 +595,7 @@ export default function SecurityCheckList() {
                 <TableHead className={`${headerStyle} text-left`}>Driver Name</TableHead>
                 <TableHead className={headerStyle}>Type of movement</TableHead>
                 <TableHead className={headerStyle}>Plant</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-4 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[220px]">ACTION</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-4 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[220px]">ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -627,7 +627,7 @@ export default function SecurityCheckList() {
                         <span
                           className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
                             item.gatePassing === "Entry"
-                              ? "bg-blue-50 text-blue-600 border border-blue-100"
+                              ? "bg-orange-50/40 text-[#ea580c] border border-orange-100/50"
                               : "bg-indigo-50 text-indigo-600 border border-indigo-100"
                           }`}
                         >
@@ -636,7 +636,7 @@ export default function SecurityCheckList() {
                       </TableCell>
                       <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.date}</TableCell>
                       <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.time}</TableCell>
-                      <TableCell className="font-extrabold text-[#1e40af] text-xs px-3 text-center">{item.vehicleNo || "N/A"}</TableCell>
+                      <TableCell className="font-extrabold text-[#ea580c] text-xs px-3 text-center">{item.vehicleNo || "N/A"}</TableCell>
                       <TableCell className="font-bold text-slate-700 text-xs px-3 uppercase">{item.driverName || "N/A"}</TableCell>
                       <TableCell className="font-bold text-slate-700 text-xs px-3 text-center">{item.typeOfMovement}</TableCell>
                       <TableCell className="font-extrabold text-slate-800 text-xs px-3 text-center uppercase">{item.plant}</TableCell>
@@ -657,7 +657,7 @@ export default function SecurityCheckList() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleExportRow(item, idx, "copy")}
-                            className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
+                            className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                             title="Copy TSV"
                           >
                             <Copy className="h-3.5 w-3.5" />
@@ -675,7 +675,7 @@ export default function SecurityCheckList() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleOpenEdit(item)}
-                            className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
+                            className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                             title="Edit Record"
                           >
                             <Edit className="h-3.5 w-3.5" />
@@ -711,7 +711,7 @@ export default function SecurityCheckList() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 backdrop-blur-xs select-none animate-in fade-in duration-100">
           <div className="bg-white rounded-lg shadow-xl border border-slate-200 max-w-sm w-full overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex items-center gap-2">
-              <span className="text-xl font-bold text-[#00c0a5] leading-none">✎</span>
+              <span className="text-xl font-bold text-[#ea580c] leading-none">✎</span>
               <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">Edit Security Check</h3>
             </div>
             <form onSubmit={handleSaveEdit} className="p-4 space-y-4">
@@ -720,7 +720,7 @@ export default function SecurityCheckList() {
                 <select
                   value={editPlant}
                   onChange={(e) => setEditPlant(e.target.value)}
-                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
                 >
                   <option value="">Select Plant</option>
                   {dbPlants?.map((p: any) => (
@@ -736,7 +736,7 @@ export default function SecurityCheckList() {
                 <select
                   value={editGatePassing}
                   onChange={(e) => setEditGatePassing(e.target.value)}
-                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
                 >
                   <option value="Entry">Entry</option>
                   <option value="Exit">Exit</option>
@@ -759,7 +759,7 @@ export default function SecurityCheckList() {
                 <select
                   value={editTypeOfMovement}
                   onChange={(e) => setEditTypeOfMovement(e.target.value)}
-                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
                 >
                   <option value="Sales">Sales</option>
                   <option value="Purchase">Purchase</option>
@@ -774,7 +774,7 @@ export default function SecurityCheckList() {
                 <select
                   value={editVehicleNo}
                   onChange={(e) => setEditVehicleNo(e.target.value)}
-                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
                 >
                   {vehicles.map((v) => (
                     <option key={v.id || v._id} value={v.registrationNo}>
@@ -819,7 +819,7 @@ export default function SecurityCheckList() {
               <div className="flex gap-2 pt-2 justify-end">
                 <Button
                   type="submit"
-                  className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
+                  className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
                 >
                   Save Changes
                 </Button>

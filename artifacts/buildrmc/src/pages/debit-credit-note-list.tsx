@@ -382,7 +382,7 @@ export default function DebitCreditNoteList() {
           <PrintHeader />
           <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Debit/Credit Note Register</h2>
+              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#ea580c", textTransform: "uppercase", margin: 0 }}>Debit/Credit Note Register</h2>
             </div>
             <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
               <span>Printed: {new Date().toLocaleString("en-IN")}</span>
@@ -391,7 +391,7 @@ export default function DebitCreditNoteList() {
 
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
             <thead>
-              <tr style={{ background: "#1e40af", color: "white" }}>
+              <tr style={{ background: "#ea580c", color: "white" }}>
                 {["Note No", "Invoice No", "Note Type", "Date", "Grade / Item", "Qty", "Booked Rate", "Current Rate", "TCS", "Net Amount"].map((h) => (
                   <th key={h} style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: ["Qty", "Booked Rate", "Current Rate", "TCS", "Net Amount"].includes(h) ? "right" : "left" }}>{h}</th>
                 ))}
@@ -424,14 +424,14 @@ export default function DebitCreditNoteList() {
             <PrintHeader />
             <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>{printNote.noteType} Details</h2>
+                <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#ea580c", textTransform: "uppercase", margin: 0 }}>{printNote.noteType} Details</h2>
               </div>
               <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
                 <span>Note No: {printNote.noteNo} &nbsp;|&nbsp; Date: {printNote.date}</span>
               </div>
             </div>
 
-            <h2 style={{ fontSize: "13px", fontWeight: 850, textTransform: "uppercase", color: "#1e40af", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", marginBottom: "14px" }}>Note Adjustment Sheet</h2>
+            <h2 style={{ fontSize: "13px", fontWeight: 850, textTransform: "uppercase", color: "#ea580c", borderBottom: "1px solid #e2e8f0", paddingBottom: "6px", marginBottom: "14px" }}>Note Adjustment Sheet</h2>
 
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px", marginBottom: "24px" }}>
               <tbody>
@@ -469,7 +469,7 @@ export default function DebitCreditNoteList() {
                 </tr>
                 <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
                   <th style={{ padding: "10px", background: "#f1f5f9", fontWeight: 900, textAlign: "left" }}>Net Adjusted Amount</th>
-                  <td style={{ padding: "10px", fontWeight: 900, fontSize: "15px", color: "#1e40af" }}>₹{printNote.netAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                  <td style={{ padding: "10px", fontWeight: 900, fontSize: "15px", color: "#ea580c" }}>₹{printNote.netAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                 </tr>
               </tbody>
             </table>
@@ -487,14 +487,14 @@ export default function DebitCreditNoteList() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Debit/Credit Note List</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
             <span className="text-gray-400">Billing</span>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Debit/Credit Note List</span>
+            <span className="text-[#ea580c]">Debit/Credit Note List</span>
           </nav>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="bg-[#1e40af] hover:bg-blue-700 font-black text-xs gap-1 h-8 rounded-md">
+        <Button onClick={() => setIsCreateOpen(true)} className="bg-[#ea580c] hover:bg-[#d97706] font-black text-xs gap-1 h-8 rounded-md">
           <Plus className="h-3.5 w-3.5" /> Create Note
         </Button>
       </div>
@@ -587,27 +587,27 @@ export default function DebitCreditNoteList() {
             </div>
           ) : (
             <Table>
-              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice Type</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note Type</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Item Grade</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity (M³)</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Booked Rate</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Current Rate</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Amount</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">TCS Amount</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amount</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Actions</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+                <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Invoice Type</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Note Type</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Item Grade</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity (M³)</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Booked Rate</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Current Rate</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Amount</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">TCS Amount</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amount</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {pageRows.map((n) => (
                   <TableRow key={n.id} className="hover:bg-slate-50/50 border-b transition-colors">
-                    <td className="py-2.5 text-center text-xs font-extrabold text-[#1e40af]">{n.noteNo}</td>
+                    <td className="py-2.5 text-center text-xs font-extrabold text-[#ea580c]">{n.noteNo}</td>
                     <td className="py-2.5 text-center text-xs font-bold text-slate-600">{n.invoiceNo}</td>
                     <td className="py-2.5 text-center text-[11px] font-semibold text-slate-500">{n.invoiceType}</td>
                     <td className="py-2.5 text-center text-xs font-bold">
@@ -616,13 +616,13 @@ export default function DebitCreditNoteList() {
                       </span>
                     </td>
                     <td className="py-2.5 text-center text-xs font-semibold text-slate-600">{n.date}</td>
-                    <td className="py-2.5 text-center text-xs font-extrabold text-slate-700 bg-cyan-50/20">{n.item}</td>
-                    <td className="py-2.5 text-right text-xs font-bold text-slate-600 bg-cyan-50/20">{n.quantity.toFixed(2)}</td>
-                    <td className="py-2.5 text-right text-xs font-semibold text-slate-600 bg-cyan-50/20">₹{n.bookedRate.toFixed(2)}</td>
-                    <td className="py-2.5 text-right text-xs font-semibold text-slate-600 bg-cyan-50/20">₹{n.currentRate.toFixed(2)}</td>
-                    <td className="py-2.5 text-right text-xs font-bold text-slate-700 bg-cyan-50/20">₹{n.amount.toLocaleString("en-IN")}</td>
+                    <td className="py-2.5 text-center text-xs font-extrabold text-slate-700 bg-orange-50/40/20">{n.item}</td>
+                    <td className="py-2.5 text-right text-xs font-bold text-slate-600 bg-orange-50/40/20">{n.quantity.toFixed(2)}</td>
+                    <td className="py-2.5 text-right text-xs font-semibold text-slate-600 bg-orange-50/40/20">₹{n.bookedRate.toFixed(2)}</td>
+                    <td className="py-2.5 text-right text-xs font-semibold text-slate-600 bg-orange-50/40/20">₹{n.currentRate.toFixed(2)}</td>
+                    <td className="py-2.5 text-right text-xs font-bold text-slate-700 bg-orange-50/40/20">₹{n.amount.toLocaleString("en-IN")}</td>
                     <td className="py-2.5 text-right text-xs font-semibold text-slate-600">₹{n.tcsAmount.toFixed(2)}</td>
-                    <td className="py-2.5 text-right text-xs font-extrabold text-[#1e40af]">₹{n.netAmount.toLocaleString("en-IN")}</td>
+                    <td className="py-2.5 text-right text-xs font-extrabold text-[#ea580c]">₹{n.netAmount.toLocaleString("en-IN")}</td>
                     <td className="py-2.5 text-center">
                       <div className="flex items-center justify-center gap-1.5">
                         {/* 1. Print (Printer Icon) */}
@@ -650,7 +650,7 @@ export default function DebitCreditNoteList() {
                           onClick={() => handleRowCopy(n)}
                           title="Copy Note" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -660,7 +660,7 @@ export default function DebitCreditNoteList() {
                           onClick={() => setViewNote(n)}
                           title="View Details" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -734,10 +734,10 @@ export default function DebitCreditNoteList() {
       {/* View Note details Dialog */}
       <Dialog open={!!viewNote} onOpenChange={() => setViewNote(null)}>
         <DialogContent hideCloseButton className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+          <DialogHeader className="p-3.5 px-4 border-b bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Note Adjustment Sheet</DialogTitle>
-              <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewNote?.noteNo} ({viewNote?.noteType})</p>
+              <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewNote?.noteNo} ({viewNote?.noteType})</p>
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" onClick={() => handleRowCopy(viewNote!)} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">
@@ -759,7 +759,7 @@ export default function DebitCreditNoteList() {
             <div className="p-4 space-y-3.5">
               {/* Logo head */}
               <div className="flex items-center gap-3 border-b pb-3">
-                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
+                <div className="w-10 h-10 bg-[#ea580c] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
                 <div>
                   <h1 className="text-sm font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
                   <p className="text-[10px] text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
@@ -774,7 +774,7 @@ export default function DebitCreditNoteList() {
                 </div>
                 <div className="border p-2.5 rounded-lg bg-slate-50/50">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Reference Invoice No</p>
-                  <p className="text-xs font-black text-[#1e40af]">{viewNote.invoiceNo}</p>
+                  <p className="text-xs font-black text-[#ea580c]">{viewNote.invoiceNo}</p>
                 </div>
               </div>
 
@@ -810,7 +810,7 @@ export default function DebitCreditNoteList() {
                     <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">{viewNote.quantity.toFixed(2)}</td>
                     <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">₹{viewNote.bookedRate.toFixed(2)}</td>
                     <td className="p-2 font-semibold text-right border-r border-slate-200 text-xs">₹{viewNote.currentRate.toFixed(2)}</td>
-                    <td className="p-2 font-black text-right text-[#1e40af] text-xs">₹{viewNote.netAmount.toLocaleString("en-IN")}</td>
+                    <td className="p-2 font-black text-right text-[#ea580c] text-xs">₹{viewNote.netAmount.toLocaleString("en-IN")}</td>
                   </tr>
                 </tbody>
               </table>
@@ -822,7 +822,7 @@ export default function DebitCreditNoteList() {
       {/* Create Note Dialog Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent hideCloseButton className="max-w-xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-3 px-4 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+          <DialogHeader className="p-3 px-4 border-b bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between no-print">
             <DialogTitle className="text-white font-black text-base flex items-center gap-1.5">
               <Sparkles className="h-5 w-5 text-yellow-300 fill-yellow-300" /> Create Adjustment Note
             </DialogTitle>
@@ -932,13 +932,13 @@ export default function DebitCreditNoteList() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label className="text-[10px] font-bold text-gray-500 uppercase">Adjusted Rate (₹) <span className="text-cyan-500">*</span></Label>
+                <Label className="text-[10px] font-bold text-gray-500 uppercase">Adjusted Rate (₹) <span className="text-[#ea580c]">*</span></Label>
                 <Input
                   type="number"
                   step="0.01"
                   required
                   placeholder="Enter current rate"
-                  className="bg-gray-50 h-8 text-xs border-cyan-100 focus-visible:ring-cyan-400 font-bold"
+                  className="bg-gray-50 h-8 text-xs border-orange-100/50 focus-visible:ring-[#ea580c] font-bold"
                   value={formCurrentRate || ""}
                   onChange={(e) => setFormCurrentRate(parseFloat(e.target.value) || 0)}
                 />
@@ -963,7 +963,7 @@ export default function DebitCreditNoteList() {
               </div>
               <div className="text-right">
                 <span className="font-bold text-slate-500">Net Adjusted Amount: </span>
-                <span className="font-black text-[#1e40af] text-sm">₹{formComputedTotals.net.toLocaleString()}</span>
+                <span className="font-black text-[#ea580c] text-sm">₹{formComputedTotals.net.toLocaleString()}</span>
               </div>
             </div>
 
@@ -971,7 +971,7 @@ export default function DebitCreditNoteList() {
               <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="h-8 text-xs font-bold text-slate-600">
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[#1e40af] hover:bg-blue-700 text-white font-black text-xs h-8 px-6">
+              <Button type="submit" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-xs h-8 px-6">
                 Register Adjustment
               </Button>
             </div>

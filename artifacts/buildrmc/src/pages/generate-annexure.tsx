@@ -104,7 +104,7 @@ function numberToWordsINR(num: number): string {
 export default function GenerateAnnexure() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Queries & Mutations
   const { data: invoices, isLoading: isLoadingInvoices } = useGetInvoices({
@@ -361,7 +361,7 @@ export default function GenerateAnnexure() {
           <PrintHeader />
           <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
-              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Annexure Statement</h2>
+              <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#ea580c", textTransform: "uppercase", margin: 0 }}>Annexure Statement</h2>
             </div>
             <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
               <span>Customer: {customerLabel} &nbsp;|&nbsp; Printed: {new Date().toLocaleString("en-IN")}</span>
@@ -370,7 +370,7 @@ export default function GenerateAnnexure() {
 
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
             <thead>
-              <tr style={{ background: "#1e40af", color: "white" }}>
+              <tr style={{ background: "#ea580c", color: "white" }}>
                 {["Challan No", "Generated Date", "Vehicle Reg", "Plant Name", "Grade / Item", "Net Quantity (M³)", "Net Amount"].map((h) => (
                   <th key={h} style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: ["Net Quantity (M³)", "Net Amount"].includes(h) ? "right" : "left", textTransform: "uppercase" }}>{h}</th>
                 ))}
@@ -391,7 +391,7 @@ export default function GenerateAnnexure() {
               <tr style={{ background: "#f8fafc", fontWeight: 900, fontSize: "11px" }}>
                 <td colSpan={5} style={{ padding: "8px 10px", border: "1px solid #e2e8f0" }}>GRAND TOTALS ({filteredData.length} records)</td>
                 <td style={{ padding: "8px 10px", border: "1px solid #e2e8f0", textAlign: "right" }}>{filteredData.reduce((acc, i) => acc + (Number(i.quantity) || 0), 0).toFixed(2)}</td>
-                <td style={{ padding: "8px 10px", border: "1px solid #e2e8f0", textAlign: "right", color: "#1e40af" }}>₹{filteredData.reduce((acc, i) => acc + (Number(i.totalAmount) || 0), 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                <td style={{ padding: "8px 10px", border: "1px solid #e2e8f0", textAlign: "right", color: "#ea580c" }}>₹{filteredData.reduce((acc, i) => acc + (Number(i.totalAmount) || 0), 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
               </tr>
             </tbody>
           </table>
@@ -784,13 +784,13 @@ export default function GenerateAnnexure() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Generate Annexure</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
             <span className="text-gray-400">Billing</span>
             <ChevronRight className="h-2.5 w-2.5" />
             <span className="text-gray-400">Report</span>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Generate Annexure</span>
+            <span className="text-[#ea580c]">Generate Annexure</span>
           </nav>
         </div>
       </div>
@@ -848,7 +848,7 @@ export default function GenerateAnnexure() {
       {/* Generated Report Layout block */}
       {!generated ? (
         <div className="bg-white rounded-lg p-16 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-gray-300 no-print">
-          <FileBarChart className="h-20 w-20 mb-4 text-[#1e40af]/20" />
+          <FileBarChart className="h-20 w-20 mb-4 text-[#ea580c]/20" />
           <p className="text-base font-black uppercase tracking-wider text-gray-400">Click "Generate Annexure" to build the report</p>
           <p className="text-xs text-gray-300 mt-1 font-medium">Specify your parameters, then trigger search results generation.</p>
         </div>
@@ -868,7 +868,7 @@ export default function GenerateAnnexure() {
             </div>
             <div className="p-3.5 text-center flex flex-col justify-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Net Amount Value</span>
-              <span className="text-lg font-black text-[#1e40af] mt-0.5">
+              <span className="text-lg font-black text-[#ea580c] mt-0.5">
                 ₹{filteredData.reduce((acc, i) => acc + (Number(i.totalAmount) || 0), 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -908,13 +908,13 @@ export default function GenerateAnnexure() {
                     <TableHead className={headerStyle}>Grade</TableHead>
                     <TableHead className={`${headerStyle} text-right`}>Quantity (M³)</TableHead>
                     <TableHead className={`${headerStyle} text-right`}>Amount (₹)</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Actions</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {pageRows.map((inv) => (
                     <TableRow key={inv.id} className="hover:bg-slate-50/50 border-b transition-colors">
-                      <td className="py-2.5 text-center text-xs font-extrabold text-[#1e40af]">{inv.invoiceNumber}</td>
+                      <td className="py-2.5 text-center text-xs font-extrabold text-[#ea580c]">{inv.invoiceNumber}</td>
                       <td className="py-2.5 text-center text-xs font-bold text-slate-800">{inv.customerName || "—"}</td>
                       <td className="py-2.5 text-center text-xs font-semibold text-slate-600">
                         {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}
@@ -922,7 +922,7 @@ export default function GenerateAnnexure() {
                       <td className="py-2.5 text-center text-xs font-semibold text-slate-600">{inv.vehicleNo || "—"}</td>
                       <td className="py-2.5 text-center text-xs font-semibold text-slate-600">{inv.plant || "—"}</td>
                       <td className="py-2.5 text-center text-xs font-bold">
-                        <span className="px-2 py-0.5 border border-[#1e40af]/20 bg-blue-50/60 text-[#1e40af] rounded-full text-[10px]">
+                        <span className="px-2 py-0.5 border border-[#ea580c]/20 bg-orange-50/40/60 text-[#ea580c] rounded-full text-[10px]">
                           {inv.grade || "—"}
                         </span>
                       </td>
@@ -1015,10 +1015,10 @@ export default function GenerateAnnexure() {
       {/* View Details Dialog */}
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 no-print">
-          <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+          <DialogHeader className="p-5 border-b bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Challan Details</DialogTitle>
-              <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
+              <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" onClick={() => handleRowCopy(viewInv)} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">
@@ -1040,7 +1040,7 @@ export default function GenerateAnnexure() {
             <div className="p-6 space-y-5">
               {/* Company Logo Header */}
               <div className="flex items-center gap-4 border-b pb-5">
-                <div className="w-14 h-14 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
+                <div className="w-14 h-14 bg-[#ea580c] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
                 <div>
                   <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
                   <p className="text-xs text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
@@ -1048,7 +1048,7 @@ export default function GenerateAnnexure() {
                 </div>
               </div>
 
-              <h2 className="text-base font-extrabold uppercase text-[#1e40af] tracking-wide border-b pb-2">Challan Information</h2>
+              <h2 className="text-base font-extrabold uppercase text-[#ea580c] tracking-wide border-b pb-2">Challan Information</h2>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="border p-3.5 rounded-xl bg-slate-50/50">
@@ -1066,7 +1066,7 @@ export default function GenerateAnnexure() {
               <div className="border rounded-xl p-4 space-y-3">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
-                  <p className="text-sm font-black text-[#1e40af]">{viewInv.customerName || "—"}</p>
+                  <p className="text-sm font-black text-[#ea580c]">{viewInv.customerName || "—"}</p>
                 </div>
                 <div className="border-t pt-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Site Address</p>
@@ -1087,7 +1087,7 @@ export default function GenerateAnnexure() {
                   <tr className="border-b border-slate-100">
                     <td className="p-3 text-xs border-r border-slate-200 font-extrabold text-slate-800">{viewInv.grade || "—"}</td>
                     <td className="p-3 text-xs border-r border-slate-200 font-bold text-right text-slate-700">{Number(viewInv.quantity ?? 0).toFixed(2)}</td>
-                    <td className="p-3 text-xs font-black text-right text-[#1e40af]">₹{Number(viewInv.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 text-xs font-black text-right text-[#ea580c]">₹{Number(viewInv.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                   </tr>
                 </tbody>
               </table>

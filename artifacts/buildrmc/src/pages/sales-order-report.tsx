@@ -159,7 +159,7 @@ export default function SalesOrderReport() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
+  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
 
   return (
     <div className="space-y-4">
@@ -188,11 +188,11 @@ export default function SalesOrderReport() {
       <div className="flex items-center justify-between no-print">
         <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Order Report</h2>
         <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+          <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Sales Order Report</span>
+          <span className="text-[#ea580c]">Sales Order Report</span>
         </nav>
       </div>
 
@@ -236,7 +236,7 @@ export default function SalesOrderReport() {
             <Button 
               onClick={handleGenerate}
               disabled={isLoading}
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white flex-1 h-full text-[10px] font-black uppercase tracking-wider shadow-none border-0 flex items-center justify-center gap-1 cursor-pointer"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white flex-1 h-full text-[10px] font-black uppercase tracking-wider shadow-none border-0 flex items-center justify-center gap-1 cursor-pointer"
             >
               {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
               Generate
@@ -255,7 +255,7 @@ export default function SalesOrderReport() {
 
       {showReport && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500 no-print">
-          <div className="bg-[#1e40af] p-3 flex items-center justify-between text-white">
+          <div className="bg-[#ea580c] p-3 flex items-center justify-between text-white">
             <h3 className="font-black text-[11px] uppercase tracking-wider flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Report Preview ({type})
@@ -295,7 +295,7 @@ export default function SalesOrderReport() {
                   filteredData.map((order, idx) => (
                     <TableRow key={order.id} className="hover:bg-gray-50/50 border-b border-gray-100">
                       <TableCell className="text-center font-bold text-[10px] border-r border-gray-100">{idx + 1}</TableCell>
-                      <TableCell className="text-center font-black text-[#1e40af] text-[10px] border-r border-gray-100">{order.poNumber}</TableCell>
+                      <TableCell className="text-center font-black text-[#ea580c] text-[10px] border-r border-gray-100">{order.poNumber}</TableCell>
                       <TableCell className="text-center text-[10px] font-semibold border-r border-gray-100">{order.poDate}</TableCell>
                       <TableCell className="text-left font-bold text-[10px] border-r border-gray-100 max-w-[200px] truncate">{order.customerName}</TableCell>
                       <TableCell className="p-0 border-r border-gray-100">
@@ -362,7 +362,7 @@ export default function SalesOrderReport() {
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onClick={() => handleCopySingle(order)} className="flex items-center gap-2 px-2.5 py-1.5 text-gray-700 hover:bg-slate-50 cursor-pointer rounded">
-                              <Copy className="h-3.5 w-3.5 text-cyan-500" />
+                              <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                               <span>Copy Details</span>
                             </DropdownMenuItem>
 
@@ -406,19 +406,19 @@ export default function SalesOrderReport() {
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <div className="flex justify-between items-center border-b pb-6 mb-6">
             <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
+              <h1 className="text-3xl font-black text-[#ea580c] tracking-tight">FORTUNE CONCRETE</h1>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
               <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
             </div>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">SALES ORDER</div>
+              <div className="bg-[#ea580c] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">SALES ORDER</div>
               <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Order Information</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Order Information</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">PO Number: <span className="font-black text-gray-900">{printOrder.poNumber}</span></p>
                 <p className="text-xs font-bold text-gray-700">PO Date: <span className="font-medium text-gray-900">{printOrder.poDate}</span></p>
@@ -427,7 +427,7 @@ export default function SalesOrderReport() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer & Delivery</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer & Delivery</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printOrder.customerName}</span></p>
                 <p className="text-xs font-bold text-gray-700">Site Address: <span className="font-medium text-gray-900">{printOrder.siteAddress || "N/A"}</span></p>
@@ -482,7 +482,7 @@ export default function SalesOrderReport() {
               <div className="h-px bg-slate-200 my-2" />
               <div className="flex justify-between text-sm py-1">
                 <span className="font-black text-gray-900">Grand Total:</span>
-                <span className="font-black text-[#1e40af] text-base">₹{(printOrder.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                <span className="font-black text-[#ea580c] text-base">₹{(printOrder.totalAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -495,7 +495,7 @@ export default function SalesOrderReport() {
             <div className="text-right">
               <div className="h-px bg-gray-300 w-44 mb-2 ml-auto" />
               <p className="font-bold text-gray-500 text-[10px] uppercase">Authorized Signatory</p>
-              <p className="font-black text-[#1e40af] uppercase mt-1">Fortune Concrete</p>
+              <p className="font-black text-[#ea580c] uppercase mt-1">Fortune Concrete</p>
             </div>
           </div>
         </div>
@@ -505,7 +505,7 @@ export default function SalesOrderReport() {
       {!printOrder && (
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
           <div className="border-b-2 border-gray-800 pb-4 mb-4">
-            <h1 className="text-2xl font-black text-[#1e40af] uppercase tracking-tight">FORTUNE CONCRETE</h1>
+            <h1 className="text-2xl font-black text-[#ea580c] uppercase tracking-tight">FORTUNE CONCRETE</h1>
             <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Premium Ready Mix Concrete Solutions</p>
             <p className="text-[9px] text-gray-400">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
             <div className="mt-3 flex justify-between items-center">
@@ -555,7 +555,7 @@ export default function SalesOrderReport() {
 
           <div className="mt-6 flex justify-between items-center text-xs border-t pt-4">
             <p className="font-bold text-gray-500">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
-            <p className="font-black text-[#1e40af]">Total Orders Registered: {filteredData.length}</p>
+            <p className="font-black text-[#ea580c]">Total Orders Registered: {filteredData.length}</p>
           </div>
         </div>
       )}

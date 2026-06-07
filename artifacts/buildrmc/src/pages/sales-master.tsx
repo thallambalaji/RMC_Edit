@@ -46,8 +46,8 @@ const tabs: TabConfig[] = [
     id: "source",
     label: "Enquiry Source",
     icon: Sparkles,
-    color: "text-cyan-600",
-    gradient: "from-cyan-500 to-[#1e40af]",
+    color: "text-[#ea580c]",
+    gradient: "from-cyan-500 to-[#ea580c]",
     placeholder: "Enter Enquiry Source (e.g. Website, Walk-in)...",
     columnLabel: "Enquiry Source",
   },
@@ -118,7 +118,7 @@ export default function SalesMaster() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#1e40af] to-blue-500 shadow-lg shadow-cyan-200">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ea580c] to-blue-500 shadow-lg shadow-cyan-200">
             <Database className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -127,11 +127,11 @@ export default function SalesMaster() {
           </div>
         </div>
         <nav className="text-xs text-muted-foreground flex items-center gap-1 font-bold uppercase tracking-wider">
-          <Link href="/dashboard" className="hover:text-cyan-500 transition-colors">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
           <ChevronRight className="h-3 w-3" />
-          <Link href="/sales" className="hover:text-cyan-500 transition-colors">Sales</Link>
+          <Link href="/sales" className="hover:text-[#ea580c] transition-colors">Sales</Link>
           <ChevronRight className="h-3 w-3" />
-          <span className="text-cyan-600">Sales Master</span>
+          <span className="text-[#ea580c]">Sales Master</span>
         </nav>
       </div>
 
@@ -170,7 +170,7 @@ export default function SalesMaster() {
                 onKeyDown={e => e.key === "Enter" && handleAdd()}
                 placeholder={currentTab.placeholder}
                 disabled={createMaster.isPending}
-                className="h-12 border-gray-200 rounded-xl pl-5 pr-4 text-sm bg-white hover:border-[#1e40af] focus-visible:ring-2 focus-visible:ring-[#1e40af] transition-all duration-200 shadow-sm"
+                className="h-12 border-gray-200 rounded-xl pl-5 pr-4 text-sm bg-white hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c] transition-all duration-200 shadow-sm"
               />
             </div>
             <Button
@@ -231,7 +231,7 @@ export default function SalesMaster() {
                   masters.map((item: any, idx: number) => (
                     <TableRow key={item.id} className="border-gray-50 hover:bg-gray-50/50 transition-colors duration-200 group/row">
                       <TableCell className="text-center py-4 border-r border-gray-50">
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-black bg-gray-100 text-gray-400 group-hover/row:bg-[#1e40af] group-hover/row:text-white transition-all duration-300">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-xs font-black bg-gray-100 text-gray-400 group-hover/row:bg-[#ea580c] group-hover/row:text-white transition-all duration-300">
                           {idx + 1}
                         </span>
                       </TableCell>
@@ -257,7 +257,7 @@ export default function SalesMaster() {
           {!isLoading && masters && masters.length > 0 && (
             <div className="mt-4 flex items-center justify-between text-[11px] font-bold text-gray-400 px-2">
               <span className="uppercase tracking-widest">Total {currentTab.label} Entries: {masters.length}</span>
-              <span className="text-[#1e40af] italic">Last updated: {new Date().toLocaleDateString()}</span>
+              <span className="text-[#ea580c] italic">Last updated: {new Date().toLocaleDateString()}</span>
             </div>
           )}
         </div>

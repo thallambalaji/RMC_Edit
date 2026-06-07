@@ -246,32 +246,32 @@ export default function AddCustomer() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
+  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
 
   return (
     <div className="bg-[#f8fafc] h-full overflow-hidden flex flex-col">
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-white shadow-sm overflow-hidden border-t-2 border-[#1e40af]">
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 bg-white shadow-sm overflow-hidden border-t-2 border-[#ea580c]">
         {/* Header Action Bar */}
         <div className="flex items-center justify-between px-3 py-1.5 border-b bg-white shrink-0">
           <div className="flex items-center gap-3">
-            <div className="bg-[#1e40af]/10 p-1 rounded">
-               <UserPlus className="h-3 w-3 text-[#1e40af]" />
+            <div className="bg-[#ea580c]/10 p-1 rounded">
+               <UserPlus className="h-3 w-3 text-[#ea580c]" />
             </div>
             <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">New Customer Registration</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
-              <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+              <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
               <ChevronRight className="h-2 w-2" />
-              <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+              <Link href="/customer-po" className="hover:text-[#ea580c]">Customer & PO</Link>
               <ChevronRight className="h-2 w-2" />
-              <span className="text-[#1e40af]">Add Customer</span>
+              <span className="text-[#ea580c]">Add Customer</span>
             </nav>
           </div>
           <div className="flex gap-1.5">
              <Link href="/customer-po/customer">
-                <Button type="button" variant="outline" className="border-cyan-100 text-[#1e40af] hover:bg-cyan-50 font-black text-[9px] px-3 h-6 uppercase tracking-wider cursor-pointer">Customer List</Button>
+                <Button type="button" variant="outline" className="border-orange-100/50 text-[#ea580c] hover:bg-orange-50/40 font-black text-[9px] px-3 h-6 uppercase tracking-wider cursor-pointer">Customer List</Button>
              </Link>
-             <Button type="submit" disabled={isPending} className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+             <Button type="submit" disabled={isPending} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
                 {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Save Customer
              </Button>
           </div>
@@ -316,7 +316,7 @@ export default function AddCustomer() {
                          variant="ghost"
                          onClick={handleValidateGSTIN}
                          disabled={gstinStatus === "loading" || !formData.gstNumber}
-                         className="h-5 min-h-0 text-[8px] font-extrabold uppercase bg-blue-50 hover:bg-blue-100 text-blue-700 px-2 py-0 flex items-center gap-1 shadow-none border border-blue-200 rounded-[4px] cursor-pointer disabled:opacity-50"
+                         className="h-5 min-h-0 text-[8px] font-extrabold uppercase bg-orange-50/40 hover:bg-orange-100 text-[#ea580c] px-2 py-0 flex items-center gap-1 shadow-none border border-orange-200 rounded-[4px] cursor-pointer disabled:opacity-50"
                        >
                          {gstinStatus === "loading" ? (
                            <Loader2 className="h-2.5 w-2.5 animate-spin" />
@@ -527,7 +527,7 @@ export default function AddCustomer() {
                     type="button" 
                     variant="outline" 
                     onClick={handleAddSiteRow}
-                    className="h-5 px-2.5 text-[8px] font-black uppercase text-cyan-600 border-cyan-100 cursor-pointer hover:bg-cyan-50"
+                    className="h-5 px-2.5 text-[8px] font-black uppercase text-[#ea580c] border-orange-100/50 cursor-pointer hover:bg-orange-50/40"
                   >
                     + Add More Sites
                   </Button>

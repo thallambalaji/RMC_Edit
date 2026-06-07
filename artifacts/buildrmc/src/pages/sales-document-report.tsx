@@ -27,7 +27,7 @@ import {
 
 export default function SalesDocumentReport() {
   const { toast } = useToast();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const { data: invoices } = useGetInvoices({
     query: { queryKey: getGetInvoicesQueryKey() },
@@ -228,7 +228,7 @@ export default function SalesDocumentReport() {
         <PrintHeader />
         <div style={{ borderBottom: "2px solid #e2e8f0", paddingBottom: "8px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase", margin: 0 }}>Sales Document Report</h2>
+            <h2 style={{ fontSize: "14px", fontWeight: 900, color: "#ea580c", textTransform: "uppercase", margin: 0 }}>Sales Document Report</h2>
           </div>
           <div style={{ textAlign: "right", fontSize: "11px", color: "#64748b" }}>
             <span>Report Type: {reportTypeLabel} &nbsp;|&nbsp; Printed: {new Date().toLocaleString("en-IN")}</span>
@@ -242,10 +242,10 @@ export default function SalesDocumentReport() {
           const gTax = gNet - gTaxable;
           return (
             <div key={group} style={{ marginBottom: "20px" }}>
-              <div style={{ background: "#e2e8f0", padding: "6px 10px", fontWeight: 800, fontSize: "12px", color: "#1e3a8a", marginBottom: "4px" }}>{reportTypeLabel.split(" ")[0]}: {group}</div>
+              <div style={{ background: "#e2e8f0", padding: "6px 10px", fontWeight: 800, fontSize: "12px", color: "#0f172a", marginBottom: "4px" }}>{reportTypeLabel.split(" ")[0]}: {group}</div>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
                 <thead>
-                  <tr style={{ background: "#1e3a8a", color: "white" }}>
+                  <tr style={{ background: "#0f172a", color: "white" }}>
                     {["Invoice No", "Date", "Time", "Customer", "Site", "Vehicle", "Plant", "Taxable", "Tax", "Net Amt"].map(h => (
                       <th key={h} style={{ padding: "6px 8px", textAlign: ["Taxable", "Tax", "Net Amt"].includes(h) ? "right" : "left", fontWeight: 700, textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>
                     ))}
@@ -257,7 +257,7 @@ export default function SalesDocumentReport() {
                     const net = parseFloat(String(inv.totalAmount || 0));
                     return (
                       <tr key={inv.id} style={{ background: idx % 2 === 0 ? "#f8fafc" : "white", borderBottom: "1px solid #e2e8f0" }}>
-                        <td style={{ padding: "5px 8px", fontWeight: 700, color: "#1e40af" }}>{inv.invoiceNumber}</td>
+                        <td style={{ padding: "5px 8px", fontWeight: 700, color: "#ea580c" }}>{inv.invoiceNumber}</td>
                         <td style={{ padding: "5px 8px" }}>{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
                         <td style={{ padding: "5px 8px" }}>{inv.invoiceTime || "—"}</td>
                         <td style={{ padding: "5px 8px", fontWeight: 600 }}>{inv.customerName}</td>
@@ -283,7 +283,7 @@ export default function SalesDocumentReport() {
         })}
 
         {/* Grand total */}
-        <div style={{ marginTop: "12px", padding: "10px 12px", background: "#1e3a8a", color: "white", display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: "13px", borderRadius: "4px" }}>
+        <div style={{ marginTop: "12px", padding: "10px 12px", background: "#0f172a", color: "white", display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: "13px", borderRadius: "4px" }}>
           <span>GRAND TOTAL — {reportData.length} Records</span>
           <span>Taxable: ₹{totals.taxable.toLocaleString("en-IN", { minimumFractionDigits: 2 })} &nbsp;|&nbsp; Tax: ₹{totals.tax.toLocaleString("en-IN", { minimumFractionDigits: 2 })} &nbsp;|&nbsp; Net: ₹{totals.net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
         </div>
@@ -302,8 +302,8 @@ export default function SalesDocumentReport() {
           const tax = net - taxable;
           return (
             <div className="p-8 bg-white text-black">
-              <div className="flex items-center gap-4 mb-8 border-b-2 border-[#1e40af] pb-6">
-                <div className="w-16 h-16 bg-[#1e40af] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
+              <div className="flex items-center gap-4 mb-8 border-b-2 border-[#ea580c] pb-6">
+                <div className="w-16 h-16 bg-[#ea580c] text-white flex items-center justify-center font-black text-2xl rounded-xl">BM</div>
                 <div>
                   <h1 className="text-2xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
                   <p className="text-sm text-slate-600 mt-1 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
@@ -311,7 +311,7 @@ export default function SalesDocumentReport() {
                 </div>
               </div>
               
-              <h2 className="text-xl font-bold uppercase text-[#1e40af] mb-4 border-b pb-2">Sales Document Details</h2>
+              <h2 className="text-xl font-bold uppercase text-[#ea580c] mb-4 border-b pb-2">Sales Document Details</h2>
               
               <table className="w-full text-left mb-6 border border-slate-200">
                 <tbody>
@@ -371,11 +371,11 @@ export default function SalesDocumentReport() {
         <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Document Report</h2>
         <div className="h-4 w-px bg-gray-300" />
         <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/billing" className="hover:text-[#1e40af]">Billing</Link>
+          <Link href="/billing" className="hover:text-[#ea580c]">Billing</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Sales Document Report</span>
+          <span className="text-[#ea580c]">Sales Document Report</span>
         </nav>
       </div>
 
@@ -454,7 +454,7 @@ export default function SalesDocumentReport() {
               <span className="text-xs font-black text-slate-600 uppercase tracking-wider">
                 {reportTypeLabel} Report
               </span>
-              <span className="bg-[#1e40af] text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+              <span className="bg-[#ea580c] text-white text-[10px] font-black px-2 py-0.5 rounded-full">
                 {reportData.length} records
               </span>
               {fromDate && (
@@ -481,7 +481,7 @@ export default function SalesDocumentReport() {
                   <div key={group} className="mb-0">
                     {/* Group header */}
                     <div className="bg-slate-100 px-4 py-2 flex items-center justify-between border-b border-slate-200">
-                      <span className="text-xs font-black text-[#1e40af] uppercase tracking-wider">{reportTypeLabel.split(" ")[0]}: {group}</span>
+                      <span className="text-xs font-black text-[#ea580c] uppercase tracking-wider">{reportTypeLabel.split(" ")[0]}: {group}</span>
                       <span className="text-[10px] font-bold text-slate-500">{rows.length} record{rows.length !== 1 ? "s" : ""}</span>
                     </div>
                     <Table>
@@ -508,7 +508,7 @@ export default function SalesDocumentReport() {
                           const tax = net - taxable;
                           return (
                             <TableRow key={inv.id} className="hover:bg-slate-50 border-b border-gray-100 text-xs">
-                              <TableCell className="font-extrabold text-[#1e40af] py-2">{inv.invoiceNumber}</TableCell>
+                              <TableCell className="font-extrabold text-[#ea580c] py-2">{inv.invoiceNumber}</TableCell>
                               <TableCell className="text-slate-600 py-2">{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</TableCell>
                               <TableCell className="text-slate-400 py-2">{inv.invoiceTime || "—"}</TableCell>
                               <TableCell className="font-bold text-slate-800 py-2">{inv.customerName}</TableCell>
@@ -521,16 +521,16 @@ export default function SalesDocumentReport() {
                               <TableCell className="text-center py-2">
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-[#1e40af] hover:bg-blue-50 rounded-full">
+                                    <Button variant="ghost" className="h-6 w-6 p-0 text-slate-400 hover:text-[#ea580c] hover:bg-orange-50/40 rounded-full">
                                       <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
                                   <DropdownMenuContent align="end" className="w-32 rounded-xl shadow-lg border-slate-200">
                                     <DropdownMenuItem onClick={() => setViewInv(inv)} className="text-xs cursor-pointer text-slate-700 font-bold gap-2 py-2">
-                                      <Eye className="h-3.5 w-3.5 text-cyan-600" /> View Details
+                                      <Eye className="h-3.5 w-3.5 text-[#ea580c]" /> View Details
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleRowPrint(inv)} className="text-xs cursor-pointer text-slate-700 font-bold gap-2 py-2">
-                                      <Printer className="h-3.5 w-3.5 text-[#1e40af]" /> Print / PDF
+                                      <Printer className="h-3.5 w-3.5 text-[#ea580c]" /> Print / PDF
                                     </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => handleRowCSV(inv)} className="text-xs cursor-pointer text-slate-700 font-bold gap-2 py-2">
                                       <Download className="h-3.5 w-3.5 text-emerald-600" /> Export CSV
@@ -542,11 +542,11 @@ export default function SalesDocumentReport() {
                           );
                         })}
                         {/* Subtotal row */}
-                        <TableRow className="bg-blue-50 hover:bg-blue-50">
-                          <TableCell colSpan={7} className="text-xs font-black text-[#1e40af] py-2 pl-4">Sub-total ({rows.length} records)</TableCell>
+                        <TableRow className="bg-orange-50/40 hover:bg-orange-50/40">
+                          <TableCell colSpan={7} className="text-xs font-black text-[#ea580c] py-2 pl-4">Sub-total ({rows.length} records)</TableCell>
                           <TableCell className="text-right text-xs font-black text-slate-700 py-2">₹{gTaxable.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
                           <TableCell className="text-right text-xs font-black text-slate-500 py-2">₹{gTax.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
-                          <TableCell className="text-right text-xs font-black text-[#1e40af] py-2">₹{gNet.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
+                          <TableCell className="text-right text-xs font-black text-[#ea580c] py-2">₹{gNet.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</TableCell>
                           <TableCell />
                         </TableRow>
                       </TableBody>
@@ -569,7 +569,7 @@ export default function SalesDocumentReport() {
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-slate-400 text-[9px] uppercase tracking-wider">Net Total</span>
-                    <span className="text-cyan-300 text-sm">₹{totals.net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    <span className="text-orange-300 text-sm">₹{totals.net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
@@ -582,11 +582,11 @@ export default function SalesDocumentReport() {
       <div className={viewInv ? "printing-invoice" : ""}>
         <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 print:border-none print:shadow-none print:max-h-none print:overflow-visible invoice-print-only">
-            <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg print:bg-white print:border-none print:p-0 print:hidden">
+            <DialogHeader className="p-5 border-b bg-[#ea580c] rounded-t-lg print:bg-white print:border-none print:p-0 print:hidden">
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-white font-black text-base">Invoice Details</DialogTitle>
-                <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
+                <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
               </div>
               <Button size="sm" variant="ghost" onClick={() => setViewInv(null)} className="text-white hover:bg-white/10">
                 <X className="h-4 w-4" />
@@ -597,7 +597,7 @@ export default function SalesDocumentReport() {
             <div className="p-5 space-y-4">
               {/* Company */}
               <div className="flex items-center gap-3 bg-slate-50 rounded-lg p-3 border">
-                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black rounded-lg text-sm">BM</div>
+                <div className="w-10 h-10 bg-[#ea580c] text-white flex items-center justify-center font-black rounded-lg text-sm">BM</div>
                 <div>
                   <p className="font-black text-slate-900 text-sm uppercase">BuildRMC Enterprises</p>
                   <p className="text-xs text-slate-500">123 Industrial Estate, Hyderabad | GSTIN: 36AAAAA1111A1Z1</p>
@@ -622,11 +622,11 @@ export default function SalesDocumentReport() {
               {/* Customer / Site */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="border p-3 rounded-lg">
-                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1 border-b pb-1">Customer</p>
+                  <p className="text-[9px] font-black text-[#ea580c] uppercase tracking-wider mb-1 border-b pb-1">Customer</p>
                   <p className="font-black text-slate-800 text-sm">{viewInv.customerName || "—"}</p>
                 </div>
                 <div className="border p-3 rounded-lg">
-                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1 border-b pb-1">Site</p>
+                  <p className="text-[9px] font-black text-[#ea580c] uppercase tracking-wider mb-1 border-b pb-1">Site</p>
                   <p className="font-black text-slate-800 text-sm">{viewInv.site || "—"}</p>
                 </div>
               </div>
@@ -644,7 +644,7 @@ export default function SalesDocumentReport() {
                 ))}
                 <div className="flex justify-between px-4 py-3 bg-slate-50">
                   <span className="font-black text-slate-900">Net Total Payable</span>
-                  <span className="font-black text-[#1e40af] text-lg">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                  <span className="font-black text-[#ea580c] text-lg">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </div>

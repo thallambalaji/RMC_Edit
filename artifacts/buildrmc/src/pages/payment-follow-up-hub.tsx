@@ -13,7 +13,7 @@ export default function PaymentFollowUpHub() {
       href: "/sales/payment-follow-up/list",
       label: "Payment FollowUp List",
       icon: List,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

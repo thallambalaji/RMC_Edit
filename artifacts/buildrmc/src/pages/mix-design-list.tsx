@@ -172,9 +172,9 @@ export default function MixDesignList() {
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8">
               <div className="space-y-4">
-                <h3 className="text-sm font-black bg-blue-50 p-2 text-blue-900 border-l-4 border-blue-900 uppercase">Primary Specifications</h3>
+                <h3 className="text-sm font-black bg-orange-50/40 p-2 text-[#ea580c] border-l-4 border-blue-900 uppercase">Primary Specifications</h3>
                 <div className="grid grid-cols-2 text-[10px] gap-y-2">
-                  <span className="text-gray-500 font-bold uppercase">Recipe Code:</span> <span className="font-black text-blue-900">{printingItem.recipeCode}</span>
+                  <span className="text-gray-500 font-bold uppercase">Recipe Code:</span> <span className="font-black text-[#ea580c]">{printingItem.recipeCode}</span>
                   <span className="text-gray-500 font-bold uppercase">Recipe Name:</span> <span className="font-black">{printingItem.recipeName}</span>
                   <span className="text-gray-500 font-bold uppercase">Concrete Grade:</span> <span className="font-black px-2 py-0.5 bg-gray-100 rounded">{printingItem.grade}</span>
                 </div>
@@ -185,7 +185,7 @@ export default function MixDesignList() {
                   <span className="text-gray-500 font-bold">Aggregate-1:</span> <span>{printingItem.aggr1}</span>
                   <span className="text-gray-500 font-bold">Aggregate-2:</span> <span>{printingItem.aggr2}</span>
                   <span className="text-gray-500 font-bold">Cement-1:</span> <span className="font-bold">{printingItem.cem1}</span>
-                  <span className="text-gray-500 font-bold">Water:</span> <span className="font-bold text-blue-600">{printingItem.water}</span>
+                  <span className="text-gray-500 font-bold">Water:</span> <span className="font-bold text-[#ea580c]">{printingItem.water}</span>
                 </div>
               </div>
             </div>
@@ -204,7 +204,7 @@ export default function MixDesignList() {
                   <tr className="border-b border-gray-100"><td className="py-2 font-bold">Aggregate 1 (20mm)</td><td className="text-right">{printingItem.aggr1}</td><td className="text-right">± 3%</td></tr>
                   <tr className="border-b border-gray-100"><td className="py-2 font-bold">Aggregate 2 (10mm)</td><td className="text-right">{printingItem.aggr2}</td><td className="text-right">± 3%</td></tr>
                   <tr className="border-b border-gray-100"><td className="py-2 font-bold">Cementitious 1</td><td className="text-right font-black">{printingItem.cem1}</td><td className="text-right">± 2%</td></tr>
-                  <tr className="border-b border-gray-100"><td className="py-2 font-bold text-blue-600">Water</td><td className="text-right font-black text-blue-600">{printingItem.water}</td><td className="text-right">± 1%</td></tr>
+                  <tr className="border-b border-gray-100"><td className="py-2 font-bold text-[#ea580c]">Water</td><td className="text-right font-black text-[#ea580c]">{printingItem.water}</td><td className="text-right">± 1%</td></tr>
                   <tr><td className="py-2 font-bold text-emerald-600">Admixture 1</td><td className="text-right font-black text-emerald-600">{printingItem.admix1}</td><td className="text-right">± 1%</td></tr>
                 </tbody>
               </table>
@@ -226,12 +226,12 @@ export default function MixDesignList() {
             <tbody>
               {filtered.map(item => (
                 <tr key={item.id}>
-                  <td className="border border-gray-300 p-2 font-bold text-blue-900">{item.recipeCode}</td>
+                  <td className="border border-gray-300 p-2 font-bold text-[#ea580c]">{item.recipeCode}</td>
                   <td className="border border-gray-300 p-2">{item.grade}</td>
                   <td className="border border-gray-300 p-2">{item.aggr1}</td>
                   <td className="border border-gray-300 p-2">{item.grade}</td>
                   <td className="border border-gray-300 p-2 font-bold">{item.cem1}</td>
-                  <td className="border border-gray-300 p-2 text-blue-600 font-bold">{item.water}</td>
+                  <td className="border border-gray-300 p-2 text-[#ea580c] font-bold">{item.water}</td>
                   <td className="border border-gray-300 p-2 font-bold text-emerald-600">{item.admix1}</td>
                 </tr>
               ))}
@@ -342,21 +342,21 @@ export default function MixDesignList() {
         {/* Data Grid Table matching screenshot */}
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Name</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr1</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr2</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr3</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr4</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem1</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem2</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem3</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Water</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix1</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix2</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Name</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr1</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr2</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr3</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Aggr4</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem1</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem2</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Cem3</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Water</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix1</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Admix2</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -369,7 +369,7 @@ export default function MixDesignList() {
               ) : (
                 pageRows.map((item, index) => (
                   <TableRow key={item.id} className={`hover:bg-slate-50/80 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
-                    <TableCell className="font-extrabold text-[#1e40af] text-xs py-3 px-4 whitespace-nowrap">{item.recipeCode}</TableCell>
+                    <TableCell className="font-extrabold text-[#ea580c] text-xs py-3 px-4 whitespace-nowrap">{item.recipeCode}</TableCell>
                     <TableCell className="font-bold text-slate-700 text-xs px-3 whitespace-nowrap">{item.recipeName}</TableCell>
                     <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr1}</TableCell>
                     <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap">{item.aggr2}</TableCell>
@@ -378,7 +378,7 @@ export default function MixDesignList() {
                     <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem1}</TableCell>
                     <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem2}</TableCell>
                     <TableCell className="text-xs font-bold text-slate-800 px-3 whitespace-nowrap">{item.cem3}</TableCell>
-                    <TableCell className="text-xs font-bold text-blue-600 px-3 whitespace-nowrap">{item.water}</TableCell>
+                    <TableCell className="text-xs font-bold text-[#ea580c] px-3 whitespace-nowrap">{item.water}</TableCell>
                     <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix1}</TableCell>
                     <TableCell className="text-xs font-semibold text-emerald-700 px-3 whitespace-nowrap">{item.admix2}</TableCell>
                     <TableCell className="text-center py-2.5 no-print">
@@ -394,7 +394,7 @@ export default function MixDesignList() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
                           <DropdownMenuItem onClick={() => handleExport("copy", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                            <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Copy Details</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleExport("csv", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
@@ -406,7 +406,7 @@ export default function MixDesignList() {
                             <span>Print Record</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setEditingItem(item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                            <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                            <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Edit Formulation</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 

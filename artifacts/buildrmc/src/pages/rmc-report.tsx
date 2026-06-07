@@ -7,25 +7,25 @@ export default function RMCReportHub() {
       href: "/billing/invoice-report",
       label: "Invoice Report",
       icon: FileSearch,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/billing/consolidate-invoice-list",
       label: "Consolidate Invoice List",
       icon: FileStack,
-      color: "bg-cyan-600 hover:bg-cyan-700",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/billing/generate-annexure",
       label: "Generate Annexure",
       icon: FileText,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/billing/debit-credit-note-list",
       label: "Debit Credit Note List",
       icon: ClipboardList,
-      color: "bg-cyan-600 hover:bg-cyan-700",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

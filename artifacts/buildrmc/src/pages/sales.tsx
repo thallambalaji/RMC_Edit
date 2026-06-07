@@ -92,8 +92,8 @@ export default function Sales() {
   const linkClass = (href: string) =>
     `text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer block border ${
       location === href
-        ? "bg-[#1e40af] text-white border-[#1e40af] shadow font-bold"
-        : "text-gray-600 hover:text-[#1e40af] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
+        ? "bg-[#ea580c] text-white border-[#ea580c] shadow font-bold"
+        : "text-gray-600 hover:text-[#ea580c] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
     }`;
   const { data, isLoading } = useGetSalesOrders();
   
@@ -230,7 +230,7 @@ export default function Sales() {
           <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
             <AccordionItem value="sales-enquiry" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
-                <div className="flex items-center gap-2"><ClipboardList className="h-4 w-4 text-[#1e40af]"/> Sales Enquiry</div>
+                <div className="flex items-center gap-2"><ClipboardList className="h-4 w-4 text-[#ea580c]"/> Sales Enquiry</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
@@ -276,16 +276,16 @@ export default function Sales() {
             <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Sales Dashboard</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+              <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+              <Link href="/sales" className="hover:text-[#ea580c] transition-colors">Sales</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <span className="text-[#1e40af]">Sales Orders</span>
+              <span className="text-[#ea580c]">Sales Orders</span>
             </nav>
           </div>
           <div className="flex gap-2">
             <Link href="/customer-po/sales-order/new">
-              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
+              <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
                 <Plus className="h-3.5 w-3.5" /> New Sales Order
               </Button>
             </Link>
@@ -304,7 +304,7 @@ export default function Sales() {
         {/* Mini Stats Bar */}
         <div className="grid grid-cols-4 gap-3 print:hidden">
           <div className="bg-white border rounded-lg p-2 flex items-center gap-3 shadow-sm">
-            <div className="p-2 bg-blue-50 rounded-full"><ShoppingCart className="h-4 w-4 text-blue-600" /></div>
+            <div className="p-2 bg-orange-50/40 rounded-full"><ShoppingCart className="h-4 w-4 text-[#ea580c]" /></div>
             <div>
               <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">Total Orders</p>
               <p className="text-sm font-bold text-gray-800">{kpis.totalOrders}</p>
@@ -324,7 +324,7 @@ export default function Sales() {
               <p className="text-sm font-bold text-gray-800">{kpis.pendingQty.toFixed(2)} <span className="text-[10px] font-normal opacity-60">m³</span></p>
             </div>
           </div>
-          <div className="bg-[#1e40af] rounded-lg p-2 flex items-center gap-3 shadow-sm">
+          <div className="bg-[#ea580c] rounded-lg p-2 flex items-center gap-3 shadow-sm">
             <div className="p-2 bg-white/20 rounded-full"><Users className="h-4 w-4 text-white" /></div>
             <div>
               <p className="text-[10px] font-bold text-white/80 uppercase tracking-tight">Active Customers</p>
@@ -339,7 +339,7 @@ export default function Sales() {
           <div className="hidden print:block mb-6 mt-4">
             <PrintHeader />
             <div className="flex justify-between items-center border-b pb-2 mb-4">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Order Register</h2>
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Sales Order Register</h2>
               <div className="text-right text-[10px] font-bold text-gray-600">
                 <span>Printed Date: {new Date().toLocaleDateString()}</span>
               </div>
@@ -378,7 +378,7 @@ export default function Sales() {
                 <Input type="date" className="h-7 text-[10px] border-gray-200 font-bold px-2 bg-white" value={toDate} onChange={e => {setToDate(e.target.value); setPage(1);}} />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] h-7 flex-1 text-[10px] font-bold" onClick={handleSearch}><Search className="h-3 w-3 mr-1" />Search</Button>
+                <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] h-7 flex-1 text-[10px] font-bold" onClick={handleSearch}><Search className="h-3 w-3 mr-1" />Search</Button>
                 <Button size="sm" variant="outline" onClick={handleClear} className="h-7 w-7 p-0 bg-rose-500 hover:bg-rose-600 text-white border-0"><RotateCcw className="h-3 w-3" /></Button>
               </div>
             </div>
@@ -403,16 +403,16 @@ export default function Sales() {
           {/* Table Body */}
           <div className="flex-1 overflow-auto print:overflow-visible">
             <Table className="print:text-[10px]">
-              <TableHeader className="sticky top-0 z-10 bg-[#1e40af] print:shadow-none">
-                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af] print:border-gray-800 print:border-b-2">
-                  <TableHead className="w-[60px] bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">ID</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">PO Number</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Customer</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Date</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Items</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-right print:text-black">Total Qty</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Status</TableHead>
-                  <TableHead className="w-[80px] bg-[#1e40af] text-white font-black text-[9px] py-1.5 px-3 text-center uppercase tracking-tighter last:border-0 print:hidden">OPTIONS</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#ea580c] print:shadow-none">
+                <TableRow className="hover:bg-transparent border-0 bg-[#ea580c] print:border-gray-800 print:border-b-2">
+                  <TableHead className="w-[60px] bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">ID</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">PO Number</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Customer</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left print:text-black">Date</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Items</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-right print:text-black">Total Qty</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center print:text-black">Status</TableHead>
+                  <TableHead className="w-[80px] bg-[#ea580c] text-white font-black text-[9px] py-1.5 px-3 text-center uppercase tracking-tighter last:border-0 print:hidden">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -424,14 +424,14 @@ export default function Sales() {
                   (document.body.classList.contains("print-mode") ? filtered : pageRows).map((order) => (
                     <TableRow key={order.id} className="group hover:bg-gray-50/80 transition-colors print:border-b print:border-gray-200">
                       <TableCell className="py-2"><span className="text-[10px] font-bold bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded print:bg-transparent print:text-black">{String(order.id).slice(-6).toUpperCase()}</span></TableCell>
-                      <TableCell className="font-bold text-[#1e40af] text-xs py-2 print:text-black">{order.poNumber}</TableCell>
+                      <TableCell className="font-bold text-[#ea580c] text-xs py-2 print:text-black">{order.poNumber}</TableCell>
                       <TableCell className="text-xs py-2">
                         <div className="font-semibold text-gray-800 max-w-[200px] truncate print:whitespace-normal print:max-w-none">{order.customerName}</div>
                         <div className="text-[10px] text-gray-400 truncate max-w-[200px] print:whitespace-normal print:max-w-none print:text-black">{order.siteAddress || "No site specified"}</div>
                       </TableCell>
                       <TableCell className="text-[11px] font-medium py-2 print:text-black">{order.poDate}</TableCell>
                       <TableCell className="text-center py-2">
-                        <span className="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full print:border-none print:text-black print:p-0">{order.items?.length || 0} items</span>
+                        <span className="text-[10px] font-bold bg-orange-50/40 text-[#ea580c] px-2 py-0.5 rounded-full print:border-none print:text-black print:p-0">{order.items?.length || 0} items</span>
                       </TableCell>
                       <TableCell className="text-right font-bold text-xs py-2 print:text-black">
                         {(order.items?.reduce((sum: number, i) => sum + Number(i.quantity), 0) || 0).toFixed(2)}
@@ -519,10 +519,10 @@ export default function Sales() {
                   <TableBody>
                     {selectedOrder?.items?.map((item: any, idx: number) => (
                       <TableRow key={idx}>
-                        <TableCell className="font-bold text-blue-700 text-xs">{item.grade}</TableCell>
+                        <TableCell className="font-bold text-[#ea580c] text-xs">{item.grade}</TableCell>
                         <TableCell className="text-right text-xs">{item.quantity} m³</TableCell>
                         <TableCell className="text-right text-xs">₹{item.rate}</TableCell>
-                        <TableCell className="text-right text-xs text-cyan-700 font-semibold">{item.remainingQty} m³</TableCell>
+                        <TableCell className="text-right text-xs text-[#ea580c] font-semibold">{item.remainingQty} m³</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

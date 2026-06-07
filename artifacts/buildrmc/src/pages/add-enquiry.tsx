@@ -35,9 +35,9 @@ function Field({
 
 const inputCls =
   "w-full h-8 px-3 text-[13px] border border-gray-200 rounded-md bg-white outline-none transition-all duration-150 " +
-  "hover:border-[#1e40af] focus:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/30";
+  "hover:border-[#ea580c] focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]/30";
 
-const selectTriggerCls = "h-8 text-[13px] border-gray-200 rounded-md hover:border-[#1e40af] focus:ring-1 focus:ring-[#1e40af]/30";
+const selectTriggerCls = "h-8 text-[13px] border-gray-200 rounded-md hover:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]/30";
 
 /* ── Section Card ── */
 function SectionCard({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
@@ -222,15 +222,15 @@ export default function AddEnquiry() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Add Enquiry</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+            <Link href="/sales" className="hover:text-[#ea580c] transition-colors">Sales</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Add Enquiry</span>
+            <span className="text-[#ea580c]">Add Enquiry</span>
           </nav>
         </div>
         <Link href="/sales/enquiry/list">
-          <Button variant="outline" size="sm" className="h-8 border-[#1e40af] text-[#1e40af] hover:bg-[#1e40af] hover:text-white font-bold uppercase text-[10px] tracking-wider">
+          <Button variant="outline" size="sm" className="h-8 border-[#ea580c] text-[#ea580c] hover:bg-[#ea580c] hover:text-white font-bold uppercase text-[10px] tracking-wider">
             <List className="h-3.5 w-3.5 mr-1.5" /> Enquiry List
           </Button>
         </Link>
@@ -265,14 +265,14 @@ export default function AddEnquiry() {
         </SectionCard>
 
         {/* ── Requirement Details ── */}
-        <SectionCard title="Requirement Details" accent="#1e40af">
+        <SectionCard title="Requirement Details" accent="#ea580c">
           <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
             <span className="text-[10px] text-gray-400">Fill in the project requirement information</span>
             <Button 
               type="button" 
               onClick={addRequirement}
               size="sm" 
-              className="h-7 bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold text-[10px] uppercase tracking-wider px-3"
+              className="h-7 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-[10px] uppercase tracking-wider px-3"
             >
               <Plus className="h-3.5 w-3.5 mr-1" /> Add Another Requirement
             </Button>
@@ -282,7 +282,7 @@ export default function AddEnquiry() {
             {requirements.map((req, idx) => (
               <div key={req.id} className="p-4 border border-slate-200/60 rounded-lg bg-slate-50/40 relative">
                 <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-1.5">
-                  <span className="text-xs font-black text-[#1e40af] uppercase">Requirement #{idx + 1}</span>
+                  <span className="text-xs font-black text-[#ea580c] uppercase">Requirement #{idx + 1}</span>
                   {requirements.length > 1 && (
                     <Button
                       type="button"
@@ -396,7 +396,7 @@ export default function AddEnquiry() {
           <Button 
             type="submit" 
             disabled={isSubmitting}
-            className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold h-10 px-8 uppercase text-[11px] tracking-wider"
+            className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold h-10 px-8 uppercase text-[11px] tracking-wider"
           >
             {isSubmitting ? "Saving..." : <><Sparkles className="h-3.5 w-3.5 mr-2" /> Submit Enquiry</>}
           </Button>

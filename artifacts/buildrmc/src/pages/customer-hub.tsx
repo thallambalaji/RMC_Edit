@@ -13,13 +13,13 @@ export default function CustomerHub() {
       href: "/customers/list",
       label: "Customer List",
       icon: Users,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/customers/godowns",
       label: "Godowns",
       icon: Warehouse,
-      color: "bg-cyan-600 hover:bg-cyan-700",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

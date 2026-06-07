@@ -61,37 +61,47 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
   const { showFilters, toggleFilters } = useQcFilters();
 
   const getLinkClass = (path: string) => {
-    return `text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer block border ${
+    return `text-[11px] font-bold py-2 px-3 rounded-lg transition-all cursor-pointer block border ${
       currentPath === path
-        ? "bg-[#1e40af] text-white border-[#1e40af] shadow font-bold"
-        : "text-gray-600 hover:text-[#1e40af] hover:bg-white border-transparent hover:border-gray-200 shadow-sm hover:shadow"
+        ? "bg-[#fff7ed] text-[#ea580c] border-orange-100/50 shadow-sm font-extrabold"
+        : "text-slate-600 hover:text-[#ea580c] hover:bg-orange-50/40 border-transparent hover:border-orange-100/50"
     }`;
+  };
+
+  const getDefaultAccordions = (): string[] => {
+    if (currentPath.startsWith("/qc/mix-design")) return ["mix-design"];
+    if (currentPath.startsWith("/qc/recipe")) return ["recipe"];
+    if (currentPath.startsWith("/qc/cube-test")) return ["cube-test"];
+    if (currentPath.startsWith("/qc/batch")) return ["batch-list"];
+    if (currentPath.startsWith("/qc/settings")) return ["qc-settings"];
+    return [];
   };
 
   return (
     <QcFiltersContext.Provider value={{ showFilters, toggleFilters }}>
-      <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white">
+      <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-transparent">
         {/* Sidebar */}
-        <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
-          <div className="p-4 bg-gray-50 border-b">
-            <h3 className="font-bold text-gray-800 text-sm">QC Navigation</h3>
+        <div className="w-60 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
+          <div className="p-4 bg-slate-50/50 border-b border-slate-100">
+            <h3 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">QC Navigation</h3>
           </div>
-          <div className="flex-1 overflow-auto p-2">
+          <div className="flex-1 overflow-auto p-3">
             <Accordion
               type="multiple"
+              defaultValue={getDefaultAccordions()}
               className="w-full space-y-2"
             >
               {/* 1. Mix Design Dropdown */}
               <AccordionItem
                 value="mix-design"
-                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+                className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden"
               >
-                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-[#1e40af]" /> Mix Design
+                    <FileText className="h-4 w-4 text-[#ea580c]" /> Mix Design
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                   <div className="flex flex-col space-y-1 mt-2 px-2">
                     <Link href="/qc/mix-design/new">
                       <div className={getLinkClass("/qc/mix-design/new")}>
@@ -110,14 +120,14 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
               {/* 2. Recipe Dropdown */}
               <AccordionItem
                 value="recipe"
-                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+                className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden"
               >
-                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <FlaskConical className="h-4 w-4 text-cyan-600" /> Recipe
+                    <FlaskConical className="h-4 w-4 text-[#ea580c]" /> Recipe
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                   <div className="flex flex-col space-y-1 mt-2 px-2">
                     <Link href="/qc/recipe/new">
                       <div className={getLinkClass("/qc/recipe/new")}>
@@ -136,14 +146,14 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
               {/* 3. Cube Test Dropdown */}
               <AccordionItem
                 value="cube-test"
-                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+                className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden"
               >
-                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <TestTube className="h-4 w-4 text-purple-500" /> Cube Test
+                    <TestTube className="h-4 w-4 text-[#ea580c]" /> Cube Test
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                   <div className="flex flex-col space-y-1 mt-2 px-2">
                     <Link href="/qc/cube-test/new">
                       <div className={getLinkClass("/qc/cube-test/new")}>
@@ -167,14 +177,14 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
               {/* 4. Batch List Dropdown */}
               <AccordionItem
                 value="batch-list"
-                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+                className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden"
               >
-                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <Layers className="h-4 w-4 text-orange-500" /> Batch List
+                    <Layers className="h-4 w-4 text-[#ea580c]" /> Batch List
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                   <div className="flex flex-col space-y-1 mt-2 px-2">
                     <Link href="/qc/batch/list">
                       <div className={getLinkClass("/qc/batch/list")}>
@@ -193,14 +203,14 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
               {/* 5. QC Setting Dropdown */}
               <AccordionItem
                 value="qc-settings"
-                className="border-none border rounded-lg bg-white shadow-sm overflow-hidden"
+                className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden"
               >
-                <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+                <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                   <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-emerald-600" /> QC Setting
+                    <Settings className="h-4 w-4 text-[#ea580c]" /> QC Setting
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+                <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                   <div className="flex flex-col space-y-1 mt-2 px-2">
                     <Link href="/qc/settings">
                       <div className={getLinkClass("/qc/settings")}>
@@ -215,28 +225,28 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col space-y-3 min-w-0">
+        <div className="flex-1 flex flex-col space-y-3.5 min-w-0 pr-1">
           {/* Standardized Header Bar matching Customer & PO Reference Design */}
-          <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
+          <div className="flex items-center justify-between bg-white p-2.5 px-4 rounded-2xl border border-slate-100 shadow-sm shrink-0 no-print">
             <div className="flex items-center gap-3">
-              <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">
+              <h2 className="text-[11px] font-extrabold text-slate-700 uppercase tracking-tight">
                 {title}
               </h2>
-              <div className="h-4 w-px bg-gray-300" />
-              <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-                <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
-                <ChevronRight className="h-2.5 w-2.5 text-gray-400" />
-                <Link href="/qc" className="hover:text-[#1e40af] transition-colors">QC</Link>
+              <div className="h-4 w-px bg-slate-200" />
+              <nav className="text-[10px] text-slate-400 flex items-center gap-1 uppercase font-bold tracking-wider">
+                <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
+                <ChevronRight className="h-2.5 w-2.5" />
+                <Link href="/qc" className="hover:text-[#ea580c] transition-colors">QC</Link>
                 {breadcrumbs.map((bc, idx) => {
                   const isLast = idx === breadcrumbs.length - 1;
                   return (
                     <div key={idx} className="flex items-center gap-1">
-                      <ChevronRight className="h-2.5 w-2.5 text-gray-400" />
+                      <ChevronRight className="h-2.5 w-2.5" />
                       {isLast ? (
-                        <span className="text-[#1e40af]">{bc.label}</span>
+                        <span className="text-[#ea580c]">{bc.label}</span>
                       ) : (
                         bc.href ? (
-                          <Link href={bc.href} className="hover:text-[#1e40af] transition-colors">
+                          <Link href={bc.href} className="hover:text-[#ea580c] transition-colors">
                             {bc.label}
                           </Link>
                         ) : (
@@ -252,15 +262,15 @@ export function QcLayout({ children, activePath, breadcrumbs, title }: QcLayoutP
             {/* Action Buttons */}
             <div className="flex gap-2">
               <Link href="/qc/mix-design/new">
-                <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded">
+                <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-extrabold text-[9px] px-3.5 h-6.5 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors">
                   <Plus className="h-3.5 w-3.5" /> Add Mix Design
                 </Button>
               </Link>
               <Button
                 size="sm"
                 onClick={toggleFilters}
-                className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer rounded ${
-                  showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                className={`font-extrabold text-[9px] px-3.5 h-6.5 uppercase tracking-wider shadow-none border rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors ${
+                  showFilters ? "bg-orange-50 border-orange-200 text-[#ea580c]" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <Filter className="h-3 w-3" /> Filters

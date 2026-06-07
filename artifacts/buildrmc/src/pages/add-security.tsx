@@ -159,7 +159,7 @@ export default function AddSecurityCheck() {
           <Link href="/transport/security/list">
             <Button
               type="button"
-              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
             >
               Security Check List List
             </Button>
@@ -183,7 +183,7 @@ export default function AddSecurityCheck() {
                     <select
                       value={plant}
                       onChange={(e) => setPlant(e.target.value)}
-                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5] transition-all"
+                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                     >
                       <option value="">Choose Plant</option>
                       {plants.map((p) => (
@@ -204,7 +204,7 @@ export default function AddSecurityCheck() {
                       value={gateNo}
                       onChange={(e) => setGateNo(e.target.value)}
                       placeholder="e.g. 1"
-                      className="h-10 text-xs font-bold border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                      className="h-10 text-xs font-bold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                       required
                     />
                   </div>
@@ -216,7 +216,7 @@ export default function AddSecurityCheck() {
                       <select
                         value={vehicleNo}
                         onChange={(e) => handleVehicleChange(e.target.value)}
-                        className="w-full h-10 rounded border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5] transition-all"
+                        className="w-full h-10 rounded border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                       >
                         {vehicles.map((v) => (
                           <option key={v.id || v._id} value={v.registrationNo}>
@@ -236,7 +236,7 @@ export default function AddSecurityCheck() {
                         value={driverName}
                         onChange={(e) => setDriverName(e.target.value)}
                         placeholder="e.g. Suresh Kumar"
-                        className="pl-9 h-10 text-xs font-semibold border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                        className="pl-9 h-10 text-xs font-semibold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                       />
                       <User className="absolute left-3 h-4 w-4 text-slate-400 pointer-events-none" />
                     </div>
@@ -253,7 +253,7 @@ export default function AddSecurityCheck() {
                     <select
                       value={gatePassing}
                       onChange={(e) => setGatePassing(e.target.value)}
-                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5] transition-all"
+                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                     >
                       <option value="Entry">Entry</option>
                       <option value="Exit">Exit</option>
@@ -268,7 +268,7 @@ export default function AddSecurityCheck() {
                     <select
                       value={typeOfMovement}
                       onChange={(e) => setTypeOfMovement(e.target.value)}
-                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5] transition-all"
+                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                     >
                       <option value="Sales">Sales</option>
                       <option value="Purchase">Purchase</option>
@@ -288,7 +288,7 @@ export default function AddSecurityCheck() {
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="h-10 text-xs font-semibold border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded w-full pr-10"
+                        className="h-10 text-xs font-semibold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded w-full pr-10"
                         required
                       />
                       <Calendar className="absolute right-3 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -306,7 +306,7 @@ export default function AddSecurityCheck() {
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                         placeholder="HH:MM:SS"
-                        className="h-10 text-xs font-semibold border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded w-full pr-10"
+                        className="h-10 text-xs font-semibold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded w-full pr-10"
                         required
                       />
                       <Clock className="absolute right-3 h-4 w-4 text-slate-400 pointer-events-none" />
@@ -321,7 +321,7 @@ export default function AddSecurityCheck() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm active:scale-95 transition-all"
+                  className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm active:scale-95 transition-all"
                 >
                   {loading ? "Saving..." : "Save Security Check"}
                 </Button>

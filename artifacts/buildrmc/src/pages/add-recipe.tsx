@@ -372,7 +372,7 @@ export default function AddRecipe() {
                     <TableCell colSpan={3} className="text-right text-[10px] uppercase text-slate-800 py-3 pr-6">
                       Total Density :
                     </TableCell>
-                    <TableCell className="text-left text-xs font-black text-[#1e40af] py-3 pl-3">
+                    <TableCell className="text-left text-xs font-black text-[#ea580c] py-3 pl-3">
                       {totalDensity.toFixed(2)} <span className="text-[10px] text-slate-500 font-bold">kg/m³</span>
                     </TableCell>
                   </TableRow>

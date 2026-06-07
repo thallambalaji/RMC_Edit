@@ -127,21 +127,21 @@ export default function AddScheduling() {
     <div className="space-y-4 pb-10">
       <div className="flex items-center justify-between px-3 py-1.5 border-b bg-white rounded-t-lg">
         <div className="flex items-center gap-3">
-          <div className="bg-[#1e40af]/10 p-1 rounded">
-             <CalendarClock className="h-3 w-3 text-[#1e40af]" />
+          <div className="bg-[#ea580c]/10 p-1 rounded">
+             <CalendarClock className="h-3 w-3 text-[#ea580c]" />
           </div>
           <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase">New Vehicle Scheduling</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
-            <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
             <ChevronRight className="h-2 w-2" />
-            <Link href="/customer-po" className="hover:text-[#1e40af]">Customer & PO</Link>
+            <Link href="/customer-po" className="hover:text-[#ea580c]">Customer & PO</Link>
             <ChevronRight className="h-2 w-2" />
-            <span className="text-[#1e40af]">Vehicle Scheduling</span>
+            <span className="text-[#ea580c]">Vehicle Scheduling</span>
           </nav>
         </div>
         <Link href="/customer-po/scheduling">
-          <Button variant="outline" size="sm" className="h-6 text-[9px] font-black uppercase border-[#1e40af] text-[#1e40af] hover:bg-cyan-50 gap-2">
+          <Button variant="outline" size="sm" className="h-6 text-[9px] font-black uppercase border-[#ea580c] text-[#ea580c] hover:bg-orange-50/40 gap-2">
             <ListPlus className="h-3 w-3" /> View Schedule List
           </Button>
         </Link>
@@ -319,7 +319,7 @@ export default function AddScheduling() {
 
           {/* Grade table from selected order */}
           <div className="mt-8 border border-gray-200 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-4 bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] text-white">
+            <div className="grid grid-cols-4 bg-gradient-to-r from-[#ea580c] to-[#d97706] text-white">
               {["Grade", "Quantity", "PO Quantity", "Rem. Quantity"].map((h) => (
                 <div key={h} className="p-3 font-bold text-center text-xs uppercase border-r border-white/20 last:border-0">{h}</div>
               ))}
@@ -347,7 +347,7 @@ export default function AddScheduling() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-11 font-bold shadow-md shadow-[#1e40af]/20"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white px-8 h-11 font-bold shadow-md shadow-[#ea580c]/20"
             >
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Start Scheduling
@@ -371,7 +371,7 @@ export default function AddScheduling() {
             {customerId && salesOrderId ? (
               <div className="w-full space-y-4">
                 <div className="text-center text-sm text-gray-500 font-medium mb-4">
-                  Order: <span className="text-[#1e40af] font-bold">{(selectedOrder as any)?.poNumber}</span>
+                  Order: <span className="text-[#ea580c] font-bold">{(selectedOrder as any)?.poNumber}</span>
                 </div>
                 {(selectedOrder as any)?.items?.map((item: any, i: number) => (
                   <div key={i} className="space-y-1">
@@ -381,7 +381,7 @@ export default function AddScheduling() {
                     </div>
                     <div className="w-full bg-gray-100 rounded-full h-3">
                       <div
-                        className="bg-gradient-to-r from-[#1e40af] to-emerald-400 h-3 rounded-full transition-all"
+                        className="bg-gradient-to-r from-[#ea580c] to-emerald-400 h-3 rounded-full transition-all"
                         style={{
                           width: `${item.quantity > 0 ? Math.max(5, ((item.remainingQty ?? item.quantity) / item.quantity) * 100) : 0}%`
                         }}

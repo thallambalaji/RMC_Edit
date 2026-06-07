@@ -337,9 +337,9 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
     }
   };
 
-  const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const labelStyle = "text-[9px] font-extrabold text-slate-400 mb-0.5 block uppercase tracking-wider";
+  const inputStyle = "h-7 text-[10px] border-slate-200 rounded-lg shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
+  const headerStyle = "bg-slate-50/50 text-slate-500 font-extrabold py-2 px-4 text-left text-[9.5px] border-b border-slate-100 uppercase tracking-wider";
 
   return (
     <>
@@ -369,34 +369,34 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
 
       {/* Main Page Content */}
       <div className="space-y-3.5 main-screen">
-        <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
+        <div className="flex items-center justify-between bg-white p-2.5 px-4 rounded-2xl border border-slate-100 shadow-sm shrink-0 no-print">
           <div className="flex items-center gap-3">
-            <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Customer Management</h2>
-            <div className="h-4 w-px bg-gray-300" />
-            <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-              <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <h2 className="text-[11px] font-extrabold text-slate-700 uppercase tracking-tight">Customer Management</h2>
+            <div className="h-4 w-px bg-slate-200" />
+            <nav className="text-[10px] text-slate-400 flex items-center gap-1 uppercase font-bold tracking-wider">
+              <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+              <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <span className="text-[#1e40af]">Customer List</span>
+              <span className="text-[#ea580c]">Customer List</span>
             </nav>
           </div>
           <div className="flex gap-2">
             <Link href="/customer-po/customer/new">
-              <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+              <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-extrabold text-[9px] px-3.5 h-6.5 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors">
                 <Plus className="h-3.5 w-3.5" /> Add Customer
               </Button>
             </Link>
             <Link href="/customer-po/customer/godowns">
-              <Button size="sm" className="bg-[#1e293b] hover:bg-[#0f172a] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+              <Button size="sm" className="bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-[9px] px-3.5 h-6.5 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer rounded-lg transition-colors">
                 <Warehouse className="h-3.5 w-3.5" /> Manage Godowns
               </Button>
             </Link>
             <Button
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className={`font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border flex items-center gap-1.5 cursor-pointer ${
-                showFilters ? "bg-slate-100 border-slate-400 text-slate-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              className={`font-extrabold text-[9px] px-3.5 h-6.5 uppercase tracking-wider shadow-none border rounded-lg flex items-center gap-1.5 cursor-pointer transition-colors ${
+                showFilters ? "bg-orange-50 border-orange-200 text-[#ea580c]" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
               <Filter className="h-3 w-3" /> Filters
@@ -404,9 +404,9 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
           </div>
         </div>
 
-        {/* Robust, responsive wrapping flex container to prevent overflow/cutting */}
+        {/* Filters Panel */}
         {showFilters && (
-        <div className="bg-white rounded-lg p-3 border border-gray-100 shadow-sm no-print">
+        <div className="bg-white rounded-2xl p-4 border border-slate-100/80 shadow-sm no-print">
           <div className="flex flex-wrap gap-3 items-end">
             
             <div className="flex-1 min-w-[180px]">
@@ -433,16 +433,16 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
 
             <div className="w-52">
               <Label className={labelStyle}>Status</Label>
-              <div className="flex items-center gap-4 h-7 px-3 bg-white rounded-md border border-gray-200">
+              <div className="flex items-center gap-4 h-7 px-3 bg-white rounded-lg border border-slate-200">
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input 
                     type="radio" 
                     name="status" 
                     checked={statusFilter === "Active"} 
                     onChange={() => setStatusFilter("Active")}
-                    className="h-3 w-3 text-[#1e40af] cursor-pointer" 
+                    className="h-3 w-3 text-[#ea580c] accent-[#ea580c] cursor-pointer" 
                   />
-                  <span className="text-[10px] font-bold text-gray-700">Active</span>
+                  <span className="text-[10px] font-bold text-slate-750">Active</span>
                 </label>
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input 
@@ -450,9 +450,9 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                     name="status" 
                     checked={statusFilter === "Deactivated"}
                     onChange={() => setStatusFilter("Deactivated")}
-                    className="h-3 w-3 text-[#1e40af] cursor-pointer" 
+                    className="h-3 w-3 text-[#ea580c] accent-[#ea580c] cursor-pointer" 
                   />
-                  <span className="text-[10px] font-bold text-gray-700">Deactivated</span>
+                  <span className="text-[10px] font-bold text-slate-750">Deactivated</span>
                 </label>
               </div>
             </div>
@@ -473,18 +473,18 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
               </Select>
             </div>
 
-            {/* Symmetrical search and clear button group - Always aligned and never clipped */}
+            {/* Symmetrical buttons */}
             <div className="flex gap-1.5 h-7">
               <Button 
                 type="button"
                 onClick={handleSearch}
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-extrabold text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1 rounded-lg transition-colors"
               >
                 <Search className="h-3 w-3" /> Search
               </Button>
               <Button 
                 type="button"
-                className="bg-rose-500 hover:bg-rose-600 text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-[9px] h-full px-4 uppercase tracking-wider shadow-none border border-slate-200 cursor-pointer flex items-center justify-center gap-1 rounded-lg transition-colors"
                 onClick={handleClear}
               >
                 <RotateCcw className="h-3 w-3" /> Clear
@@ -496,15 +496,15 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
         )}
 
         {/* Table Register Component */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-3 border-b border-gray-100 flex items-center justify-between bg-slate-50/30 no-print">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100/80 overflow-hidden">
+          <div className="p-3 px-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30 no-print">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black text-gray-500 uppercase">Show</span>
+              <span className="text-[9px] font-black text-slate-400 uppercase">Show</span>
               <Select defaultValue="10">
-                <SelectTrigger className="w-14 h-6 bg-white border-gray-200 text-[10px] font-bold"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-14 h-6 bg-white border-slate-200 text-[10px] font-bold"><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="10">10</SelectItem></SelectContent>
               </Select>
-              <span className="text-[9px] font-black text-gray-500 uppercase">entries</span>
+              <span className="text-[9px] font-black text-slate-400 uppercase">entries</span>
             </div>
             <ExportDropdown
               onCopy={handleCopyAll}
@@ -516,13 +516,13 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
           <div className="overflow-x-auto min-h-[300px] no-print">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20 gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
-                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Loading registered directories from MongoDB Atlas...</p>
+                <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Loading registered directories from MongoDB Atlas...</p>
               </div>
             ) : (
               <Table>
-                <TableHeader className="sticky top-0 z-10 bg-slate-100">
-                  <TableRow className="border-0 hover:bg-slate-100">
+                <TableHeader className="bg-slate-50/50">
+                  <TableRow className="border-b border-slate-100 hover:bg-slate-50/50">
                     <TableHead className={headerStyle}>Customer Name</TableHead>
                     <TableHead className={headerStyle}>Address</TableHead>
                     <TableHead className={headerStyle}>Phone</TableHead>
@@ -530,27 +530,27 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                     <TableHead className={headerStyle}>PAN No</TableHead>
                     <TableHead className={headerStyle}>Sales Person</TableHead>
                     <TableHead className={headerStyle}>Reg Date</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
+                    <TableHead className="bg-slate-50/50 text-slate-500 font-extrabold py-2 px-3 text-center text-[9.5px] border-b border-slate-100 uppercase tracking-wider w-[70px]">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredCustomers.length === 0 ? (
                      <TableRow>
-                      <TableCell colSpan={8} className="text-center py-10 text-[10px] text-gray-400 font-bold italic uppercase">
+                      <TableCell colSpan={8} className="text-center py-10 text-[10px] text-slate-400 font-bold italic uppercase">
                         No customer directories found in MongoDB Atlas.
                       </TableCell>
                      </TableRow>
                   ) : filteredCustomers.map((customer, idx) => (
                     <TableRow key={idx} className="hover:bg-slate-50/50 border-b border-slate-100">
-                      <TableCell className="text-center text-[10px] font-black text-[#1e40af] py-2">{customer.name}</TableCell>
-                      <TableCell className="text-left text-[10px] text-slate-700 font-semibold max-w-[180px] truncate" title={customer.address}>{customer.address || "—"}</TableCell>
-                      <TableCell className="text-center text-[10px] font-semibold">{customer.contact || "—"}</TableCell>
-                      <TableCell className="text-center text-[10px] font-semibold">{customer.gstNumber || "—"}</TableCell>
-                      <TableCell className="text-center text-[10px] font-semibold whitespace-nowrap">
+                      <TableCell className="text-left text-[10.5px] font-bold text-slate-800 hover:text-[#ea580c] py-2.5 px-4 transition-colors cursor-pointer">{customer.name}</TableCell>
+                      <TableCell className="text-left text-[10px] text-slate-500 font-medium py-2.5 px-4 max-w-[200px] truncate" title={customer.address}>{customer.address || "—"}</TableCell>
+                      <TableCell className="text-center text-[10px] text-slate-650 font-semibold py-2.5 px-4">{customer.contact || "—"}</TableCell>
+                      <TableCell className="text-center text-[10px] text-slate-650 font-semibold py-2.5 px-4">{customer.gstNumber || "—"}</TableCell>
+                      <TableCell className="text-center text-[10px] text-slate-650 font-semibold py-2.5 px-4 whitespace-nowrap">
                         {customer.gstNumber && customer.gstNumber.length >= 12 ? customer.gstNumber.substring(2, 12) : "—"}
                       </TableCell>
-                      <TableCell className="text-center text-[10px] font-bold text-indigo-600">{customer.marketingPerson || "—"}</TableCell>
-                      <TableCell className="text-center text-[10px] font-semibold whitespace-nowrap">
+                      <TableCell className="text-center text-[10px] font-bold text-[#ea580c] py-2.5 px-4">{customer.marketingPerson || "—"}</TableCell>
+                      <TableCell className="text-center text-[10px] text-slate-500 font-semibold py-2.5 px-4 whitespace-nowrap">
                         {customer.createdAt ? format(new Date(customer.createdAt), "dd/MM/yyyy") : "—"}
                       </TableCell>
                       
@@ -568,11 +568,11 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
                             <DropdownMenuItem onClick={() => setViewingCustomer(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                              <Eye className="h-3.5 w-3.5 text-[#1e40af]" />
+                              <Eye className="h-3.5 w-3.5 text-[#ea580c]" />
                               <span>View Profile</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleStartEdit(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                              <Edit2 className="h-3.5 w-3.5 text-blue-600" />
+                              <Edit2 className="h-3.5 w-3.5 text-[#ea580c]" />
                               <span>Edit Customer</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => setPrintTarget(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
@@ -584,7 +584,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                               <span>Export CSV</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleCopySingle(customer)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                              <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                              <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                               <span>Copy Details</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
@@ -605,27 +605,28 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
           </div>
 
           <div className="flex items-center justify-between p-3 border-t bg-white shrink-0 no-print">
-            <div className="text-[9px] font-black text-gray-500 uppercase">Showing {filteredCustomers.length > 0 ? 1 : 0} to {filteredCustomers.length} of {filteredCustomers.length} entries</div>
+            <div className="text-[9px] font-black text-slate-400 uppercase font-extrabold">Showing {filteredCustomers.length > 0 ? 1 : 0} to {filteredCustomers.length} of {filteredCustomers.length} entries</div>
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-gray-200 text-gray-400" disabled><ChevronRight className="h-3 w-3 rotate-180" /></Button>
-              <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">1</div>
-              <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-gray-200 text-gray-400" disabled><ChevronRight className="h-3 w-3" /></Button>
+              <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-slate-200 text-slate-400" disabled><ChevronRight className="h-3 w-3 rotate-180" /></Button>
+              <div className="h-6 px-2 flex items-center justify-center bg-[#ea580c] text-white text-[9px] font-black rounded-lg">1</div>
+              <Button variant="outline" size="sm" className="h-6 w-6 p-0 border-slate-200 text-slate-400" disabled><ChevronRight className="h-3 w-3" /></Button>
             </div>
           </div>
         </div>
       </div>
 
+
       {/* View Customer Details Dialog */}
       <Dialog open={!!viewingCustomer} onOpenChange={() => setViewingCustomer(null)}>
         <DialogContent className="max-w-md p-5 bg-white rounded-lg border">
           <DialogHeader className="border-b pb-2 mb-3">
-            <DialogTitle className="text-sm font-black text-[#1e40af] uppercase tracking-wider">Customer Profile Details</DialogTitle>
+            <DialogTitle className="text-sm font-black text-[#ea580c] uppercase tracking-wider">Customer Profile Details</DialogTitle>
           </DialogHeader>
           {viewingCustomer && (
             <div className="space-y-3 text-xs">
               <div className="border p-2.5 rounded bg-slate-50/50">
                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
-                <p className="font-extrabold text-[#1e40af] text-sm">{viewingCustomer.name}</p>
+                <p className="font-extrabold text-[#ea580c] text-sm">{viewingCustomer.name}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="border p-2.5 rounded bg-slate-50/50">
@@ -662,7 +663,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
             </div>
           )}
           <DialogFooter className="mt-4 border-t pt-2">
-            <Button size="sm" onClick={() => setViewingCustomer(null)} className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white uppercase text-[9px] font-black h-7 px-4 shadow-none border-0 cursor-pointer">Close Profile</Button>
+            <Button size="sm" onClick={() => setViewingCustomer(null)} className="bg-[#ea580c] hover:bg-[#d97706] text-white uppercase text-[9px] font-black h-7 px-4 shadow-none border-0 cursor-pointer">Close Profile</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -671,7 +672,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       <Dialog open={!!editingCustomer} onOpenChange={() => setEditingCustomer(null)}>
         <DialogContent className="max-w-4xl p-5 bg-white rounded-lg border">
           <DialogHeader className="border-b pb-2 mb-3">
-            <DialogTitle className="text-sm font-black text-[#1e40af] uppercase tracking-wider">Update Customer Profile</DialogTitle>
+            <DialogTitle className="text-sm font-black text-[#ea580c] uppercase tracking-wider">Update Customer Profile</DialogTitle>
           </DialogHeader>
           <div className="max-h-[65vh] overflow-y-auto pr-1 space-y-4 scrollbar-thin scrollbar-thumb-gray-100">
             
@@ -898,7 +899,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
           </div>
           <DialogFooter className="mt-4 border-t pt-2 gap-2">
             <Button variant="outline" size="sm" onClick={() => setEditingCustomer(null)} className="h-7 uppercase text-[9px] font-black">Cancel</Button>
-            <Button size="sm" onClick={handleSaveEdit} disabled={updateCustomerMutation.isPending} className="bg-[#1e40af] hover:bg-[#1d4ed8] h-7 uppercase text-[9px] font-black text-white shadow-none border-0 cursor-pointer">
+            <Button size="sm" onClick={handleSaveEdit} disabled={updateCustomerMutation.isPending} className="bg-[#ea580c] hover:bg-[#d97706] h-7 uppercase text-[9px] font-black text-white shadow-none border-0 cursor-pointer">
               {updateCustomerMutation.isPending ? "Updating..." : "Save Changes"}
             </Button>
           </DialogFooter>
@@ -912,19 +913,19 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Customer Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Customer Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded">CUSTOMER DOSSIER</span>
             </div>
           </div>
 
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider border-b pb-1.5 mb-4 text-[#1e40af]">Customer Identity Details</h2>
+          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider border-b pb-1.5 mb-4 text-[#ea580c]">Customer Identity Details</h2>
 
           <table className="w-full border collapse text-xs mb-6">
             <tbody>
               <tr className="border-b">
                 <th className="p-3 bg-slate-50 text-left font-bold text-gray-600 w-1/3">Customer Name</th>
-                <td className="p-3 font-black text-[#1e40af] text-sm">{printTarget.name}</td>
+                <td className="p-3 font-black text-[#ea580c] text-sm">{printTarget.name}</td>
               </tr>
               <tr className="border-b">
                 <th className="p-3 bg-slate-50 text-left font-bold text-gray-600">Primary contact</th>
@@ -966,7 +967,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
             <div className="text-right">
               <div className="h-px bg-gray-300 w-44 mb-2 ml-auto" />
               <p className="font-bold text-gray-500 text-[10px] uppercase">Authorized Registrar Signatory</p>
-              <p className="font-black text-[#1e40af] uppercase mt-1">Fortune Concrete</p>
+              <p className="font-black text-[#ea580c] uppercase mt-1">Fortune Concrete</p>
             </div>
           </div>
         </div>
@@ -977,7 +978,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">OFFICIAL REGISTERED CUSTOMERS DIRECTORY</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">OFFICIAL REGISTERED CUSTOMERS DIRECTORY</h2>
             <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 
@@ -998,7 +999,7 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
               {filteredCustomers.map((c: any, idx: number) => (
                 <tr key={idx} className="hover:bg-slate-50">
                   <td className="border p-2 text-center font-semibold">{idx + 1}</td>
-                  <td className="border p-2 font-bold text-[#1e40af]">{c.name}</td>
+                  <td className="border p-2 font-bold text-[#ea580c]">{c.name}</td>
                   <td className="border p-2 text-gray-600 max-w-[150px] truncate">{c.address || "—"}</td>
                   <td className="border p-2 text-center font-semibold">{c.contact || "—"}</td>
                   <td className="border p-2 text-center uppercase">{c.gstNumber || "—"}</td>

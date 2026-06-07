@@ -253,11 +253,11 @@ export default function InventoryList() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <div className="flex justify-between items-center border-b pb-6 mb-6">
             <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">{printReceipt.plant}</h1>
+              <h1 className="text-3xl font-black text-[#ea580c] tracking-tight">{printReceipt.plant}</h1>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
             </div>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">INVENTORY RECEIPT</div>
+              <div className="bg-[#ea580c] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">INVENTORY RECEIPT</div>
               <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
               <p className="text-[9px] text-gray-400 font-medium">Receipt Date: {printReceipt.inventoryDate}</p>
             </div>
@@ -265,7 +265,7 @@ export default function InventoryList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Receipt Details</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Receipt Details</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Inventory No: <span className="font-black text-gray-900">{printReceipt.inventoryNo}</span></p>
                 <p className="text-xs font-bold text-gray-700">Date & Time: <span className="font-medium text-gray-900">{printReceipt.inventoryDate} {printReceipt.inventoryTime}</span></p>
@@ -274,7 +274,7 @@ export default function InventoryList() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Item & Supplier</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Item & Supplier</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Supplier: <span className="font-black text-gray-900">{printReceipt.supplierName}</span></p>
                 <p className="text-xs font-bold text-gray-700">Item: <span className="font-medium text-gray-900">{printReceipt.itemName}</span></p>
@@ -299,7 +299,7 @@ export default function InventoryList() {
                 <td className="border p-2">Empty Weight</td>
                 <td className="border p-2 text-right">{printReceipt.emptyWeight} KG</td>
               </tr>
-              <tr className="font-bold text-[#1e40af]">
+              <tr className="font-bold text-[#ea580c]">
                 <td className="border p-2">Net Weight</td>
                 <td className="border p-2 text-right">{printReceipt.netWeight} KG</td>
               </tr>
@@ -322,7 +322,7 @@ export default function InventoryList() {
               <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Driver Signature</p>
             </div>
             <div className="text-center w-40 border-t pt-2 border-gray-300">
-              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Signatory</p>
+              <p className="text-[9px] font-extrabold uppercase text-[#ea580c] tracking-wider">Authorized Signatory</p>
             </div>
           </div>
         </div>
@@ -344,7 +344,7 @@ export default function InventoryList() {
                 value={inventoryNoFilter}
                 onChange={(e) => setInventoryNoFilter(e.target.value)}
                 placeholder="Enter Inventory No" 
-                className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white"
+                className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white"
               />
             </div>
 
@@ -355,7 +355,7 @@ export default function InventoryList() {
                   type="date"
                   value={fromDateFilter}
                   onChange={(e) => setFromDateFilter(e.target.value)}
-                  className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white pr-8"
+                  className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white pr-8"
                 />
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function InventoryList() {
                   type="date"
                   value={toDateFilter}
                   onChange={(e) => setToDateFilter(e.target.value)}
-                  className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white pr-8"
+                  className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white pr-8"
                 />
               </div>
             </div>
@@ -375,7 +375,7 @@ export default function InventoryList() {
             <div className="w-40">
               <Label className="text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter">Supplier</Label>
               <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-                <SelectTrigger className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white">
+                <SelectTrigger className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -392,7 +392,7 @@ export default function InventoryList() {
             <div className="w-40">
               <Label className="text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter">Item</Label>
               <Select value={itemFilter} onValueChange={setItemFilter}>
-                <SelectTrigger className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white">
+                <SelectTrigger className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-slate-200 text-slate-700">
@@ -410,7 +410,7 @@ export default function InventoryList() {
             <div className="flex gap-1.5 h-7">
               <Button 
                 onClick={handleSearch} 
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
               >
                 <Search className="h-3 w-3" /> Search
               </Button>
@@ -456,21 +456,21 @@ export default function InventoryList() {
           {/* Data Table */}
           <div className="overflow-x-auto bg-white">
             <Table>
-              <TableHeader className="sticky top-0 z-10 bg-[#1e40af]">
-                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Inventory No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Date</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Time</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Supplier</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Item</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Empty Weight</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Loaded Weight</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Net Weight</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Supplier Weight</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Vehicle NO</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Bill No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Plant</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#ea580c]">
+                <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Inventory No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Date</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Time</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Supplier</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Item</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Empty Weight</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Loaded Weight</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Net Weight</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Supplier Weight</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Vehicle NO</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Bill No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">Plant</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -496,7 +496,7 @@ export default function InventoryList() {
                       {/* Inventory No blue link */}
                       <TableCell 
                         onClick={() => setSelectedReceipt(row)} 
-                        className="text-center py-3 text-blue-600 font-extrabold text-xs cursor-pointer hover:underline font-mono"
+                        className="text-center py-3 text-[#ea580c] font-extrabold text-xs cursor-pointer hover:underline font-mono"
                       >
                         {row.inventoryNo}
                       </TableCell>
@@ -525,7 +525,7 @@ export default function InventoryList() {
                         {row.loadedWeight}
                       </TableCell>
 
-                      <TableCell className="text-center py-3 text-[#1e40af] font-mono font-bold text-xs">
+                      <TableCell className="text-center py-3 text-[#ea580c] font-mono font-bold text-xs">
                         {Number(row.netWeight).toFixed(2)}
                       </TableCell>
 
@@ -562,14 +562,14 @@ export default function InventoryList() {
                               onClick={() => setSelectedReceipt(row)} 
                               className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                             >
-                              <Eye className="h-3.5 w-3.5 text-blue-600" />
+                              <Eye className="h-3.5 w-3.5 text-[#ea580c]" />
                               View Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               onClick={() => handleEdit(row)} 
                               className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                             >
-                              <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                              <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                               Edit Customer
                             </DropdownMenuItem>
                             <DropdownMenuItem 
@@ -590,7 +590,7 @@ export default function InventoryList() {
                               onClick={() => handleCopySingle(row)} 
                               className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                             >
-                              <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                              <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                               Copy Details
                             </DropdownMenuItem>
                             <DropdownMenuItem 
@@ -626,7 +626,7 @@ export default function InventoryList() {
               >
                 <ChevronRight className="h-3 w-3 rotate-180" />
               </Button>
-              <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">
+              <div className="h-6 px-2 flex items-center justify-center bg-[#ea580c] text-white text-[9px] font-black rounded">
                 {currentPage}
               </div>
               <Button 
@@ -659,7 +659,7 @@ export default function InventoryList() {
               <div className="space-y-3">
                 <div>
                   <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Inventory No:</span> 
-                  <div className="font-bold text-slate-800 font-mono text-[#1e40af]">{selectedReceipt?.inventoryNo}</div>
+                  <div className="font-bold text-slate-800 font-mono text-[#ea580c]">{selectedReceipt?.inventoryNo}</div>
                 </div>
                 <div>
                   <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Operating Plant:</span> 
@@ -692,7 +692,7 @@ export default function InventoryList() {
                   <div className="text-xs space-y-0.5 text-slate-700 font-semibold font-mono">
                     <div>Loaded: {selectedReceipt?.loadedWeight} KG</div>
                     <div>Empty: {selectedReceipt?.emptyWeight} KG</div>
-                    <div className="font-bold text-[#1e40af]">Net: {selectedReceipt?.netWeight} KG</div>
+                    <div className="font-bold text-[#ea580c]">Net: {selectedReceipt?.netWeight} KG</div>
                     <div>Supplier: {selectedReceipt?.supplierWeight} KG</div>
                     <div className="font-bold text-red-600">Difference: {selectedReceipt?.weightDifference} KG</div>
                   </div>

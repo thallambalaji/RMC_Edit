@@ -107,7 +107,7 @@ export default function AddVehicle() {
       activePath={vehicleId ? `/transport/vehicle/edit/${vehicleId}` : "/transport/vehicle/new"}
     >
       <div className="max-w-2xl mx-auto w-full py-8 px-4">
-        <Card className="border shadow-md bg-white rounded-lg overflow-hidden border-t-4 border-[#00c0a5]">
+        <Card className="border shadow-md bg-white rounded-lg overflow-hidden border-t-4 border-[#ea580c]">
           <div className="p-4 bg-slate-50 border-b flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Truck className="h-5 w-5 text-slate-800" />
@@ -157,7 +157,7 @@ export default function AddVehicle() {
                   <select
                     value={vehicleType}
                     onChange={(e) => setVehicleType(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#ea580c]"
                   >
                     <option value="Own">Own</option>
                     <option value="Rental">Rental</option>
@@ -169,7 +169,7 @@ export default function AddVehicle() {
                   <select
                     value={vehicleCategory}
                     onChange={(e) => setVehicleCategory(e.target.value)}
-                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#ea580c]"
                   >
                     <option value="KM Basis">KM Basis</option>
                     <option value="Trip Basis">Trip Basis</option>
@@ -182,7 +182,7 @@ export default function AddVehicle() {
                 <select
                   value={transporter}
                   onChange={(e) => setTransporter(e.target.value)}
-                  className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full h-10 rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#ea580c]"
                 >
                   <option value="Choose Transporter">Choose Transporter</option>
                   <option value="N/A">N/A</option>
@@ -193,7 +193,7 @@ export default function AddVehicle() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="bg-[#00c0a5] hover:bg-[#00a991] text-white font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm transition-all"
+                  className="bg-[#ea580c] hover:bg-[#00a991] text-white font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm transition-all"
                 >
                   {loading ? "Saving..." : (vehicleId ? "Update Vehicle" : "Save Vehicle")}
                 </Button>

@@ -179,16 +179,16 @@ export default function AddWeighment() {
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Record vehicle weights and generate delivery records</p>
         </div>
         <nav className="text-[10px] font-bold text-slate-400 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-          <Link href="/dashboard" className="hover:text-cyan-500 transition-colors">HOME</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">HOME</Link>
           <ChevronRight className="h-3 w-3 opacity-30" />
-          <Link href="/dc" className="hover:text-cyan-500 transition-colors">DC</Link>
+          <Link href="/dc" className="hover:text-[#ea580c] transition-colors">DC</Link>
           <ChevronRight className="h-3 w-3 opacity-30" />
           <span className="text-slate-800">ADD</span>
         </nav>
       </div>
 
       <div className="flex justify-start">
-        <Link href="/dc/weighment/list" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-6 py-2 shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+        <Link href="/dc/weighment/list" className="bg-[#ea580c] hover:bg-[#d97706] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-6 py-2 shadow-lg shadow-orange-500/20 transition-all active:scale-95">
           <ListPlus className="h-4 w-4" />
           + WEIGHMENT LIST
         </Link>
@@ -199,8 +199,8 @@ export default function AddWeighment() {
         <div className="lg:col-span-8">
           <div className="glass-card p-6 h-full border-white/80 shadow-xl">
             <div className="flex items-center gap-2 mb-8 border-b border-slate-100 pb-4">
-              <div className="bg-cyan-500/10 p-2 rounded-lg">
-                <Truck className="h-5 w-5 text-cyan-600" />
+              <div className="bg-[#ea580c]/10 p-2 rounded-lg">
+                <Truck className="h-5 w-5 text-[#ea580c]" />
               </div>
               <h3 className="font-black text-slate-800 text-sm tracking-widest uppercase">Weighment Details</h3>
             </div>
@@ -379,7 +379,7 @@ export default function AddWeighment() {
             </div>
 
             <div className="flex gap-3 mt-10 border-t border-slate-100 pt-6">
-              <Button onClick={handleSave} className="btn-primary px-10 h-11 gap-2 shadow-lg shadow-cyan-500/20">
+              <Button onClick={handleSave} className="btn-primary px-10 h-11 gap-2 shadow-lg shadow-orange-500/20">
                 <Save className="h-4 w-4" /> SAVE WEIGHMENT
               </Button>
               <Button onClick={handleClear} variant="outline" className="bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 px-10 h-11 gap-2 transition-all font-black text-[10px] uppercase tracking-widest">
@@ -394,7 +394,7 @@ export default function AddWeighment() {
           <div className="glass-card overflow-hidden border-white/80 shadow-xl">
             <div className="bg-slate-50 p-4 flex items-center justify-between border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <Info className="h-4 w-4 text-cyan-600" />
+                <Info className="h-4 w-4 text-[#ea580c]" />
                 <span className="font-black text-slate-800 text-[10px] uppercase tracking-widest">Ticket Summary</span>
               </div>
               <Settings className="h-4 w-4 text-slate-300 cursor-pointer hover:text-slate-600 transition-colors" />
@@ -411,7 +411,7 @@ export default function AddWeighment() {
                 </div>
               ))}
             </div>
-            <div className="p-4 bg-cyan-50/30 text-[9px] text-cyan-700 leading-relaxed italic font-semibold">
+            <div className="p-4 bg-orange-50/40/30 text-[9px] text-[#ea580c] leading-relaxed italic font-semibold">
               Verification info: This data is synced with the plant's automated weigh-bridge system. Please verify vehicle number before saving.
             </div>
           </div>

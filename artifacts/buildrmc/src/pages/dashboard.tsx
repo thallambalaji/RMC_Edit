@@ -3,24 +3,11 @@ import {
   useDashboardAccountsOverview,
   useDashboardInvoiceOverview,
   useDashboardDcOverview,
-  useDashboardInventoryOverview,
-  useDashboardAverageOverview,
-  useDashboardSchedulingOverview,
-  useDashboardPaymentFollowup,
-  useDashboardCurrentStock,
   useDashboardStats,
   useGetMasters
 } from "@workspace/api-client-react";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -31,85 +18,113 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { 
-  Search, FileText, Truck, CalendarCheck, Package, 
-  CreditCard, Boxes, Activity, Clock, FileWarning, ShoppingCart, TestTube,
-  Printer, Copy, Download, Trash2, RefreshCw
+  FileText, Truck, CalendarCheck, Clock, Activity, Printer, Copy, Download, Trash2, 
+  ArrowRight, Inbox, ShoppingCart, TestTube, Zap, MoreHorizontal, RefreshCw, User, Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { Link } from "wouter";
 
-const KpiCard = ({ title, value, icon: Icon, colorClass, bgClass }: any) => (
-  <div className="rounded-xl p-4 flex items-center gap-4 bg-white border border-slate-100 shadow-sm transition-all hover:shadow-md hover:scale-[1.02]">
-    <div className={`p-3 rounded-xl ${colorClass} text-white shadow-sm`}>
-      <Icon className="w-5 h-5" />
+// Reusable KPI card matching mock design
+const KpiCard = ({ title, value, icon: Icon, borderClass, textClass, href }: any) => (
+  <div className={`rounded-xl p-5 bg-white border ${borderClass} shadow-sm flex flex-col justify-between h-[120px] transition-all hover:shadow-md hover:scale-[1.02]`}>
+    <div className="flex justify-between items-start">
+      <div className="space-y-1">
+        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">{title}</p>
+        <h3 className="text-3xl font-black text-slate-800 leading-none">{value}</h3>
+      </div>
+      <div className={`p-2.5 rounded-xl border ${borderClass} ${textClass} bg-slate-50/50`}>
+        <Icon className="w-5 h-5" />
+      </div>
     </div>
-    <div>
-      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">{title}</p>
-      <h3 className="text-2xl font-black text-slate-800 leading-none">{value}</h3>
+    <Link href={href || "#"} className={`text-[10px] font-extrabold uppercase tracking-wider flex items-center gap-1 hover:underline ${textClass}`}>
+      View details <ArrowRight className="w-3 h-3" />
+    </Link>
+  </div>
+);
+
+// Reusable Quick Action item
+const QuickActionItem = ({ label, href, icon: Icon, borderClass, textClass, bgClass }: any) => (
+  <Link href={href} className="block no-underline">
+    <div className={`flex items-center justify-between p-3.5 rounded-xl border ${borderClass} ${bgClass} hover:opacity-90 transition-all cursor-pointer group`}>
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-lg border ${borderClass} ${textClass} bg-white`}>
+          <Icon className="w-4 h-4" />
+        </div>
+        <span className="text-xs font-extrabold text-slate-700">{label}</span>
+      </div>
+      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+    </div>
+  </Link>
+);
+
+// Reusable Activity timeline item
+const ActivityItem = ({ title, desc, time, icon: Icon, bgClass, textClass }: any) => (
+  <div className="flex gap-3 items-start">
+    <div className={`p-2 rounded-full ${bgClass} ${textClass} shrink-0`}>
+      <Icon className="w-3.5 h-3.5" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="flex justify-between items-baseline">
+        <h4 className="text-xs font-extrabold text-slate-800 truncate">{title}</h4>
+        <span className="text-[9px] text-slate-400 font-bold shrink-0">{time}</span>
+      </div>
+      <p className="text-[10px] text-slate-500 font-semibold mt-0.5">{desc}</p>
     </div>
   </div>
 );
 
-const SectionHeader = ({ title, icon: Icon, action }: any) => (
-  <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/50">
-    <h3 className="text-[13px] font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-      <Icon className="w-4 h-4 text-[#1e40af]" /> {title}
-    </h3>
-    {action && <div className="shrink-0">{action}</div>}
-  </div>
-);
+// Reusable Donut chart for Invoice/DC overviews
+const DonutChart = ({ paidValue, totalValue, centerLabel, color1, color2 }: any) => {
+  const percent = totalValue > 0 ? Math.round((paidValue / totalValue) * 100) : 0;
+  const data = totalValue > 0 
+    ? [
+        { name: "Active", value: paidValue },
+        { name: "Rest", value: totalValue - paidValue }
+      ]
+    : [
+        { name: "Active", value: 0 },
+        { name: "Rest", value: 100 }
+      ];
 
-const FilterBar = ({ plant, setPlant, fromDate, setFromDate, toDate, setToDate, onClear, dbPlants }: any) => (
-  <div className="flex gap-2 items-center flex-wrap bg-white p-3 border-b border-slate-100">
-    <div className="w-[140px]">
-      <Select value={plant} onValueChange={setPlant}>
-        <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50"><SelectValue /></SelectTrigger>
-        <SelectContent>
-          <SelectItem value="All Plant">All Plants</SelectItem>
-          {dbPlants?.map((p: any) => (
-            <SelectItem key={p.id || p._id} value={p.name}>
-              {p.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+  return (
+    <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={42}
+            outerRadius={56}
+            paddingAngle={0}
+            dataKey="value"
+            startAngle={90}
+            endAngle={-270}
+          >
+            <Cell fill={color1} />
+            <Cell fill={color2} />
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="text-xl font-black text-slate-800 leading-none">{percent}%</span>
+        <span className="text-[8px] text-slate-400 font-bold uppercase tracking-wider mt-1.5">{centerLabel}</span>
+      </div>
     </div>
-    <Input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="h-8 text-xs font-semibold w-[145px] bg-slate-50 px-2" />
-    <Input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="h-8 text-xs font-semibold w-[145px] bg-slate-50 px-2" />
-    <Button size="sm" className="h-8 bg-[#1e40af] hover:bg-[#2a8f95] text-xs font-bold text-white px-4 shadow-sm cursor-pointer">
-      <Search className="h-3 w-3 mr-1.5" /> Search
-    </Button>
-    <Button size="sm" onClick={onClear} className="h-8 bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600 px-4 shadow-sm border border-slate-200 cursor-pointer">
-      Clear
-    </Button>
-  </div>
-);
+  );
+};
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const [plant, setPlant] = useState("All Plant");
-  const [fromDate, setFromDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [toDate, setToDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [printData, setPrintData] = useState<any>(null);
-  const { data: dbPlants } = useGetMasters("plant");
 
-  const filterParams = { plant, from: fromDate, to: toDate };
+  const filterParams = { plant: "All Plant" };
 
   const { data: accounts } = useDashboardAccountsOverview();
   const { data: invoices } = useDashboardInvoiceOverview(filterParams);
   const { data: dcs } = useDashboardDcOverview(filterParams);
-  const { data: inventory } = useDashboardInventoryOverview(filterParams);
-  const { data: average } = useDashboardAverageOverview({ plant, lastMonths: 3 });
-  const { data: scheduling } = useDashboardSchedulingOverview(filterParams);
-  const { data: paymentFollowup } = useDashboardPaymentFollowup();
-  const { data: currentStock } = useDashboardCurrentStock();
   const { data: stats } = useDashboardStats();
-
-  const handleClearFilters = () => {
-    setPlant("All Plant");
-    setFromDate(format(new Date(), "yyyy-MM-dd"));
-    setToDate(format(new Date(), "yyyy-MM-dd"));
-    toast({ title: "Filters Cleared", description: "Dashboard view reset to today's operations." });
-  };
 
   const handlePrintCard = (title: string, headers: string[], rows: any[]) => {
     if (!rows || rows.length === 0) {
@@ -157,52 +172,7 @@ export default function Dashboard() {
     });
   };
 
-  const getCardActions = (title: string, headers: string[], rows: any[]) => (
-    <div className="flex items-center gap-1.5">
-      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mr-1">Actions:</span>
-      <Button 
-        onClick={() => handlePrintCard(title, headers, rows)}
-        variant="ghost" 
-        size="icon" 
-        className="h-6 w-6 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
-        title="Print PDF with Company Letterhead"
-      >
-        <Printer className="h-3.5 w-3.5" />
-      </Button>
-      <Button 
-        onClick={() => handleCopyCard(title, headers, rows)}
-        variant="ghost" 
-        size="icon" 
-        className="h-6 w-6 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded cursor-pointer"
-        title="Copy Table to Clipboard"
-      >
-        <Copy className="h-3.5 w-3.5" />
-      </Button>
-      <Button 
-        onClick={() => handleCSVCard(title, headers, rows)}
-        variant="ghost" 
-        size="icon" 
-        className="h-6 w-6 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded cursor-pointer"
-        title="Export CSV"
-      >
-        <Download className="h-3.5 w-3.5" />
-      </Button>
-      <Button 
-        onClick={() => handleDeleteOverviewRow(title)}
-        variant="ghost" 
-        size="icon" 
-        className="h-6 w-6 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded cursor-pointer"
-        title="Delete Record"
-      >
-        <Trash2 className="h-3.5 w-3.5" />
-      </Button>
-    </div>
-  );
-
-  const tableHeaderClass = "bg-slate-50/80 text-[10px] uppercase font-extrabold text-slate-500 py-2.5 px-4 tracking-wider";
-  const tableCellClass = "py-2.5 px-4 text-xs font-semibold text-slate-700 border-b border-slate-50";
-
-  // Data mappings for quick actions integrations
+  // Memoized lists for actions
   const accountsData = useMemo(() => {
     return accounts?.map((r: any) => [
       r.plantName, 
@@ -235,431 +205,500 @@ export default function Dashboard() {
     ]) || [];
   }, [dcs]);
 
-  const inventoryData = useMemo(() => {
-    return inventory?.map((r: any) => [
-      r.item, 
-      r.supplier, 
-      (parseFloat(r.netWeight || "0") / 1000).toFixed(2)
-    ]) || [];
-  }, [inventory]);
+  const invoiceAmountSum = useMemo(() => {
+    return invoices?.reduce((acc: number, r: any) => acc + (r.netAmount || 0), 0) || 0;
+  }, [invoices]);
 
-  const averageData = useMemo(() => {
-    return average?.map((r: any) => [
-      `${r.month} ${r.year}`, 
-      Number(r.totalQuantity || 0).toFixed(2), 
-      Number(r.totalLoadedQty || 0).toFixed(2), 
-      `₹${Number(r.averageRate || 0).toLocaleString("en-IN", {minimumFractionDigits: 2})}`
-    ]) || [];
-  }, [average]);
-
-  const schedulingData = useMemo(() => {
-    return scheduling?.map((r: any) => [
-      r.customerName, 
-      r.site, 
-      r.grade, 
-      r.quantity, 
-      r.startDateTime, 
-      r.endDateTime
-    ]) || [];
-  }, [scheduling]);
-
-  const paymentFollowupData = useMemo(() => {
-    return paymentFollowup?.map((r: any) => [
-      r.customerName, 
-      r.nextFollowupDate, 
-      r.followupDescription
-    ]) || [];
-  }, [paymentFollowup]);
-
-  const currentStockData = useMemo(() => {
-    return currentStock?.map((r: any) => [
-      r.item, 
-      Number(r.stock || 0).toFixed(2)
-    ]) || [];
-  }, [currentStock]);
+  const dcQtySum = useMemo(() => {
+    return dcs?.reduce((acc: number, r: any) => acc + (r.quantity || 0), 0) || 0;
+  }, [dcs]);
 
   return (
     <>
-      {/* Primary Dashboard layout: completely hidden during printing */}
-      <div className="space-y-6 pb-20 max-w-[1600px] mx-auto p-4 md:p-6 print:hidden">
+      <div className="space-y-6 pb-12 max-w-[1600px] mx-auto print:hidden anim-fade-up">
         {/* Welcome Banner */}
-        <div className="relative rounded-2xl overflow-hidden bg-slate-900 p-8 text-white shadow-2xl mb-2">
+        <div className="relative rounded-2xl overflow-hidden bg-slate-900 min-h-[160px] p-8 text-white shadow-xl flex items-center">
           <div className="absolute inset-0 z-0 opacity-40">
-            <img src="/construction_bg.png" alt="bg" className="w-full h-full object-cover" />
+            <img src="/construction_bg.png" alt="Construction background" className="w-full h-full object-cover" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/60 to-transparent z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/75 to-transparent z-[1]" />
           
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-1 w-8 bg-blue-500 rounded-full" />
-                <p className="text-blue-400 font-black uppercase tracking-[0.3em] text-[9px]">Enterprise Operations</p>
+          <div className="relative z-10 w-full flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-0.5 w-6 bg-[#ea580c]" />
+                <p className="text-[#ea580c] font-black uppercase tracking-[0.25em] text-[9px]">Enterprise Operations</p>
               </div>
-              <h1 className="text-4xl font-black tracking-tighter mb-2 uppercase italic">Fortune Mix Hub</h1>
-              <p className="text-blue-100/60 font-bold uppercase tracking-[0.2em] text-[10px] max-w-md">
-                 Engineering Excellence in Every Cubic Meter
-              </p>
+              <h1 className="text-4xl font-black tracking-tight uppercase">FortuneMix Hub</h1>
+              <div className="flex items-center gap-2">
+                <p className="text-slate-300 font-bold uppercase tracking-[0.18em] text-[9.5px]">
+                  Engineering Excellence in Every Cubic Meter
+                </p>
+                <div className="h-0.5 w-6 bg-[#ea580c]" />
+              </div>
             </div>
-            <div className="flex gap-4">
-               <div className="bg-white/5 backdrop-blur-xl px-5 py-3 rounded-2xl border border-white/10 shadow-xl">
-                 <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Operational Date</p>
-                 <p className="text-2xl font-black tracking-tight">{format(new Date(), "MMMM dd, yyyy")}</p>
-               </div>
+            
+            <div className="bg-[#4a2e1b]/90 border border-[#ea580c]/20 px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 shrink-0">
+              <div className="p-2 bg-[#ea580c] rounded-lg text-white">
+                <CalendarCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[9px] font-black text-[#fed7aa] uppercase tracking-wider mb-0.5">Operational Date</p>
+                <p className="text-lg font-black tracking-tight">{format(new Date(), "MMMM dd, yyyy")}</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* KPI Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <KpiCard title="Pending Quotes" value={stats?.pendingQuotationCount || 0} icon={FileText} colorClass="bg-blue-500" bgClass="bg-white" />
-          <KpiCard title="Pending Supp PO" value={stats?.pendingSupplierPoCount || 0} icon={ShoppingCart} colorClass="bg-indigo-500" bgClass="bg-white" />
-          <KpiCard title="Pending Sched PO" value={stats?.pendingSchedulingPoCount || 0} icon={CalendarCheck} colorClass="bg-violet-500" bgClass="bg-white" />
-          
-          <KpiCard title="Cube Test: 7D" value={stats?.cubeTest7DaysPending || 0} icon={TestTube} colorClass="bg-rose-500" bgClass="bg-rose-50/30" />
-          <KpiCard title="Cube Test: 28D" value={stats?.cubeTest28DaysPending || 0} icon={TestTube} colorClass="bg-red-600" bgClass="bg-rose-50/30" />
-          <KpiCard title="New Cast Pending" value={stats?.cubeTestPendingForNewCast || 0} icon={Clock} colorClass="bg-orange-500" bgClass="bg-orange-50/30" />
-        </div>
-
-        {/* TODAY ACCOUNTS OVERVIEW */}
-        <Card className="shadow-sm border-slate-200/60 overflow-hidden">
-          <SectionHeader 
-            title="Today Accounts Overview" 
-            icon={Activity} 
-            action={getCardActions(
-              "Today Accounts Overview",
-              ["Plant", "Today Inv Qty", "Today DC Qty", "Today Sales Doc", "Month Inv Qty", "Month DC Qty", "Month Sales Doc"],
-              accountsData
-            )}
+          <KpiCard 
+            title="Pending Quotes" 
+            value={stats?.pendingQuotationCount || 0} 
+            icon={FileText} 
+            borderClass="border-orange-100/80" 
+            textClass="text-[#ea580c]" 
+            href="/customer-po" 
           />
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className={tableHeaderClass}>Plant</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right`}>Today Inv Qty</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right`}>Today DC Qty</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right`}>Today Sales Doc</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right text-[#1e40af]`}>Month Inv Qty</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right text-[#1e40af]`}>Month DC Qty</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right text-[#1e40af]`}>Month Sales Doc</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {accounts?.length === 0 ? (
-                  <TableRow><TableCell colSpan={7} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                ) : accounts?.map((row: any) => (
-                  <TableRow key={row.plantName} className="hover:bg-slate-50/50">
-                    <TableCell className={`${tableCellClass} font-bold text-slate-800`}>{row.plantName}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right`}>{Number(row.todayInvoiceQuantity || 0).toFixed(2)}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right`}>{Number(row.todayDcQuantity || 0).toFixed(2)}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right`}>{Number(row.todaySalesDocument || 0).toFixed(2)}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right text-[#1e40af] font-bold`}>{Number(row.thisMonthInvoiceQuantity || 0).toFixed(2)}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right text-[#1e40af] font-bold`}>{Number(row.thisMonthDcQuantity || 0).toFixed(2)}</TableCell>
-                    <TableCell className={`${tableCellClass} text-right text-[#1e40af] font-bold`}>{Number(row.thisMonthSalesDocument || 0).toFixed(2)}</TableCell>
-                  </TableRow>
-                ))}
-                {accounts && accounts.length > 0 && (
-                  <TableRow className="bg-slate-100 hover:bg-slate-100">
-                    <TableCell className="py-3 px-4 text-xs font-black uppercase text-slate-800">Total</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right">{(accounts?.reduce((acc: number, r: any) => acc + r.todayInvoiceQuantity, 0) || 0).toFixed(0)}</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right">{(accounts?.reduce((acc: number, r: any) => acc + r.todayDcQuantity, 0) || 0).toFixed(0)}</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right">{(accounts?.reduce((acc: number, r: any) => acc + r.todaySalesDocument, 0) || 0).toFixed(0)}</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right text-[#1e40af]">{(accounts?.reduce((acc: number, r: any) => acc + r.thisMonthInvoiceQuantity, 0) || 0).toFixed(0)}</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right text-[#1e40af]">{(accounts?.reduce((acc: number, r: any) => acc + r.thisMonthDcQuantity, 0) || 0).toFixed(0)}</TableCell>
-                    <TableCell className="py-3 px-4 text-xs font-black text-right text-[#1e40af]">{(accounts?.reduce((acc: number, r: any) => acc + r.thisMonthSalesDocument, 0) || 0).toFixed(0)}</TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
-
-        {/* 2-Column Grid: Invoice & DC */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="Invoice Overview" 
-              icon={FileText} 
-              action={getCardActions(
-                "Invoice Overview",
-                ["Customer", "Grade", "Qty", "Invoices", "Amount"],
-                invoicesData
-              )}
-            />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Customer</TableHead>
-                    <TableHead className={tableHeaderClass}>Grade</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Qty</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Invoices</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {invoices?.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : invoices?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold text-[#1e40af]`}>{row.customerName}</TableCell>
-                      <TableCell className={tableCellClass}>{row.grade}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{row.quantity}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{row.noOfInvoice}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right font-bold`}>₹{parseFloat(row.netAmount).toLocaleString("en-IN")}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="DC Overview" 
-              icon={Truck} 
-              action={getCardActions(
-                "DC Overview",
-                ["Customer", "Grade", "Qty", "Invoices", "Amount"],
-                dcsData
-              )}
-            />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Customer</TableHead>
-                    <TableHead className={tableHeaderClass}>Grade</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Qty</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Invoices</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Amount</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {dcs?.length === 0 ? (
-                    <TableRow><TableCell colSpan={5} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : dcs?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold text-[#1e40af]`}>{row.customerName}</TableCell>
-                      <TableCell className={tableCellClass}>{row.grade}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{row.quantity}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{row.noOfInvoice}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right font-bold`}>₹{parseFloat(row.netAmount).toLocaleString("en-IN")}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-        </div>
-
-        {/* 2-Column Grid: Inventory & Average */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="Inventory Overview" 
-              icon={Package} 
-              action={getCardActions(
-                "Inventory Overview",
-                ["Item", "Supplier", "Net Wt (Ton)"],
-                inventoryData
-              )}
-            />
-            <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Item</TableHead>
-                    <TableHead className={tableHeaderClass}>Supplier</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Net Wt (Ton)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {inventory?.length === 0 ? (
-                    <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : inventory?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold`}>{row.item}</TableCell>
-                      <TableCell className={tableCellClass}>{row.supplier}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right font-bold text-amber-600`}>{(parseFloat(row.netWeight || "0") / 1000).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="Average Overview (Last 3 Months)" 
-              icon={Activity} 
-              action={getCardActions(
-                "Average Overview (Last 3 Months)",
-                ["Period", "Tot Qty", "Loaded Qty", "Avg Rate"],
-                averageData
-              )}
-            />
-            <div className="flex gap-2 items-center flex-wrap bg-white p-3 border-b border-slate-100">
-              <div className="w-[180px]">
-                <Select value={plant} onValueChange={setPlant}>
-                  <SelectTrigger className="h-8 text-xs font-semibold bg-slate-50"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="All Plant">All Plants</SelectItem>
-                    {dbPlants?.map((p: any) => (
-                      <SelectItem key={p.id || p._id} value={p.name}>
-                        {p.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button size="sm" className="h-8 bg-[#1e40af] hover:bg-[#2a8f95] text-xs font-bold text-white px-4 cursor-pointer">
-                <Search className="h-3 w-3 mr-1.5" /> Search
-              </Button>
-              <Button size="sm" onClick={handleClearFilters} className="h-8 bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-600 px-4 shadow-sm border border-slate-200 cursor-pointer">
-                Clear
-              </Button>
-            </div>
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Period</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Tot Qty</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Loaded Qty</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Avg Rate</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {average?.length === 0 ? (
-                    <TableRow><TableCell colSpan={4} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : average?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold`}>{row.month} {row.year}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{Number(row.totalQuantity || 0).toFixed(2)}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right`}>{Number(row.totalLoadedQty || 0).toFixed(2)}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right font-bold text-[#1e40af]`}>₹{Number(row.averageRate || 0).toLocaleString("en-IN", {minimumFractionDigits: 2})}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </Card>
-        </div>
-
-        {/* SCHEDULING OVERVIEW */}
-        <Card className="shadow-sm border-slate-200/60 overflow-hidden">
-          <SectionHeader 
-            title="Scheduling Overview" 
+          <KpiCard 
+            title="Pending Supp PO" 
+            value={stats?.pendingSupplierPoCount || 0} 
+            icon={ShoppingCart} 
+            borderClass="border-violet-100/80" 
+            textClass="text-[#7c3aed]" 
+            href="/store" 
+          />
+          <KpiCard 
+            title="Pending Sched PO" 
+            value={stats?.pendingSchedulingPoCount || 0} 
             icon={CalendarCheck} 
-            action={getCardActions(
-              "Scheduling Overview",
-              ["Customer", "Site", "Grade", "Quantity", "Start Date & Time", "End Date & Time"],
-              schedulingData
-            )}
+            borderClass="border-emerald-100/80" 
+            textClass="text-[#059669]" 
+            href="/customer-po/scheduling" 
           />
-          <FilterBar plant={plant} setPlant={setPlant} fromDate={fromDate} setFromDate={setFromDate} toDate={toDate} setToDate={setToDate} onClear={handleClearFilters} dbPlants={dbPlants} />
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className={tableHeaderClass}>Customer</TableHead>
-                  <TableHead className={tableHeaderClass}>Site</TableHead>
-                  <TableHead className={tableHeaderClass}>Grade</TableHead>
-                  <TableHead className={`${tableHeaderClass} text-right`}>Quantity</TableHead>
-                  <TableHead className={tableHeaderClass}>Start Date & Time</TableHead>
-                  <TableHead className={tableHeaderClass}>End Date & Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {scheduling?.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                ) : scheduling?.map((row: any, i: number) => (
-                  <TableRow key={i} className="hover:bg-slate-50/50">
-                    <TableCell className={`${tableCellClass} font-bold text-[#1e40af]`}>{row.customerName}</TableCell>
-                    <TableCell className={tableCellClass}>{row.site}</TableCell>
-                    <TableCell className={tableCellClass}>
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{row.grade}</span>
-                    </TableCell>
-                    <TableCell className={`${tableCellClass} text-right font-bold`}>{row.quantity}</TableCell>
-                    <TableCell className={tableCellClass}>{row.startDateTime}</TableCell>
-                    <TableCell className={tableCellClass}>{row.endDateTime}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
+          <KpiCard 
+            title="Cube Test: 7D" 
+            value={stats?.cubeTest7DaysPending || 0} 
+            icon={TestTube} 
+            borderClass="border-pink-100/80" 
+            textClass="text-[#db2777]" 
+            href="/qc/cube-test/list" 
+          />
+          <KpiCard 
+            title="Cube Test: 28D" 
+            value={stats?.cubeTest28DaysPending || 0} 
+            icon={TestTube} 
+            borderClass="border-amber-100/80" 
+            textClass="text-[#d97706]" 
+            href="/qc/cube-test/list" 
+          />
+          <KpiCard 
+            title="New Cast Pending" 
+            value={stats?.cubeTestPendingForNewCast || 0} 
+            icon={Clock} 
+            borderClass="border-orange-100/50/80" 
+            textClass="text-[#ea580c]" 
+            href="/qc/cube-test/list" 
+          />
+        </div>
 
-        {/* 2-Column Grid: Payment Followup & Current Stock */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="Upcoming Payment Followup" 
-              icon={CreditCard} 
-              action={getCardActions(
-                "Upcoming Payment Followup",
-                ["Customer Name", "Next Followup", "Description"],
-                paymentFollowupData
-              )}
-            />
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Customer Name</TableHead>
-                    <TableHead className={tableHeaderClass}>Next Followup</TableHead>
-                    <TableHead className={tableHeaderClass}>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paymentFollowup?.length === 0 ? (
-                    <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : paymentFollowup?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold text-[#1e40af]`}>{row.customerName}</TableCell>
-                      <TableCell className={tableCellClass}>{row.nextFollowupDate}</TableCell>
-                      <TableCell className={`${tableCellClass} text-[11px]`}>{row.followupDescription}</TableCell>
+        {/* Middle row: Today Accounts Overview & Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* TODAY ACCOUNTS OVERVIEW */}
+          <Card className="lg:col-span-2 shadow-sm border-slate-100 rounded-2xl bg-white overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+              <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#ea580c]" /> Today Accounts Overview
+              </h3>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mr-1.5">Actions:</span>
+                <Button 
+                  onClick={() => handlePrintCard(
+                    "Today Accounts Overview",
+                    ["Plant", "Today Inv Qty", "Today DC Qty", "Today Sales Doc", "Month Inv Qty", "Month DC Qty", "Month Sales Doc"],
+                    accountsData
+                  )}
+                  variant="ghost" size="icon" className="h-7 w-7 text-[#ea580c] hover:text-[#ea580c] hover:bg-orange-50/40 rounded-lg cursor-pointer"
+                  title="Print Section"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  onClick={() => handleCopyCard(
+                    "Today Accounts Overview",
+                    ["Plant", "Today Inv Qty", "Today DC Qty", "Today Sales Doc", "Month Inv Qty", "Month DC Qty", "Month Sales Doc"],
+                    accountsData
+                  )}
+                  variant="ghost" size="icon" className="h-7 w-7 text-[#ea580c] hover:text-[#ea580c] hover:bg-orange-50/40 rounded-lg cursor-pointer"
+                  title="Copy Table"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  onClick={() => handleCSVCard(
+                    "Today Accounts Overview",
+                    ["Plant", "Today Inv Qty", "Today DC Qty", "Today Sales Doc", "Month Inv Qty", "Month DC Qty", "Month Sales Doc"],
+                    accountsData
+                  )}
+                  variant="ghost" size="icon" className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg cursor-pointer"
+                  title="Download CSV"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  onClick={() => handleDeleteOverviewRow("Today Accounts Overview")}
+                  variant="ghost" size="icon" className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
+                  title="Delete Data Alert"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-x-auto">
+              {!accounts || accounts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                  <div className="p-4 rounded-full bg-slate-50 border border-slate-100 text-slate-300 mb-3.5">
+                    <Inbox className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-sm font-extrabold text-slate-700">No records found</h4>
+                  <p className="text-[11px] text-slate-400 font-semibold mt-1">Looks like there's no data to display yet.</p>
+                </div>
+              ) : (
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent border-slate-100">
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider">Plant</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right">Today Inv Qty</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right">Today DC Qty</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right">Today Sales Doc</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right text-orange-600">Month Inv Qty</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right text-orange-600">Month DC Qty</TableHead>
+                      <TableHead className="text-[10px] font-extrabold text-slate-400 uppercase py-3.5 px-5 tracking-wider text-right text-orange-600">Month Sales Doc</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {accounts.map((row: any) => (
+                      <TableRow key={row.plantName} className="hover:bg-slate-50/50 border-slate-100">
+                        <TableCell className="py-3 px-5 text-xs font-bold text-slate-800">{row.plantName}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-semibold text-slate-600 text-right">{Number(row.todayInvoiceQuantity || 0).toFixed(2)}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-semibold text-slate-600 text-right">{Number(row.todayDcQuantity || 0).toFixed(2)}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-semibold text-slate-600 text-right">{Number(row.todaySalesDocument || 0).toFixed(2)}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-bold text-orange-600 text-right">{Number(row.thisMonthInvoiceQuantity || 0).toFixed(2)}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-bold text-orange-600 text-right">{Number(row.thisMonthDcQuantity || 0).toFixed(2)}</TableCell>
+                        <TableCell className="py-3 px-5 text-xs font-bold text-orange-600 text-right">{Number(row.thisMonthSalesDocument || 0).toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="bg-slate-50/80 font-bold border-t border-slate-200">
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold uppercase text-slate-700">Total</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.todayInvoiceQuantity || 0), 0)).toFixed(2)}</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.todayDcQuantity || 0), 0)).toFixed(2)}</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.todaySalesDocument || 0), 0)).toFixed(0)}</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-orange-600 text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.thisMonthInvoiceQuantity || 0), 0)).toFixed(2)}</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-orange-600 text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.thisMonthDcQuantity || 0), 0)).toFixed(2)}</TableCell>
+                      <TableCell className="py-3.5 px-5 text-xs font-extrabold text-orange-600 text-right">{(accounts.reduce((acc: number, r: any) => acc + (r.thisMonthSalesDocument || 0), 0)).toFixed(0)}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </Card>
 
-          <Card className="shadow-sm border-slate-200/60 overflow-hidden flex flex-col">
-            <SectionHeader 
-              title="Current Stock" 
-              icon={Boxes} 
-              action={getCardActions(
-                "Current Stock",
-                ["Item", "Stock Level"],
-                currentStockData
-              )}
-            />
-            <div className="overflow-x-auto flex-1">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className={tableHeaderClass}>Item</TableHead>
-                    <TableHead className={`${tableHeaderClass} text-right`}>Stock Level</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentStock?.length === 0 ? (
-                    <TableRow><TableCell colSpan={2} className="text-center py-8 text-xs text-slate-400">No records found</TableCell></TableRow>
-                  ) : currentStock?.map((row: any, i: number) => (
-                    <TableRow key={i} className="hover:bg-slate-50/50">
-                      <TableCell className={`${tableCellClass} font-bold text-slate-700`}>{row.item}</TableCell>
-                      <TableCell className={`${tableCellClass} text-right font-black text-amber-600`}>{Number(row.stock || 0).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+          {/* QUICK ACTIONS */}
+          <Card className="shadow-sm border-slate-100 rounded-2xl bg-white overflow-hidden flex flex-col p-5">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+              <Zap className="w-4.5 h-4.5 text-[#ea580c] fill-[#ea580c]/10" />
+              <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Quick Actions</h3>
             </div>
+            <div className="flex-1 flex flex-col gap-3 justify-center">
+              <QuickActionItem 
+                label="Add New PO" 
+                href="/customer-po/sales-order/new" 
+                icon={ShoppingCart} 
+                borderClass="border-orange-100/80" 
+                textClass="text-[#ea580c]" 
+                bgClass="bg-orange-50/20" 
+              />
+              <QuickActionItem 
+                label="Create DC" 
+                href="/dc/new" 
+                icon={Truck} 
+                borderClass="border-emerald-100/80" 
+                textClass="text-[#059669]" 
+                bgClass="bg-emerald-50/20" 
+              />
+              <QuickActionItem 
+                label="New Invoice" 
+                href="/billing/new" 
+                icon={FileText} 
+                borderClass="border-violet-100/80" 
+                textClass="text-[#7c3aed]" 
+                bgClass="bg-violet-50/20" 
+              />
+              <QuickActionItem 
+                label="Lab Test Entry" 
+                href="/qc/cube-test/new" 
+                icon={TestTube} 
+                borderClass="border-pink-100/80" 
+                textClass="text-[#db2777]" 
+                bgClass="bg-pink-50/20" 
+              />
+              <QuickActionItem 
+                label="Add New Customer" 
+                href="/customer-po/customer/new" 
+                icon={User} 
+                borderClass="border-amber-100/80" 
+                textClass="text-[#d97706]" 
+                bgClass="bg-amber-50/20" 
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* Bottom row: Invoice Overview, DC Overview, Recent Activities */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* INVOICE OVERVIEW */}
+          <Card className="shadow-sm border-slate-100 rounded-2xl bg-white overflow-hidden p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
+                <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#7c3aed]" /> Invoice Overview
+                </h3>
+                <div className="flex items-center gap-1">
+                  <Button 
+                    onClick={() => handlePrintCard("Invoice Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], invoicesData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Printer className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleCopyCard("Invoice Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], invoicesData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleCSVCard("Invoice Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], invoicesData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Download className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer">
+                    <MoreHorizontal className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-3.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <FileText className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Total Invoices</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">{invoices?.length || 0}</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Total Amount</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">₹{invoiceAmountSum.toFixed(2)}</h4>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <User className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Paid Amount</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">₹0.00</h4>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Outstanding</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">₹{invoiceAmountSum.toFixed(2)}</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <DonutChart 
+                  paidValue={0} 
+                  totalValue={invoiceAmountSum || 100} 
+                  centerLabel="Paid" 
+                  color1="#10b981" 
+                  color2="#ea580c" 
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-4 justify-center mt-6 text-[9px] font-bold text-slate-400 uppercase tracking-wider border-t border-slate-50 pt-4">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Paid</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-orange-500" />
+                <span>Outstanding</span>
+              </div>
+            </div>
+          </Card>
+
+          {/* DC OVERVIEW */}
+          <Card className="shadow-sm border-slate-100 rounded-2xl bg-white overflow-hidden p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
+                <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#059669]" /> DC Overview
+                </h3>
+                <div className="flex items-center gap-1">
+                  <Button 
+                    onClick={() => handlePrintCard("DC Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], dcsData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Printer className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleCopyCard("DC Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], dcsData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Button 
+                    onClick={() => handleCSVCard("DC Overview", ["Customer", "Grade", "Qty", "Invoices", "Amount"], dcsData)}
+                    variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer"
+                  >
+                    <Download className="h-3 w-3" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-slate-600 rounded cursor-pointer">
+                    <MoreHorizontal className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-4">
+                <div className="space-y-3.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <Truck className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Total DC</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">{dcs?.length || 0}</h4>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Total Qty</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">{dcQtySum.toFixed(2)}</h4>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <User className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Delivered Qty</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">0.00</h4>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-1.5 bg-slate-50 border border-slate-100 rounded-lg text-slate-400">
+                      <Clock className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider leading-none">Pending Qty</p>
+                      <h4 className="text-sm font-extrabold text-slate-800 mt-1">{dcQtySum.toFixed(2)}</h4>
+                    </div>
+                  </div>
+                </div>
+
+                <DonutChart 
+                  paidValue={0} 
+                  totalValue={dcQtySum || 100} 
+                  centerLabel="Delivered" 
+                  color1="#10b981" 
+                  color2="#ea580c" 
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-4 justify-center mt-6 text-[9px] font-bold text-slate-400 uppercase tracking-wider border-t border-slate-50 pt-4">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Delivered</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-orange-50" style={{ background: "#ea580c" }} />
+                <span>Pending</span>
+              </div>
+            </div>
+          </Card>
+
+          {/* RECENT ACTIVITIES */}
+          <Card className="shadow-sm border-slate-100 rounded-2xl bg-white overflow-hidden p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-5">
+                <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-[#ea580c]" /> Recent Activities
+                </h3>
+              </div>
+
+              <div className="space-y-4">
+                <ActivityItem 
+                  title="System Initialized" 
+                  desc="Dashboard loaded successfully" 
+                  time="2m ago" 
+                  icon={Settings} 
+                  bgClass="bg-orange-50" 
+                  textClass="text-[#ea580c]" 
+                />
+                <ActivityItem 
+                  title="Welcome Back" 
+                  desc="You have logged in successfully" 
+                  time="10m ago" 
+                  icon={User} 
+                  bgClass="bg-amber-50" 
+                  textClass="text-[#d97706]" 
+                />
+                <ActivityItem 
+                  title="Data Sync" 
+                  desc="All modules are up to date" 
+                  time="25m ago" 
+                  icon={RefreshCw} 
+                  bgClass="bg-orange-50/40" 
+                  textClass="text-[#ea580c]" 
+                />
+                <ActivityItem 
+                  title="System Check" 
+                  desc="No pending alerts" 
+                  time="1h ago" 
+                  icon={Activity} 
+                  bgClass="bg-sky-50" 
+                  textClass="text-[#0284c7]" 
+                />
+              </div>
+            </div>
+
+            <Link href="/dashboard" className="text-[10px] font-extrabold uppercase tracking-wider text-[#ea580c] flex items-center justify-center gap-1 hover:underline border-t border-slate-50 pt-4 mt-5 cursor-pointer">
+              View all activities <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </Card>
         </div>
       </div>
@@ -669,12 +708,12 @@ export default function Dashboard() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <div className="flex justify-between items-center border-b pb-6 mb-6">
             <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
+              <h1 className="text-3xl font-black text-[#ea580c] tracking-tight">FORTUNE CONCRETE</h1>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
               <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
             </div>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">{printData.title}</div>
+              <div className="bg-[#ea580c] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">{printData.title}</div>
               <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
               <p className="text-[9px] text-gray-400 font-medium">Printed At: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
             </div>
@@ -722,3 +761,4 @@ export default function Dashboard() {
     </>
   );
 }
+

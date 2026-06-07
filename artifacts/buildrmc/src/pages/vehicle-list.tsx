@@ -120,11 +120,11 @@ export default function VehicleList() {
             <title>Vehicle Card - ${item.registrationNo}</title>
             <style>
               body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
-              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
-              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; }
               .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
               .logo { height: 50px; width: 50px; }
-              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #ea580c; }
               .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
               .info-group { display: flex; flex-direction: column; }
               .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
@@ -139,8 +139,8 @@ export default function VehicleList() {
                 <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
               </div>
               <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
-                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
+                <rect width="100" height="100" rx="15" fill="#0f172a"/>
+                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#ea580c"/>
               </svg>
             </div>
             <div class="title">Vehicle Fleet Identification</div>
@@ -188,25 +188,25 @@ export default function VehicleList() {
       activePath="/transport/vehicle/list"
     >
       <div className="space-y-4 flex-1 flex flex-col min-h-0 overflow-auto hide-scrollbar">
-        {/* Cyan Horizontal Document Status Header matching exact color theme in screenshot */}
-        <div className="grid grid-cols-6 border border-cyan-500 bg-[#00c0a5] rounded-md shadow-sm shrink-0 overflow-hidden text-center divide-x divide-cyan-600/35">
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
+        {/* Orange Horizontal Document Status Header matching brand color theme */}
+        <div className="grid grid-cols-6 border border-orange-500 bg-[#ea580c] rounded-md shadow-sm shrink-0 overflow-hidden text-center divide-x divide-orange-600/35">
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
             <span className="text-[10px] font-black uppercase text-white tracking-widest">Insurance Exp.</span>
           </div>
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
             <span className="text-[10px] font-black uppercase text-white tracking-widest">RC Exp.</span>
           </div>
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
             <span className="text-[10px] font-black uppercase text-white tracking-widest">Tax Exp.</span>
           </div>
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
             <span className="text-[10px] font-black uppercase text-white tracking-widest">Pollution Exp.</span>
           </div>
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
             <span className="text-[10px] font-black uppercase text-white tracking-widest">Fitness Exp.</span>
           </div>
-          <div className="py-2.5 px-1 hover:bg-[#00b49c] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest font-extrabold text-yellow-200">Document Required</span>
+          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
+            <span className="text-[10px] font-black uppercase text-white tracking-widest font-extrabold text-yellow-250">Document Required</span>
           </div>
         </div>
 
@@ -223,14 +223,14 @@ export default function VehicleList() {
                   setCurrentPage(1);
                 }}
                 placeholder="Search by registration or model..."
-                className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white"
+                className="h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white"
               />
             </div>
             
             <div className="flex gap-1.5 h-7">
               <Button 
                 onClick={() => setCurrentPage(1)} 
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] h-full px-4 uppercase tracking-wider shadow-none border-0 cursor-pointer flex items-center justify-center gap-1"
               >
                 Search
               </Button>
@@ -276,15 +276,15 @@ export default function VehicleList() {
           {/* Datatable Scroll Container */}
           <div className="flex-1 overflow-auto">
             <Table>
-              <TableHeader className="sticky top-0 z-10 bg-[#1e40af]">
-                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">S/L No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle No</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Name</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Transporter Name</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Type</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Category</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
+              <TableHeader className="sticky top-0 z-10 bg-[#ea580c]">
+                <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">S/L No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle No</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Name</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Transporter Name</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Type</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Category</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -309,7 +309,7 @@ export default function VehicleList() {
                         className="hover:bg-slate-50/80 transition-colors border-b border-slate-100"
                       >
                         <TableCell className="font-bold text-slate-600 text-xs py-3 px-4">{slNo}</TableCell>
-                        <TableCell className="font-extrabold text-[#1e40af] text-xs px-3">{item.registrationNo}</TableCell>
+                        <TableCell className="font-extrabold text-[#ea580c] text-xs px-3">{item.registrationNo}</TableCell>
                         
                         {/* Exact matching design: Peach color background cell exactly like in the screenshot! */}
                         <TableCell className="font-extrabold text-slate-800 text-xs px-3 bg-[#ffedd5]/70 border-x border-[#fed7aa]/35">
@@ -332,7 +332,7 @@ export default function VehicleList() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
                               <DropdownMenuItem onClick={() => handleEdit(item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                                <Edit className="h-3.5 w-3.5 text-blue-600" />
+                                <Edit className="h-3.5 w-3.5 text-[#ea580c]" />
                                 <span>Edit Vehicle</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleExportRow(item, idx, "pdf")} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
@@ -344,7 +344,7 @@ export default function VehicleList() {
                                 <span>Export CSV</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleExportRow(item, idx, "copy")} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                                <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                                 <span>Copy Details</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem 
@@ -381,7 +381,7 @@ export default function VehicleList() {
               >
                 <ChevronRight className="h-3 w-3 rotate-180" />
               </Button>
-              <div className="h-6 px-2 flex items-center justify-center bg-[#1e40af] text-white text-[9px] font-black rounded">
+              <div className="h-6 px-2 flex items-center justify-center bg-[#ea580c] text-white text-[9px] font-black rounded">
                 {currentPage}
               </div>
               <Button 

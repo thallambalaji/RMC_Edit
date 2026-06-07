@@ -352,8 +352,8 @@ export default function AddSalesDocument() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-500 uppercase tracking-tight mb-0.5 block";
-  const inputStyle = "h-7 text-xs border-gray-200 rounded focus:ring-[#1e40af] bg-white font-bold px-2 w-full shadow-none hover:border-gray-300 transition-colors";
-  const tableHeaderStyle = "bg-[#1e40af] text-white text-[8px] font-black uppercase py-1 px-1 border-r border-white/5 last:border-0 text-center tracking-tighter whitespace-nowrap";
+  const inputStyle = "h-7 text-xs border-gray-200 rounded focus:ring-[#ea580c] bg-white font-bold px-2 w-full shadow-none hover:border-gray-300 transition-colors";
+  const tableHeaderStyle = "bg-[#ea580c] text-white text-[8px] font-black uppercase py-1 px-1 border-r border-white/5 last:border-0 text-center tracking-tighter whitespace-nowrap";
 
   return (
     <div className="bg-[#f8fafc] h-full overflow-hidden flex flex-col">
@@ -388,7 +388,7 @@ export default function AddSalesDocument() {
         {/* Header Block */}
         <div className="flex justify-between items-start border-b-2 border-slate-800 pb-5 mb-6">
           <div className="flex gap-4 items-center">
-            <div className="w-14 h-14 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded">
+            <div className="w-14 h-14 bg-[#ea580c] text-white flex items-center justify-center font-black text-xl rounded">
               RM
             </div>
             <div>
@@ -398,7 +398,7 @@ export default function AddSalesDocument() {
             </div>
           </div>
           <div className="text-right">
-            <h2 className="text-lg font-black text-[#1e40af] uppercase tracking-wide">Sales Tax Document</h2>
+            <h2 className="text-lg font-black text-[#ea580c] uppercase tracking-wide">Sales Tax Document</h2>
             <p className="text-xs text-slate-500 mt-1 font-bold">Original Copy</p>
           </div>
         </div>
@@ -407,7 +407,7 @@ export default function AddSalesDocument() {
         <div className="grid grid-cols-3 gap-6 bg-slate-50 p-4 rounded-lg border border-slate-100 mb-6 text-xs font-semibold text-slate-700">
           <div>
             <p className="text-[10px] text-slate-400 font-extrabold uppercase mb-0.5">Invoice Number</p>
-            <p className="font-extrabold text-[#1e40af] text-sm">{invoiceNumber}</p>
+            <p className="font-extrabold text-[#ea580c] text-sm">{invoiceNumber}</p>
           </div>
           <div>
             <p className="text-[10px] text-slate-400 font-extrabold uppercase mb-0.5">Invoice Date</p>
@@ -434,13 +434,13 @@ export default function AddSalesDocument() {
         {/* Billing Address Details */}
         <div className="grid grid-cols-2 gap-8 mb-8 text-xs">
           <div className="border border-slate-200/80 p-4 rounded-lg">
-            <h3 className="font-black text-[10px] text-[#1e40af] uppercase tracking-wider mb-2 pb-1 border-b">Billed Customer Details</h3>
+            <h3 className="font-black text-[10px] text-[#ea580c] uppercase tracking-wider mb-2 pb-1 border-b">Billed Customer Details</h3>
             <p className="font-black text-slate-800 text-sm mb-1">{selectedCustomer?.name || "No Customer Selected"}</p>
             <p className="text-slate-500 font-medium leading-relaxed">{selectedCustomer?.address || "—"}</p>
             <p className="text-slate-600 font-bold mt-1.5">GSTIN: {selectedCustomer?.gstNumber || "Unregistered"}</p>
           </div>
           <div className="border border-slate-200/80 p-4 rounded-lg">
-            <h3 className="font-black text-[10px] text-[#1e40af] uppercase tracking-wider mb-2 pb-1 border-b">Site Dispatch Destination</h3>
+            <h3 className="font-black text-[10px] text-[#ea580c] uppercase tracking-wider mb-2 pb-1 border-b">Site Dispatch Destination</h3>
             <p className="font-black text-slate-800 text-sm mb-1">{siteName || "No Site Listed"}</p>
             <p className="text-slate-500 font-medium leading-relaxed">{siteAddress || "—"}</p>
           </div>
@@ -506,7 +506,7 @@ export default function AddSalesDocument() {
             </div>
             <div className="pt-2 border-t-2 border-dashed border-slate-300 flex justify-between items-center">
               <span className="text-slate-900 font-black">Net Total Invoice Value</span>
-              <span className="text-lg font-black text-[#1e40af]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+              <span className="text-lg font-black text-[#ea580c]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
             </div>
           </div>
         </div>
@@ -530,19 +530,19 @@ export default function AddSalesDocument() {
         <div className="flex items-center justify-between px-3 py-1.5 border-b bg-slate-50/60 shrink-0">
           <div className="flex items-center gap-3">
             <h2 className="text-[11px] font-black text-gray-900 tracking-tight uppercase flex items-center gap-1.5">
-              <FileText className="w-4 h-4 text-[#1e40af]" /> New Sales Document Registration
+              <FileText className="w-4 h-4 text-[#ea580c]" /> New Sales Document Registration
             </h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[8px] text-muted-foreground flex items-center gap-0.5 font-bold uppercase tracking-tighter">
-              <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+              <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
               <ChevronRight className="h-2 w-2" />
-              <Link href="/billing" className="hover:text-[#1e40af]">Billing</Link>
+              <Link href="/billing" className="hover:text-[#ea580c]">Billing</Link>
               <ChevronRight className="h-2 w-2" />
-              <span className="text-[#1e40af]">Add Sales Document</span>
+              <span className="text-[#ea580c]">Add Sales Document</span>
             </nav>
           </div>
           <div className="flex gap-2">
-             <Button type="submit" size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3.5 h-6.5 uppercase tracking-wider rounded-md shadow-sm border-0">
+             <Button type="submit" size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3.5 h-6.5 uppercase tracking-wider rounded-md shadow-sm border-0">
                Save Document
              </Button>
              <Button type="button" onClick={handleClear} size="sm" variant="outline" className="border-rose-100 text-rose-500 hover:bg-rose-50/50 font-black text-[9px] px-3.5 h-6.5 uppercase tracking-wider border rounded-md">
@@ -568,7 +568,7 @@ export default function AddSalesDocument() {
               </div>
               <div>
                 <Label className={labelStyle}>Invoice No</Label>
-                <Input value={invoiceNumber} readOnly className={`${inputStyle} bg-slate-50 font-extrabold text-[#1e40af] cursor-not-allowed`} />
+                <Input value={invoiceNumber} readOnly className={`${inputStyle} bg-slate-50 font-extrabold text-[#ea580c] cursor-not-allowed`} />
               </div>
 
               <div>
@@ -593,7 +593,7 @@ export default function AddSalesDocument() {
                     onChange={e => { setInvoiceTime(e.target.value); setIsAutoTime(false); }} 
                     className={`${inputStyle} w-full pr-7`} 
                   />
-                  {isAutoTime && <Clock className="absolute right-2 top-2 h-3.5 w-3.5 text-[#1e40af] animate-pulse" />}
+                  {isAutoTime && <Clock className="absolute right-2 top-2 h-3.5 w-3.5 text-[#ea580c] animate-pulse" />}
                 </div>
               </div>
 
@@ -637,7 +637,7 @@ export default function AddSalesDocument() {
 
             {/* Right: Challans Selector Grid */}
             <div className="flex-[0.55] border border-gray-150 rounded-lg overflow-hidden flex flex-col bg-white h-[160px] shadow-sm">
-              <div className="flex bg-[#1e40af] shrink-0">
+              <div className="flex bg-[#ea580c] shrink-0">
                 <div className={tableHeaderStyle + " w-10"}>S/L</div>
                 <div className={tableHeaderStyle + " w-20"}>DC No</div>
                 <div className={tableHeaderStyle + " w-18"}>DC Date</div>
@@ -657,7 +657,7 @@ export default function AddSalesDocument() {
                       <div className="w-20 px-1.5 border-r truncate text-slate-900">{dc.dcNumber}</div>
                       <div className="w-18 px-1.5 border-r truncate">{dc.dcDate}</div>
                       <div className="flex-1 px-1.5 border-r truncate text-gray-500">{dc.grade || "RMC"}</div>
-                      <div className="w-16 text-right px-1.5 border-r font-black text-cyan-600">{dc.quantity || 0}</div>
+                      <div className="w-16 text-right px-1.5 border-r font-black text-[#ea580c]">{dc.quantity || 0}</div>
                       <div className="w-16 text-right px-1.5 border-r">₹{dc.rate || 0}</div>
                       <div className="w-20 text-right px-1.5 border-r">₹{(dc.quantity || 0) * (dc.rate || 0)}</div>
                       <div className="w-12 text-center">
@@ -704,7 +704,7 @@ export default function AddSalesDocument() {
                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-tight p-1.5 border-r w-28 text-right">Tax</div>
                 <div className="text-[9px] font-black text-slate-500 uppercase tracking-tight p-1.5 w-28 text-right">Net Amt</div>
                 <div className="w-10 p-1 text-center">
-                   <Button type="button" variant="ghost" onClick={addItem} className="h-5 w-5 p-0 text-[#1e40af] hover:bg-blue-50 rounded-full"><Plus className="h-3 w-3" /></Button>
+                   <Button type="button" variant="ghost" onClick={addItem} className="h-5 w-5 p-0 text-[#ea580c] hover:bg-orange-50/40 rounded-full"><Plus className="h-3 w-3" /></Button>
                 </div>
             </div>
             <div className="flex-1 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-200 divide-y">
@@ -718,7 +718,7 @@ export default function AddSalesDocument() {
                   <Button
                     type="button"
                     onClick={addItem}
-                    className="mt-1 bg-[#1e40af] hover:bg-blue-700 text-white font-bold text-xs px-5 h-8 rounded-lg shadow-sm"
+                    className="mt-1 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs px-5 h-8 rounded-lg shadow-sm"
                   >
                     <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Line Item
                   </Button>
@@ -745,7 +745,7 @@ export default function AddSalesDocument() {
                           min="0"
                           value={it.qty === 0 ? "" : it.qty}
                           onChange={e => updateItem(it.id, "qty", e.target.value)}
-                          className="h-7 border-0 focus-visible:ring-0 text-xs px-1.5 text-right shadow-none font-black text-cyan-600 bg-transparent"
+                          className="h-7 border-0 focus-visible:ring-0 text-xs px-1.5 text-right shadow-none font-black text-[#ea580c] bg-transparent"
                           placeholder="0.00"
                         />
                       </div>
@@ -769,7 +769,7 @@ export default function AddSalesDocument() {
                       </div>
                       <div className="w-28 border-r text-right px-2 py-1.5 text-[10px] font-black text-slate-500 bg-slate-50/10">₹{gross.toFixed(2)}</div>
                       <div className="w-28 border-r text-right px-2 py-1.5 text-[10px] font-black text-slate-400 bg-slate-50/10">₹{tax.toFixed(2)}</div>
-                      <div className="w-28 text-right px-2 py-1.5 text-[11px] font-extrabold text-[#1e40af] bg-slate-50/20">₹{net.toFixed(2)}</div>
+                      <div className="w-28 text-right px-2 py-1.5 text-[11px] font-extrabold text-[#ea580c] bg-slate-50/20">₹{net.toFixed(2)}</div>
                       <div className="w-10 text-center">
                         <Button
                           type="button"
@@ -818,7 +818,7 @@ export default function AddSalesDocument() {
                 <Button 
                   type="button" 
                   onClick={handleFinalizeAndPrint} 
-                  className="bg-[#1e40af] hover:bg-blue-700 text-white font-black text-[10px] px-5 h-7.5 uppercase tracking-wider border-0 shadow-md gap-1.5 rounded-md"
+                  className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[10px] px-5 h-7.5 uppercase tracking-wider border-0 shadow-md gap-1.5 rounded-md"
                   disabled={createInvoice.isPending}
                 >
                   <Printer className="w-3.5 h-3.5" /> 

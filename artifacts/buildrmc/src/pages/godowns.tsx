@@ -92,18 +92,18 @@ export default function Godowns() {
         <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Godowns Management</h2>
         <div className="h-4 w-px bg-gray-300" />
         <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+          <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Godowns</span>
+          <span className="text-[#ea580c]">Godowns</span>
         </nav>
       </div>
 
       <div className="flex justify-center mb-8">
         <Button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white gap-2 px-8 h-10 font-bold uppercase tracking-wider shadow-md"
+          className="bg-[#ea580c] hover:bg-[#d97706] text-white gap-2 px-8 h-10 font-bold uppercase tracking-wider shadow-md"
         >
           <Plus className="h-4 w-4" />
           New Items
@@ -113,13 +113,13 @@ export default function Godowns() {
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
             <p className="text-sm text-gray-500 font-medium">Loading Items...</p>
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-[#1e40af] hover:bg-[#1e40af]">
+              <TableRow className="bg-[#ea580c] hover:bg-[#ea580c]">
                 <TableHead className="text-white font-bold py-4 text-center border-r border-white/20 w-24">S/L No</TableHead>
                 <TableHead className="text-white font-bold text-center border-r border-white/20">Godown / Item Name</TableHead>
                 <TableHead className="text-white font-bold text-center w-32 border-r border-white/20">Unit</TableHead>
@@ -159,7 +159,7 @@ export default function Godowns() {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl rounded-xl">
-          <div className="bg-[#1e40af] py-3 text-center border-b border-white/10">
+          <div className="bg-[#ea580c] py-3 text-center border-b border-white/10">
             <h2 className="text-sm font-black text-white tracking-wider uppercase">Add New Item</h2>
           </div>
           <form onSubmit={handleSubmit} className="p-5 space-y-4 bg-white">
@@ -169,7 +169,7 @@ export default function Godowns() {
               </Label>
               <Input 
                 placeholder="Enter Item Name" 
-                className="h-9 border-gray-200 focus:border-[#1e40af] focus:ring-[#1e40af]/10 text-xs font-semibold"
+                className="h-9 border-gray-200 focus:border-[#ea580c] focus:ring-[#ea580c]/10 text-xs font-semibold"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 required
@@ -181,7 +181,7 @@ export default function Godowns() {
                 Stock Unit <span className="text-rose-500">*</span>
               </Label>
               <Select value={stockUnit} onValueChange={setStockUnit}>
-                <SelectTrigger className="h-9 border-gray-200 focus:border-[#1e40af] focus:ring-[#1e40af]/10 text-xs font-semibold">
+                <SelectTrigger className="h-9 border-gray-200 focus:border-[#ea580c] focus:ring-[#ea580c]/10 text-xs font-semibold">
                   <SelectValue placeholder="Choose Unit" />
                 </SelectTrigger>
                 <SelectContent>
@@ -199,7 +199,7 @@ export default function Godowns() {
               <Button 
                 type="submit" 
                 disabled={isPending}
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-6 h-9 text-[11px] font-black uppercase tracking-widest shadow-md transition-all active:scale-95"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white px-6 h-9 text-[11px] font-black uppercase tracking-widest shadow-md transition-all active:scale-95"
               >
                 {isPending ? <Loader2 className="h-3 w-3 animate-spin mr-2" /> : null}
                 Save Item

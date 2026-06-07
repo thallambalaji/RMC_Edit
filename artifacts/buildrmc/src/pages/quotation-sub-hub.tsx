@@ -23,26 +23,26 @@ export default function QuotationSubHub() {
             
             <AccordionItem value="customer" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
-                <div className="flex items-center gap-2"><Users className="h-4 w-4 text-[#1e40af]"/> Customer</div>
+                <div className="flex items-center gap-2"><Users className="h-4 w-4 text-[#ea580c]"/> Customer</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/customer-po/customer/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Customer</div></Link>
-                  <Link href="/customer-po/customer/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Customer List</div></Link>
-                  <Link href="/customer-po/customer/godowns"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Godowns</div></Link>
+                  <Link href="/customer-po/customer/new"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Customer</div></Link>
+                  <Link href="/customer-po/customer/list"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Customer List</div></Link>
+                  <Link href="/customer-po/customer/godowns"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Godowns</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="sales-order" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
-                <div className="flex items-center gap-2"><ShoppingCart className="h-4 w-4 text-cyan-600"/> Sales Order</div>
+                <div className="flex items-center gap-2"><ShoppingCart className="h-4 w-4 text-[#ea580c]"/> Sales Order</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/customer-po/sales-order/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Sales Order</div></Link>
-                  <Link href="/customer-po/sales-order/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Order List</div></Link>
-                  <Link href="/customer-po/sales-order/report"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Order Report</div></Link>
+                  <Link href="/customer-po/sales-order/new"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Sales Order</div></Link>
+                  <Link href="/customer-po/sales-order/list"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Order List</div></Link>
+                  <Link href="/customer-po/sales-order/report"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Sales Order Report</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -53,8 +53,8 @@ export default function QuotationSubHub() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/customer-po/scheduling/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Scheduling</div></Link>
-                  <Link href="/customer-po/scheduling/list"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Scheduling List</div></Link>
+                  <Link href="/customer-po/scheduling/new"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Scheduling</div></Link>
+                  <Link href="/customer-po/scheduling/list"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Scheduling List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -65,8 +65,8 @@ export default function QuotationSubHub() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/customer-po/quotation/new"><div className="text-xs font-medium text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Quotation</div></Link>
-                  <Link href="/customer-po/quotation"><div className={`text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm ${location === '/customer-po/quotation' ? 'bg-[#1e40af] text-white' : 'text-gray-600 hover:text-[#1e40af] hover:bg-white border border-transparent hover:border-gray-200 hover:shadow'}`}>Quotation List</div></Link>
+                  <Link href="/customer-po/quotation/new"><div className="text-xs font-medium text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm hover:shadow">Add Quotation</div></Link>
+                  <Link href="/customer-po/quotation"><div className={`text-xs font-medium py-2 px-3 rounded-md transition-all cursor-pointer shadow-sm ${location === '/customer-po/quotation' ? 'bg-[#ea580c] text-white' : 'text-gray-600 hover:text-[#ea580c] hover:bg-white border border-transparent hover:border-gray-200 hover:shadow'}`}>Quotation List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>

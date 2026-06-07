@@ -32,7 +32,7 @@ export default function WeighmentList() {
   const queryClient = useQueryClient();
   const [selectedRecord, setSelectedRecord] = useState<any>(null);
   const [printRecord, setPrintRecord] = useState<any>(null);
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const { data: records, isLoading } = useGetDCs();
   const { data: customers } = useGetCustomers();
@@ -247,16 +247,16 @@ export default function WeighmentList() {
             </h2>
             <div className="h-4 w-px bg-slate-300 mx-4" />
             <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
-              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+              <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors flex items-center gap-1">
                 <Home className="h-3.5 w-3.5 text-slate-500" />
                 <span>HOME</span>
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+              <Link href="/dc" className="hover:text-[#ea580c] transition-colors">
                 DC
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <span className="text-blue-600 font-black">WEIGHMENT LIST</span>
+              <span className="text-[#ea580c] font-black">WEIGHMENT LIST</span>
             </nav>
           </div>
 
@@ -287,20 +287,20 @@ export default function WeighmentList() {
         </div>
 
       <div className="flex flex-wrap gap-3 mb-2 print:hidden">
-        <Button className="bg-[#1e40af] text-white hover:bg-[#1d4ed8] px-6 h-10 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-cyan-500/10">
+        <Button className="bg-[#ea580c] text-white hover:bg-[#d97706] px-6 h-10 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-cyan-500/10">
           WEIGHMENT LIST
         </Button>
         <Button className="bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 px-6 h-10 font-black uppercase tracking-widest text-[10px] transition-all">
           <Trash2 className="h-3 w-3 mr-2" /> DELETED RECORDS
         </Button>
-        <Link href="/dc/weighment/new" className="bg-cyan-500 text-white hover:bg-cyan-600 px-6 h-10 font-black uppercase tracking-widest text-[10px] flex items-center shadow-lg shadow-cyan-500/20 transition-all active:scale-95">
+        <Link href="/dc/weighment/new" className="bg-[#ea580c] text-white hover:bg-[#ea580c] px-6 h-10 font-black uppercase tracking-widest text-[10px] flex items-center shadow-lg shadow-orange-500/20 transition-all active:scale-95">
           <Plus className="h-4 w-4 mr-2" /> NEW WEIGHMENT
         </Link>
       </div>
 
       <div className="glass-card p-6 border-white/80 shadow-xl print:hidden">
         <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-          <Filter className="h-4 w-4 text-cyan-600" />
+          <Filter className="h-4 w-4 text-[#ea580c]" />
           <h3 className="text-slate-800 font-black text-sm uppercase tracking-widest">Filter Records</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-5 items-end">
@@ -370,7 +370,7 @@ export default function WeighmentList() {
       <div className="hidden print:block mb-6">
         <PrintHeader />
         <div className="flex justify-between items-center border-b pb-2 mb-4">
-          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment List Report</h2>
+          <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Weighment List Report</h2>
           <div className="text-right text-[10px] font-bold text-gray-600">
             <span>Printed Date: {new Date().toLocaleString()}</span>
           </div>
@@ -408,7 +408,7 @@ export default function WeighmentList() {
                 <TableHead className={headerStyle}>Weights (E/L/N)</TableHead>
                 <TableHead className={headerStyle}>Vehicle</TableHead>
                 <TableHead className={headerStyle}>Plant</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -434,7 +434,7 @@ export default function WeighmentList() {
                     <TableRow key={row.id || idx} className="hover:bg-slate-50 border-b border-slate-100 transition-colors group">
                       <TableCell 
                         onClick={() => setSelectedRecord(row)} 
-                        className="text-center py-3 text-cyan-600 font-black text-[10px] cursor-pointer hover:underline"
+                        className="text-center py-3 text-[#ea580c] font-black text-[10px] cursor-pointer hover:underline"
                         title="Click to view details"
                       >
                         {row.dcNumber}
@@ -443,7 +443,7 @@ export default function WeighmentList() {
                       <TableCell className="text-center py-3 text-slate-600 font-semibold text-[10px]" title={row.siteName || row.site?.name}>{row.siteName || row.site?.name || "-"}</TableCell>
                       <TableCell className="text-center py-3 text-slate-400 font-bold text-[10px]">{new Date(row.dcDate).toLocaleDateString()}</TableCell>
                       <TableCell className="text-center py-3">
-                        <span className="px-2 py-0.5 rounded bg-cyan-50 text-cyan-700 text-[10px] font-black border border-cyan-100">{row.grade || "-"}</span>
+                        <span className="px-2 py-0.5 rounded bg-orange-50/40 text-[#ea580c] text-[10px] font-black border border-orange-100/50">{row.grade || "-"}</span>
                       </TableCell>
                       <TableCell className="text-center py-3">
                         <div className="flex flex-col items-center justify-center gap-0.5 font-mono text-[9px] font-bold">
@@ -481,7 +481,7 @@ export default function WeighmentList() {
                             onClick={() => handleCopyRow(row)}
                             title="Copy Details" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -491,7 +491,7 @@ export default function WeighmentList() {
                             onClick={() => handleEditRow(row)}
                             title="Edit Record" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -534,7 +534,7 @@ export default function WeighmentList() {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`h-7 w-7 flex items-center justify-center rounded text-[10px] font-black transition-all ${currentPage === i + 1 ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/30' : 'bg-white border border-slate-200 text-slate-400 hover:bg-slate-50'
+                  className={`h-7 w-7 flex items-center justify-center rounded text-[10px] font-black transition-all ${currentPage === i + 1 ? 'bg-[#ea580c] text-white shadow-md shadow-orange-500/30' : 'bg-white border border-slate-200 text-slate-400 hover:bg-slate-50'
                     }`}
                 >
                   {i + 1}
@@ -565,7 +565,7 @@ export default function WeighmentList() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">
               <div className="space-y-3">
-                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Delivery No:</span> <div className="font-medium text-slate-800 font-mono font-bold text-cyan-600">{selectedRecord?.dcNumber}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Delivery No:</span> <div className="font-medium text-slate-800 font-mono font-bold text-[#ea580c]">{selectedRecord?.dcNumber}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Slip Date:</span> <div className="font-medium text-slate-800">{selectedRecord?.dcDate ? new Date(selectedRecord.dcDate).toLocaleDateString("en-IN") : "-"}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedRecord?.customerName || "-"}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Site Address:</span> <div className="font-medium text-slate-800">{selectedRecord?.siteName || "-"}</div></div>
@@ -590,7 +590,7 @@ export default function WeighmentList() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Weighment Slip Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Weighment Slip Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">WEIGHMENT SLIP</span>
             </div>
@@ -598,7 +598,7 @@ export default function WeighmentList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Slip Details</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Slip Details</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">DC Number: <span className="font-black text-gray-900">{printRecord.dcNumber}</span></p>
                 <p className="text-xs font-bold text-gray-700">Date: <span className="font-medium text-gray-900">{printRecord.dcDate ? new Date(printRecord.dcDate).toLocaleDateString("en-IN") : "-"}</span></p>
@@ -606,7 +606,7 @@ export default function WeighmentList() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer & Vehicle</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer & Vehicle</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printRecord.customerName || "-"}</span></p>
                 <p className="text-xs font-bold text-gray-700">Site: <span className="font-medium text-gray-900">{printRecord.siteName || "-"}</span></p>
@@ -632,7 +632,7 @@ export default function WeighmentList() {
                 <td className="border p-2 font-bold text-gray-700">Gross Loaded Weight</td>
                 <td className="border p-2 text-right font-semibold">{(printRecord.loadedQuantity || 0) || ((printRecord.tareWeight || 0) + (printRecord.netWeight || printRecord.quantity || 0))} KG</td>
               </tr>
-              <tr className="text-xs bg-slate-50 font-bold text-[#1e40af]">
+              <tr className="text-xs bg-slate-50 font-bold text-[#ea580c]">
                 <td className="border p-2">Net Weight</td>
                 <td className="border p-2 text-right">{(printRecord.netWeight || printRecord.quantity || 0)} KG</td>
               </tr>
@@ -647,7 +647,7 @@ export default function WeighmentList() {
               <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Driver Signature</p>
             </div>
             <div className="text-center w-40 border-t pt-2 border-gray-300">
-              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Operator</p>
+              <p className="text-[9px] font-extrabold uppercase text-[#ea580c] tracking-wider">Authorized Operator</p>
             </div>
           </div>
         </div>

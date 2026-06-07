@@ -129,9 +129,9 @@ export default function Permissions() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Permissions Matrix</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Permissions</span>
+            <span className="text-[#ea580c]">Permissions</span>
           </nav>
         </div>
       </div>
@@ -149,13 +149,13 @@ export default function Permissions() {
                   onClick={() => setActiveRole(role.id)}
                   className={`w-full text-left p-3 rounded-lg border transition-all cursor-pointer ${
                     isActive
-                      ? "bg-[#1e40af]/5 border-[#1e40af] shadow-sm"
+                      ? "bg-[#ea580c]/5 border-[#ea580c] shadow-sm"
                       : "hover:bg-slate-50 border-slate-200"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <Shield className={`h-4 w-4 ${isActive ? "text-[#1e40af]" : "text-gray-400"}`} />
-                    <span className={`text-xs font-bold ${isActive ? "text-[#1e40af]" : "text-gray-700"}`}>
+                    <Shield className={`h-4 w-4 ${isActive ? "text-[#ea580c]" : "text-gray-400"}`} />
+                    <span className={`text-xs font-bold ${isActive ? "text-[#ea580c]" : "text-gray-700"}`}>
                       {role.name}
                     </span>
                   </div>
@@ -171,7 +171,7 @@ export default function Permissions() {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#1e40af]" />
+                <ShieldCheck className="h-4 w-4 text-[#ea580c]" />
                 Module Access for {ROLES.find(r => r.id === activeRole)?.name}
               </h3>
               <p className="text-xs text-gray-500 mt-1">Configure individual module actions permitted for this role.</p>
@@ -179,7 +179,7 @@ export default function Permissions() {
             <Button
               onClick={handleSave}
               disabled={isSaving || isLoading}
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
             >
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Saving..." : "Save Settings"}
@@ -242,7 +242,7 @@ export default function Permissions() {
           )}
 
           <div className="p-3 bg-slate-50 rounded-lg border flex gap-3 text-xs text-gray-600">
-            <Info className="h-4 w-4 text-[#1e40af] shrink-0 mt-0.5" />
+            <Info className="h-4 w-4 text-[#ea580c] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               <strong>Tip:</strong> Toggle each checkbox cell to grant or restrict specific actions for this role, then click <strong>Save Settings</strong> to save the changes to the system.
             </p>

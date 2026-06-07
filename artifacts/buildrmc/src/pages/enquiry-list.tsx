@@ -172,7 +172,7 @@ export default function EnquiryList() {
           <title>Enquiry Details - ${e.enquiryId}</title>
           <style>
             body { font-family: sans-serif; padding: 20px; }
-            h1 { color: #1e40af; }
+            h1 { color: #ea580c; }
             .field { margin-bottom: 10px; }
             .label { font-weight: bold; }
           </style>
@@ -180,7 +180,7 @@ export default function EnquiryList() {
         <body onload="window.print(); window.close();">
           <div style="display: flex; height: 6px; width: 100%;">
             <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
             <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
           </div>
           <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -193,7 +193,7 @@ export default function EnquiryList() {
                   </linearGradient>
                   <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#06b6d4" />
-                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="60%" stop-color="#ea580c" />
                     <stop offset="100%" stop-color="#f97316" />
                   </linearGradient>
                 </defs>
@@ -224,7 +224,7 @@ export default function EnquiryList() {
               </div>
             </div>
           </div>
-          <h2 style="font-family: sans-serif; font-size: 14px; font-weight: bold; color: #1e40af; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px;">Enquiry Details: ${e.enquiryId}</h2>
+          <h2 style="font-family: sans-serif; font-size: 14px; font-weight: bold; color: #ea580c; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 15px;">Enquiry Details: ${e.enquiryId}</h2>
           <div class="field"><span class="label">Contact Person:</span> ${e.contactPerson}</div>
           <div class="field"><span class="label">Company Name:</span> ${e.companyName || "N/A"}</div>
           <div class="field"><span class="label">Mobile:</span> ${e.mobile}</div>
@@ -267,15 +267,15 @@ export default function EnquiryList() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Enquiry List</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+            <Link href="/sales" className="hover:text-[#ea580c] transition-colors">Sales</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Enquiry List</span>
+            <span className="text-[#ea580c]">Enquiry List</span>
           </nav>
         </div>
         <Link href="/sales/enquiry/new">
-          <Button className="h-8 bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md shadow-[#1e40af]/10">
+          <Button className="h-8 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md shadow-[#ea580c]/10">
             <ListPlus className="h-4 w-4" /> Add Enquiry
           </Button>
         </Link>
@@ -286,7 +286,7 @@ export default function EnquiryList() {
         <div className="hidden print:block mb-6">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Enquiry Report</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Sales Enquiry Report</h2>
             <div className="text-right text-[10px] font-bold text-gray-600">
               <span>Printed Date: {new Date().toLocaleDateString("en-IN")}</span>
             </div>
@@ -314,7 +314,7 @@ export default function EnquiryList() {
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleSearch} size="sm" className="bg-[#1e40af] hover:bg-blue-800 text-white font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
+            <Button onClick={handleSearch} size="sm" className="bg-[#ea580c] hover:bg-[#ea580c] text-white font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
               <Search className="h-3 w-3" /> Search
             </Button>
             <Button onClick={handleClear} size="sm" variant="outline" className="border-slate-200 text-slate-500 hover:bg-slate-100 font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
@@ -341,16 +341,16 @@ export default function EnquiryList() {
         {/* Dynamic Table */}
         <div className="border border-gray-100 rounded-lg overflow-hidden shadow-sm print:border-none print:shadow-none print:overflow-visible">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Enquiry ID</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Contact Name</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date & Time</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Phone</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Designation</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Requirements</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">Action</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Enquiry ID</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Contact Name</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date & Time</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Phone</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Designation</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Requirements</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -369,7 +369,7 @@ export default function EnquiryList() {
               ) : (
                 paginatedData.map((enq) => (
                   <TableRow key={enq.id} className="hover:bg-slate-50/50 transition-colors border-b">
-                    <TableCell className="text-center py-2.5 font-bold text-[#1e40af] text-xs">
+                    <TableCell className="text-center py-2.5 font-bold text-[#ea580c] text-xs">
                       {enq.enquiryId}
                     </TableCell>
                     <TableCell className="font-semibold text-slate-800 text-xs">
@@ -386,7 +386,7 @@ export default function EnquiryList() {
                       {enq.designation}
                     </TableCell>
                     <TableCell className="text-center">
-                      <span className="text-[10px] font-bold bg-blue-50 text-[#1e40af] px-2 py-0.5 rounded-full border border-blue-100">
+                      <span className="text-[10px] font-bold bg-orange-50/40 text-[#ea580c] px-2 py-0.5 rounded-full border border-orange-100/50">
                         {enq.requirements?.length || 0} reqs
                       </span>
                     </TableCell>
@@ -422,7 +422,7 @@ export default function EnquiryList() {
                           onClick={() => handleCopySingle(enq)}
                           title="Copy Details" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -432,7 +432,7 @@ export default function EnquiryList() {
                           onClick={() => setSelectedEnquiry(enq)}
                           title="Edit Enquiry" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -535,14 +535,14 @@ export default function EnquiryList() {
               </h4>
               <div className="border border-slate-100 rounded-lg overflow-hidden shadow-sm">
                 <Table>
-                  <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-                    <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Project Name</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Locality</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Material</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Est. Rate</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Stage of Construction</TableHead>
+                  <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+                    <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Project Name</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Locality</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Material</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Quantity</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Est. Rate</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center">Stage of Construction</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -554,7 +554,7 @@ export default function EnquiryList() {
                         </TableCell>
                         <TableCell className="text-xs font-medium text-slate-600 py-2">{req.locality}</TableCell>
                         <TableCell className="text-xs font-medium text-slate-700 py-2">{req.materialType}</TableCell>
-                        <TableCell className="text-right font-bold text-xs text-[#1e40af] py-2">{req.estimatedQty} {req.unit}</TableCell>
+                        <TableCell className="text-right font-bold text-xs text-[#ea580c] py-2">{req.estimatedQty} {req.unit}</TableCell>
                         <TableCell className="text-right text-xs font-semibold text-slate-700 py-2">
                           {req.estimatedRate ? `₹${req.estimatedRate}` : "-"}
                         </TableCell>

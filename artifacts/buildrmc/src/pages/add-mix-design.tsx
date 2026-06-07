@@ -213,12 +213,12 @@ export default function AddMixDesign() {
           </Card>
 
           {/* Density Summary Card */}
-          <Card className="bg-gradient-to-br from-[#1e40af] to-[#1e293b] text-white shadow-lg border-none overflow-hidden">
+          <Card className="bg-gradient-to-br from-[#ea580c] to-[#1e293b] text-white shadow-lg border-none overflow-hidden">
             <CardContent className="p-6 relative">
               <Sparkles className="absolute top-4 right-4 h-16 w-16 text-white/10" />
-              <p className="text-[10px] font-black uppercase tracking-widest text-blue-200 mb-1">Estimated Formulation</p>
-              <div className="text-3xl font-black tracking-tight">{totalDensity.toFixed(2)} <span className="text-sm font-bold text-blue-200">kg/m³</span></div>
-              <p className="text-xs text-blue-100/80 mt-2 font-medium leading-relaxed">
+              <p className="text-[10px] font-black uppercase tracking-widest text-orange-200 mb-1">Estimated Formulation</p>
+              <div className="text-3xl font-black tracking-tight">{totalDensity.toFixed(2)} <span className="text-sm font-bold text-orange-200">kg/m³</span></div>
+              <p className="text-xs text-orange-100/80 mt-2 font-medium leading-relaxed">
                 Calculated by summing all dry and wet ingredients in the mix proportions grid.
               </p>
             </CardContent>
@@ -275,7 +275,7 @@ export default function AddMixDesign() {
                     <TableCell colSpan={3} className="text-right text-xs uppercase text-slate-800 py-3.5 pr-6 tracking-wide">
                       Total Density :
                     </TableCell>
-                    <TableCell className="text-right text-sm font-black text-[#1e40af] py-3.5 pr-3">
+                    <TableCell className="text-right text-sm font-black text-[#ea580c] py-3.5 pr-3">
                       {totalDensity.toFixed(2)} <span className="text-[10px] text-slate-500 font-bold">kg/m³</span>
                     </TableCell>
                   </TableRow>

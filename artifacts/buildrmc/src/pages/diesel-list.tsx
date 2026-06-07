@@ -54,7 +54,7 @@ interface VehicleData {
 export default function DieselList() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -186,11 +186,11 @@ export default function DieselList() {
             <title>Diesel Receipt - Ref ${sNo}</title>
             <style>
               body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 650px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
-              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
-              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; }
               .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
               .logo { height: 50px; width: 50px; }
-              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #ea580c; }
               .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; margin-bottom: 30px; }
               .info-group { display: flex; flex-direction: column; }
               .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
@@ -208,8 +208,8 @@ export default function DieselList() {
                 <p>Email: contact@buildrmc.in | Web: www.buildrmc.in</p>
               </div>
               <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" rx="15" fill="#1e3a8a"/>
-                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#00c0a5"/>
+                <rect width="100" height="100" rx="15" fill="#0f172a"/>
+                <path d="M30 70V30H45C55 30 60 35 60 42C60 47 56 50 50 51C57 52 62 56 62 62C62 70 55 70 45 70H30ZM40 46H45C49 46 51 44 51 41C51 38 49 37 45 37H40V46ZM40 63H46C50 63 53 61 53 58C53 55 50 54 46 54H40V63Z" fill="#ea580c"/>
               </svg>
             </div>
             <div class="title">Diesel Consumption Slip</div>
@@ -281,7 +281,7 @@ export default function DieselList() {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#ea580c] focus:ring-[#ea580c]"
             />
           </div>
 
@@ -291,7 +291,7 @@ export default function DieselList() {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#ea580c] focus:ring-[#ea580c]"
             />
           </div>
 
@@ -300,7 +300,7 @@ export default function DieselList() {
             <select
               value={selectedVehicle}
               onChange={(e) => setSelectedVehicle(e.target.value)}
-              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
             >
               <option value="All Vehicle">All Vehicle</option>
               {vehicles.map((v) => (
@@ -314,7 +314,7 @@ export default function DieselList() {
           <div className="flex gap-2">
             <Button
               onClick={fetchLogs}
-              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-10 px-5 rounded border-none shadow-sm active:scale-95 transition-all"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-10 px-5 rounded border-none shadow-sm active:scale-95 transition-all"
             >
               Search
             </Button>
@@ -325,7 +325,7 @@ export default function DieselList() {
               Clear
             </Button>
             <Link href="/transport/diesel/new">
-              <Button className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-10 px-5 rounded border-none shadow-sm active:scale-95 transition-all flex items-center gap-1.5">
+              <Button className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-10 px-5 rounded border-none shadow-sm active:scale-95 transition-all flex items-center gap-1.5">
                 <Plus className="h-4 w-4" /> Add Diesel Consumption
               </Button>
             </Link>
@@ -342,7 +342,7 @@ export default function DieselList() {
               setEntriesPerPage(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="h-8 rounded border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+            className="h-8 rounded border border-slate-200 bg-white px-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c]"
           >
             <option value={10}>10</option>
             <option value={25}>25</option>
@@ -356,7 +356,7 @@ export default function DieselList() {
         <div className="flex-1 overflow-auto p-4">
           <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
             <Table>
-              <TableHeader className="bg-[#1e40af] hover:bg-[#1e40af]">
+              <TableHeader className="bg-[#ea580c] hover:bg-[#ea580c]">
                 <TableRow className="border-0 hover:bg-transparent">
                   <TableHead rowSpan={2} className={`${headerStyle} align-middle w-24`}>S/L No</TableHead>
                   <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Vehicle No</TableHead>
@@ -365,10 +365,10 @@ export default function DieselList() {
                   <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Added By</TableHead>
                   <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Taken From</TableHead>
                   <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Plant</TableHead>
-                  <TableHead colSpan={4} className="bg-[#1e40af] text-white font-black py-1 px-2 text-center text-[9px] border-r border-white/10 uppercase tracking-tighter border-b border-white/10">Engine</TableHead>
-                  <TableHead rowSpan={2} className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter align-middle w-[220px]">ACTION</TableHead>
+                  <TableHead colSpan={4} className="bg-[#ea580c] text-white font-black py-1 px-2 text-center text-[9px] border-r border-white/10 uppercase tracking-tighter border-b border-white/10">Engine</TableHead>
+                  <TableHead rowSpan={2} className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter align-middle w-[220px]">ACTION</TableHead>
                 </TableRow>
-                <TableRow className="border-0 hover:bg-transparent bg-[#1e40af]">
+                <TableRow className="border-0 hover:bg-transparent bg-[#ea580c]">
                   <TableHead className={headerStyle}>Engine Type</TableHead>
                   <TableHead className={headerStyle}>Type</TableHead>
                   <TableHead className={`${headerStyle} text-right`}>Opening</TableHead>
@@ -457,7 +457,7 @@ export default function DieselList() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleExportRow(item, idx, "copy")}
-                            className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
+                            className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                             title="Copy TSV"
                           >
                             <Copy className="h-3.5 w-3.5" />
@@ -475,7 +475,7 @@ export default function DieselList() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
+                              className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                               title="Edit"
                             >
                               <Edit className="h-3.5 w-3.5" />
@@ -525,7 +525,7 @@ export default function DieselList() {
                   onClick={() => setCurrentPage(pageNum)}
                   className={`h-8 w-8 text-xs font-bold ${
                     currentPage === pageNum
-                      ? "bg-[#00c0a5] hover:bg-[#00a890] text-white border-none"
+                      ? "bg-[#ea580c] hover:bg-[#d97706] text-white border-none"
                       : "border-slate-200 text-slate-650 hover:bg-slate-50"
                   }`}
                 >

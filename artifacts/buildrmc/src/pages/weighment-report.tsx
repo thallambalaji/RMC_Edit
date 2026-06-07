@@ -41,9 +41,9 @@ export default function WeighmentReport() {
           <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Analyze vehicle weight data and operational trends</p>
         </div>
         <nav className="text-[10px] font-bold text-slate-400 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-          <Link href="/dashboard" className="hover:text-cyan-500 transition-colors">HOME</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">HOME</Link>
           <ChevronRight className="h-3 w-3 opacity-30" />
-          <Link href="/dc" className="hover:text-cyan-500 transition-colors">DC</Link>
+          <Link href="/dc" className="hover:text-[#ea580c] transition-colors">DC</Link>
           <ChevronRight className="h-3 w-3 opacity-30" />
           <span className="text-slate-800">REPORTS</span>
         </nav>
@@ -51,8 +51,8 @@ export default function WeighmentReport() {
 
       <div className="glass-card p-6 border-white/80 shadow-xl">
         <div className="flex items-center gap-2 mb-8 border-b border-slate-100 pb-4">
-          <div className="bg-cyan-500/10 p-2 rounded-lg">
-            <BarChart3 className="h-5 w-5 text-cyan-600" />
+          <div className="bg-[#ea580c]/10 p-2 rounded-lg">
+            <BarChart3 className="h-5 w-5 text-[#ea580c]" />
           </div>
           <h3 className="font-black text-slate-800 text-sm tracking-widest uppercase">Report Parameters</h3>
         </div>
@@ -132,7 +132,7 @@ export default function WeighmentReport() {
         </div>
 
         <div className="flex gap-3 mt-10 border-t border-slate-100 pt-6">
-          <Button onClick={handleGenerate} className="btn-primary px-12 h-11 gap-2 shadow-lg shadow-cyan-500/20">
+          <Button onClick={handleGenerate} className="btn-primary px-12 h-11 gap-2 shadow-lg shadow-orange-500/20">
             <FileText className="h-4 w-4" /> GENERATE REPORT
           </Button>
           <Button onClick={handleClear} variant="outline" className="bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 px-12 h-11 gap-2 transition-all font-black text-[10px] tracking-widest shadow-sm">
@@ -143,8 +143,8 @@ export default function WeighmentReport() {
 
       {/* Report Preview Placeholder */}
       <div className="glass-card h-[400px] flex flex-col items-center justify-center text-center p-12 group transition-all hover:bg-white border-dashed border-slate-200 border-2 shadow-inner">
-        <div className="bg-slate-50 p-6 rounded-full mb-6 group-hover:scale-110 group-hover:bg-cyan-50 transition-all duration-500 shadow-sm">
-          <BarChart3 className="h-12 w-12 text-slate-200 group-hover:text-cyan-500 transition-colors" />
+        <div className="bg-slate-50 p-6 rounded-full mb-6 group-hover:scale-110 group-hover:bg-orange-50/40 transition-all duration-500 shadow-sm">
+          <BarChart3 className="h-12 w-12 text-slate-200 group-hover:text-[#ea580c] transition-colors" />
         </div>
         <h3 className="text-slate-400 font-black uppercase tracking-widest text-sm mb-2">Report Preview Area</h3>
         <p className="text-slate-300 text-xs max-w-xs leading-relaxed font-medium">

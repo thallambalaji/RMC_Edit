@@ -7,7 +7,7 @@ export default function WeighmentHub() {
       href: "/dc/weighment/tickets",
       label: "Tickets",
       icon: Ticket,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/dc/weighment/new",
@@ -19,13 +19,13 @@ export default function WeighmentHub() {
       href: "/dc/weighment/list",
       label: "Weighment List",
       icon: List,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
     {
       href: "/dc/weighment/report",
       label: "Weighment Report",
       icon: BarChart3,
-      color: "bg-cyan-600 hover:bg-cyan-700",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

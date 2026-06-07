@@ -45,7 +45,7 @@ import { ChevronRight, Search, RotateCcw, Files, Printer, Download, Copy, Trash2
 export default function ConsolidateSalesDocumentList() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const { data: invoices, isLoading } = useGetInvoices();
   const { data: customers } = useGetCustomers();
   const deleteInvoice = useDeleteInvoice();
@@ -198,7 +198,7 @@ export default function ConsolidateSalesDocumentList() {
       <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6 items-end">
           <div className="space-y-2">
-            <Label htmlFor="fromDate" className="text-sm font-semibold">From Date <span className="text-cyan-500">*</span></Label>
+            <Label htmlFor="fromDate" className="text-sm font-semibold">From Date <span className="text-[#ea580c]">*</span></Label>
             <Input
               id="fromDate"
               type="date"
@@ -208,7 +208,7 @@ export default function ConsolidateSalesDocumentList() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="toDate" className="text-sm font-semibold">To Date <span className="text-cyan-500">*</span></Label>
+            <Label htmlFor="toDate" className="text-sm font-semibold">To Date <span className="text-[#ea580c]">*</span></Label>
             <Input
               id="toDate"
               type="date"
@@ -218,7 +218,7 @@ export default function ConsolidateSalesDocumentList() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="consolidateId" className="text-sm font-semibold">Consolidate Invoice Id <span className="text-cyan-500">*</span></Label>
+            <Label htmlFor="consolidateId" className="text-sm font-semibold">Consolidate Invoice Id <span className="text-[#ea580c]">*</span></Label>
             <Input
               id="consolidateId"
               placeholder="Enter Invoice No.."
@@ -228,7 +228,7 @@ export default function ConsolidateSalesDocumentList() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="customer" className="text-sm font-semibold">Customer <span className="text-cyan-500">*</span></Label>
+            <Label htmlFor="customer" className="text-sm font-semibold">Customer <span className="text-[#ea580c]">*</span></Label>
             <Select value={customerFilter} onValueChange={setCustomerFilter}>
               <SelectTrigger id="customer" className="bg-gray-50 border-gray-200 h-10">
                 <SelectValue />
@@ -279,7 +279,7 @@ export default function ConsolidateSalesDocumentList() {
                 <TableHead className={headerStyle}>Generate Date</TableHead>
                 <TableHead className={headerStyle}>No Of Invoice</TableHead>
                 <TableHead className={headerStyle}>Plant Name</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Action</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -294,7 +294,7 @@ export default function ConsolidateSalesDocumentList() {
               ) : (
                 currentData.map((inv) => (
                   <TableRow key={inv.id} className="hover:bg-slate-50">
-                    <TableCell className="text-center font-bold text-[#1e40af]">{inv.invoiceNumber}</TableCell>
+                    <TableCell className="text-center font-bold text-[#ea580c]">{inv.invoiceNumber}</TableCell>
                     <TableCell className="text-center text-slate-800">{inv.customerName}</TableCell>
                     <TableCell className="text-center text-slate-600">{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</TableCell>
                     <TableCell className="text-center text-slate-600">1</TableCell>
@@ -326,7 +326,7 @@ export default function ConsolidateSalesDocumentList() {
                           onClick={() => handleCopyRow(inv)}
                           title="Copy Details" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -336,7 +336,7 @@ export default function ConsolidateSalesDocumentList() {
                           onClick={() => setViewInv(inv)}
                           title="Edit Document" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -377,7 +377,7 @@ export default function ConsolidateSalesDocumentList() {
           <div className="p-8 bg-white text-black">
             <PrintHeader />
             <div className="flex justify-between items-center border-b pb-2 mb-4">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidated Invoice Details</h2>
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Consolidated Invoice Details</h2>
               <div className="text-right">
                 <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">CONSOLIDATED INVOICE</span>
               </div>
@@ -423,7 +423,7 @@ export default function ConsolidateSalesDocumentList() {
         <div className="p-8 bg-white text-black">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Consolidate Sales Document List</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Consolidate Sales Document List</h2>
             <div className="text-right">
               <p className="text-[10px] font-bold text-gray-600">Printed Date: {new Date().toLocaleDateString("en-IN")}</p>
             </div>

@@ -69,7 +69,7 @@ export default function DCReport() {
   const queryClient = useQueryClient();
   const [selectedDC, setSelectedDC] = useState<any>(null);
   const [printDC, setPrintDC] = useState<any>(null);
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   const [reportType, setReportType] = useState("Date Wise");
   const [fromDate, setFromDate] = useState("");
@@ -266,16 +266,16 @@ export default function DCReport() {
             </h2>
             <div className="h-4 w-px bg-slate-300 mx-4" />
             <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
-              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+              <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors flex items-center gap-1">
                 <Home className="h-3.5 w-3.5 text-slate-500" />
                 <span>HOME</span>
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+              <Link href="/dc" className="hover:text-[#ea580c] transition-colors">
                 DC
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <span className="text-blue-600 font-black">DC REPORT</span>
+              <span className="text-[#ea580c] font-black">DC REPORT</span>
             </nav>
           </div>
 
@@ -408,7 +408,7 @@ export default function DCReport() {
           <Button
             onClick={handleGenerate}
             disabled={dcsLoading}
-            className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-8 h-10 font-bold uppercase tracking-wide shadow-sm"
+            className="bg-[#ea580c] hover:bg-[#d97706] text-white px-8 h-10 font-bold uppercase tracking-wide shadow-sm"
           >
             {dcsLoading ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -435,7 +435,7 @@ export default function DCReport() {
           <div className="hidden print:block mb-6">
             <PrintHeader />
             <div className="flex justify-between items-center border-b pb-2 mb-4">
-              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">DC Report - {reportType}</h2>
+              <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">DC Report - {reportType}</h2>
               <div className="text-right text-[10px] font-bold text-gray-600">
                 <span>Printed Date: {new Date().toLocaleDateString()}</span>
                 { (fromDate || toDate) && <span> &nbsp;|&nbsp; Period: {fromDate ? formatDate(fromDate) : "Start"} to {toDate ? formatDate(toDate) : "End"}</span> }
@@ -451,14 +451,14 @@ export default function DCReport() {
           </div>
 
           {/* Report Header */}
-          <div className="bg-[#1e40af] p-4 flex items-center justify-between text-white print:hidden">
+          <div className="bg-[#ea580c] p-4 flex items-center justify-between text-white print:hidden">
             <div>
               <h3 className="font-bold uppercase tracking-wider flex items-center gap-2">
                 <TruckIcon className="h-5 w-5" />
                 DC Report — {reportType}
               </h3>
               {fromDate && toDate && (
-                <p className="text-xs text-blue-200 mt-0.5">
+                <p className="text-xs text-orange-200 mt-0.5">
                   Period: {formatDate(fromDate)} to {formatDate(toDate)}
                   {selectedPlant !== "All Plant" && `  ·  Plant: ${selectedPlant}`}
                   {selectedItem !== "All Item" && `  ·  Item: ${selectedItem}`}
@@ -487,7 +487,7 @@ export default function DCReport() {
                   <TableHead className={`${headerStyle} text-right`}>Qty (m³)</TableHead>
                   <TableHead className={`${headerStyle} text-right`}>Net Amount</TableHead>
                   <TableHead className={headerStyle}>Status</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -505,7 +505,7 @@ export default function DCReport() {
                       </TableCell>
                       <TableCell 
                         onClick={() => setSelectedDC(dc)} 
-                        className="font-bold text-[#1e40af] border-r border-gray-100 print:text-black print:px-2 cursor-pointer hover:underline hover:text-blue-800"
+                        className="font-bold text-[#ea580c] border-r border-gray-100 print:text-black print:px-2 cursor-pointer hover:underline hover:text-[#ea580c]"
                         title="Click to view details"
                       >
                         {dc.dcNumber}
@@ -525,11 +525,11 @@ export default function DCReport() {
                         {dc.plant || "-"}
                       </TableCell>
                       <TableCell className="border-r border-gray-100 print:px-2">
-                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-xs font-bold print:bg-transparent print:text-black print:p-0">
+                        <span className="px-2 py-0.5 rounded bg-orange-50/40 text-[#ea580c] text-xs font-bold print:bg-transparent print:text-black print:p-0">
                           {dc.grade || "-"}
                         </span>
                       </TableCell>
-                      <TableCell className="border-r border-gray-100 text-right font-semibold text-cyan-700 print:text-black print:px-2">
+                      <TableCell className="border-r border-gray-100 text-right font-semibold text-[#ea580c] print:text-black print:px-2">
                         {Number(dc.quantity || 0).toFixed(2)}
                       </TableCell>
                       <TableCell className="border-r border-gray-100 text-right font-semibold print:px-2">
@@ -575,7 +575,7 @@ export default function DCReport() {
                             onClick={() => handleCopyRow(dc)}
                             title="Copy Details" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -585,7 +585,7 @@ export default function DCReport() {
                             onClick={() => handleEditRow(dc)}
                             title="Edit Record" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -619,7 +619,7 @@ export default function DCReport() {
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">
                   Total Quantity
                 </p>
-                <p className="text-xl font-black text-cyan-700">
+                <p className="text-xl font-black text-[#ea580c]">
                   {totalQty.toFixed(2)} m³
                 </p>
               </div>
@@ -627,7 +627,7 @@ export default function DCReport() {
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-widest">
                   Total Amount
                 </p>
-                <p className="text-xl font-black text-[#1e40af]">
+                <p className="text-xl font-black text-[#ea580c]">
                   ₹{totalAmount.toLocaleString("en-IN")}
                 </p>
               </div>
@@ -665,7 +665,7 @@ export default function DCReport() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 p-4 rounded-lg border border-slate-100">
               <div className="space-y-3">
-                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">DC Number:</span> <div className="font-medium text-slate-800 font-mono font-bold text-cyan-600">{selectedDC?.dcNumber}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">DC Number:</span> <div className="font-medium text-slate-800 font-mono font-bold text-[#ea580c]">{selectedDC?.dcNumber}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Challan Date:</span> <div className="font-medium text-slate-800">{selectedDC?.dcDate ? formatDate(selectedDC.dcDate) : "-"}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedDC?.customerName || customerMap[String(selectedDC?.customerId?._id || selectedDC?.customerId)] || "-"}</div></div>
                 <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Delivery Plant:</span> <div className="font-medium text-slate-800">{selectedDC?.plant || "-"}</div></div>
@@ -690,7 +690,7 @@ export default function DCReport() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Delivery Challan Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
@@ -698,7 +698,7 @@ export default function DCReport() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">DC Number: <span className="font-black text-gray-900">{printDC.dcNumber}</span></p>
                 <p className="text-xs font-bold text-gray-700">Time of Dispatch: <span className="font-medium text-gray-900">{printDC.dcTime || "-"}</span></p>
@@ -706,11 +706,11 @@ export default function DCReport() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer Info</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer Info</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printDC.customerName || customerMap[String(printDC.customerId?._id || printDC.customerId)] || "-"}</span></p>
                 <p className="text-xs font-bold text-gray-700">Material Grade: <span className="font-medium text-gray-900">{printDC.grade || "-"}</span></p>
-                <p className="text-xs font-bold text-gray-700">Status: <span className="font-medium text-gray-900 uppercase font-bold text-xs text-blue-800">{printDC.status || "completed"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Status: <span className="font-medium text-gray-900 uppercase font-bold text-xs text-[#ea580c]">{printDC.status || "completed"}</span></p>
               </div>
             </div>
           </div>
@@ -730,7 +730,7 @@ export default function DCReport() {
                 <td className="border p-2 font-bold text-gray-700">Ready Mix Concrete {printDC.grade}</td>
                 <td className="border p-2 text-right font-semibold">{printDC.quantity || 0} m³</td>
                 <td className="border p-2 text-right font-semibold">₹{(Number(printDC.netAmount || 0) / (Number(printDC.quantity) || 1)).toFixed(2)}</td>
-                <td className="border p-2 text-right font-bold text-[#1e40af]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN")}</td>
+                <td className="border p-2 text-right font-bold text-[#ea580c]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN")}</td>
               </tr>
             </tbody>
           </table>
@@ -743,7 +743,7 @@ export default function DCReport() {
               <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Receiver Signature</p>
             </div>
             <div className="text-center w-40 border-t pt-2 border-gray-300">
-              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Officer</p>
+              <p className="text-[9px] font-extrabold uppercase text-[#ea580c] tracking-wider">Authorized Officer</p>
             </div>
           </div>
         </div>

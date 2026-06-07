@@ -68,9 +68,9 @@ export default function ChangePassword() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Change Password</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Change Password</span>
+            <span className="text-[#ea580c]">Change Password</span>
           </nav>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function ChangePassword() {
             <Button 
               type="submit" 
               disabled={isSaving}
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white px-5 h-9 font-bold uppercase text-[10px] tracking-wider rounded-lg shadow-sm"
             >
               <Save className="h-4 w-4 mr-2" />
               {isSaving ? "Updating..." : "Change Password"}

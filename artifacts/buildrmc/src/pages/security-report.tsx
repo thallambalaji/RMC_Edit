@@ -41,7 +41,7 @@ export default function SecurityCheckReport() {
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Filters State
   const [reportType, setReportType] = useState("Date Wise Check");
@@ -148,8 +148,8 @@ export default function SecurityCheckReport() {
           <title>Security Check Report</title>
           <style>
             body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 20px; }
-            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 15px; margin-bottom: 20px; }
-            .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #1e3a8a; }
+            .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; }
+            .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #0f172a; }
             .company-info p { margin: 3px 0 0 0; font-size: 10px; color: #64748b; font-weight: bold; }
             .logo { height: 45px; width: 45px; }
             .title { text-align: center; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px; color: #0f172a; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px; }
@@ -160,7 +160,7 @@ export default function SecurityCheckReport() {
         <body onload="window.print(); window.close();">
           <div style="display: flex; height: 6px; width: 100%;">
             <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
             <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
           </div>
           <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -173,7 +173,7 @@ export default function SecurityCheckReport() {
                   </linearGradient>
                   <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#06b6d4" />
-                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="60%" stop-color="#ea580c" />
                     <stop offset="100%" stop-color="#f97316" />
                   </linearGradient>
                 </defs>
@@ -284,7 +284,7 @@ export default function SecurityCheckReport() {
               <select
                 value={reportType}
                 onChange={(e) => setReportType(e.target.value)}
-                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
               >
                 <option value="Date Wise Check">Date Wise Check</option>
                 <option value="Date With Cycle Wise Check">Date With Cycle Wise Check</option>
@@ -324,7 +324,7 @@ export default function SecurityCheckReport() {
               <select
                 value={vehicleNo}
                 onChange={(e) => setVehicleNo(e.target.value)}
-                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#00c0a5]"
+                className="w-full h-10 rounded border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c]"
               >
                 <option value="">Choose Vehicle</option>
                 {vehicles.map((v) => (
@@ -340,7 +340,7 @@ export default function SecurityCheckReport() {
           <div className="mt-4 flex items-center gap-2 pt-3 border-t border-slate-100 select-none">
             <Button
               onClick={handleGenerate}
-              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-6 rounded border-none active:scale-95 transition-all"
             >
               Generate
             </Button>
@@ -406,7 +406,7 @@ export default function SecurityCheckReport() {
                         </TableCell>
                         <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.date}</TableCell>
                         <TableCell className="font-semibold text-slate-600 text-xs px-3 text-center">{item.time}</TableCell>
-                        <TableCell className="font-extrabold text-[#1e40af] text-xs px-3 text-center">{item.vehicleNo || "N/A"}</TableCell>
+                        <TableCell className="font-extrabold text-[#ea580c] text-xs px-3 text-center">{item.vehicleNo || "N/A"}</TableCell>
                         <TableCell className="font-bold text-slate-700 text-xs px-3 uppercase">{item.driverName || "N/A"}</TableCell>
                         <TableCell className="font-bold text-slate-700 text-xs px-3 text-center">{item.typeOfMovement}</TableCell>
                         <TableCell className="font-extrabold text-slate-800 text-xs px-3 text-center uppercase">{item.plant}</TableCell>

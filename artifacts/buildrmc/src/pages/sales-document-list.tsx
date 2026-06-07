@@ -235,7 +235,7 @@ export default function SalesDocumentList() {
         <PrintHeader />
         <div style={{borderBottom:'2px solid #e2e8f0', paddingBottom:'8px', marginBottom:'16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
           <div>
-            <h2 style={{fontSize:'14px',fontWeight:900,color:'#1e40af',textTransform:'uppercase',margin:0}}>Sales Document List</h2>
+            <h2 style={{fontSize:'14px',fontWeight:900,color:'#ea580c',textTransform:'uppercase',margin:0}}>Sales Document List</h2>
           </div>
           <div style={{textAlign:'right', fontSize:'11px', color:'#64748b'}}>
             <span>Printed on: {new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'})} &nbsp;|&nbsp; Total Records: {filtered.length}</span>
@@ -245,7 +245,7 @@ export default function SalesDocumentList() {
         {/* Print Table */}
         <table style={{width:'100%',borderCollapse:'collapse',fontSize:'11px'}}>
           <thead>
-            <tr style={{background:'#1e3a8a',color:'white'}}>
+            <tr style={{background:'#0f172a',color:'white'}}>
               {['Invoice No','Date','Time','Customer','Site Address','Vehicle','Taxable Amt','Tax Amt','Net Amt','Plant'].map(h => (
                 <th key={h} style={{padding:'8px 10px',fontWeight:700,textTransform:'uppercase',textAlign:['Taxable Amt','Tax Amt','Net Amt'].includes(h)?'right':'left',whiteSpace:'nowrap'}}>{h}</th>
               ))}
@@ -258,7 +258,7 @@ export default function SalesDocumentList() {
               const tax = net - taxable;
               return (
                 <tr key={inv.id} style={{background: idx % 2 === 0 ? '#f8fafc' : 'white', borderBottom:'1px solid #e2e8f0'}}>
-                  <td style={{padding:'7px 10px',fontWeight:700,color:'#1e40af'}}>{inv.invoiceNumber}</td>
+                  <td style={{padding:'7px 10px',fontWeight:700,color:'#ea580c'}}>{inv.invoiceNumber}</td>
                   <td style={{padding:'7px 10px',color:'#475569'}}>{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString('en-IN') : '—'}</td>
                   <td style={{padding:'7px 10px',color:'#64748b'}}>{inv.invoiceTime || '—'}</td>
                   <td style={{padding:'7px 10px',fontWeight:600,color:'#0f172a'}}>{inv.customerName}</td>
@@ -273,7 +273,7 @@ export default function SalesDocumentList() {
             })}
           </tbody>
           <tfoot>
-            <tr style={{background:'#1e3a8a',color:'white'}}>
+            <tr style={{background:'#0f172a',color:'white'}}>
               <td colSpan={6} style={{padding:'8px 10px',fontWeight:700}}>TOTAL ({filtered.length} records)</td>
               <td style={{padding:'8px 10px',textAlign:'right',fontWeight:800}}>₹{filtered.reduce((s,i)=>s+parseFloat(String(i.netAmount||0)),0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
               <td style={{padding:'8px 10px',textAlign:'right',fontWeight:800}}>₹{filtered.reduce((s,i)=>s+(parseFloat(String(i.totalAmount||0))-parseFloat(String(i.netAmount||0))),0).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
@@ -295,11 +295,11 @@ export default function SalesDocumentList() {
         <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Document List</h2>
         <div className="h-4 w-px bg-gray-300" />
         <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af]">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c]">Home</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/billing" className="hover:text-[#1e40af]">Billing</Link>
+          <Link href="/billing" className="hover:text-[#ea580c]">Billing</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Sales Document List</span>
+          <span className="text-[#ea580c]">Sales Document List</span>
         </nav>
       </div>
 
@@ -350,7 +350,7 @@ export default function SalesDocumentList() {
             <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Clear
           </Button>
           <Link href="/billing/sales-document/new">
-            <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-xs h-9 px-4 shadow">
+            <Button className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-xs h-9 px-4 shadow">
               <Plus className="h-3.5 w-3.5 mr-1.5" /> Add Invoice
             </Button>
           </Link>
@@ -379,19 +379,19 @@ export default function SalesDocumentList() {
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Invoice No</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Time</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Address</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Vehicle</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Taxable Amt</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Tax Amt</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amt.</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center w-28">Actions</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Invoice No</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Date</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Time</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Address</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Vehicle</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Taxable Amt</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Tax Amt</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-right">Net Amt.</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center w-28">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -406,7 +406,7 @@ export default function SalesDocumentList() {
                   const tax = net - taxable;
                   return (
                     <TableRow key={inv.id} className="hover:bg-slate-50/50 border-b border-gray-100 text-xs">
-                      <TableCell className="font-extrabold text-[#1e40af]">{inv.invoiceNumber}</TableCell>
+                      <TableCell className="font-extrabold text-[#ea580c]">{inv.invoiceNumber}</TableCell>
                       <TableCell className="text-slate-600">{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</TableCell>
                       <TableCell className="text-slate-500">{inv.invoiceTime || "—"}</TableCell>
                       <TableCell className="font-bold text-slate-800">{inv.customerName}</TableCell>
@@ -443,7 +443,7 @@ export default function SalesDocumentList() {
                             onClick={() => handleCopySingle(inv)}
                             title="Copy Details" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -453,7 +453,7 @@ export default function SalesDocumentList() {
                             onClick={() => setViewInv(inv)}
                             title="Edit Invoice" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -488,7 +488,7 @@ export default function SalesDocumentList() {
               <span key={p} className="flex items-center gap-1">
                 {i > 0 && arr[i - 1] !== p - 1 && <span className="text-slate-300 text-xs px-1">…</span>}
                 <Button size="sm" onClick={() => setPage(p)}
-                  className={`h-7 w-7 p-0 text-xs font-extrabold ${p === currentPage ? "bg-[#1e40af] text-white" : "border border-gray-200 text-gray-600 bg-white"}`}
+                  className={`h-7 w-7 p-0 text-xs font-extrabold ${p === currentPage ? "bg-[#ea580c] text-white" : "border border-gray-200 text-gray-600 bg-white"}`}
                 >{p}</Button>
               </span>
             ))}
@@ -500,11 +500,11 @@ export default function SalesDocumentList() {
       {/* View Details Modal */}
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
         <DialogContent hideCloseButton className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
-          <DialogHeader className="p-3.5 px-4 border-b bg-[#1e40af] rounded-t-lg">
+          <DialogHeader className="p-3.5 px-4 border-b bg-[#ea580c] rounded-t-lg">
             <div className="flex items-center justify-between">
               <div>
                 <DialogTitle className="text-white font-black text-base tracking-tight">Invoice Details</DialogTitle>
-                <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
+                <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button size="sm" variant="outline"
@@ -538,7 +538,7 @@ export default function SalesDocumentList() {
             <div className="p-4 space-y-3.5">
               {/* Company header in modal */}
               <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-                <div className="w-10 h-10 bg-[#1e40af] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
+                <div className="w-10 h-10 bg-[#ea580c] text-white flex items-center justify-center font-black text-lg rounded-lg">BM</div>
                 <div>
                   <p className="font-black text-slate-900 text-sm uppercase tracking-tight">BuildRMC Enterprises</p>
                   <p className="text-[10px] text-slate-500 font-medium">123 Industrial Estate, Hyderabad, Telangana 500001</p>
@@ -566,11 +566,11 @@ export default function SalesDocumentList() {
               {/* Customer / Site */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="border border-slate-100 p-3 rounded-lg bg-white">
-                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Customer</p>
+                  <p className="text-[9px] font-black text-[#ea580c] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Customer</p>
                   <p className="font-black text-slate-800 text-xs">{viewInv.customerName || "—"}</p>
                 </div>
                 <div className="border border-slate-100 p-3 rounded-lg bg-white">
-                  <p className="text-[9px] font-black text-[#1e40af] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Site / Destination</p>
+                  <p className="text-[9px] font-black text-[#ea580c] uppercase tracking-wider mb-1.5 pb-0.5 border-b">Site / Destination</p>
                   <p className="font-black text-slate-800 text-xs">{viewInv.site || "—"}</p>
                 </div>
               </div>
@@ -591,7 +591,7 @@ export default function SalesDocumentList() {
                   ))}
                   <div className="flex justify-between items-center px-3.5 py-2 bg-slate-50">
                     <span className="text-xs font-black text-slate-900">Net Total Payable</span>
-                    <span className="text-sm font-black text-[#1e40af]">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                    <span className="text-sm font-black text-[#ea580c]">₹{parseFloat(String(viewInv.totalAmount || 0)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>

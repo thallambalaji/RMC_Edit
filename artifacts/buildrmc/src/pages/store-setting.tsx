@@ -202,7 +202,7 @@ export default function StoreSetting() {
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button
-                className="bg-cyan-600 text-white hover:bg-cyan-700 border-transparent"
+                className="bg-[#ea580c] text-white hover:bg-[#d97706] border-transparent"
                 onClick={handleSave}
                 disabled={isSaving}
               >
@@ -288,7 +288,7 @@ export default function StoreSetting() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-white border border-slate-200 shadow-md rounded-md p-1 min-w-[120px] z-50">
                               <DropdownMenuItem onClick={() => handleEdit(entry)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded text-xs font-semibold text-slate-700">
-                                <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                                <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                                 <span>Edit</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem 

@@ -41,7 +41,7 @@ import { PrintHeader } from "@/components/print-header";
 export default function BatchReport() {
   const { toast } = useToast();
   const { showFilters } = useQcFilters();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [entries, setEntries] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -311,7 +311,7 @@ export default function BatchReport() {
           </div>
           <div className="text-right">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Print Date: {new Date().toLocaleDateString()}</p>
-            <p className="text-xs font-bold text-blue-600 mt-1 uppercase tracking-wider">Report ID: RMC/REP/{Math.floor(Math.random() * 9000) + 1000}</p>
+            <p className="text-xs font-bold text-[#ea580c] mt-1 uppercase tracking-wider">Report ID: RMC/REP/{Math.floor(Math.random() * 9000) + 1000}</p>
           </div>
         </div>
 
@@ -320,12 +320,12 @@ export default function BatchReport() {
           <div className="space-y-8">
             <div className="grid grid-cols-2 gap-8 bg-slate-50 p-6 rounded-lg border">
               <div className="space-y-3">
-                <h3 className="text-xs font-black uppercase text-blue-900 border-b pb-1">
+                <h3 className="text-xs font-black uppercase text-[#ea580c] border-b pb-1">
                   Delivery Specifications
                 </h3>
                 <div className="grid grid-cols-2 text-[10px] gap-y-2">
                   <span className="font-bold text-gray-500">Batch Ticket No:</span>
-                  <span className="font-black text-blue-900">{printingEntry.batchNo}</span>
+                  <span className="font-black text-[#ea580c]">{printingEntry.batchNo}</span>
 
                   <span className="font-bold text-gray-500">Batch Date:</span>
                   <span className="font-black">{printingEntry.date}</span>
@@ -343,7 +343,7 @@ export default function BatchReport() {
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-xs font-black uppercase text-blue-900 border-b pb-1">
+                <h3 className="text-xs font-black uppercase text-[#ea580c] border-b pb-1">
                   Customer & Site Details
                 </h3>
                 <div className="grid grid-cols-2 text-[10px] gap-y-2">
@@ -354,7 +354,7 @@ export default function BatchReport() {
                   <span className="font-black">{printingEntry.siteName}</span>
 
                   <span className="font-bold text-gray-500">Concrete Grade:</span>
-                  <span className="font-black text-blue-800">{printingEntry.grade}</span>
+                  <span className="font-black text-[#ea580c]">{printingEntry.grade}</span>
                 </div>
               </div>
             </div>
@@ -377,7 +377,7 @@ export default function BatchReport() {
                     <td className="py-3 font-bold text-slate-800">Ready-Mix Concrete ({printingEntry.grade})</td>
                     <td className="text-right font-bold">{printingEntry.quantity} m³</td>
                     <td className="text-right font-black text-emerald-700">{printingEntry.batchedQty} m³</td>
-                    <td className="text-right font-bold text-blue-700">
+                    <td className="text-right font-bold text-[#ea580c]">
                       {(((printingEntry.batchedQty - printingEntry.quantity) / printingEntry.quantity) * 100).toFixed(2)}%
                     </td>
                   </tr>
@@ -411,7 +411,7 @@ export default function BatchReport() {
           <div className="space-y-6">
             <div className="bg-slate-50 border p-4 rounded-lg flex items-center justify-between text-xs">
               <div>
-                <p><span className="font-bold text-gray-500">Report Type:</span> <span className="font-black text-blue-900 uppercase">{printingSummary.type}</span></p>
+                <p><span className="font-bold text-gray-500">Report Type:</span> <span className="font-black text-[#ea580c] uppercase">{printingSummary.type}</span></p>
                 <p className="mt-1"><span className="font-bold text-gray-500">Date Range:</span> <span className="font-black">{printingSummary.fromDate} to {printingSummary.toDate}</span></p>
               </div>
               <div className="text-right space-y-0.5">
@@ -436,11 +436,11 @@ export default function BatchReport() {
                   <tbody>
                     {printingSummary.productionData.map((g: any) => (
                       <tr key={g.grade}>
-                        <td className="border border-gray-300 p-2 font-black text-blue-900">{g.grade}</td>
+                        <td className="border border-gray-300 p-2 font-black text-[#ea580c]">{g.grade}</td>
                         <td className="border border-gray-300 p-2 text-right font-bold">{g.count}</td>
                         <td className="border border-gray-300 p-2 text-right">{g.qty.toFixed(1)}</td>
                         <td className="border border-gray-300 p-2 text-right font-black text-emerald-800">{g.batched.toFixed(1)}</td>
-                        <td className="border border-gray-300 p-2 text-right font-bold text-blue-700">{g.variance}%</td>
+                        <td className="border border-gray-300 p-2 text-right font-bold text-[#ea580c]">{g.variance}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -465,7 +465,7 @@ export default function BatchReport() {
                   <tbody>
                     {printingSummary.allData.map((e: any) => (
                       <tr key={e._id || e.id}>
-                        <td className="border border-gray-300 p-1.5 font-bold text-blue-900">{e.batchNo}</td>
+                        <td className="border border-gray-300 p-1.5 font-bold text-[#ea580c]">{e.batchNo}</td>
                         <td className="border border-gray-300 p-1.5">{e.date}</td>
                         <td className="border border-gray-300 p-1.5 font-medium truncate max-w-[150px]">{e.customerName}</td>
                         <td className="border border-gray-300 p-1.5 truncate max-w-[100px]">{e.siteName}</td>
@@ -566,8 +566,8 @@ export default function BatchReport() {
             {/* Stats Dashboard */}
             <div className="grid grid-cols-4 gap-3 shrink-0">
               <Card className="border rounded-lg p-2.5 flex items-center gap-3 shadow-sm bg-white">
-                <div className="p-2 bg-blue-50 rounded-full">
-                  <Layers className="h-4 w-4 text-blue-600" />
+                <div className="p-2 bg-orange-50/40 rounded-full">
+                  <Layers className="h-4 w-4 text-[#ea580c]" />
                 </div>
                 <div>
                   <p className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">
@@ -598,7 +598,7 @@ export default function BatchReport() {
                   <p className="text-sm font-bold text-gray-800">{stats.totalBatched.toFixed(1)} m³</p>
                 </div>
               </Card>
-              <Card className="bg-[#1e40af] rounded-lg p-2.5 flex items-center gap-3 shadow-sm text-white">
+              <Card className="bg-[#ea580c] rounded-lg p-2.5 flex items-center gap-3 shadow-sm text-white">
                 <div className="p-2 bg-white/20 rounded-full">
                   <TrendingUp className="h-4 w-4 text-white" />
                 </div>
@@ -616,8 +616,8 @@ export default function BatchReport() {
               {/* Toolbar */}
               <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                  <Calendar className="h-4 w-4 text-blue-600" />
-                  <span className="uppercase tracking-tight text-[11px] font-extrabold text-blue-900">
+                  <Calendar className="h-4 w-4 text-[#ea580c]" />
+                  <span className="uppercase tracking-tight text-[11px] font-extrabold text-[#ea580c]">
                     {generatedReport.type} Report ({generatedReport.fromDate} to {generatedReport.toDate})
                   </span>
                 </div>
@@ -658,7 +658,7 @@ export default function BatchReport() {
                               idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"
                             }`}
                           >
-                            <TableCell className="font-extrabold text-[#1e40af] text-xs py-3.5 px-4">
+                            <TableCell className="font-extrabold text-[#ea580c] text-xs py-3.5 px-4">
                               {item.grade}
                             </TableCell>
                             <TableCell className="font-bold text-slate-700 text-xs px-3 text-right">
@@ -697,7 +697,7 @@ export default function BatchReport() {
                         <TableHead className={`${headerStyle} text-right px-3`}>Target Qty</TableHead>
                         <TableHead className={`${headerStyle} text-right px-3`}>Batched Qty</TableHead>
                         <TableHead className={headerStyle}>Vehicle No</TableHead>
-                        <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
+                        <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -715,7 +715,7 @@ export default function BatchReport() {
                               index % 2 === 0 ? "bg-white" : "bg-slate-50/30"
                             }`}
                           >
-                            <TableCell className="font-extrabold text-[#1e40af] text-xs py-3.5 px-4 whitespace-nowrap">
+                            <TableCell className="font-extrabold text-[#ea580c] text-xs py-3.5 px-4 whitespace-nowrap">
                               {item.batchNo}
                             </TableCell>
                             <TableCell className="font-bold text-slate-700 text-xs px-3 whitespace-nowrap">

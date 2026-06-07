@@ -275,16 +275,16 @@ export default function DCList() {
             </h2>
             <div className="h-4 w-px bg-slate-300 mx-4" />
             <nav className="text-[10px] text-slate-500 flex items-center uppercase font-bold tracking-widest select-none">
-              <Link href="/dashboard" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+              <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors flex items-center gap-1">
                 <Home className="h-3.5 w-3.5 text-slate-500" />
                 <span>HOME</span>
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <Link href="/dc" className="hover:text-blue-600 transition-colors">
+              <Link href="/dc" className="hover:text-[#ea580c] transition-colors">
                 DC
               </Link>
               <span className="text-slate-400 font-black mx-2.5">&gt;</span>
-              <span className="text-blue-600 font-black">DC LIST</span>
+              <span className="text-[#ea580c] font-black">DC LIST</span>
             </nav>
           </div>
 
@@ -366,7 +366,7 @@ export default function DCList() {
         <div className="hidden print:block mb-6">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Register</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Delivery Challan Register</h2>
             <div className="text-right text-[10px] font-bold text-gray-600">
               <span>Printed Date: {new Date().toLocaleDateString()}</span>
               { (fromDate || toDate) && <span> &nbsp;|&nbsp; Period: {fromDate || "Start"} to {toDate || "End"}</span> }
@@ -390,21 +390,21 @@ export default function DCList() {
 
         <div className="overflow-x-auto print:overflow-visible">
           <Table className="print:text-[10px]">
-            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">DC No</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Customer</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Site</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Time</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Quantity</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Rate</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Amount</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Vehicle</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Invoice No</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Plant</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">DC No</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Customer</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Site</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Date</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Time</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Quantity</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Rate</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Amount</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Vehicle</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Invoice No</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center print:hidden">Plant</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -425,7 +425,7 @@ export default function DCList() {
                     <TableRow key={row.id || row._id || idx} className="hover:bg-gray-50/50 print:border-b print:border-gray-200">
                       <TableCell 
                         onClick={() => setSelectedDC(row)} 
-                        className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-semibold text-[#1e40af] print:text-black cursor-pointer hover:underline hover:text-blue-800"
+                        className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-semibold text-[#ea580c] print:text-black cursor-pointer hover:underline hover:text-[#ea580c]"
                         title="Click to view details"
                       >
                         {row.dcNumber || "-"}
@@ -435,7 +435,7 @@ export default function DCList() {
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100">{row.dcDate ? new Date(row.dcDate).toLocaleDateString("en-IN") : "-"}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100">{row.dcTime || "-"}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-semibold">{row.grade || "-"}</TableCell>
-                      <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-bold text-cyan-600 print:text-black">{Number(row.quantity || 0).toFixed(2)}</TableCell>
+                      <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-bold text-[#ea580c] print:text-black">{Number(row.quantity || 0).toFixed(2)}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100">{Number(row.rate || 0)}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100 font-semibold">{Number(row.netAmount || 0).toLocaleString("en-IN")}</TableCell>
                       <TableCell className="text-center text-xs whitespace-nowrap border-r border-gray-100">{row.vehicleReg || "-"}</TableCell>
@@ -468,7 +468,7 @@ export default function DCList() {
                             onClick={() => handleCopyRow(row)}
                             title="Copy Details" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
@@ -478,7 +478,7 @@ export default function DCList() {
                             onClick={() => handleEditDC(row)}
                             title="Edit DC" 
                             variant="ghost" 
-                            className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                            className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -544,7 +544,7 @@ export default function DCList() {
                     key={pageNum}
                     variant={currentPage === pageNum ? "default" : "outline"}
                     size="sm"
-                    className={`h-7 w-7 p-0 ${currentPage === pageNum ? 'bg-cyan-500 hover:bg-cyan-600 text-white border-0' : 'text-gray-600'}`}
+                    className={`h-7 w-7 p-0 ${currentPage === pageNum ? 'bg-[#ea580c] hover:bg-[#ea580c] text-white border-0' : 'text-gray-600'}`}
                     onClick={() => setCurrentPage(pageNum)}
                   >
                     {pageNum}
@@ -576,7 +576,7 @@ export default function DCList() {
             {/* Print Header inside modal */}
             <div className="hidden print:block mb-4 border-b border-gray-800 pb-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded-lg">BM</div>
+                <div className="w-12 h-12 bg-[#ea580c] text-white flex items-center justify-center font-black text-xl rounded-lg">BM</div>
                 <div>
                   <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">BuildRMC Enterprises</h1>
                   <p className="text-xs text-gray-600 font-medium">Delivery Challan Ticket: {selectedDC?.dcNumber}</p>
@@ -611,7 +611,7 @@ export default function DCList() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Delivery Challan Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Delivery Challan Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">DELIVERY CHALLAN</span>
             </div>
@@ -619,7 +619,7 @@ export default function DCList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Challan Details</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">DC Number: <span className="font-black text-gray-900">{printDC.dcNumber}</span></p>
                 <p className="text-xs font-bold text-gray-700">DC Date: <span className="font-medium text-gray-900">{printDC.dcDate ? new Date(printDC.dcDate).toLocaleDateString("en-IN") : "-"}</span></p>
@@ -628,7 +628,7 @@ export default function DCList() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer & Vehicle</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer & Vehicle</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printDC.customerName || customerMap[String(printDC.customerId?._id || printDC.customerId)]?.name || "-"}</span></p>
                 <p className="text-xs font-bold text-gray-700">Site Address: <span className="font-medium text-gray-900">{printDC.siteName || customerMap[String(printDC.customerId?._id || printDC.customerId)]?.address || "-"}</span></p>
@@ -654,7 +654,7 @@ export default function DCList() {
                 <td className="border p-2 font-semibold text-gray-800">{printDC.grade || "-"}</td>
                 <td className="border p-2 text-center font-medium">{Number(printDC.quantity || 0).toFixed(2)}</td>
                 <td className="border p-2 text-right font-medium">₹{Number(printDC.rate || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-                <td className="border p-2 text-right font-bold text-[#1e40af]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                <td className="border p-2 text-right font-bold text-[#ea580c]">₹{Number(printDC.netAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
               </tr>
             </tbody>
           </table>
@@ -667,7 +667,7 @@ export default function DCList() {
               <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Receiver Signature</p>
             </div>
             <div className="text-center w-40 border-t pt-2 border-gray-300">
-              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Signatory</p>
+              <p className="text-[9px] font-extrabold uppercase text-[#ea580c] tracking-wider">Authorized Signatory</p>
             </div>
           </div>
         </div>

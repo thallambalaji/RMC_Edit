@@ -241,7 +241,7 @@ export default function AddDiesel() {
                   <select
                     value={plant}
                     onChange={(e) => setPlant(e.target.value)}
-                    className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                    className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                   >
                     <option value="">Choose Plant</option>
                     {plants.map((p: any) => (
@@ -257,7 +257,7 @@ export default function AddDiesel() {
                   <select
                     value={vehicleNo}
                     onChange={(e) => setVehicleNo(e.target.value)}
-                    className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                    className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                     required
                   >
                     <option value="">Select Vehicle</option>
@@ -278,7 +278,7 @@ export default function AddDiesel() {
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                    className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                     required
                   />
                 </div>
@@ -289,20 +289,20 @@ export default function AddDiesel() {
                     value={driverName}
                     onChange={(e) => setDriverName(e.target.value)}
                     placeholder="Enter Driver Name"
-                    className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                    className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                   />
                 </div>
               </div>
 
               {/* Column 3 Banner Badges */}
               <div className="flex flex-col gap-3 justify-start pt-5">
-                <div className="bg-[#00c0a5] text-white font-bold text-center py-2 px-4 rounded text-xs select-none">
+                <div className="bg-[#ea580c] text-white font-bold text-center py-2 px-4 rounded text-xs select-none">
                   Available diesel : 3,840 Liters
                 </div>
                 <Link href="/transport/vehicle/list">
                   <Button
                     type="button"
-                    className="w-full bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-center py-2 px-4 rounded text-xs transition-all border-none"
+                    className="w-full bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-center py-2 px-4 rounded text-xs transition-all border-none"
                   >
                     View Vehicle Details
                   </Button>
@@ -320,7 +320,7 @@ export default function AddDiesel() {
                   value={litres}
                   onChange={(e) => setLitres(e.target.value)}
                   placeholder="Enter Quantity"
-                  className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                  className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                   required
                 />
               </div>
@@ -330,7 +330,7 @@ export default function AddDiesel() {
                 <select
                   value={takenFrom}
                   onChange={(e) => setTakenFrom(e.target.value)}
-                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                  className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                 >
                   <option value="From Plant Stock">From Plant Stock</option>
                   <option value="Petrol Bunk">Petrol Bunk</option>
@@ -345,7 +345,7 @@ export default function AddDiesel() {
                   value={dieselRate}
                   onChange={(e) => setDieselRate(e.target.value)}
                   placeholder="Enter Diesel Rate"
-                  className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                  className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                 />
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function AddDiesel() {
           {/* Engine Readings Table Section */}
           <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
             <Table>
-              <TableHeader className="bg-[#00c0a5] hover:bg-[#00c0a5]">
+              <TableHeader className="bg-[#ea580c] hover:bg-[#ea580c]">
                 <TableRow className="border-none hover:bg-transparent">
                   <TableHead className="text-[11px] font-bold uppercase text-white py-2.5 px-4 w-20">S/L No</TableHead>
                   <TableHead className="text-[11px] font-bold uppercase text-white px-3">Engine Type</TableHead>
@@ -365,7 +365,7 @@ export default function AddDiesel() {
                     <Button
                       type="button"
                       onClick={addEngineRow}
-                      className="h-6 w-6 p-0 bg-white hover:bg-slate-50 text-[#00c0a5] border-none font-bold rounded flex items-center justify-center"
+                      className="h-6 w-6 p-0 bg-white hover:bg-slate-50 text-[#ea580c] border-none font-bold rounded flex items-center justify-center"
                     >
                       +
                     </Button>
@@ -380,7 +380,7 @@ export default function AddDiesel() {
                       <select
                         value={row.engineType}
                         onChange={(e) => updateEngineRow(idx, "engineType", e.target.value)}
-                        className="w-full h-9 rounded border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                        className="w-full h-9 rounded border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                       >
                         <option value="Main Engine">Main Engine</option>
                         <option value="Back Engine">Back Engine</option>
@@ -391,7 +391,7 @@ export default function AddDiesel() {
                       <select
                         value={row.calculationType}
                         onChange={(e) => updateEngineRow(idx, "calculationType", e.target.value)}
-                        className="w-full h-9 rounded border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                        className="w-full h-9 rounded border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                       >
                         <option value="km">km</option>
                         <option value="hr">hr</option>
@@ -402,7 +402,7 @@ export default function AddDiesel() {
                         value={row.opening}
                         onChange={(e) => updateEngineRow(idx, "opening", e.target.value)}
                         placeholder="0"
-                        className="h-9 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                        className="h-9 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                       />
                     </TableCell>
                     <TableCell className="px-3">
@@ -410,7 +410,7 @@ export default function AddDiesel() {
                         value={row.closing}
                         onChange={(e) => updateEngineRow(idx, "closing", e.target.value)}
                         placeholder="0"
-                        className="h-9 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                        className="h-9 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                       />
                     </TableCell>
                     <TableCell className="px-4 text-center">
@@ -436,7 +436,7 @@ export default function AddDiesel() {
           <div className="flex gap-3 pt-2">
             <Button
               type="submit"
-              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 border-none shadow-sm"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 border-none shadow-sm"
             >
               {logId ? "Update Diesel Consumption" : "Save Diesel Consumption"}
             </Button>

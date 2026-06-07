@@ -247,7 +247,7 @@ export default function CubeTestList() {
             <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Cube Test Summary List</h2>
             <div className="text-right text-[10px] text-slate-500 font-bold">
               <p>Date: {format(new Date(), "dd/MM/yyyy")}</p>
-              <p className="text-blue-600 uppercase">Total Tests: {filtered.length}</p>
+              <p className="text-[#ea580c] uppercase">Total Tests: {filtered.length}</p>
             </div>
           </div>
 
@@ -304,7 +304,7 @@ export default function CubeTestList() {
             <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Compressive Strength Report</h2>
             <div className="text-right text-[10px] text-slate-500 font-bold">
               <p>Date: {format(new Date(), "dd/MM/yyyy")}</p>
-              <p className="text-blue-600 uppercase">Test No: {printingItem.testNo}</p>
+              <p className="text-[#ea580c] uppercase">Test No: {printingItem.testNo}</p>
             </div>
           </div>
 
@@ -364,7 +364,7 @@ export default function CubeTestList() {
                     <td className="border border-slate-800 p-2 text-right">{res.cube2Load || "-"}</td>
                     <td className="border border-slate-800 p-2 text-right">{res.cube3Mass || "-"}</td>
                     <td className="border border-slate-800 p-2 text-right">{res.cube3Load || "-"}</td>
-                    <td className="border border-slate-800 p-2 text-right font-black text-blue-700">{avgStrength}</td>
+                    <td className="border border-slate-800 p-2 text-right font-black text-[#ea580c]">{avgStrength}</td>
                   </tr>
                 );
               })}
@@ -401,7 +401,7 @@ export default function CubeTestList() {
                 <Label className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Test No</Label>
                 <Input 
                   placeholder="Enter Test No" 
-                  className="h-10 text-xs border-slate-200 font-bold focus-visible:ring-[#1e40af]"
+                  className="h-10 text-xs border-slate-200 font-bold focus-visible:ring-[#ea580c]"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                 />
@@ -411,7 +411,7 @@ export default function CubeTestList() {
                 <div className="relative">
                   <Input 
                     type="date" 
-                    className="h-10 text-xs border-slate-200 font-bold focus-visible:ring-[#1e40af]"
+                    className="h-10 text-xs border-slate-200 font-bold focus-visible:ring-[#ea580c]"
                     value={filterCastingDate}
                     onChange={e => setFilterCastingDate(e.target.value)}
                   />
@@ -514,19 +514,19 @@ export default function CubeTestList() {
             {/* High-density Table */}
             <div className="border border-slate-100 rounded overflow-hidden">
               <Table>
-                <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-                  <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Test No</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Dimension</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">No Of Casting</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Casting Date</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Age</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
+                <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+                  <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Test No</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Grade</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Dimension</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">No Of Casting</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Casting Date</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Age</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Plant</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -534,7 +534,7 @@ export default function CubeTestList() {
                     <TableRow>
                       <TableCell colSpan={11} className="h-40 text-center">
                         <div className="flex flex-col items-center gap-2 text-slate-400">
-                          <RotateCcw className="h-6 w-6 animate-spin text-blue-800" />
+                          <RotateCcw className="h-6 w-6 animate-spin text-[#ea580c]" />
                           <p className="text-[10px] font-black uppercase tracking-widest">Fetching Latest Test Records...</p>
                         </div>
                       </TableCell>
@@ -545,7 +545,7 @@ export default function CubeTestList() {
                         <div className="flex flex-col items-center gap-1.5">
                           <FlaskConical className="h-8 w-8 text-slate-200 mb-1" />
                           <p className="text-xs font-bold">No cube tests found matching your criteria.</p>
-                          <Button variant="link" size="sm" onClick={() => setRefreshKey(k => k + 1)} className="text-[#1e40af] font-black text-xs uppercase">Check again</Button>
+                          <Button variant="link" size="sm" onClick={() => setRefreshKey(k => k + 1)} className="text-[#ea580c] font-black text-xs uppercase">Check again</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -556,13 +556,13 @@ export default function CubeTestList() {
                       return (
                         <TableRow key={e.id || e._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0 transition-colors">
                           <TableCell className="text-[10px] font-bold text-slate-400 text-center border-r py-3 px-4">{(currentPage - 1) * pageSize + idx + 1}</TableCell>
-                          <TableCell className="text-[11px] border-r font-black text-blue-800 px-4 uppercase">{e.testNo}</TableCell>
+                          <TableCell className="text-[11px] border-r font-black text-[#ea580c] px-4 uppercase">{e.testNo}</TableCell>
                           <TableCell className="text-[10px] border-r font-bold text-slate-700 px-4 uppercase">{e.customerName}</TableCell>
                           <TableCell className="text-[10px] border-r font-bold text-slate-500 px-4 uppercase">{e.siteName}</TableCell>
                           <TableCell className="text-[10px] border-r font-black text-slate-800 text-center px-4 uppercase">{e.grade}</TableCell>
                           <TableCell className="text-[10px] border-r text-center text-slate-500 px-4">{e.cubeDimension || "150 X 150 X 150"}</TableCell>
                           <TableCell className="text-[10px] border-r text-center font-black text-slate-700 px-4">
-                            <span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-[9px] font-black">{e.noOfCasting} Cubes</span>
+                            <span className="bg-orange-50/40 text-[#ea580c] px-2.5 py-1 rounded-full text-[9px] font-black">{e.noOfCasting} Cubes</span>
                           </TableCell>
                           <TableCell className="text-[10px] border-r text-center text-slate-600 font-bold px-4">{format(castingDate, "dd/MM/yyyy")}</TableCell>
                           <TableCell className="text-[10px] border-r text-center font-black text-rose-600 px-4">{age} Days</TableCell>
@@ -580,7 +580,7 @@ export default function CubeTestList() {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-56 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
                                 <DropdownMenuItem onClick={() => handleCopyRow(e)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                                  <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                  <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                                   <span>Copy Details</span>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleExportRowCSV(e)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">

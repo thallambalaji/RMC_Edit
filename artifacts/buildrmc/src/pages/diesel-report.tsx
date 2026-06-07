@@ -48,7 +48,7 @@ export default function DieselReport() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
   const { data: dbPlants } = useGetMasters("plant");
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [logs, setLogs] = useState<FuelData[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -193,9 +193,9 @@ export default function DieselReport() {
           <title>Diesel Log - ${item.vehicleNo}</title>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
-            .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+            .header { display: flex; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 20px; margin-bottom: 20px; }
             .logo-container { margin-right: 20px; }
-            .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+            .company-details h1 { margin: 0; font-size: 24px; color: #ea580c; font-weight: 800; }
             .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
             .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 25px 0; letter-spacing: 1px; color: #222; }
             .grid-info { display: grid; grid-template-cols: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
@@ -203,7 +203,7 @@ export default function DieselReport() {
             .info-box p { margin: 6px 0; font-size: 12px; }
             .info-box strong { color: #555; }
             table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; }
-            th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+            th { background: #ea580c; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
             td { border: 1px solid #eee; padding: 8px; }
             .footer-sigs { display: flex; justify-content: space-between; margin-top: 80px; }
             .sig-line { width: 200px; border-top: 1px dashed #999; text-align: center; font-size: 11px; padding-top: 8px; color: #666; font-weight: 600; }
@@ -212,7 +212,7 @@ export default function DieselReport() {
         <body>
           <div style="display: flex; height: 6px; width: 100%;">
             <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
             <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
           </div>
           <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -225,7 +225,7 @@ export default function DieselReport() {
                   </linearGradient>
                   <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#06b6d4" />
-                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="60%" stop-color="#ea580c" />
                     <stop offset="100%" stop-color="#f97316" />
                   </linearGradient>
                 </defs>
@@ -357,22 +357,22 @@ export default function DieselReport() {
             <title>Diesel Consolidate Report</title>
             <style>
               body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
-              .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+              .header { display: flex; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 20px; margin-bottom: 20px; }
               .logo-container { margin-right: 20px; }
-              .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+              .company-details h1 { margin: 0; font-size: 24px; color: #ea580c; font-weight: 800; }
               .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
               .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 20px 0; letter-spacing: 1px; color: #222; }
               .report-meta { font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; background: #fafafa; padding: 12px; border: 1px solid #eee; }
               table { width: 100%; border-collapse: collapse; font-size: 11px; }
-              th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+              th { background: #ea580c; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
               td { border: 1px solid #eee; padding: 8px; }
-              .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #00c0a5; }
+              .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #ea580c; }
             </style>
           </head>
           <body>
             <div style="display: flex; height: 6px; width: 100%;">
               <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
               <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
             </div>
             <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -385,7 +385,7 @@ export default function DieselReport() {
                     </linearGradient>
                     <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#06b6d4" />
-                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="60%" stop-color="#ea580c" />
                       <stop offset="100%" stop-color="#f97316" />
                     </linearGradient>
                   </defs>
@@ -485,22 +485,22 @@ export default function DieselReport() {
           <title>Diesel Consumption Report</title>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; margin: 40px; }
-            .header { display: flex; align-items: center; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; margin-bottom: 20px; }
+            .header { display: flex; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 20px; margin-bottom: 20px; }
             .logo-container { margin-right: 20px; }
-            .company-details h1 { margin: 0; font-size: 24px; color: #00c0a5; font-weight: 800; }
+            .company-details h1 { margin: 0; font-size: 24px; color: #ea580c; font-weight: 800; }
             .company-details p { margin: 2px 0; font-size: 11px; color: #666; font-weight: 500; }
             .doc-title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 20px 0; letter-spacing: 1px; color: #222; }
             .report-meta { font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; background: #fafafa; padding: 12px; border: 1px solid #eee; }
             table { width: 100%; border-collapse: collapse; font-size: 11px; }
-            th { background: #00c0a5; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
+            th { background: #ea580c; color: white; padding: 8px; text-align: left; text-transform: uppercase; font-size: 10px; font-weight: 700; }
             td { border: 1px solid #eee; padding: 8px; }
-            .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #00c0a5; }
+            .summary-row td { background: #fafafa; font-weight: bold; border-top: 2px solid #ea580c; }
           </style>
         </head>
         <body>
           <div style="display: flex; height: 6px; width: 100%;">
             <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+            <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
             <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
           </div>
           <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -513,7 +513,7 @@ export default function DieselReport() {
                   </linearGradient>
                   <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#06b6d4" />
-                    <stop offset="60%" stop-color="#3b82f6" />
+                    <stop offset="60%" stop-color="#ea580c" />
                     <stop offset="100%" stop-color="#f97316" />
                   </linearGradient>
                 </defs>
@@ -682,7 +682,7 @@ export default function DieselReport() {
             <select
               value={reportType}
               onChange={(e) => setReportType(e.target.value)}
-              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
             >
               <option value="Date Wise Consumption Report">Date Wise Consumption Report</option>
               <option value="Date With Vehicle Wise Consumption Report">Date With Vehicle Wise Consumption Report</option>
@@ -696,7 +696,7 @@ export default function DieselReport() {
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#ea580c] focus:ring-[#ea580c]"
             />
           </div>
 
@@ -706,7 +706,7 @@ export default function DieselReport() {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#00c0a5] focus:ring-[#00c0a5]"
+              className="h-10 text-xs font-semibold bg-white border-slate-200 rounded focus:border-[#ea580c] focus:ring-[#ea580c]"
             />
           </div>
 
@@ -715,7 +715,7 @@ export default function DieselReport() {
             <select
               value={plant}
               onChange={(e) => setPlant(e.target.value)}
-              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+              className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
             >
               <option value="All plant">All plant</option>
               {dbPlants?.map((p: any) => (
@@ -729,7 +729,7 @@ export default function DieselReport() {
           <div className="md:col-span-4 flex justify-end gap-2 pt-2 border-t border-slate-100">
             <Button
               onClick={handleGenerate}
-              className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-10 px-6 rounded border-none shadow-sm active:scale-95 transition-all"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-10 px-6 rounded border-none shadow-sm active:scale-95 transition-all"
             >
               Generate
             </Button>
@@ -780,14 +780,14 @@ export default function DieselReport() {
               {reportType === "Diesel Consolidate Report" ? (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
                   <Table>
-                    <TableHeader className="bg-[#1e40af] hover:bg-[#1e40af]">
+                    <TableHeader className="bg-[#ea580c] hover:bg-[#ea580c]">
                       <TableRow className="border-0 hover:bg-transparent">
                         <TableHead className={`${headerStyle} w-20`}>S.No</TableHead>
                         <TableHead className={`${headerStyle} text-left`}>Vehicle No</TableHead>
                         <TableHead className={`${headerStyle} text-right`}>Total Volume (Ltrs)</TableHead>
                         <TableHead className={`${headerStyle} text-right`}>Total Cost (₹)</TableHead>
                         <TableHead className={`${headerStyle} text-right`}>Avg Refuel Size (Ltrs)</TableHead>
-                        <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-32">Trip Count</TableHead>
+                        <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-32">Trip Count</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -801,7 +801,7 @@ export default function DieselReport() {
                           <TableCell className="font-bold text-slate-600 text-xs py-3 px-4">{idx + 1}</TableCell>
                           <TableCell className="font-extrabold text-slate-700 text-xs px-3">{item.vehicleNo}</TableCell>
                           <TableCell className="font-black text-slate-800 text-xs px-3 text-right">{item.totalVolume.toFixed(1)}</TableCell>
-                          <TableCell className="font-black text-[#00c0a5] text-xs px-3 text-right">₹{item.totalCost.toLocaleString()}</TableCell>
+                          <TableCell className="font-black text-[#ea580c] text-xs px-3 text-right">₹{item.totalCost.toLocaleString()}</TableCell>
                           <TableCell className="font-semibold text-slate-600 text-xs px-3 text-right">{item.avgRefuel.toFixed(1)}</TableCell>
                           <TableCell className="font-bold text-slate-600 text-xs px-4 text-center">{item.tripCount}</TableCell>
                         </TableRow>
@@ -812,7 +812,7 @@ export default function DieselReport() {
               ) : (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm flex-1">
                   <Table>
-                    <TableHeader className="bg-[#1e40af] hover:bg-[#1e40af]">
+                    <TableHeader className="bg-[#ea580c] hover:bg-[#ea580c]">
                       <TableRow className="border-0 hover:bg-transparent">
                         <TableHead rowSpan={2} className={`${headerStyle} align-middle w-24`}>S.No</TableHead>
                         <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Vehicle No</TableHead>
@@ -821,10 +821,10 @@ export default function DieselReport() {
                         <TableHead rowSpan={2} className={`${headerStyle} align-middle text-right`}>Rate</TableHead>
                         <TableHead rowSpan={2} className={`${headerStyle} align-middle text-right`}>Amount</TableHead>
                         <TableHead rowSpan={2} className={`${headerStyle} align-middle text-left`}>Plant</TableHead>
-                        <TableHead colSpan={4} className="bg-[#1e40af] text-white font-black py-1 px-2 text-center text-[9px] border-r border-white/10 uppercase tracking-tighter border-b border-white/10">Engine</TableHead>
-                        <TableHead rowSpan={2} className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter align-middle w-40">Actions</TableHead>
+                        <TableHead colSpan={4} className="bg-[#ea580c] text-white font-black py-1 px-2 text-center text-[9px] border-r border-white/10 uppercase tracking-tighter border-b border-white/10">Engine</TableHead>
+                        <TableHead rowSpan={2} className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter align-middle w-40">Actions</TableHead>
                       </TableRow>
-                      <TableRow className="border-0 hover:bg-transparent bg-[#1e40af]">
+                      <TableRow className="border-0 hover:bg-transparent bg-[#ea580c]">
                         <TableHead className={headerStyle}>Engine Type</TableHead>
                         <TableHead className={headerStyle}>Type</TableHead>
                         <TableHead className={`${headerStyle} text-right`}>Opening</TableHead>
@@ -875,7 +875,7 @@ export default function DieselReport() {
                               <Button
                                 onClick={() => printSingleLog(item)}
                                 variant="ghost"
-                                className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full border-none flex items-center justify-center"
+                                className="h-8 w-8 p-0 text-[#ea580c] hover:text-[#ea580c] hover:bg-orange-50/40 rounded-full border-none flex items-center justify-center"
                                 title="Print PDF"
                               >
                                 <FileText className="h-4 w-4" />

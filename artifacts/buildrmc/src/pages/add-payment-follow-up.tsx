@@ -176,18 +176,18 @@ export default function AddPaymentFollowUp() {
         </div>
         <div className="flex flex-col items-end gap-2">
           <nav className="text-xs text-muted-foreground flex items-center gap-1">
-            <Link href="/dashboard" className="hover:text-blue-500 transition-colors">
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">
               Home
             </Link>
             <ChevronRight className="h-3 w-3" />
-            <Link href="/sales" className="hover:text-blue-500 transition-colors">
+            <Link href="/sales" className="hover:text-[#ea580c] transition-colors">
               Sales
             </Link>
             <ChevronRight className="h-3 w-3" />
             <span className="text-gray-700 font-medium">Payment Follow Up</span>
           </nav>
           <Link href="/sales/payment-follow-up/list">
-            <Button className="bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
+            <Button className="bg-gradient-to-r from-[#ea580c] to-[#d97706] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
               <ListPlus className="h-4 w-4" />
               Payment Follow Up List
             </Button>
@@ -223,7 +223,7 @@ export default function AddPaymentFollowUp() {
                 </Label>
                 {isLoadingCustomers ? (
                   <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-500" /> Loading customer list...
+                    <Loader2 className="h-4 w-4 animate-spin text-[#ea580c]" /> Loading customer list...
                   </div>
                 ) : (
                   <Select value={customerId} onValueChange={setCustomerId}>
@@ -370,12 +370,12 @@ export default function AddPaymentFollowUp() {
           </Label>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             {/* Colour band */}
-            <div className="h-2 bg-gradient-to-r from-[#1e40af] to-blue-500" />
+            <div className="h-2 bg-gradient-to-r from-[#ea580c] to-blue-500" />
 
             {selectedCustomer ? (
               <div className="p-5 space-y-4">
                 {[
-                  { icon: User, label: "Customer Name", value: selectedCustomer.name, color: "text-blue-500" },
+                  { icon: User, label: "Customer Name", value: selectedCustomer.name, color: "text-[#ea580c]" },
                   { icon: Phone, label: "Phone Number", value: selectedCustomer.phone || "No phone added", color: "text-emerald-500" },
                   { icon: Mail, label: "Email", value: selectedCustomer.email || "No email added", color: "text-orange-500" },
                   {
@@ -421,7 +421,7 @@ export default function AddPaymentFollowUp() {
                 <div className="border-t border-gray-50">
                   {["Customer Name", "Phone Number", "Email", "Pending Balance"].map((label, i) => (
                     <div key={label} className="grid grid-cols-5 border-b border-white last:border-0">
-                      <div className="col-span-2 bg-gradient-to-r from-[#1e40af] to-[#1d4ed8] text-white p-3 text-xs font-semibold">
+                      <div className="col-span-2 bg-gradient-to-r from-[#ea580c] to-[#d97706] text-white p-3 text-xs font-semibold">
                         {label}:
                       </div>
                       <div className="col-span-3 bg-gray-50 p-3">

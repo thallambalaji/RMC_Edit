@@ -473,7 +473,7 @@ export default function BatchList() {
           </div>
           <div className="text-right">
             <p className="text-[9px] font-bold text-gray-500">Print Date: {new Date().toLocaleDateString()}</p>
-            <p className="text-[9px] font-bold text-blue-600">Doc ID: RMC/BATCH/{Math.floor(Math.random() * 9000) + 1000}</p>
+            <p className="text-[9px] font-bold text-[#ea580c]">Doc ID: RMC/BATCH/{Math.floor(Math.random() * 9000) + 1000}</p>
           </div>
         </div>
         {printingEntry ? (
@@ -496,7 +496,7 @@ export default function BatchList() {
             </tr></thead>
             <tbody>{filtered.map(item => (
               <tr key={item._id || item.id}>
-                <td className="border border-gray-300 p-1.5 font-bold text-blue-900">{item.batchNo}</td>
+                <td className="border border-gray-300 p-1.5 font-bold text-[#ea580c]">{item.batchNo}</td>
                 <td className="border border-gray-300 p-1.5">{item.date}</td>
                 <td className="border border-gray-300 p-1.5">{item.customerName}</td>
                 <td className="border border-gray-300 p-1.5">{item.siteName}</td>
@@ -516,12 +516,12 @@ export default function BatchList() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-3 shrink-0">
           {[
-            { label: "Total Logs", value: stats.count, icon: <Layers className="h-4 w-4 text-blue-600" />, bg: "bg-blue-50" },
+            { label: "Total Logs", value: stats.count, icon: <Layers className="h-4 w-4 text-[#ea580c]" />, bg: "bg-orange-50/40" },
             { label: "Total Target Qty", value: `${stats.totalQty.toFixed(1)} m³`, icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />, bg: "bg-emerald-50" },
             { label: "Total Batched Qty", value: `${stats.totalBatched.toFixed(1)} m³`, icon: <Activity className="h-4 w-4 text-amber-600" />, bg: "bg-amber-50" },
             { label: "Qty Variance", value: `${stats.variance}%`, icon: <TrendingUp className="h-4 w-4 text-white" />, bg: "bg-white/20", white: true },
           ].map(s => (
-            <Card key={s.label} className={`${s.white ? "bg-[#1e40af] text-white" : "bg-white"} border rounded-lg p-2.5 flex items-center gap-3 shadow-sm`}>
+            <Card key={s.label} className={`${s.white ? "bg-[#ea580c] text-white" : "bg-white"} border rounded-lg p-2.5 flex items-center gap-3 shadow-sm`}>
               <div className={`p-2 rounded-full ${s.bg}`}>{s.icon}</div>
               <div>
                 <p className={`text-[10px] font-bold uppercase tracking-tight ${s.white ? "text-white/80" : "text-gray-500"}`}>{s.label}</p>
@@ -575,7 +575,7 @@ export default function BatchList() {
               </div>
               <Button
                 onClick={() => setShowNewSheet(true)}
-                className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black h-9 px-4 text-xs uppercase tracking-wider shadow-sm gap-2"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black h-9 px-4 text-xs uppercase tracking-wider shadow-sm gap-2"
               >
                 <Plus className="h-4 w-4" /> New Batch Sheet
               </Button>
@@ -586,12 +586,12 @@ export default function BatchList() {
           {/* Table */}
           <div className="flex-1 overflow-auto bg-white">
             <Table>
-              <TableHeader className="sticky top-0 bg-[#1e40af] border-b border-white/10 z-10">
-                <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
+              <TableHeader className="sticky top-0 bg-[#ea580c] border-b border-white/10 z-10">
+                <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
                   {["Batch No","Date","Customer","Site","Grade","Recipe Code","Quantity","Batched Qty","Vehicle No"].map(h => (
-                    <TableHead key={h} className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">{h}</TableHead>
+                    <TableHead key={h} className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">{h}</TableHead>
                   ))}
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -601,7 +601,7 @@ export default function BatchList() {
                   <TableRow><TableCell colSpan={10} className="text-center py-12 text-xs font-semibold text-slate-500">No data available</TableCell></TableRow>
                 ) : pageRows.map((item, index) => (
                   <TableRow key={item._id || item.id} className={`hover:bg-slate-50/80 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-slate-50/30"}`}>
-                    <TableCell className="font-extrabold text-[#1e40af] text-xs py-3.5 px-4 whitespace-nowrap">{item.batchNo}</TableCell>
+                    <TableCell className="font-extrabold text-[#ea580c] text-xs py-3.5 px-4 whitespace-nowrap">{item.batchNo}</TableCell>
                     <TableCell className="font-bold text-slate-700 text-xs px-3 whitespace-nowrap">{item.date}</TableCell>
                     <TableCell className="font-semibold text-slate-800 text-xs px-3 whitespace-nowrap max-w-[200px] truncate">{item.customerName}</TableCell>
                     <TableCell className="text-xs font-medium text-slate-600 px-3 whitespace-nowrap max-w-[150px] truncate">{item.siteName}</TableCell>
@@ -618,11 +618,11 @@ export default function BatchList() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48 text-xs bg-white border border-slate-200 shadow-lg rounded-md p-1 z-50">
-                          <DropdownMenuItem onClick={() => setViewingSheet(item)} className="gap-2 cursor-pointer hover:bg-blue-50 p-2 rounded">
-                            <Eye className="h-3.5 w-3.5 text-blue-600" /><span>View Batch Sheet</span>
+                          <DropdownMenuItem onClick={() => setViewingSheet(item)} className="gap-2 cursor-pointer hover:bg-orange-50/40 p-2 rounded">
+                            <Eye className="h-3.5 w-3.5 text-[#ea580c]" /><span>View Batch Sheet</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleExport("copy", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                            <CopyIcon className="h-3.5 w-3.5 text-cyan-600" /><span>Copy Details</span>
+                            <CopyIcon className="h-3.5 w-3.5 text-[#ea580c]" /><span>Copy Details</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleExport("csv", item)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
                             <FileCode className="h-3.5 w-3.5 text-teal-600" /><span>Download CSV</span>
@@ -663,7 +663,7 @@ export default function BatchList() {
       ════════════════════════════════════════════════════════════════════ */}
       <Dialog open={showNewSheet} onOpenChange={v => !saving && setShowNewSheet(v)}>
         <DialogContent hideCloseButton className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto p-0 bg-white">
-          <DialogHeader className="p-4 bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between sticky top-0 z-10">
+          <DialogHeader className="p-4 bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between sticky top-0 z-10">
             <DialogTitle className="text-white font-black text-base">New Batch Sheet</DialogTitle>
             <Button variant="ghost" size="icon" onClick={() => setShowNewSheet(false)} className="text-white hover:bg-white/10 h-8 w-8 p-0"><X className="h-4 w-4" /></Button>
           </DialogHeader>
@@ -722,7 +722,7 @@ export default function BatchList() {
             <div className="flex items-center justify-between pb-1">
               <div className="flex items-center gap-2">
                 {recipeLoading && (
-                  <span className="text-xs text-blue-600 font-bold animate-pulse">⟳ Loading recipe data for {nGrade}...</span>
+                  <span className="text-xs text-[#ea580c] font-bold animate-pulse">⟳ Loading recipe data for {nGrade}...</span>
                 )}
               </div>
               <Button
@@ -739,7 +739,7 @@ export default function BatchList() {
             <div className="overflow-x-auto rounded-lg border border-slate-200">
               <table className="w-full border-collapse text-[9px] min-w-[900px]">
                 <thead>
-                  <tr className="bg-[#1e40af] text-white">
+                  <tr className="bg-[#ea580c] text-white">
                     <th className="border border-white/20 px-2 py-1.5 text-left font-black uppercase text-[9px] min-w-[140px]">Batch Detail</th>
                     {INGR_KEYS.map(k => (
                       <th key={k} className="border border-white/20 px-2 py-1.5 font-black uppercase text-[9px] text-center min-w-[70px]">
@@ -750,9 +750,9 @@ export default function BatchList() {
                 </thead>
                 <tbody>
                   {/* Designed Quantity row */}
-                  <tr className="bg-blue-50">
+                  <tr className="bg-orange-50/40">
                     <td className={`${tdStyle} font-black text-left text-slate-700`}>Designed Quantity</td>
-                    {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-bold text-[#1e40af]`}>{nDesigned[k] || 0}</td>)}
+                    {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-bold text-[#ea580c]`}>{nDesigned[k] || 0}</td>)}
                   </tr>
                   {/* Avg Moisture */}
                   <tr className="bg-slate-50">
@@ -786,7 +786,7 @@ export default function BatchList() {
                   {/* Batch Load rows */}
                   {nLoads.map((load, idx) => (
                     <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"}>
-                      <td className={`${tdStyle} font-black text-left text-[#1e40af]`}>Batch {idx + 1}</td>
+                      <td className={`${tdStyle} font-black text-left text-[#ea580c]`}>Batch {idx + 1}</td>
                       {INGR_KEYS.map(k => (
                         <td key={k} className="border border-slate-200 p-0.5">
                           <Input
@@ -797,7 +797,7 @@ export default function BatchList() {
                               newLoads[idx] = { ...newLoads[idx], [k]: +e.target.value };
                               setNLoads(newLoads);
                             }}
-                            className="h-6 text-[9px] text-center border-0 p-0 rounded-none font-mono focus:ring-1 focus:ring-[#1e40af]"
+                            className="h-6 text-[9px] text-center border-0 p-0 rounded-none font-mono focus:ring-1 focus:ring-[#ea580c]"
                             placeholder="0"
                           />
                         </td>
@@ -805,9 +805,9 @@ export default function BatchList() {
                     </tr>
                   ))}
                   {/* Total Batch row */}
-                  <tr className="bg-[#1e40af]/10 font-black">
+                  <tr className="bg-[#ea580c]/10 font-black">
                     <td className={`${tdStyle} font-black text-left text-slate-800`}>Total Batch</td>
-                    {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-black text-[#1e40af]`}>{loadTotals[k]}</td>)}
+                    {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-black text-[#ea580c]`}>{loadTotals[k]}</td>)}
                   </tr>
                   {/* Error % row */}
                   <tr className="bg-rose-50">
@@ -825,9 +825,9 @@ export default function BatchList() {
             {/* Footer summary */}
             <div className="flex items-center justify-between text-xs font-bold text-slate-600 border-t pt-3">
               <div className="flex gap-6">
-                <span>Num Batches: <strong className="text-[#1e40af]">{nNoLoads}</strong></span>
-                <span>With This Load: <strong className="text-[#1e40af]">{totalBatchedQty} m³</strong></span>
-                <span>This Load: <strong className="text-[#1e40af]">{nBatchVol} m³</strong></span>
+                <span>Num Batches: <strong className="text-[#ea580c]">{nNoLoads}</strong></span>
+                <span>With This Load: <strong className="text-[#ea580c]">{totalBatchedQty} m³</strong></span>
+                <span>This Load: <strong className="text-[#ea580c]">{nBatchVol} m³</strong></span>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowNewSheet(false)} className="h-9 text-xs font-bold px-4">Cancel</Button>
@@ -846,10 +846,10 @@ export default function BatchList() {
       {viewingSheet && (
         <Dialog open={!!viewingSheet} onOpenChange={() => setViewingSheet(null)}>
           <DialogContent hideCloseButton className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto p-0 bg-white">
-            <DialogHeader className="p-4 bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between sticky top-0 z-10">
+            <DialogHeader className="p-4 bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between sticky top-0 z-10">
               <div>
                 <DialogTitle className="text-white font-black text-base">Batch Detail Sheet</DialogTitle>
-                <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewingSheet.batchNo} | {viewingSheet.grade} | {viewingSheet.customerName}</p>
+                <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewingSheet.batchNo} | {viewingSheet.grade} | {viewingSheet.customerName}</p>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => { setPrintingEntry(viewingSheet); setTimeout(() => window.print(), 100); }} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">
@@ -906,7 +906,7 @@ export default function BatchList() {
                   return (
                     <table className="w-full border-collapse text-[9px] min-w-[900px]">
                       <thead>
-                        <tr className="bg-[#1e40af] text-white">
+                        <tr className="bg-[#ea580c] text-white">
                           <th className="border border-white/20 px-2 py-1.5 text-left font-black uppercase min-w-[140px]">Batch Detail</th>
                           {INGR_KEYS.map(k => (
                             <th key={k} className="border border-white/20 px-2 py-1.5 font-black uppercase text-center min-w-[70px]">
@@ -916,9 +916,9 @@ export default function BatchList() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="bg-blue-50">
+                        <tr className="bg-orange-50/40">
                           <td className={`${tdStyle} font-black text-left text-slate-700`}>Designed Quantity</td>
-                          {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-bold text-[#1e40af]`}>{designed[k] || 0}</td>)}
+                          {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-bold text-[#ea580c]`}>{designed[k] || 0}</td>)}
                         </tr>
                         <tr className="bg-slate-50">
                           <td className={`${tdStyle} font-black text-left text-slate-700`}>Avg. Moisture</td>
@@ -938,13 +938,13 @@ export default function BatchList() {
                         </tr>
                         {batchLoads.map((load: any, idx: number) => (
                           <tr key={idx} className={idx % 2 === 0 ? "bg-white" : "bg-slate-50/30"}>
-                            <td className={`${tdStyle} font-black text-left text-[#1e40af]`}>Batch {idx + 1}</td>
+                            <td className={`${tdStyle} font-black text-left text-[#ea580c]`}>Batch {idx + 1}</td>
                             {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-mono`}>{load[k] ?? 0}</td>)}
                           </tr>
                         ))}
-                        <tr className="bg-[#1e40af]/10 font-black">
+                        <tr className="bg-[#ea580c]/10 font-black">
                           <td className={`${tdStyle} font-black text-left text-slate-800`}>Total Batch</td>
-                          {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-black text-[#1e40af]`}>{totals[k]}</td>)}
+                          {INGR_KEYS.map(k => <td key={k} className={`${tdStyle} font-black text-[#ea580c]`}>{totals[k]}</td>)}
                         </tr>
                         <tr className="bg-rose-50">
                           <td className={`${tdStyle} font-black text-left text-slate-700`}>Error %</td>
@@ -963,9 +963,9 @@ export default function BatchList() {
               {/* Footer */}
               <div className="flex items-center justify-between text-xs font-bold text-slate-600 border-t pt-3">
                 <div className="flex gap-6">
-                  <span>Num Batches: <strong className="text-[#1e40af]">{viewingSheet.noOfBatches || "—"}</strong></span>
-                  <span>With This Load: <strong className="text-[#1e40af]">{viewingSheet.batchedQty} m³</strong></span>
-                  <span>Batch End Time: <strong className="text-[#1e40af]">{viewingSheet.createdAt ? new Date(viewingSheet.createdAt).toLocaleTimeString("en-IN") : "—"}</strong></span>
+                  <span>Num Batches: <strong className="text-[#ea580c]">{viewingSheet.noOfBatches || "—"}</strong></span>
+                  <span>With This Load: <strong className="text-[#ea580c]">{viewingSheet.batchedQty} m³</strong></span>
+                  <span>Batch End Time: <strong className="text-[#ea580c]">{viewingSheet.createdAt ? new Date(viewingSheet.createdAt).toLocaleTimeString("en-IN") : "—"}</strong></span>
                 </div>
               </div>
             </div>

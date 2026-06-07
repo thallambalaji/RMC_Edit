@@ -433,9 +433,9 @@ export default function InvoiceReport() {
       <div id="rpt-print-root" style={{ display: "none" }}>
         <div style={{ padding: "10px", background: "white", color: "black", fontFamily: "system-ui, sans-serif" }}>
           {/* Corporate Header */}
-          <div style={{ borderBottom: "2px solid #1e40af", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ borderBottom: "2px solid #ea580c", paddingBottom: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-              <div style={{ width: "52px", height: "52px", background: "#1e40af", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
+              <div style={{ width: "52px", height: "52px", background: "#ea580c", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "18px", borderRadius: "8px" }}>BM</div>
               <div>
                 <div style={{ fontSize: "20px", fontWeight: 900, color: "#0f172a", textTransform: "uppercase" }}>BuildRMC Enterprises</div>
                 <div style={{ fontSize: "11px", color: "#64748b" }}>123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</div>
@@ -443,7 +443,7 @@ export default function InvoiceReport() {
               </div>
             </div>
             <div style={{ textAlign: "right" }}>
-              <div style={{ fontSize: "16px", fontWeight: 900, color: "#1e40af", textTransform: "uppercase" }}>Invoice Report</div>
+              <div style={{ fontSize: "16px", fontWeight: 900, color: "#ea580c", textTransform: "uppercase" }}>Invoice Report</div>
               <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>Grouped By: {reportTypeLabel}</div>
               {fromDate && <div style={{ fontSize: "11px", color: "#64748b" }}>Period: {new Date(fromDate).toLocaleDateString("en-IN")} — {toDate ? new Date(toDate).toLocaleDateString("en-IN") : "Today"}</div>}
               <div style={{ fontSize: "11px", color: "#64748b" }}>Printed: {new Date().toLocaleString("en-IN")}</div>
@@ -456,12 +456,12 @@ export default function InvoiceReport() {
             const groupAmt = list.reduce((sum, i) => sum + (Number(i.totalAmount) || 0), 0);
             return (
               <div key={groupName} style={{ marginBottom: "20px" }}>
-                <div style={{ background: "#f1f5f9", padding: "6px 10px", fontWeight: 800, fontSize: "12px", color: "#1e40af", borderLeft: "4px solid #1e40af", marginBottom: "6px" }}>
+                <div style={{ background: "#f1f5f9", padding: "6px 10px", fontWeight: 800, fontSize: "12px", color: "#ea580c", borderLeft: "4px solid #ea580c", marginBottom: "6px" }}>
                   {reportTypeLabel}: {groupName}
                 </div>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "10px" }}>
                   <thead>
-                    <tr style={{ background: "#1e40af", color: "white" }}>
+                    <tr style={{ background: "#ea580c", color: "white" }}>
                       {["Invoice No", "Date", "Customer Name", "Site Name", "Plant", "Grade", "Qty (M³)", "Total Amt", "Status"].map((h) => (
                         <th key={h} style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: ["Qty (M³)", "Total Amt"].includes(h) ? "right" : "left", textTransform: "uppercase" }}>{h}</th>
                       ))}
@@ -484,7 +484,7 @@ export default function InvoiceReport() {
                     <tr style={{ background: "#f8fafc", fontWeight: 800, fontSize: "11px" }}>
                       <td colSpan={6} style={{ padding: "6px 8px", border: "1px solid #e2e8f0" }}>Sub-total ({list.length} Records)</td>
                       <td style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: "right" }}>{groupQty.toFixed(2)}</td>
-                      <td style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: "right", color: "#1e40af" }}>₹{groupAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                      <td style={{ padding: "6px 8px", border: "1px solid #e2e8f0", textAlign: "right", color: "#ea580c" }}>₹{groupAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                       <td style={{ padding: "6px 8px", border: "1px solid #e2e8f0" }}>—</td>
                     </tr>
                   </tbody>
@@ -494,7 +494,7 @@ export default function InvoiceReport() {
           })}
 
           {/* Grand totals print section */}
-          <div style={{ marginTop: "14px", padding: "10px 14px", background: "#1e40af", color: "white", display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: "13px", borderRadius: "6px" }}>
+          <div style={{ marginTop: "14px", padding: "10px 14px", background: "#ea580c", color: "white", display: "flex", justifyContent: "space-between", fontWeight: 900, fontSize: "13px", borderRadius: "6px" }}>
             <span>GRAND TOTALS — {reportData.length} records</span>
             <span>Total Qty: {metrics.qty.toFixed(2)} M³ &nbsp;|&nbsp; Net Amount: ₹{metrics.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
           </div>
@@ -887,11 +887,11 @@ export default function InvoiceReport() {
         <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Invoice Report</h2>
         <div className="h-4 w-px bg-gray-300" />
         <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-          <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <Link href="/billing" className="hover:text-[#1e40af] transition-colors">Billing</Link>
+          <Link href="/billing" className="hover:text-[#ea580c] transition-colors">Billing</Link>
           <ChevronRight className="h-2.5 w-2.5" />
-          <span className="text-[#1e40af]">Invoice Report</span>
+          <span className="text-[#ea580c]">Invoice Report</span>
         </nav>
       </div>
 
@@ -1000,7 +1000,7 @@ export default function InvoiceReport() {
       {/* Main Results Container */}
       {!generated ? (
         <div className="bg-white rounded-lg p-16 shadow-sm border border-gray-100 flex flex-col items-center justify-center text-gray-300 no-print">
-          <FileBarChart className="h-20 w-20 mb-4 text-[#1e40af]/20" />
+          <FileBarChart className="h-20 w-20 mb-4 text-[#ea580c]/20" />
           <p className="text-base font-black uppercase tracking-wider text-gray-400">Click "Generate" to view the report</p>
           <p className="text-xs text-gray-300 mt-1 font-medium">Specify the From and To Date, then trigger the generator.</p>
         </div>
@@ -1018,7 +1018,7 @@ export default function InvoiceReport() {
             </div>
             <div className="p-3.5 text-center border-r border-slate-100 flex flex-col justify-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Total Value (₹)</span>
-              <span className="text-lg font-black text-[#1e40af] mt-0.5">₹{metrics.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+              <span className="text-lg font-black text-[#ea580c] mt-0.5">₹{metrics.amount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
             </div>
             <div className="p-3.5 text-center flex flex-col justify-center">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Bill Status</span>
@@ -1031,18 +1031,18 @@ export default function InvoiceReport() {
           {/* Action Toolbar */}
           <div className="flex items-center justify-between p-3.5 border-b bg-slate-50/20">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-extrabold text-[#1e40af] uppercase tracking-wide">{reportTypeLabel} Report</span>
+              <span className="text-xs font-extrabold text-[#ea580c] uppercase tracking-wide">{reportTypeLabel} Report</span>
               <span className="text-[10px] text-slate-400 font-semibold">• {reportData.length} Records found</span>
             </div>
             <div className="flex gap-2">
               <Button onClick={handleCopyReport} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 text-slate-600 hover:bg-slate-100">
-                <Copy className="h-3.5 w-3.5 text-[#1e40af]" /> Copy Table
+                <Copy className="h-3.5 w-3.5 text-[#ea580c]" /> Copy Table
               </Button>
               <Button onClick={handleCSV} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 text-slate-600 hover:bg-emerald-50">
                 <Download className="h-3.5 w-3.5 text-emerald-600" /> Export CSV
               </Button>
-              <Button onClick={handlePrint} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 text-slate-600 hover:bg-blue-50">
-                <Printer className="h-3.5 w-3.5 text-[#1e40af]" /> Print Report
+              <Button onClick={handlePrint} variant="outline" size="sm" className="h-8 text-xs font-bold gap-1.5 border-gray-200 text-slate-600 hover:bg-orange-50/40">
+                <Printer className="h-3.5 w-3.5 text-[#ea580c]" /> Print Report
               </Button>
             </div>
           </div>
@@ -1060,8 +1060,8 @@ export default function InvoiceReport() {
                 const subAmt = list.reduce((sum, i) => sum + (Number(i.totalAmount) || 0), 0);
                 return (
                   <div key={groupName} className="border border-slate-150 rounded-xl overflow-hidden shadow-sm bg-white">
-                    <div className="px-4 py-2.5 bg-[#1e40af]/10 border-b flex items-center justify-between">
-                      <span className="text-xs font-black text-[#1e40af] uppercase tracking-wide">
+                    <div className="px-4 py-2.5 bg-[#ea580c]/10 border-b flex items-center justify-between">
+                      <span className="text-xs font-black text-[#ea580c] uppercase tracking-wide">
                         {reportTypeLabel}: {groupName}
                       </span>
                       <span className="text-[10px] font-black text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-full uppercase">
@@ -1086,7 +1086,7 @@ export default function InvoiceReport() {
                       <TableBody>
                         {list.map((inv) => (
                           <TableRow key={inv.id} className="hover:bg-slate-50/50 border-b transition-colors">
-                            <td className="py-2.5 text-xs font-extrabold text-[#1e40af]">{inv.invoiceNumber}</td>
+                            <td className="py-2.5 text-xs font-extrabold text-[#ea580c]">{inv.invoiceNumber}</td>
                             <td className="py-2.5 text-[11px] font-semibold text-slate-600">
                               {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—"}
                             </td>
@@ -1096,7 +1096,7 @@ export default function InvoiceReport() {
                             </td>
                             <td className="py-2.5 text-xs font-semibold text-slate-600">{inv.plant || "—"}</td>
                             <td className="py-2.5 text-xs text-center font-bold">
-                              <span className="px-2 py-0.5 border border-[#1e40af]/20 bg-blue-50/60 text-[#1e40af] rounded-full text-[10px]">
+                              <span className="px-2 py-0.5 border border-[#ea580c]/20 bg-orange-50/40/60 text-[#ea580c] rounded-full text-[10px]">
                                 {inv.grade || "—"}
                               </span>
                             </td>
@@ -1139,7 +1139,7 @@ export default function InvoiceReport() {
                         <TableRow className="bg-slate-50/60 font-extrabold text-xs">
                           <TableCell colSpan={5} className="py-3">Sub-total ({list.length} records)</TableCell>
                           <TableCell className="py-3 text-right text-slate-700">{subQty.toFixed(2)}</TableCell>
-                          <TableCell className="py-3 text-right text-[#1e40af]" colSpan={1}>
+                          <TableCell className="py-3 text-right text-[#ea580c]" colSpan={1}>
                             ₹{subAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                           </TableCell>
                           <TableCell colSpan={2} />
@@ -1174,10 +1174,10 @@ export default function InvoiceReport() {
 
       <Dialog open={!!viewInv} onOpenChange={() => setViewInv(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 no-print">
-          <DialogHeader className="p-5 border-b bg-[#1e40af] rounded-t-lg flex flex-row items-center justify-between no-print">
+          <DialogHeader className="p-5 border-b bg-[#ea580c] rounded-t-lg flex flex-row items-center justify-between no-print">
             <div>
               <DialogTitle className="text-white font-black text-base">Invoice Details</DialogTitle>
-              <p className="text-blue-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
+              <p className="text-orange-200 text-xs font-semibold mt-0.5">{viewInv?.invoiceNumber}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" variant="outline" onClick={() => {
@@ -1203,7 +1203,7 @@ export default function InvoiceReport() {
             <div className="p-6 space-y-5">
               {/* Header */}
               <div className="flex items-center gap-4 border-b pb-5">
-                <div className="w-14 h-14 bg-[#1e40af] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
+                <div className="w-14 h-14 bg-[#ea580c] text-white flex items-center justify-center font-black text-xl rounded-xl">BM</div>
                 <div>
                   <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">BuildRMC Enterprises</h1>
                   <p className="text-xs text-slate-600 mt-0.5 font-medium">123 Industrial Estate, Phase-1, Hyderabad, Telangana 500001</p>
@@ -1212,7 +1212,7 @@ export default function InvoiceReport() {
               </div>
 
               {/* Title */}
-              <h2 className="text-base font-extrabold uppercase text-[#1e40af] tracking-wide border-b pb-2">Invoice Information</h2>
+              <h2 className="text-base font-extrabold uppercase text-[#ea580c] tracking-wide border-b pb-2">Invoice Information</h2>
 
               {/* Grid details */}
               <div className="grid grid-cols-2 gap-4">
@@ -1231,7 +1231,7 @@ export default function InvoiceReport() {
               <div className="border rounded-xl p-4 space-y-3">
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Customer Name</p>
-                  <p className="text-sm font-black text-[#1e40af]">{viewInv.customerName}</p>
+                  <p className="text-sm font-black text-[#ea580c]">{viewInv.customerName}</p>
                 </div>
                 <div className="border-t pt-2">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">Site Name / Delivery Address</p>
@@ -1252,7 +1252,7 @@ export default function InvoiceReport() {
                   <tr className="border-b border-slate-100">
                     <td className="p-3 text-xs border-r border-slate-200 font-extrabold text-slate-800">{viewInv.grade || "—"}</td>
                     <td className="p-3 text-xs border-r border-slate-200 font-bold text-right text-slate-700">{Number(viewInv.quantity ?? 0).toFixed(2)}</td>
-                    <td className="p-3 text-xs font-black text-right text-[#1e40af]">₹{Number(viewInv.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+                    <td className="p-3 text-xs font-black text-right text-[#ea580c]">₹{Number(viewInv.totalAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
                   </tr>
                 </tbody>
               </table>

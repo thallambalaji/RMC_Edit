@@ -238,7 +238,7 @@ export default function StoreItems() {
             </div>
           </div>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Button onClick={handleSave} className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white">
+            <Button onClick={handleSave} className="bg-[#ea580c] hover:bg-[#d97706] text-white">
               <Plus className="h-4 w-4 mr-2" /> {isEditing ? "Update Store Item" : "Save Store Item"}
             </Button>
             <Button variant="secondary" onClick={resetForm} className="border-slate-300 text-slate-700 hover:bg-slate-100">

@@ -154,11 +154,11 @@ export default function SchedulingList() {
   }, [schedules, today]);
 
   const tabs: { id: TabId; label: string; color: string }[] = [
-    { id: "today", label: "Today Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
-    { id: "today-gen", label: "Today Generated", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
-    { id: "tomorrow", label: "Tomorrow Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
-    { id: "this-week", label: "This Week Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
-    { id: "next-week", label: "Next Week Scheduled", color: "bg-[#1e40af] hover:bg-[#1d4ed8]" },
+    { id: "today", label: "Today Scheduled", color: "bg-[#ea580c] hover:bg-[#d97706]" },
+    { id: "today-gen", label: "Today Generated", color: "bg-[#ea580c] hover:bg-[#d97706]" },
+    { id: "tomorrow", label: "Tomorrow Scheduled", color: "bg-[#ea580c] hover:bg-[#d97706]" },
+    { id: "this-week", label: "This Week Scheduled", color: "bg-[#ea580c] hover:bg-[#d97706]" },
+    { id: "next-week", label: "Next Week Scheduled", color: "bg-[#ea580c] hover:bg-[#d97706]" },
     { id: "new", label: "New Scheduling", color: "bg-emerald-500 hover:bg-emerald-600" },
   ];
 
@@ -327,8 +327,8 @@ export default function SchedulingList() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
     <div className="space-y-4">
@@ -356,22 +356,22 @@ export default function SchedulingList() {
       {/* Header */}
       <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 no-print">
         <div className="flex items-center gap-3">
-          <div className="bg-[#1e40af]/10 p-1 rounded">
-             <CalendarClock className="h-4 w-4 text-[#1e40af]" />
+          <div className="bg-[#ea580c]/10 p-1 rounded">
+             <CalendarClock className="h-4 w-4 text-[#ea580c]" />
           </div>
           <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Scheduling Management</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Scheduling List</span>
+            <span className="text-[#ea580c]">Scheduling List</span>
           </nav>
         </div>
         <div className="flex gap-2">
           <Link href="/customer-po/scheduling/new">
-            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+            <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
               <Plus className="h-3.5 w-3.5" /> Add Scheduling
             </Button>
           </Link>
@@ -394,7 +394,7 @@ export default function SchedulingList() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`${tab.color} text-white px-3 py-1.5 rounded h-12 flex flex-col items-center justify-center min-w-[125px] transition-all cursor-pointer
-              ${activeTab === tab.id ? "ring-2 ring-offset-1 ring-cyan-400 scale-[1.02]" : "opacity-90 hover:opacity-100"}`}
+              ${activeTab === tab.id ? "ring-2 ring-offset-1 ring-orange-400 scale-[1.02]" : "opacity-90 hover:opacity-100"}`}
           >
             <span className="font-bold text-[10px] uppercase tracking-wider leading-tight">{tab.label}</span>
             <span className="text-sm font-black leading-tight mt-0.5">{counts[tab.id]}</span>
@@ -457,7 +457,7 @@ export default function SchedulingList() {
           <div className="lg:col-span-2 flex gap-1.5 h-8">
             <Button 
               type="button"
-              className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white text-[10px] font-black uppercase tracking-wider flex-1 h-full px-1 flex items-center justify-center gap-1 shadow-none border-0 cursor-pointer"
+              className="bg-[#ea580c] hover:bg-[#d97706] text-white text-[10px] font-black uppercase tracking-wider flex-1 h-full px-1 flex items-center justify-center gap-1 shadow-none border-0 cursor-pointer"
             >
               <Search className="h-3 w-3" /> Search
             </Button>
@@ -494,7 +494,7 @@ export default function SchedulingList() {
         <div className="overflow-x-auto min-h-[200px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
               <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Loading schedules...</p>
             </div>
           ) : (
@@ -511,7 +511,7 @@ export default function SchedulingList() {
                   <TableHead className={headerStyle}>Pump 2</TableHead>
                   <TableHead className={headerStyle}>Strict</TableHead>
                   <TableHead className={headerStyle}>STATUS</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -525,7 +525,7 @@ export default function SchedulingList() {
                   <TableRow key={s.id} className="hover:bg-gray-50/60 border-b border-gray-100">
                     <TableCell className="text-center text-[10px] font-bold border-r border-gray-100 py-2">{i + 1}</TableCell>
                     <TableCell className="text-left text-[10px] font-bold border-r border-gray-100 py-2 max-w-[180px] truncate">{s.customerName ?? "—"}</TableCell>
-                    <TableCell className="text-center text-[10px] font-black text-[#1e40af] border-r border-gray-100 py-2">{s.poNumber ?? "—"}</TableCell>
+                    <TableCell className="text-center text-[10px] font-black text-[#ea580c] border-r border-gray-100 py-2">{s.poNumber ?? "—"}</TableCell>
                     <TableCell className="text-center text-[10px] border-r border-gray-100 py-2">{s.plant}</TableCell>
                     <TableCell className="text-center text-[10px] whitespace-nowrap border-r border-gray-100 py-2 font-bold">{formatTime(s.fromTime)}</TableCell>
                     <TableCell className="text-center text-[10px] whitespace-nowrap border-r border-gray-100 py-2 font-bold">{formatTime(s.toTime)}</TableCell>
@@ -544,7 +544,7 @@ export default function SchedulingList() {
                         className={`px-2 py-0.5 rounded text-[9px] font-black uppercase cursor-pointer hover:opacity-80 border ${
                           s.status === 'completed' 
                             ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                            : "bg-cyan-50 text-cyan-600 border-cyan-100"
+                            : "bg-orange-50/40 text-[#ea580c] border-orange-100/50"
                         }`}
                         title="Click to toggle status"
                       >
@@ -573,7 +573,7 @@ export default function SchedulingList() {
                             <span>Download CSV</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleCopySingle(s)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                            <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Copy Details</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -586,7 +586,7 @@ export default function SchedulingList() {
                             }}
                             className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded"
                           >
-                            <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                            <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Edit Schedule</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -613,7 +613,7 @@ export default function SchedulingList() {
           </div>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" className="h-8 text-gray-400" disabled>Previous</Button>
-            <div className="bg-[#1e40af] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
+            <div className="bg-[#ea580c] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
             <Button variant="outline" size="sm" className="h-8 text-gray-600">Next</Button>
           </div>
         </div>
@@ -626,7 +626,7 @@ export default function SchedulingList() {
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Scheduling Docket Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Scheduling Docket Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded font-sans">SCHEDULING DOCKET</span>
             </div>
@@ -634,15 +634,15 @@ export default function SchedulingList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-4 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Docket Allocations</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Docket Allocations</h3>
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-gray-700">Client Customer: <span className="font-black text-gray-900">{printSchedule.customerName}</span></p>
-                <p className="text-xs font-bold text-gray-700">Associated PO: <span className="font-black text-[#1e40af]">{printSchedule.poNumber || "N/A"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Associated PO: <span className="font-black text-[#ea580c]">{printSchedule.poNumber || "N/A"}</span></p>
                 <p className="text-xs font-bold text-gray-700">Production Plant: <span className="font-medium text-gray-900">{printSchedule.plant}</span></p>
               </div>
             </div>
             <div className="bg-slate-50 p-4 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Transit & Logistics</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Transit & Logistics</h3>
               <div className="space-y-1.5">
                 <p className="text-xs font-bold text-gray-700">Primary Dispatch Pump: <span className="font-black text-gray-900">{printSchedule.pump1}</span></p>
                 <p className="text-xs font-bold text-gray-700">Secondary Pump: <span className="font-medium text-gray-900">{printSchedule.pump2 && printSchedule.pump2 !== "none" ? printSchedule.pump2 : "None Allocated"}</span></p>
@@ -684,7 +684,7 @@ export default function SchedulingList() {
             <div className="text-right">
               <div className="h-px bg-gray-300 w-44 mb-2 ml-auto" />
               <p className="font-bold text-gray-500 text-[10px] uppercase">Authorized Dispatch Officer</p>
-              <p className="font-black text-[#1e40af] uppercase mt-1">Fortune Concrete</p>
+              <p className="font-black text-[#ea580c] uppercase mt-1">Fortune Concrete</p>
             </div>
           </div>
         </div>
@@ -695,7 +695,7 @@ export default function SchedulingList() {
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">DAILY SCHEDULING REGISTER</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">DAILY SCHEDULING REGISTER</h2>
             <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 

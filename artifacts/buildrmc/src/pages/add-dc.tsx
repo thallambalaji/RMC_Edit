@@ -210,7 +210,7 @@ export default function AddDC() {
 
       <div className="flex justify-start mb-4">
         <Link href="/dc/list">
-          <Button className="bg-cyan-500 hover:bg-cyan-600 text-white gap-2">
+          <Button className="bg-[#ea580c] hover:bg-[#ea580c] text-white gap-2">
             <ListPlus className="h-4 w-4" />
             + DC List
           </Button>
@@ -232,7 +232,7 @@ export default function AddDC() {
                 />
                 <Button 
                   onClick={() => setIsManual(!isManual)} 
-                  className="bg-cyan-500 hover:bg-cyan-600 text-white whitespace-nowrap px-4 h-10 text-xs"
+                  className="bg-[#ea580c] hover:bg-[#ea580c] text-white whitespace-nowrap px-4 h-10 text-xs"
                 >
                   {isManual ? "Auto Generate" : "For Manual"}
                 </Button>
@@ -493,7 +493,7 @@ export default function AddDC() {
           </div>
 
           <div className="flex gap-2 mt-6">
-            <Button className="bg-cyan-500 hover:bg-cyan-600 text-white px-8 h-10 font-bold" onClick={handleSave} disabled={createDC.isPending}>
+            <Button className="bg-[#ea580c] hover:bg-[#ea580c] text-white px-8 h-10 font-bold" onClick={handleSave} disabled={createDC.isPending}>
               {createDC.isPending ? "Saving..." : "Save DC"}
             </Button>
             <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8 h-10 font-bold" onClick={handleClear}>Clear</Button>
@@ -501,7 +501,7 @@ export default function AddDC() {
         </div>
 
         <div className="w-full lg:w-80 bg-white shadow-sm border border-gray-100 rounded-lg overflow-hidden flex flex-col">
-          <div className="h-2 bg-gradient-to-r from-[#1e40af] to-cyan-600" />
+          <div className="h-2 bg-gradient-to-r from-[#ea580c] to-cyan-600" />
           <div className="p-2 bg-gray-50 border-b border-gray-100">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">DC Information Panel</p>
           </div>

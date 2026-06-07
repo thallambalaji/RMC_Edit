@@ -171,7 +171,7 @@ export default function PaymentFollowUpList() {
           <title>Payment Follow-Up - ${f.followupId}</title>
           <style>
             body { font-family: sans-serif; padding: 20px; }
-            h1 { color: #1e40af; }
+            h1 { color: #ea580c; }
             .field { margin-bottom: 10px; }
             .label { font-weight: bold; }
           </style>
@@ -219,15 +219,15 @@ export default function PaymentFollowUpList() {
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Payment FollowUp List</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/sales" className="hover:text-[#1e40af] transition-colors">Sales</Link>
+            <Link href="/sales" className="hover:text-[#ea580c] transition-colors">Sales</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Payment FollowUp List</span>
+            <span className="text-[#ea580c]">Payment FollowUp List</span>
           </nav>
         </div>
         <Link href="/sales/payment-follow-up/new">
-          <Button className="h-8 bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md">
+          <Button className="h-8 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md">
             <ListPlus className="h-4 w-4" /> Add Payment FollowUp
           </Button>
         </Link>
@@ -264,7 +264,7 @@ export default function PaymentFollowUpList() {
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleSearch} size="sm" className="bg-[#1e40af] hover:bg-blue-800 text-white font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
+            <Button onClick={handleSearch} size="sm" className="bg-[#ea580c] hover:bg-[#ea580c] text-white font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
               <Search className="h-3 w-3" /> Search
             </Button>
             <Button onClick={handleClear} size="sm" variant="outline" className="border-slate-200 text-slate-500 hover:bg-slate-100 font-bold h-8 flex-1 gap-1.5 uppercase text-[10px] tracking-wide">
@@ -291,16 +291,16 @@ export default function PaymentFollowUpList() {
         {/* Table Data */}
         <div className="border border-gray-100 rounded-lg overflow-hidden shadow-sm print:border-none print:shadow-none print:overflow-visible">
           <Table>
-            <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-              <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">FollowUp ID</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">FollowUp Date & Time</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Next FollowUp Date</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Description</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Created By</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
+            <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+              <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">FollowUp ID</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer Name</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">FollowUp Date & Time</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Next FollowUp Date</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Description</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Created By</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">Status</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter text-center print:hidden">ACTIONS</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -319,7 +319,7 @@ export default function PaymentFollowUpList() {
               ) : (
                 paginatedData.map((f) => (
                   <TableRow key={f.id} className="hover:bg-slate-50/50 transition-colors border-b">
-                    <TableCell className="text-center py-2.5 font-bold text-[#1e40af] text-xs">
+                    <TableCell className="text-center py-2.5 font-bold text-[#ea580c] text-xs">
                       {f.followupId}
                     </TableCell>
                     <TableCell className="font-semibold text-slate-800 text-xs">
@@ -344,7 +344,7 @@ export default function PaymentFollowUpList() {
                           ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
                           : f.status?.toLowerCase() === "closed"
                           ? "bg-slate-100 text-slate-600 border-slate-200"
-                          : "bg-blue-50 text-[#1e40af] border-blue-100"
+                          : "bg-orange-50/40 text-[#ea580c] border-orange-100/50"
                       }`}>
                         {f.status || "pending"}
                       </span>
@@ -376,7 +376,7 @@ export default function PaymentFollowUpList() {
                           onClick={() => handleCopySingle(f)}
                           title="Copy Details" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-cyan-50 text-cyan-600 hover:text-cyan-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
@@ -386,7 +386,7 @@ export default function PaymentFollowUpList() {
                           onClick={() => setSelectedFollowup(f)}
                           title="Edit FollowUp" 
                           variant="ghost" 
-                          className="h-6 w-6 p-0 hover:bg-blue-50 text-blue-600 hover:text-blue-700 cursor-pointer"
+                          className="h-6 w-6 p-0 hover:bg-orange-50/40 text-[#ea580c] hover:text-[#ea580c] cursor-pointer"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -467,7 +467,7 @@ export default function PaymentFollowUpList() {
               <div className="border-t border-slate-200/60 my-2 pt-2 grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block">FollowUp Date & Time:</span>
-                  <div className="font-bold text-[#1e40af]">{selectedFollowup?.followupDate} at {selectedFollowup?.followupTime}</div>
+                  <div className="font-bold text-[#ea580c]">{selectedFollowup?.followupDate} at {selectedFollowup?.followupTime}</div>
                 </div>
                 <div>
                   <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block">Next FollowUp Date:</span>
@@ -496,7 +496,7 @@ export default function PaymentFollowUpList() {
 
             <div>
               <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block mb-1">Follow-Up Description:</span>
-              <div className="bg-blue-50/30 p-3 rounded-lg border border-blue-50 text-slate-700 text-xs leading-relaxed font-medium">
+              <div className="bg-orange-50/40/30 p-3 rounded-lg border border-blue-50 text-slate-700 text-xs leading-relaxed font-medium">
                 {selectedFollowup?.description || "No description / notes entered."}
               </div>
             </div>

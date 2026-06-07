@@ -129,7 +129,7 @@ export default function AddDriver() {
         <div className="mb-4 flex justify-start">
           <Button
             onClick={() => setLocation("/transport/driver/list")}
-            className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-extrabold text-xs h-9 px-4 rounded transition-all flex items-center gap-1 shadow-sm active:scale-95 border-0"
+            className="bg-[#ea580c] hover:bg-[#d97706] text-white font-extrabold text-xs h-9 px-4 rounded transition-all flex items-center gap-1 shadow-sm active:scale-95 border-0"
           >
             <Plus className="h-4 w-4" /> Driver List
           </Button>
@@ -137,7 +137,7 @@ export default function AddDriver() {
 
         {/* Form Container */}
         <div className="max-w-2xl mx-auto w-full flex-1 flex flex-col justify-start pt-1">
-          <h2 className="text-center font-bold text-[#00c0a5] text-xl mb-4 uppercase tracking-wide">
+          <h2 className="text-center font-bold text-[#ea580c] text-xl mb-4 uppercase tracking-wide">
             {driverId ? "Edit Driver Information" : "Add Driver Information"}
           </h2>
 
@@ -151,7 +151,7 @@ export default function AddDriver() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter Driver Name.."
-                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                 required
               />
             </div>
@@ -165,7 +165,7 @@ export default function AddDriver() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Enter Driver Phone."
-                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                 required
               />
             </div>
@@ -179,7 +179,7 @@ export default function AddDriver() {
                 value={licenseNo}
                 onChange={(e) => setLicenseNo(e.target.value)}
                 placeholder="Enter Licence No"
-                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded uppercase"
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded uppercase"
                 required
               />
             </div>
@@ -193,7 +193,7 @@ export default function AddDriver() {
                 type="date"
                 value={licenseValidity}
                 onChange={(e) => setLicenseValidity(e.target.value)}
-                className="h-10 text-xs font-medium border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                 required
               />
             </div>
@@ -202,7 +202,7 @@ export default function AddDriver() {
             <div className="pt-2 flex items-center gap-3">
               <Button
                 type="submit"
-                className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-extrabold text-xs h-9 px-6 rounded transition-all shadow-sm active:scale-95 uppercase border-0"
+                className="bg-[#ea580c] hover:bg-[#d97706] text-white font-extrabold text-xs h-9 px-6 rounded transition-all shadow-sm active:scale-95 uppercase border-0"
               >
                 Save
               </Button>

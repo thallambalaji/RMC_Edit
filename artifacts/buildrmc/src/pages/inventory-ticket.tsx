@@ -37,7 +37,7 @@ import { StoreLayout } from "@/components/store-layout";
 export default function InventoryTicketPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   // Form & Editing States
   const [ticketNo, setTicketNo] = useState("");
@@ -352,7 +352,7 @@ export default function InventoryTicketPage() {
                     <button 
                       onClick={() => setIsAddVehicleOpen(true)}
                       type="button" 
-                      className="text-xs text-blue-600 font-bold hover:underline hover:text-blue-700 mt-1 block"
+                      className="text-xs text-[#ea580c] font-bold hover:underline hover:text-[#ea580c] mt-1 block"
                     >
                       Add New Vehicle
                     </button>
@@ -455,7 +455,7 @@ export default function InventoryTicketPage() {
                       <TableHead className={headerStyle}>Weight</TableHead>
                       <TableHead className={headerStyle}>Date & Time</TableHead>
                       <TableHead className={headerStyle}>Created By</TableHead>
-                      <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">Action</TableHead>
+                      <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter print:hidden">Action</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -481,7 +481,7 @@ export default function InventoryTicketPage() {
                           {/* Ticket No as Blue Link */}
                           <TableCell 
                             onClick={() => setSelectedTicket(row)} 
-                            className="text-center py-3 text-blue-600 font-extrabold text-xs cursor-pointer hover:underline"
+                            className="text-center py-3 text-[#ea580c] font-extrabold text-xs cursor-pointer hover:underline"
                           >
                             {row.ticketNo}
                           </TableCell>
@@ -523,14 +523,14 @@ export default function InventoryTicketPage() {
                                   onClick={() => setSelectedTicket(row)} 
                                   className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                                 >
-                                  <Eye className="h-3.5 w-3.5 text-blue-600" />
+                                  <Eye className="h-3.5 w-3.5 text-[#ea580c]" />
                                   View Profile
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                   onClick={() => startEdit(row)} 
                                   className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                                 >
-                                  <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                                  <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                                   Edit Customer
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
@@ -551,7 +551,7 @@ export default function InventoryTicketPage() {
                                   onClick={() => handleCopy(row)} 
                                   className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 focus:bg-slate-50"
                                 >
-                                  <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                  <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                                   Copy Details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
@@ -705,12 +705,12 @@ export default function InventoryTicketPage() {
         <div className="hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <div className="flex justify-between items-center border-b pb-6 mb-6">
             <div>
-              <h1 className="text-3xl font-black text-[#1e40af] tracking-tight">FORTUNE CONCRETE</h1>
+              <h1 className="text-3xl font-black text-[#ea580c] tracking-tight">FORTUNE CONCRETE</h1>
               <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Premium Ready Mix Concrete Solutions</p>
               <p className="text-[10px] text-gray-400 mt-1">Sy No. 124, Medchal Highway, Medchal, Hyderabad - 501401</p>
             </div>
             <div className="text-right">
-              <div className="bg-[#1e40af] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">INVENTORY TICKET</div>
+              <div className="bg-[#ea580c] text-white px-3 py-1 font-black text-xs uppercase tracking-widest inline-block rounded mb-1">INVENTORY TICKET</div>
               <p className="text-[10px] font-bold text-gray-500 uppercase">GSTIN: 36AAAAF1234A1Z0</p>
               <p className="text-[9px] text-gray-400 font-medium">Ticket Date: {printTicket.createdAt ? new Date(printTicket.createdAt).toLocaleDateString("en-IN") : ""}</p>
             </div>
@@ -718,7 +718,7 @@ export default function InventoryTicketPage() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Ticket Details</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Ticket Details</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Ticket Number: <span className="font-black text-gray-900">{printTicket.ticketNo}</span></p>
                 <p className="text-xs font-bold text-gray-700">Date & Time: <span className="font-medium text-gray-900">{printTicket.createdAt ? new Date(printTicket.createdAt).toLocaleString() : "-"}</span></p>
@@ -726,11 +726,11 @@ export default function InventoryTicketPage() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Vehicle & Operator</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Vehicle & Operator</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Vehicle No: <span className="font-black text-gray-900">{printTicket.vehicleNo || "-"}</span></p>
                 <p className="text-xs font-bold text-gray-700">Recorded By: <span className="font-medium text-gray-900">{printTicket.createdBy || "Super Admin"}</span></p>
-                <p className="text-xs font-bold text-gray-700">Weight Type: <span className="font-medium text-gray-900 font-bold uppercase text-blue-800">{printTicket.weightType || "-"}</span></p>
+                <p className="text-xs font-bold text-gray-700">Weight Type: <span className="font-medium text-gray-900 font-bold uppercase text-[#ea580c]">{printTicket.weightType || "-"}</span></p>
               </div>
             </div>
           </div>
@@ -744,7 +744,7 @@ export default function InventoryTicketPage() {
               </tr>
             </thead>
             <tbody>
-              <tr className="text-xs font-bold text-[#1e40af]">
+              <tr className="text-xs font-bold text-[#ea580c]">
                 <td className="border p-2">{printTicket.weightType} Value</td>
                 <td className="border p-2 text-right">{printTicket.weight || 0} KG</td>
               </tr>
@@ -759,7 +759,7 @@ export default function InventoryTicketPage() {
               <p className="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">Driver Signature</p>
             </div>
             <div className="text-center w-40 border-t pt-2 border-gray-300">
-              <p className="text-[9px] font-extrabold uppercase text-[#1e40af] tracking-wider">Authorized Operator</p>
+              <p className="text-[9px] font-extrabold uppercase text-[#ea580c] tracking-wider">Authorized Operator</p>
             </div>
           </div>
         </div>

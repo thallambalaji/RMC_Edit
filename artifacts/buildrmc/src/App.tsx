@@ -196,7 +196,7 @@ function Router() {
       <Route path="/qc/recipe/list"><ProtectedRoute component={RecipeList} /></Route>
       <Route path="/qc/cube-test/new"><ProtectedRoute component={AddCubeTest} /></Route>
       <Route path="/qc/cube-test/list"><ProtectedRoute component={CubeTestList} /></Route>
-      <Route path="/qc/cube-test/report"><ProtectedRoute component={() => <div className="p-8 bg-white rounded-lg border shadow-sm"><h2 className="text-xl font-bold mb-4 text-[#1e40af]">Cube Test Report</h2><p className="text-gray-500 text-sm">Statistical analysis of concrete compressive strength across all grades.</p></div>} /></Route>
+      <Route path="/qc/cube-test/report"><ProtectedRoute component={() => <div className="p-8 bg-white rounded-lg border shadow-sm"><h2 className="text-xl font-bold mb-4 text-[#ea580c]">Cube Test Report</h2><p className="text-gray-500 text-sm">Statistical analysis of concrete compressive strength across all grades.</p></div>} /></Route>
       <Route path="/qc/batch/list"><ProtectedRoute component={BatchList} /></Route>
       <Route path="/qc/batch/report"><ProtectedRoute component={BatchReport} /></Route>
       <Route path="/qc/settings"><ProtectedRoute component={QcSettings} /></Route>

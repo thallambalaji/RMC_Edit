@@ -142,7 +142,7 @@ export default function TransportSettings() {
         
         {/* Banner header containing icon and text */}
         <div className="bg-[#f8fafc] border border-slate-200/60 p-4 rounded-lg flex items-center gap-3">
-          <div className="h-9 w-9 bg-[#00c0a5]/10 text-[#00c0a5] flex items-center justify-center rounded">
+          <div className="h-9 w-9 bg-[#ea580c]/10 text-[#ea580c] flex items-center justify-center rounded">
             <Settings className="h-5 w-5" />
           </div>
           <span className="text-sm font-black text-slate-800 uppercase tracking-wide">Transporters</span>
@@ -152,7 +152,7 @@ export default function TransportSettings() {
         <div className="flex select-none">
           <Button
             onClick={openAddModal}
-            className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
+            className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
           >
             Add Transporter
           </Button>
@@ -208,7 +208,7 @@ export default function TransportSettings() {
                         <Button
                           onClick={() => openEditModal(item)}
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-[#00c0a5] hover:text-[#00a890] hover:bg-[#00c0a5]/5 rounded border-none flex items-center justify-center"
+                          className="h-8 w-8 p-0 text-[#ea580c] hover:text-[#d97706] hover:bg-[#ea580c]/5 rounded border-none flex items-center justify-center"
                           title="Edit"
                         >
                           <Edit className="h-3.5 w-3.5" />
@@ -237,7 +237,7 @@ export default function TransportSettings() {
               
               {/* Modal header */}
               <div className="p-4 border-b border-slate-100 flex items-center gap-2">
-                <span className="text-xl font-bold text-[#00c0a5] leading-none">
+                <span className="text-xl font-bold text-[#ea580c] leading-none">
                   {isEditMode ? "✎" : "+"}
                 </span>
                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide">
@@ -253,7 +253,7 @@ export default function TransportSettings() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter Transporter Name"
-                    className="h-10 text-xs font-semibold border-slate-200 focus:border-[#00c0a5] focus:ring-[#00c0a5] rounded"
+                    className="h-10 text-xs font-semibold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
                     required
                   />
                 </div>
@@ -264,7 +264,7 @@ export default function TransportSettings() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value)}
-                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#00c0a5] focus:ring-1 focus:ring-[#00c0a5]"
+                      className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
@@ -276,7 +276,7 @@ export default function TransportSettings() {
                 <div className="flex gap-2 pt-2 justify-end">
                   <Button
                     type="submit"
-                    className="bg-[#00c0a5] hover:bg-[#00a890] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
+                    className="bg-[#ea580c] hover:bg-[#d97706] text-white font-bold text-xs h-9 px-4 rounded border-none shadow-sm active:scale-95 transition-all"
                   >
                     Save Transporter
                   </Button>

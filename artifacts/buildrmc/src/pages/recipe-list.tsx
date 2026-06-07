@@ -247,7 +247,7 @@ export default function RecipeList() {
             <h2 className="text-xl font-black uppercase text-slate-800 tracking-widest">Mix Recipe Report</h2>
             <div className="text-right text-[10px] text-slate-500 font-bold">
               <p>Date: {new Date().toLocaleDateString('en-GB')}</p>
-              <p className="text-blue-600 font-bold">Doc ID: RMC/REC/{Math.floor(Math.random() * 9000) + 1000}</p>
+              <p className="text-[#ea580c] font-bold">Doc ID: RMC/REC/{Math.floor(Math.random() * 9000) + 1000}</p>
             </div>
           </div>
 
@@ -282,7 +282,7 @@ export default function RecipeList() {
               ))}
               <tr className="bg-slate-50 font-black text-sm">
                 <td colSpan={2} className="border border-slate-800 p-3 text-right uppercase">Total Density:</td>
-                <td className="border border-slate-800 p-3 text-right text-blue-800">{printingItem.totalDensity?.toFixed(2)}</td>
+                <td className="border border-slate-800 p-3 text-right text-[#ea580c]">{printingItem.totalDensity?.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -415,16 +415,16 @@ export default function RecipeList() {
             {/* Table */}
             <div className="overflow-x-auto rounded-lg border border-slate-200">
               <Table>
-                <TableHeader className="sticky top-0 z-10 bg-[#1e40af] border-b border-white/10">
-                  <TableRow className="hover:bg-transparent border-0 bg-[#1e40af]">
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Grade</TableHead>
+                <TableHeader className="sticky top-0 z-10 bg-[#ea580c] border-b border-white/10">
+                  <TableRow className="hover:bg-transparent border-0 bg-[#ea580c]">
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-center">S/L No</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Recipe Code</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Customer</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Site Name</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Grade</TableHead>
 
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Slump</TableHead>
-                    <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] border-r border-white/10 uppercase tracking-tighter text-left">Slump</TableHead>
+                    <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-2 text-[9px] uppercase tracking-tighter w-[70px] text-center no-print">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -436,7 +436,7 @@ export default function RecipeList() {
                     pageRows.map((r, idx) => (
                       <TableRow key={r.id} className="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
                         <TableCell className="font-bold text-slate-400 text-[10px] px-4">{(currentPage - 1) * pageSize + idx + 1}</TableCell>
-                        <TableCell className="font-black text-[#1e40af] text-[11px] px-4">{r.recipeCode}</TableCell>
+                        <TableCell className="font-black text-[#ea580c] text-[11px] px-4">{r.recipeCode}</TableCell>
                         <TableCell className="text-[10px] font-bold text-slate-700 px-4">{r.customer}</TableCell>
                         <TableCell className="text-[10px] font-bold text-slate-500 px-4">{r.siteName}</TableCell>
                         <TableCell className="text-[10px] font-black text-slate-800 px-4">{r.grade}</TableCell>
@@ -459,7 +459,7 @@ export default function RecipeList() {
                                 navigator.clipboard.writeText(csv);
                                 toast({ title: "Copied", description: "Recipe data copied." });
                               }} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                                <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                                <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                                 <span>Copy Details</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => {
@@ -480,7 +480,7 @@ export default function RecipeList() {
                                 <span>Print Recipe</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => setEditingItem(r)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                                <Edit className="h-3.5 w-3.5 text-blue-600" />
+                                <Edit className="h-3.5 w-3.5 text-[#ea580c]" />
                                 <span>Edit Recipe</span>
                               </DropdownMenuItem>
                               <DropdownMenuItem
@@ -657,7 +657,7 @@ export default function RecipeList() {
                           <td colSpan={3} className="py-2.5 px-3 text-right font-black text-slate-700 uppercase text-[10px]">
                             Total Density :
                           </td>
-                          <td className="py-2.5 px-3 font-black text-[#1e40af] text-xs">
+                          <td className="py-2.5 px-3 font-black text-[#ea580c] text-xs">
                             {(editingItem.ingredients || [])
                               .reduce((acc: number, r: any) => acc + (parseFloat(r.qty) || 0), 0)
                               .toFixed(2)}

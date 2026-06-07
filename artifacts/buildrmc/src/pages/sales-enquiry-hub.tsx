@@ -13,7 +13,7 @@ export default function SalesEnquiryHub() {
       href: "/sales/enquiry/list",
       label: "Enquiry List",
       icon: List,
-      color: "bg-[#1e40af] hover:bg-[#1d4ed8]",
+      color: "bg-[#ea580c] hover:bg-[#d97706]",
     },
   ];
 

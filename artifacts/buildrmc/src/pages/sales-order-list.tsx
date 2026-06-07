@@ -225,8 +225,8 @@ export default function SalesOrderList() {
   };
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
-  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#1e40af] font-bold px-2 bg-white";
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const inputStyle = "h-8 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
 
   return (
     <div className="space-y-4">
@@ -257,16 +257,16 @@ export default function SalesOrderList() {
           <h2 className="text-[11px] font-black text-gray-900 uppercase tracking-tight">Sales Order Management</h2>
           <div className="h-4 w-px bg-gray-300" />
           <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase font-bold tracking-wider">
-            <Link href="/dashboard" className="hover:text-[#1e40af] transition-colors">Home</Link>
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">Home</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <Link href="/customer-po" className="hover:text-[#1e40af] transition-colors">Customer & PO</Link>
+            <Link href="/customer-po" className="hover:text-[#ea580c] transition-colors">Customer & PO</Link>
             <ChevronRight className="h-2.5 w-2.5" />
-            <span className="text-[#1e40af]">Sales Order List</span>
+            <span className="text-[#ea580c]">Sales Order List</span>
           </nav>
         </div>
         <div className="flex gap-2">
           <Link href="/customer-po/sales-order/new">
-            <Button size="sm" className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+            <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
               <Plus className="h-3.5 w-3.5" /> Add Sales Order
             </Button>
           </Link>
@@ -340,7 +340,7 @@ export default function SalesOrderList() {
 
           {/* Search and Clear action button cells: Highly readable, completely aligned */}
           <div className="lg:col-span-2 flex gap-1.5 h-8">
-            <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white text-[10px] font-black uppercase tracking-wider flex-1 h-full px-1 flex items-center justify-center gap-1 shadow-none border-0 cursor-pointer">
+            <Button className="bg-[#ea580c] hover:bg-[#d97706] text-white text-[10px] font-black uppercase tracking-wider flex-1 h-full px-1 flex items-center justify-center gap-1 shadow-none border-0 cursor-pointer">
               <Search className="h-3 w-3" /> Search
             </Button>
             <Button 
@@ -376,7 +376,7 @@ export default function SalesOrderList() {
         <div className="overflow-x-auto min-h-[300px]">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-[#1e40af]" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
               <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Retrieving Sales Orders from MongoDB...</p>
             </div>
           ) : (
@@ -394,7 +394,7 @@ export default function SalesOrderList() {
                   <TableHead className={headerStyle}>Order<br/>Type</TableHead>
                   <TableHead className={`${headerStyle} text-left`}>Sales Person</TableHead>
                   <TableHead className={headerStyle}>Plant</TableHead>
-                  <TableHead className="p-0 border-r border-white/10 bg-[#1e40af]">
+                  <TableHead className="p-0 border-r border-white/10 bg-[#ea580c]">
                     <div className="grid grid-cols-4 h-full">
                       <div className="col-span-1 text-white font-black text-center border-r border-white/10 text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Grade</div>
                       <div className="col-span-1 text-white font-black text-center border-r border-white/10 text-[9px] uppercase tracking-tighter flex items-center justify-center py-1.5">Quantity</div>
@@ -403,7 +403,7 @@ export default function SalesOrderList() {
                     </div>
                   </TableHead>
                   <TableHead className={headerStyle}>STATUS</TableHead>
-                  <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -414,7 +414,7 @@ export default function SalesOrderList() {
                 ) : filteredOrders.map((order: any, idx) => (
                   <TableRow key={idx} className="hover:bg-gray-50/50 border-b border-gray-100">
                     <TableCell className="text-center text-[10px] font-bold border-r border-gray-100 align-middle py-1.5">{idx + 1}</TableCell>
-                    <TableCell className="text-center text-[10px] border-r border-gray-100 align-middle py-1.5 font-black text-[#1e40af]">{order.poNumber}</TableCell>
+                    <TableCell className="text-center text-[10px] border-r border-gray-100 align-middle py-1.5 font-black text-[#ea580c]">{order.poNumber}</TableCell>
                     <TableCell className="text-center text-[10px] whitespace-nowrap border-r border-gray-100 align-middle py-1.5 font-bold">{order.poDate}</TableCell>
                     <TableCell className="text-center text-[10px] whitespace-nowrap border-r border-gray-100 align-middle py-1.5 font-semibold text-gray-500">{order.validity || "N/A"}</TableCell>
                     <TableCell className="text-left text-[10px] border-r border-gray-100 align-middle py-1.5 font-bold text-gray-800 max-w-[180px] truncate">{order.customerName}</TableCell>
@@ -431,7 +431,7 @@ export default function SalesOrderList() {
                             <div className="col-span-1 text-center text-[10px] font-black p-1 border-r border-gray-100 text-gray-700">{item.grade}</div>
                             <div className="col-span-1 text-center text-[10px] font-bold p-1 border-r border-gray-100">{item.quantity}</div>
                             <div className="col-span-1 text-center text-[10px] font-bold p-1 border-r border-gray-100">₹{item.rate}</div>
-                            <div className="col-span-1 text-center text-[10px] font-black p-1 text-cyan-600">{item.remainingQty || "0.00"}</div>
+                            <div className="col-span-1 text-center text-[10px] font-black p-1 text-[#ea580c]">{item.remainingQty || "0.00"}</div>
                           </div>
                         ))}
                       </div>
@@ -474,7 +474,7 @@ export default function SalesOrderList() {
                             <span>Download CSV</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleCopySingle(order)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
-                            <Copy className="h-3.5 w-3.5 text-cyan-600" />
+                            <Copy className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Copy Details</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -487,7 +487,7 @@ export default function SalesOrderList() {
                             }}
                             className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded"
                           >
-                            <Pencil className="h-3.5 w-3.5 text-blue-600" />
+                            <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                             <span>Edit Order</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
@@ -513,7 +513,7 @@ export default function SalesOrderList() {
           </div>
           <div className="flex items-center gap-1">
             <Button variant="outline" size="sm" className="text-gray-400 h-8 font-bold">Previous</Button>
-            <div className="bg-[#1e40af] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
+            <div className="bg-[#ea580c] text-white h-8 w-8 flex items-center justify-center rounded text-xs font-bold">1</div>
             <Button variant="outline" size="sm" className="text-gray-600 h-8 font-bold">Next</Button>
           </div>
         </div>
@@ -526,7 +526,7 @@ export default function SalesOrderList() {
         <div className="print-sheet hidden print:block bg-white p-8 max-w-4xl mx-auto text-black font-sans">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">Sales Order Identity Details</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">Sales Order Identity Details</h2>
             <div className="text-right">
               <span className="bg-slate-100 text-slate-800 px-2 py-0.5 font-black text-[9px] uppercase tracking-wider border rounded">SALES ORDER</span>
             </div>
@@ -534,7 +534,7 @@ export default function SalesOrderList() {
 
           <div className="grid grid-cols-2 gap-6 mb-6 text-sm">
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Order Information</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Order Information</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">PO Number: <span className="font-black text-gray-900">{printOrder.poNumber}</span></p>
                 <p className="text-xs font-bold text-gray-700">PO Date: <span className="font-medium text-gray-900">{printOrder.poDate}</span></p>
@@ -543,7 +543,7 @@ export default function SalesOrderList() {
               </div>
             </div>
             <div className="bg-slate-50 p-3 rounded border">
-              <h3 className="font-bold text-[#1e40af] uppercase text-[10px] tracking-wider mb-2">Customer & Delivery</h3>
+              <h3 className="font-bold text-[#ea580c] uppercase text-[10px] tracking-wider mb-2">Customer & Delivery</h3>
               <div className="space-y-1">
                 <p className="text-xs font-bold text-gray-700">Customer: <span className="font-black text-gray-900">{printOrder.customerName}</span></p>
                 <p className="text-xs font-bold text-gray-700">Site Address: <span className="font-medium text-gray-900">{printOrder.siteAddress || "N/A"}</span></p>
@@ -598,7 +598,7 @@ export default function SalesOrderList() {
               <div className="h-px bg-slate-200 my-2" />
               <div className="flex justify-between text-sm py-1">
                 <span className="font-black text-gray-900">Grand Total:</span>
-                <span className="font-black text-[#1e40af] text-base">₹{printOrder.totalAmount?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                <span className="font-black text-[#ea580c] text-base">₹{printOrder.totalAmount?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
@@ -611,7 +611,7 @@ export default function SalesOrderList() {
             <div className="text-right">
               <div className="h-px bg-gray-300 w-44 mb-2 ml-auto" />
               <p className="font-bold text-gray-500 text-[10px] uppercase">Authorized Signatory</p>
-              <p className="font-black text-[#1e40af] uppercase mt-1">Fortune Concrete</p>
+              <p className="font-black text-[#ea580c] uppercase mt-1">Fortune Concrete</p>
             </div>
           </div>
         </div>
@@ -622,7 +622,7 @@ export default function SalesOrderList() {
         <div className="print-sheet hidden print:block bg-white p-6 text-black w-full">
           <PrintHeader />
           <div className="flex justify-between items-center border-b pb-2 mb-4">
-            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#1e40af]">SALES ORDER REGISTER SCHEDULE</h2>
+            <h2 className="text-sm font-black text-gray-800 uppercase tracking-wider text-[#ea580c]">SALES ORDER REGISTER SCHEDULE</h2>
             <p className="text-[10px] font-bold text-gray-600">Printed Date: {format(new Date(), "dd/MM/yyyy HH:mm")}</p>
           </div>
 

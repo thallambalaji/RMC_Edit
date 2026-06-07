@@ -39,7 +39,7 @@ interface PumpDGData {
 export default function PumpDgList() {
   const { toast } = useToast();
   const { showFilters } = useTransportFilters();
-  const headerStyle = "bg-[#1e40af] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+  const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
   const [items, setItems] = useState<PumpDGData[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchName, setSearchName] = useState("");
@@ -98,11 +98,11 @@ export default function PumpDgList() {
             <title>Asset Receipt - ${item.name}</title>
             <style>
               body { font-family: 'Inter', sans-serif; padding: 40px; color: #1e293b; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; }
-              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 20px; }
-              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #1e3a8a; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 22px; font-weight: 900; color: #0f172a; }
               .company-info p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: bold; }
               .logo { height: 50px; width: 50px; }
-              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #00c0a5; }
+              .title { text-align: center; font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 30px 0; color: #ea580c; }
               .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
               .info-group { display: flex; flex-direction: column; }
               .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 3px; }
@@ -112,7 +112,7 @@ export default function PumpDgList() {
           <body onload="window.print(); window.close();">
             <div style="display: flex; height: 6px; width: 100%;">
               <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
               <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
             </div>
             <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -125,7 +125,7 @@ export default function PumpDgList() {
                     </linearGradient>
                     <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#06b6d4" />
-                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="60%" stop-color="#ea580c" />
                       <stop offset="100%" stop-color="#f97316" />
                     </linearGradient>
                   </defs>
@@ -243,8 +243,8 @@ export default function PumpDgList() {
             <title>Asset Report</title>
             <style>
               body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 20px; }
-              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #00c0a5; padding-bottom: 15px; margin-bottom: 20px; }
-              .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #1e3a8a; }
+              .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 15px; margin-bottom: 20px; }
+              .company-info h1 { margin: 0; font-size: 20px; font-weight: 900; color: #0f172a; }
               .company-info p { margin: 3px 0 0 0; font-size: 10px; color: #64748b; font-weight: bold; }
               .logo { height: 45px; width: 45px; }
               .title { text-align: center; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 20px; color: #0f172a; }
@@ -255,7 +255,7 @@ export default function PumpDgList() {
           <body onload="window.print(); window.close();">
             <div style="display: flex; height: 6px; width: 100%;">
               <div style="width: 40%; background: linear-gradient(to right, #a855f7, #ec4899, #db2777);"></div>
-              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #3b82f6);"></div>
+              <div style="width: 30%; background: linear-gradient(to right, #06b6d4, #ea580c);"></div>
               <div style="width: 30%; background: linear-gradient(to right, #f97316, #ef4444);"></div>
             </div>
             <div style="background-color: #131522; padding: 16px; display: flex; align-items: center; gap: 20px; color: white; border-radius: 0 0 8px 8px; margin-bottom: 20px;">
@@ -268,7 +268,7 @@ export default function PumpDgList() {
                     </linearGradient>
                     <linearGradient id="eGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stop-color="#06b6d4" />
-                      <stop offset="60%" stop-color="#3b82f6" />
+                      <stop offset="60%" stop-color="#ea580c" />
                       <stop offset="100%" stop-color="#f97316" />
                     </linearGradient>
                   </defs>
@@ -345,7 +345,7 @@ export default function PumpDgList() {
 
           <div className="flex items-center gap-2">
             <Link href="/transport/pump-dg/new">
-              <Button className="bg-[#1e40af] hover:bg-[#1d4ed8] text-white font-black px-6 h-10 shadow-sm active:scale-95 transition-all text-xs uppercase tracking-wider">
+              <Button className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black px-6 h-10 shadow-sm active:scale-95 transition-all text-xs uppercase tracking-wider">
                 <Plus className="h-4 w-4 mr-2" /> Add Pump & DG
               </Button>
             </Link>
@@ -380,7 +380,7 @@ export default function PumpDgList() {
                 <TableHead className={`${headerStyle} w-20`}>S.No</TableHead>
                 <TableHead className={`${headerStyle} text-left`}>Type of Pump</TableHead>
                 <TableHead className={`${headerStyle} text-left`}>Name</TableHead>
-                <TableHead className="bg-[#1e40af] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
+                <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter">ACTION</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -410,7 +410,7 @@ export default function PumpDgList() {
                     <TableCell className="font-bold text-slate-700 text-xs px-3 text-uppercase">
                       {item.type}
                     </TableCell>
-                    <TableCell className="font-extrabold text-[#1e40af] text-xs px-3">
+                    <TableCell className="font-extrabold text-[#ea580c] text-xs px-3">
                       {item.name}
                     </TableCell>
                     <TableCell className="px-4 text-center">
@@ -428,7 +428,7 @@ export default function PumpDgList() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleExportRow(item, idx, "copy")}
-                          className="h-7 w-7 text-cyan-600 hover:bg-cyan-50 rounded border border-cyan-200"
+                          className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                           title="Copy TSV"
                         >
                           <Copy className="h-3.5 w-3.5" />
@@ -446,7 +446,7 @@ export default function PumpDgList() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 text-blue-600 hover:bg-blue-50 rounded border border-blue-200"
+                            className="h-7 w-7 text-[#ea580c] hover:bg-orange-50/40 rounded border border-orange-200"
                             title="Edit"
                           >
                             <Edit className="h-3.5 w-3.5" />

@@ -13,7 +13,7 @@ export default function SalesHub() {
       href: "/sales/payment-follow-up",
       label: "Payment Follow Up",
       icon: Wallet,
-      color: "bg-blue-500 hover:bg-blue-600",
+      color: "bg-[#ea580c] hover:bg-[#ea580c]",
     },
     {
       href: "/sales/settings",

@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm build"
+  publish = "artifacts/buildrmc/dist/public"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_FLAGS = "--no-frozen-lockfile"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://rmc-production-4a71.up.railway.app/api/:splat"
+  status = 200

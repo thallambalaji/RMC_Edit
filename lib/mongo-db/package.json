@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/mongo-db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "mongoose": "^9.6.2",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
+  }
+}

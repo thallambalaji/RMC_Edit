@@ -25,11 +25,12 @@ import {
   Plus, 
   Trash2, 
   Loader2,
-  FlaskConical
+  FlaskConical,
+  Factory
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type TabId = "source" | "locality" | "material" | "grade";
+type TabId = "source" | "locality" | "material" | "grade" | "plant";
 
 interface TabConfig {
   id: TabId;
@@ -47,7 +48,7 @@ const tabs: TabConfig[] = [
     label: "Enquiry Source",
     icon: Sparkles,
     color: "text-[#ea580c]",
-    gradient: "from-cyan-500 to-[#ea580c]",
+    gradient: "from-orange-500 to-[#ea580c]",
     placeholder: "Enter Enquiry Source (e.g. Website, Walk-in)...",
     columnLabel: "Enquiry Source",
   },
@@ -55,8 +56,8 @@ const tabs: TabConfig[] = [
     id: "locality",
     label: "Locality",
     icon: MapPin,
-    color: "text-emerald-600",
-    gradient: "from-emerald-500 to-green-500",
+    color: "text-[#ea580c]",
+    gradient: "from-orange-500 to-[#ea580c]",
     placeholder: "Enter Locality / Area name...",
     columnLabel: "Locality Name",
   },
@@ -64,8 +65,8 @@ const tabs: TabConfig[] = [
     id: "material",
     label: "Material Type",
     icon: Layers,
-    color: "text-purple-600",
-    gradient: "from-purple-500 to-violet-500",
+    color: "text-[#ea580c]",
+    gradient: "from-orange-500 to-[#ea580c]",
     placeholder: "Enter Material Type...",
     columnLabel: "Material Type",
   },
@@ -73,10 +74,19 @@ const tabs: TabConfig[] = [
     id: "grade",
     label: "Concrete Grade",
     icon: FlaskConical,
-    color: "text-amber-600",
-    gradient: "from-amber-500 to-yellow-500",
+    color: "text-[#ea580c]",
+    gradient: "from-orange-500 to-[#ea580c]",
     placeholder: "Enter Concrete Grade (e.g. M-25, M-30)...",
     columnLabel: "Grade Name",
+  },
+  {
+    id: "plant",
+    label: "Plant Master",
+    icon: Factory,
+    color: "text-[#ea580c]",
+    gradient: "from-orange-500 to-[#ea580c]",
+    placeholder: "Enter Plant Name (e.g. MAIN YARD)...",
+    columnLabel: "Plant Name",
   },
 ];
 
@@ -118,7 +128,7 @@ export default function SalesMaster() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#ea580c] to-blue-500 shadow-lg shadow-cyan-200">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-[#ea580c] shadow-lg shadow-orange-200">
             <Database className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -188,10 +198,10 @@ export default function SalesMaster() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-0">
-                  <TableHead className={`text-white font-bold h-12 py-0 text-[10px] uppercase tracking-widest bg-gradient-to-r ${currentTab.gradient} border-0 w-24 text-center`}>
+                  <TableHead className={`text-white font-bold h-12 py-0 text-[10px] uppercase tracking-widest bg-gradient-to-r ${currentTab.gradient} border-r border-white w-24 text-center`}>
                     S/L No
                   </TableHead>
-                  <TableHead className={`text-white font-bold h-12 py-0 text-[10px] uppercase tracking-widest bg-gradient-to-r ${currentTab.gradient} border-0`}>
+                  <TableHead className={`text-white font-bold h-12 py-0 text-[10px] uppercase tracking-widest bg-gradient-to-r ${currentTab.gradient} border-r border-white px-6`}>
                     {currentTab.columnLabel}
                   </TableHead>
                   <TableHead className={`text-white font-bold h-12 py-0 text-[10px] uppercase tracking-widest bg-gradient-to-r ${currentTab.gradient} border-0 w-32 text-center`}>
@@ -240,7 +250,7 @@ export default function SalesMaster() {
                         <div className="flex items-center justify-center gap-2">
                           <button 
                             onClick={() => handleRemove(item.id)}
-                            className="p-2 rounded-xl text-rose-400 hover:text-white hover:bg-rose-500 transition-all duration-300 opacity-0 group-hover/row:opacity-100 shadow-sm"
+                            className="p-2 rounded-xl text-rose-500 bg-rose-50 hover:text-white hover:bg-rose-500 transition-all duration-300 shadow-sm"
                             title="Delete"
                           >
                             <Trash2 className="h-4 w-4" />

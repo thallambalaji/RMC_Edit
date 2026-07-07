@@ -1,13 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useRoute } from "wouter";
 import {
   useGetCustomers,
   useGetVehicles,
-  useGetEmployees,
   useGetMasters,
   useGetSalesOrders,
   getGetInvoicesQueryKey,
   useGetInvoices,
+  useUpdateInvoice,
 } from "@workspace/api-client-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -100,15 +100,24 @@ function numberToWordsINR(num: number): string {
   return words + " Only";
 }
 
-export default function AddInvoice() {
+export default function EditInvoice() {
+  const [match, params] = useRoute("/billing/edit/:id");
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const updateInvoice = useUpdateInvoice();
 
   const { data: invoices } = useGetInvoices({
     query: { queryKey: getGetInvoicesQueryKey() },
   });
+
+  const invoiceToEdit = useMemo(() => {
+    if (match && params?.id && invoices) {
+      return (invoices as any[]).find((inv: any) => String(inv.id || inv._id) === params.id);
+    }
+    return null;
+  }, [match, params?.id, invoices]);
 
   // Master Data Hook Queries
   const { data: customers } = useGetCustomers();
@@ -139,8 +148,8 @@ export default function AddInvoice() {
     }
   });
 
-  const plantsList = useMemo(() => (dbPlants || []).map((p: any) => p.name || p.id), [dbPlants]);
-  const blocksList = useMemo(() => (dbBlocks || []).map((b: any) => b.name || b.id), [dbBlocks]);
+  const plantsList = useMemo(() => (dbPlants || []).map((p: any) => p.name || p.id || p._id), [dbPlants]);
+  const blocksList = useMemo(() => (dbBlocks || []).map((b: any) => b.name || b.id || b._id), [dbBlocks]);
 
   const pumpsList = useMemo(() => {
     return (pumpDgs || [])
@@ -186,12 +195,54 @@ export default function AddInvoice() {
     }
   }, [plantsList, plant, loadedPlant]);
 
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
+
   useEffect(() => {
-    if (invoices && !invoiceNumber) {
-      const nextNum = getNextInvoiceNumber(invoices, FY_PREFIX);
-      setInvoiceNumber(nextNum);
+    if (invoiceToEdit && !isFormInitialized) {
+      setInvoiceNumber(invoiceToEdit.invoiceNumber || invoiceToEdit.invoiceNo || "");
+      setPlant(invoiceToEdit.plant || "FORTUNE CONCRETE");
+      setKmReading(String(invoiceToEdit.kmReading ?? ""));
+      setCustomerId(
+        typeof invoiceToEdit.customerId === 'object' && invoiceToEdit.customerId !== null 
+          ? (invoiceToEdit.customerId.id || invoiceToEdit.customerId._id)?.toString() || ""
+          : invoiceToEdit.customerId?.toString() || ""
+      );
+      if (invoiceToEdit.invoiceDate) {
+        try {
+          setInvoiceDate(new Date(invoiceToEdit.invoiceDate).toISOString().slice(0, 10));
+        } catch(e) {}
+      }
+      setBlock(invoiceToEdit.block || "");
+      setSiteName(invoiceToEdit.site || "");
+      setInvoiceTime(invoiceToEdit.invoiceTime || "");
+      setDriverName(invoiceToEdit.driverName || "");
+      setGrade(invoiceToEdit.grade || "");
+      setLoadedQuantity(String(invoiceToEdit.loadedQuantity ?? ""));
+      setLoadedGrade(invoiceToEdit.loadedGrade || "");
+      setRemark(invoiceToEdit.remarks || "");
+      setQuantity(String(invoiceToEdit.quantity ?? ""));
+      
+      if (invoiceToEdit.vehicleId) {
+        setVehicleId(
+          typeof invoiceToEdit.vehicleId === 'object' && invoiceToEdit.vehicleId !== null
+            ? (invoiceToEdit.vehicleId.id || invoiceToEdit.vehicleId._id)?.toString() || ""
+            : invoiceToEdit.vehicleId.toString()
+        );
+      } else if (invoiceToEdit.vehicleNo && vehicles) {
+        const v = vehicles.find((veh: any) => veh.registrationNo === invoiceToEdit.vehicleNo);
+        if (v) setVehicleId((v.id || v._id).toString());
+      }
+      
+      setPump(invoiceToEdit.pumpType || "");
+      setNetAmount(String(invoiceToEdit.baseRate ?? invoiceToEdit.netAmount ?? "0"));
+      setPumpCharge(String(invoiceToEdit.pumpCharge ?? "0"));
+      setTransportCharge(String(invoiceToEdit.transportCharge ?? "0"));
+      setLoadedPlant(invoiceToEdit.loadedPlant || "");
+      
+      // Mark form as initialized
+      setIsFormInitialized(true);
     }
-  }, [invoices, invoiceNumber]);
+  }, [invoiceToEdit, vehicles, isFormInitialized]);
 
   // Mock Upload state variables with premium tickmarks
   const [dcFile, setDcFile] = useState<string | null>(null);
@@ -203,7 +254,7 @@ export default function AddInvoice() {
   const [igstRate] = useState("0");
 
   const selectedCustomer = useMemo(
-    () => customers?.find((c) => String(c.id) === customerId) as any,
+    () => customers?.find((c: any) => String(c.id || c._id) === customerId) as any,
     [customers, customerId],
   );
 
@@ -221,9 +272,9 @@ export default function AddInvoice() {
     const gradeSet = new Set<string>();
     if (customerId && allSalesOrders) {
       const orders = (allSalesOrders as any[]).filter(
-        (o) => String(o.customerId) === customerId
+        (o: any) => String(o.customerId) === customerId
       );
-      orders.forEach((o) => {
+      orders.forEach((o: any) => {
         (o.items || []).forEach((item: any) => {
           if (item.grade) gradeSet.add(item.grade);
         });
@@ -236,45 +287,44 @@ export default function AddInvoice() {
     // Also include any master grades from the database
     if (dbGrades && dbGrades.length > 0) {
       dbGrades.forEach((g: any) => {
-        gradeSet.add(g.name || g.id);
+        gradeSet.add(g.name || g.id || g._id);
       });
     }
     
-    return Array.from(gradeSet).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    return Array.from(gradeSet).sort();
   }, [customerId, allSalesOrders, dbGrades]);
 
-  // When customer changes: auto-select first site, reset grade to first customer grade
-  useEffect(() => {
-    if (!customerId) {
-      setSiteName("");
-      setGrade("");
-      setLoadedGrade("");
-      return;
-    }
-    if (availableSites.length > 0) {
-      setSiteName(availableSites[0]);
-    } else {
-      setSiteName("");
-    }
-    // Do not auto-select grades; force manual selection
-    setGrade("");
-    setLoadedGrade("");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [customerId, availableSites.join(",")]);
+
 
   // Auto-fetch rate from sales order when customer, site name, or grade changes
   useEffect(() => {
+    // Skip auto-rate if we are still matching the original invoice's details
+    const origCustId = invoiceToEdit ? (
+      typeof invoiceToEdit.customerId === 'object' && invoiceToEdit.customerId !== null
+        ? (invoiceToEdit.customerId.id || invoiceToEdit.customerId._id)?.toString()
+        : invoiceToEdit.customerId?.toString()
+    ) : null;
+
+    if (
+      invoiceToEdit && 
+      customerId === origCustId && 
+      grade === invoiceToEdit.grade && 
+      siteName === invoiceToEdit.site
+    ) {
+      return;
+    }
+
     if (!customerId || !grade || !allSalesOrders) {
       setNetAmount("0");
       return;
     }
     const customerOrders = (allSalesOrders as any[]).filter(
-      (o) => String(o.customerId) === customerId
+      (o: any) => String(o.customerId) === customerId
     );
     
     // Attempt site-specific order match first
     const siteMatchingOrders = customerOrders.filter(
-      (o) => o.siteAddress && (
+      (o: any) => o.siteAddress && (
         o.siteAddress.toLowerCase().includes(siteName.toLowerCase()) || 
         siteName.toLowerCase().includes(o.siteAddress.toLowerCase())
       )
@@ -301,7 +351,7 @@ export default function AddInvoice() {
     }
     
     setNetAmount(rateFound || "0");
-  }, [customerId, siteName, grade, allSalesOrders]);
+  }, [customerId, siteName, grade, allSalesOrders, invoiceToEdit]);
 
   // Financial Calculations
   const totals = useMemo(() => {
@@ -393,7 +443,7 @@ export default function AddInvoice() {
         remark,
         invoiceTime,
         vehicleId: vehicleId || null,   // MongoDB ObjectId string or null
-        vehicleNo: vehicles?.find(v => String(v.id) === vehicleId)?.registrationNo || undefined,
+        vehicleNo: vehicles?.find((v: any) => String(v.id || v._id) === vehicleId)?.registrationNo || undefined,
         grade,
         loadedGrade,
         loadedQuantity: parseFloat(loadedQuantity) || 0,
@@ -411,29 +461,28 @@ export default function AddInvoice() {
         block: block || ""
       };
 
-      const response = await fetch("/api/invoices", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Server error ${response.status}`);
+      if (!invoiceToEdit) {
+        toast({ title: "Error", description: "Invoice to edit not found", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
       }
 
+      await updateInvoice.mutateAsync({
+        id: invoiceToEdit.id || invoiceToEdit._id,
+        data: payload as any
+      });
+
       toast({ 
-        title: "Invoice Submitted Successfully!", 
-        description: `Invoice ${invoiceNumber} has been saved to the database.` 
+        title: "Invoice Updated Successfully!", 
+        description: `Invoice ${invoiceNumber} has been updated in the database.` 
       });
       queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
       setLocation("/billing");
     } catch (err: any) {
       toast({
-        title: "Submission Failed",
-        description: err.message || "An error occurred while saving the invoice.",
-        variant: "destructive"
+        title: "Update Failed",
+        description: err.message || "Could not update invoice. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -443,6 +492,19 @@ export default function AddInvoice() {
   const labelStyle = "text-[11px] font-black text-gray-500 uppercase tracking-wider mb-1 block";
   const inputStyle = "h-8 text-xs border-gray-200 focus:ring-[#4f46e5] focus:border-[#4f46e5] rounded-md shadow-sm bg-white text-slate-800 font-medium w-full transition-shadow hover:border-slate-300";
 
+  const isDataLoading = !invoices || !customers || !vehicles || !sites || !allSalesOrders || !dbGrades || !dbPlants || !dbBlocks || !transportDrivers || !pumpDgs || !isFormInitialized;
+
+  if (isDataLoading) {
+    return (
+      <div className="flex min-h-[500px] w-full items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ea580c]"></div>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading invoice data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-6">
       <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
@@ -450,14 +512,14 @@ export default function AddInvoice() {
         {/* Header Breadcrumb */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Add New Invoice</h2>
+            <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Edit Invoice</h2>
             <div className="h-4 w-px bg-gray-300" />
             <nav className="text-[10px] text-muted-foreground flex items-center gap-1 uppercase tracking-tight font-bold">
               <Link href="/dashboard" className="hover:text-[#4f46e5] transition-colors">Home</Link>
               <ChevronRight className="h-2.5 w-2.5" />
               <Link href="/billing" className="hover:text-[#4f46e5] transition-colors">Billing</Link>
               <ChevronRight className="h-2.5 w-2.5" />
-              <span className="text-[#4f46e5]">Create Invoice</span>
+              <span className="text-[#4f46e5]">Edit Invoice</span>
             </nav>
           </div>
           <div className="flex items-center gap-1 text-[10px] bg-indigo-50 border border-indigo-100 text-[#4f46e5] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
@@ -482,11 +544,16 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Customer <span className="text-red-500">*</span></Label>
-              <Select value={customerId} onValueChange={setCustomerId}>
+              <Select key={`customer-${customerId}-${customers.length}`} value={customerId} onValueChange={(val) => {
+                setCustomerId(val);
+                setSiteName("");
+                setGrade("");
+                setLoadedGrade("");
+              }}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Customer" /></SelectTrigger>
                 <SelectContent className="text-xs">
                   {customers && customers.length > 0 ? (
-                    customers.map((c) => <SelectItem key={c.id} value={String(c.id)} className="text-xs">{c.name}</SelectItem>)
+                    customers.map((c: any) => <SelectItem key={c.id || c._id} value={String(c.id || c._id)} className="text-xs">{c.name}</SelectItem>)
                   ) : (
                     <SelectItem value="_empty" disabled className="text-xs">No customers found</SelectItem>
                   )}
@@ -497,7 +564,7 @@ export default function AddInvoice() {
             <div>
               <Label className={labelStyle}>Site Name <span className="text-red-500">*</span></Label>
               {availableSites.length > 0 ? (
-                <Select value={siteName} onValueChange={setSiteName}>
+                <Select key={`site-${siteName}-${availableSites.length}`} value={siteName} onValueChange={setSiteName}>
                   <SelectTrigger className={inputStyle}>
                     <SelectValue placeholder="Choose Site" />
                   </SelectTrigger>
@@ -519,7 +586,7 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Grade <span className="text-red-500">*</span></Label>
-              <Select value={customerGrades.includes(grade) ? grade : undefined} onValueChange={setGrade}>
+              <Select key={`g-${customerGrades.length}-${grade}`} value={customerGrades.includes(grade) ? grade : undefined} onValueChange={setGrade}>
                 <SelectTrigger className={inputStyle}>
                   <SelectValue placeholder="Select the Grade" />
                 </SelectTrigger>
@@ -535,7 +602,7 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Loaded Grade <span className="text-red-500">*</span></Label>
-              <Select value={customerGrades.includes(loadedGrade) ? loadedGrade : undefined} onValueChange={setLoadedGrade}>
+              <Select key={`lg-${customerGrades.length}-${loadedGrade}`} value={customerGrades.includes(loadedGrade) ? loadedGrade : undefined} onValueChange={setLoadedGrade}>
                 <SelectTrigger className={inputStyle}>
                   <SelectValue placeholder="Select the Loaded Grade" />
                 </SelectTrigger>
@@ -579,17 +646,17 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Vehicle No <span className="text-red-500">*</span></Label>
-              <Select value={vehicleId} onValueChange={setVehicleId}>
+              <Select key={`vehicle-${vehicleId}-${vehicles?.length || 0}`} value={vehicleId} onValueChange={setVehicleId}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Vehicle" /></SelectTrigger>
                 <SelectContent className="text-xs">
-                  {vehicles?.map(v => <SelectItem key={v.id} value={String(v.id)} className="text-xs">{v.registrationNo}</SelectItem>)}
+                  {vehicles?.map((v: any) => <SelectItem key={v.id || v._id} value={String(v.id || v._id)} className="text-xs">{v.registrationNo}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <Label className={labelStyle}>Pump Type</Label>
-              <Select value={pump} onValueChange={setPump}>
+              <Select key={`pump-${pump}-${pumpDgs?.length || 0}`} value={pump} onValueChange={setPump}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Pump" /></SelectTrigger>
                 <SelectContent className="text-xs">
                   {pumpsList.length > 0 ? (
@@ -615,7 +682,7 @@ export default function AddInvoice() {
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Block" /></SelectTrigger>
                 <SelectContent className="text-xs">
                   {blocksList.length > 0 ? (
-                    blocksList.map(b => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)
+                    blocksList.map((b: any) => <SelectItem key={b} value={b} className="text-xs">{b}</SelectItem>)
                   ) : (
                     <SelectItem value="_empty" disabled className="text-xs">No blocks configured</SelectItem>
                   )}
@@ -625,12 +692,12 @@ export default function AddInvoice() {
             
             <div>
               <Label className={labelStyle}>Driver Name</Label>
-              <Select value={driverName} onValueChange={setDriverName}>
+              <Select key={`driver-${driverName}-${drivers.length}`} value={driverName} onValueChange={setDriverName}>
                 <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Driver" /></SelectTrigger>
                 <SelectContent className="text-xs">
                   {drivers.length > 0 ? (
-                    drivers.map((d) => (
-                      <SelectItem key={d.id} value={d.name} className="text-xs">{d.name}</SelectItem>
+                    drivers.map((d: any) => (
+                      <SelectItem key={d.id || d._id} value={d.name} className="text-xs">{d.name}</SelectItem>
                     ))
                   ) : (
                     <SelectItem value="_empty" disabled className="text-xs">No drivers registered</SelectItem>
@@ -698,7 +765,7 @@ export default function AddInvoice() {
                   <SelectTrigger className={inputStyle}><SelectValue placeholder="Choose Plant" /></SelectTrigger>
                   <SelectContent className="text-xs">
                     {plantsList.length > 0 ? (
-                      plantsList.map(p => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)
+                      plantsList.map((p: any) => <SelectItem key={p} value={p} className="text-xs">{p}</SelectItem>)
                     ) : (
                       <SelectItem value="_empty" disabled className="text-xs">No plants configured</SelectItem>
                     )}
@@ -950,13 +1017,13 @@ export default function AddInvoice() {
             className="bg-[#4f46e5] hover:bg-indigo-700 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Invoice"}
+            {isSubmitting ? "Updating..." : "Update Invoice"}
           </Button>
           <Button 
             type="button" 
             variant="outline" 
             className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
-            onClick={handleClear}
+            onClick={() => setLocation("/billing")}
           >
             Cancel
           </Button>

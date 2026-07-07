@@ -33,6 +33,7 @@ import SalesSettingsHub from "@/pages/sales-settings-hub";
 import SalesMaster from "@/pages/sales-master";
 import Billing from "@/pages/billing";
 import AddInvoice from "@/pages/add-invoice";
+import EditInvoice from "@/pages/edit-invoice";
 import DeliveryChallans from "@/pages/dc";
 import Sales from "@/pages/sales";
 import QC from "@/pages/qc";
@@ -157,6 +158,7 @@ function Router() {
       <Route path="/customer-po/quotation"><ProtectedRoute component={QuotationSubHub} /></Route>
       <Route path="/customer-po"><ProtectedRoute component={CustomerPOHub} /></Route>
       <Route path="/billing/new"><ProtectedRoute component={AddInvoice} /></Route>
+      <Route path="/billing/edit/:id"><ProtectedRoute component={EditInvoice} /></Route>
       <Route path="/billing/sales-document/new"><ProtectedRoute component={AddSalesDocument} /></Route>
       <Route path="/billing/sales-document"><ProtectedRoute component={SalesDocumentList} /></Route>
       <Route path="/billing/sales-document-report"><ProtectedRoute component={SalesDocumentReport} /></Route>

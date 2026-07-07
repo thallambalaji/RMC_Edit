@@ -69,12 +69,7 @@ export default function AddDC() {
   const { data: sites } = useGetMasters("site");
   const { data: plants } = useGetMasters("plant");
 
-  useMemo(() => {
-    if (plants && plants.length > 0) {
-      if (!plant) setPlant(String(plants[0].name || plants[0].id || ""));
-      if (!loadedPlant) setLoadedPlant(String(plants[0].name || plants[0].id || ""));
-    }
-  }, [plants, plant, loadedPlant]);
+
 
   const gradesList = useMemo(() => {
     if (grades && grades.length > 0) {

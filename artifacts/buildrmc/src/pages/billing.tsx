@@ -842,7 +842,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
                               <Mail className="h-3.5 w-3.5 text-sky-500" />
                               <span>Send Mail</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleEditClick(inv)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
+                            <DropdownMenuItem onClick={() => setLocation(`/billing/edit/${inv.id}`)} className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded">
                               <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
                               <span>Edit Invoice</span>
                             </DropdownMenuItem>
@@ -920,7 +920,7 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
             <div className="flex items-center gap-2">
               {!isEditing ? (
                 <>
-                  <Button size="sm" variant="outline" onClick={() => handleEditClick(viewInv)} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">
+                  <Button size="sm" variant="outline" onClick={() => setLocation(`/billing/edit/${viewInv?.id}`)} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">
                     <Pencil className="h-3.5 w-3.5" /> Edit
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => handleCopySingle(viewInv)} className="h-8 text-xs font-bold border-white/20 text-white hover:bg-white/10 bg-transparent gap-1">

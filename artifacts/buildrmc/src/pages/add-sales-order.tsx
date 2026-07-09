@@ -241,9 +241,13 @@ export default function AddSalesOrder() {
                   <SelectValue placeholder={customersLoading ? "Loading..." : "Choose Customer"} />
                 </SelectTrigger>
                 <SelectContent>
-                  {customers?.map((c: any) => (
-                    <SelectItem key={c.id || c._id} value={String(c.id || c._id)} className="text-xs">{c.name}</SelectItem>
-                  ))}
+                  {customers && customers.length > 0 ? (
+                    customers.map((c: any) => (
+                      <SelectItem key={c.id || c._id} value={String(c.id || c._id)} className="text-xs">{c.name}</SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="_empty" disabled className="text-xs">No customers found</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>

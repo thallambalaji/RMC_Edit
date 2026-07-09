@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
+import { EditSalesOrderSheet } from "@/components/edit-sales-order-sheet";
+import { AddSalesOrderSheet } from "@/components/add-sales-order-sheet";
 import {
   Select,
   SelectContent,
@@ -46,6 +48,8 @@ export default function SalesOrderList() {
 
   // Selected Sales Order state specifically for Single Document Printing
   const [printOrder, setPrintOrder] = useState<any | null>(null);
+  const [editingOrder, setEditingOrder] = useState<any | null>(null);
+  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
 
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
@@ -265,11 +269,9 @@ export default function SalesOrderList() {
           </nav>
         </div>
         <div className="flex gap-2">
-          <Link href="/customer-po/sales-order/new">
-            <Button size="sm" className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
-              <Plus className="h-3.5 w-3.5" /> Add Sales Order
-            </Button>
-          </Link>
+          <Button size="sm" onClick={() => setIsAddSheetOpen(true)} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+            <Plus className="h-3.5 w-3.5" /> Add Sales Order
+          </Button>
           <Button
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
@@ -478,13 +480,7 @@ export default function SalesOrderList() {
                             <span>Copy Details</span>
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => {
-                              toast({
-                                title: "Edit restricted",
-                                description: `Approved Sales Order ${order.poNumber} is locked.`,
-                                variant: "destructive"
-                              });
-                            }}
+                            onClick={() => setEditingOrder(order)}
                             className="gap-2 cursor-pointer hover:bg-slate-50 p-2 rounded"
                           >
                             <Pencil className="h-3.5 w-3.5 text-[#ea580c]" />
@@ -661,6 +657,16 @@ export default function SalesOrderList() {
         </div>
       )}
 
+      <EditSalesOrderSheet 
+        isOpen={!!editingOrder} 
+        onClose={() => setEditingOrder(null)} 
+        order={editingOrder} 
+      />
+
+      <AddSalesOrderSheet
+        isOpen={isAddSheetOpen}
+        onClose={() => setIsAddSheetOpen(false)}
+      />
     </div>
   );
 }

@@ -271,6 +271,7 @@ export default function AddCustomer() {
              <Link href="/customer-po/customer">
                 <Button type="button" variant="outline" className="border-orange-100/50 text-[#ea580c] hover:bg-orange-50/40 font-black text-[9px] px-3 h-6 uppercase tracking-wider cursor-pointer">Customer List</Button>
              </Link>
+             <Button type="button" variant="outline" onClick={() => window.history.back()} className="border-gray-200 text-gray-600 hover:bg-gray-100 font-black text-[9px] px-3 h-6 uppercase tracking-wider cursor-pointer">Cancel</Button>
              <Button type="submit" disabled={isPending} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-4 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
                 {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} Save Customer
              </Button>

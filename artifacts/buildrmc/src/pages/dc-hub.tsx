@@ -245,17 +245,17 @@ export default function DCHub() {
   return (
     <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
-        <div className="p-4 bg-gray-50 border-b">
-          <h3 className="font-bold text-gray-800 text-sm">DC Navigation</h3>
+      <div className="w-60 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
+        <div className="p-4 bg-slate-50/50 border-b border-slate-100">
+          <h3 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">DC Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
           <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
-            <AccordionItem value="dc-ops" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+            <AccordionItem value="dc-ops" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                 <div className="flex items-center gap-2"><Truck className="h-4 w-4 text-[#ea580c]"/> DC Operations</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/dc/list"><div className={linkClass("/dc/list")}>DC List</div></Link>
                   <Link href="/dc/report"><div className={linkClass("/dc/report")}>DC Report</div></Link>
@@ -263,11 +263,11 @@ export default function DCHub() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="weighment" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+            <AccordionItem value="weighment" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                 <div className="flex items-center gap-2"><Scale className="h-4 w-4 text-[#ea580c]"/> Weighment</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/dc/weighment/new"><div className={linkClass("/dc/weighment/new")}>Add Weighment</div></Link>
                   <Link href="/dc/weighment/list"><div className={linkClass("/dc/weighment/list")}>Weighment List</div></Link>

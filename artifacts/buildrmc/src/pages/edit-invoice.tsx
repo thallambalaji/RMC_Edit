@@ -1023,7 +1023,7 @@ export default function EditInvoice() {
             type="button" 
             variant="outline" 
             className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
-            onClick={() => setLocation("/billing")}
+            onClick={() => window.history.back()}
           >
             Cancel
           </Button>

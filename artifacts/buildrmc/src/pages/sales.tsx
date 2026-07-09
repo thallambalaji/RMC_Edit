@@ -222,17 +222,17 @@ export default function Sales() {
   return (
     <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white">
       {/* Sidebar with Accordion Navigation */}
-      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
-        <div className="p-4 bg-gray-50 border-b">
-          <h3 className="font-bold text-gray-800 text-sm">Sales Navigation</h3>
+      <div className="w-60 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
+        <div className="p-4 bg-slate-50/50 border-b border-slate-100">
+          <h3 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">Sales Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
           <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
-            <AccordionItem value="sales-enquiry" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+            <AccordionItem value="sales-enquiry" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                 <div className="flex items-center gap-2"><ClipboardList className="h-4 w-4 text-[#ea580c]"/> Sales Enquiry</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/enquiry/new"><div className={linkClass("/sales/enquiry/new")}>Add Enquiry</div></Link>
                   <Link href="/sales/enquiry/list"><div className={linkClass("/sales/enquiry/list")}>Enquiry List</div></Link>
@@ -241,11 +241,11 @@ export default function Sales() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="payment-followup" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+            <AccordionItem value="payment-followup" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                 <div className="flex items-center gap-2"><Wallet className="h-4 w-4 text-amber-500"/> Payment Follow Up</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/payment-follow-up/new"><div className={linkClass("/sales/payment-follow-up/new")}>Add Payment Follow Up</div></Link>
                   <Link href="/sales/payment-follow-up/list"><div className={linkClass("/sales/payment-follow-up/list")}>Payment Follow Up List</div></Link>
@@ -254,11 +254,11 @@ export default function Sales() {
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="sales-settings" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
+            <AccordionItem value="sales-settings" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
                 <div className="flex items-center gap-2"><Settings className="h-4 w-4 text-gray-600"/> Sales Settings</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
+              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/settings/master"><div className={linkClass("/sales/settings/master")}>Sales Master</div></Link>
                   <Link href="/sales/settings"><div className={linkClass("/sales/settings")}>Settings Hub</div></Link>

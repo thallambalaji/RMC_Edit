@@ -354,11 +354,9 @@ export default function AddScheduling() {
             </Button>
             <Button
               type="button"
-              onClick={handleClear}
+              onClick={() => window.history.back()}
               className="bg-rose-500 hover:bg-rose-600 text-white px-8 h-11 font-bold"
-            >
-              Clear
-            </Button>
+            >Cancel</Button>
           </div>
         </form>
 

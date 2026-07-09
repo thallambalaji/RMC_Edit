@@ -347,7 +347,7 @@ export default function AddPaymentFollowUp() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={handleCancel}
+                onClick={() => window.history.back()}
                 className="px-10 h-11 rounded-xl border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 font-semibold text-gray-600"
               >
                 Cancel

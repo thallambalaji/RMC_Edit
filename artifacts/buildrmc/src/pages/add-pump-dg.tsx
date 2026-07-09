@@ -135,7 +135,7 @@ export default function AddPumpDg() {
               </Button>
               <Button
                 type="button"
-                onClick={() => setLocation("/transport/pump-dg/list")}
+                onClick={() => window.history.back()}
                 className="bg-white hover:bg-gray-50 text-gray-700 border border-slate-200 font-bold text-xs h-9 px-4 rounded transition-all active:scale-95 shadow-sm"
               >
                 Cancel

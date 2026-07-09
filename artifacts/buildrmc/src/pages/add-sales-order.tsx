@@ -404,23 +404,12 @@ export default function AddSalesOrder() {
               {gradeRows.map((row) => (
                 <div key={row.id} className="grid grid-cols-12 border-b last:border-0 border-gray-100 hover:bg-gray-50/30 transition-colors items-center">
                   <div className="col-span-5 p-2">
-                    <Select
-                      value={gradesList.includes(row.grade) ? row.grade : undefined}
-                      onValueChange={(v) => updateRow(row.id, "grade", v)}
-                    >
-                      <SelectTrigger className="h-8 text-xs border-gray-200 w-full">
-                        <SelectValue placeholder="Select the Grade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {gradesList.length > 0 ? (
-                          gradesList.map(g => (
-                            <SelectItem key={g} value={g} className="text-xs">{g}</SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="_empty" disabled className="text-xs">No grades configured</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <Input 
+                      value={row.grade} 
+                      onChange={(e) => updateRow(row.id, "grade", e.target.value)} 
+                      placeholder="Enter Grade" 
+                      className="h-8 text-xs border-gray-200 font-medium" 
+                    />
                   </div>
                   <div className="col-span-3 p-2 border-l border-gray-50">
                     <Input 
@@ -451,7 +440,7 @@ export default function AddSalesOrder() {
           <div className="flex gap-4 mt-6 justify-end">
             <Button 
               type="button" 
-              onClick={handleCancel} 
+              onClick={() => window.history.back()} 
               variant="outline"
               size="sm"
               className="px-6 h-9 text-xs font-bold uppercase tracking-wider text-gray-500 border-gray-200"

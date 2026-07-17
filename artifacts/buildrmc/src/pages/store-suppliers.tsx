@@ -170,8 +170,18 @@ export default function StoreSuppliers() {
     }
     setIsValidating(true);
     try {
-      await customFetch(`/api/verify-gstin/${gstin.trim()}`);
-      toast({ title: "GSTIN validated", description: "The GSTIN format is valid." });
+      const data = await customFetch(`/api/verify-gstin/${gstin.trim()}`) as any;
+      if (data.valid) {
+        setPan(data.pan || pan);
+        setAddress(data.address || address);
+        setName(data.tradeName || data.legalName || name);
+        toast({
+          title: "GSTIN verified",
+          description: `Registered to: ${data.legalName || data.tradeName || "N/A"} | State: ${data.state} | Status: ${data.status || "Active"}`
+        });
+      } else {
+        toast({ title: "GSTIN validation failed", description: data.error || "Invalid GSTIN.", variant: "destructive" });
+      }
     } catch (error: any) {
       toast({ title: "GSTIN validation failed", description: error?.message || "Could not validate GSTIN.", variant: "destructive" });
     } finally {

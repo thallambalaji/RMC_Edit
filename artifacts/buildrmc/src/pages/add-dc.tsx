@@ -496,7 +496,7 @@ export default function AddDC() {
             <Button className="bg-[#ea580c] hover:bg-[#ea580c] text-white px-8 h-10 font-bold" onClick={handleSave} disabled={createDC.isPending}>
               {createDC.isPending ? "Saving..." : "Save DC"}
             </Button>
-            <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8 h-10 font-bold" onClick={handleClear}>Clear</Button>
+            <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8 h-10 font-bold" onClick={() => window.history.back()}>Cancel</Button>
           </div>
         </div>
 

@@ -382,9 +382,8 @@ export default function AddWeighment() {
               <Button onClick={handleSave} className="btn-primary px-10 h-11 gap-2 shadow-lg shadow-orange-500/20">
                 <Save className="h-4 w-4" /> SAVE WEIGHMENT
               </Button>
-              <Button onClick={handleClear} variant="outline" className="bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 px-10 h-11 gap-2 transition-all font-black text-[10px] uppercase tracking-widest">
-                <RotateCcw className="h-4 w-4" /> CLEAR
-              </Button>
+              <Button onClick={() => window.history.back()} variant="outline" className="bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 px-10 h-11 gap-2 transition-all font-black text-[10px] uppercase tracking-widest">
+                <RotateCcw className="h-4 w-4" />Cancel</Button>
             </div>
           </div>
         </div>

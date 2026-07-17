@@ -951,11 +951,19 @@ export default function AddInvoice() {
           >
             {isSubmitting ? "Submitting..." : "Submit Invoice"}
           </Button>
+<<<<<<< HEAD
           <Button
             type="button"
             variant="outline"
             className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100"
             onClick={handleClear}
+=======
+          <Button 
+            type="button" 
+            variant="outline" 
+            className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
+            onClick={() => window.history.back()}
+>>>>>>> 03bc0953438cb311f7175a0d80d6bb8c2fb92a92
           >
             Cancel
           </Button>

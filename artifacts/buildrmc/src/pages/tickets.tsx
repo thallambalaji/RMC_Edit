@@ -274,7 +274,7 @@ export default function Tickets() {
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} 
                   SAVE TICKET
                 </Button>
-                <Button onClick={handleCancel} variant="outline" className="flex-1 bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 h-11 gap-2 transition-all font-bold text-[10px]">
+                <Button onClick={() => window.history.back()} variant="outline" className="flex-1 bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 h-11 gap-2 transition-all font-bold text-[10px]">
                   <X className="h-4 w-4" /> CANCEL
                 </Button>
               </div>

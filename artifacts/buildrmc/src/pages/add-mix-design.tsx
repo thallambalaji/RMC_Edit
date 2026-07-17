@@ -195,11 +195,10 @@ export default function AddMixDesign() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={handleClear}
+                  onClick={() => window.history.back()}
                   className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-black px-4 h-11 shadow-md shadow-red-500/20 active:scale-95 transition-all text-xs uppercase tracking-wider"
                 >
-                  <RotateCcw className="h-4 w-4 mr-1.5" /> Clear
-                </Button>
+                  <RotateCcw className="h-4 w-4 mr-1.5" />Cancel</Button>
                 <Link href="/qc/mix-design/list">
                   <Button
                     type="button"

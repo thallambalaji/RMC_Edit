@@ -449,7 +449,7 @@ export function EditSalesOrderSheet({ isOpen, onClose, order }: EditSalesOrderSh
           <div className="flex w-full justify-end gap-3">
             <Button 
               type="button" 
-              onClick={onClose} 
+              onClick={() => window.history.back()} 
               variant="outline"
               size="sm"
               className="px-6 h-9 text-xs font-bold uppercase tracking-wider text-gray-500 border-gray-200"

@@ -241,7 +241,7 @@ export default function AddCubeTest() {
                           </div>
                           <div className="flex gap-3 pt-4">
                             <Button type="button" onClick={handleManualSave} className="bg-[#10b981] hover:bg-[#059669] text-white font-black flex-1 h-12 uppercase text-xs tracking-wider">Save Changes</Button>
-                            <Button type="button" variant="destructive" onClick={() => setIsManualModalOpen(false)} className="font-black flex-1 h-12 uppercase text-xs tracking-wider">Cancel</Button>
+                            <Button type="button" variant="destructive" onClick={() => window.history.back()} className="font-black flex-1 h-12 uppercase text-xs tracking-wider">Cancel</Button>
                           </div>
                         </div>
                       </DialogContent>
@@ -474,7 +474,7 @@ export default function AddCubeTest() {
 
             <div className="mt-12 flex justify-center gap-4">
               <Button type="submit" className="bg-[#00bcd4] hover:bg-[#00acc1] text-white font-black px-12 h-12 uppercase tracking-widest text-xs shadow-lg shadow-teal-500/20">Submit</Button>
-              <Button type="button" variant="outline" onClick={() => setLocation("/qc/cube-test/list")} className="border-slate-200 text-slate-400 font-black px-12 h-12 uppercase tracking-widest text-xs">Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => window.history.back()} className="border-slate-200 text-slate-400 font-black px-12 h-12 uppercase tracking-widest text-xs">Cancel</Button>
             </div>
           </CardContent>
         </Card>

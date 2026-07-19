@@ -156,6 +156,7 @@ export default function AddCustomer() {
         state: data.state || prev.state,
         legalName: data.legalName || prev.legalName,
         name: prev.name || data.tradeName || data.legalName || prev.name,
+        address: data.address || prev.address,
       }));
 
       setGstinVerifiedData(data);

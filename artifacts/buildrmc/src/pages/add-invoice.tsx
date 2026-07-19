@@ -21,19 +21,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  ChevronRight, 
-  Settings2, 
-  User, 
-  MapPin, 
-  Package, 
-  Calculator, 
-  ReceiptText, 
-  Wallet, 
-  Upload, 
-  CheckCircle2, 
-  Sparkles, 
-  Trash2 
+import {
+  ChevronRight,
+  Settings2,
+  User,
+  MapPin,
+  Package,
+  Calculator,
+  ReceiptText,
+  Wallet,
+  Upload,
+  CheckCircle2,
+  Sparkles,
+  Trash2
 } from "lucide-react";
 
 
@@ -229,17 +229,17 @@ export default function AddInvoice() {
         });
       });
     }
-    
+
     // Always provide standard concrete grades as a baseline
     ["M10", "M15", "M20", "M25", "M30", "M35", "M40", "M45", "M50"].forEach(g => gradeSet.add(g));
-    
+
     // Also include any master grades from the database
     if (dbGrades && dbGrades.length > 0) {
       dbGrades.forEach((g: any) => {
         gradeSet.add(g.name || g.id);
       });
     }
-    
+
     return Array.from(gradeSet).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
   }, [customerId, allSalesOrders, dbGrades]);
 
@@ -259,7 +259,7 @@ export default function AddInvoice() {
     // Do not auto-select grades; force manual selection
     setGrade("");
     setLoadedGrade("");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customerId, availableSites.join(",")]);
 
   // Auto-fetch rate from sales order when customer, site name, or grade changes
@@ -271,15 +271,15 @@ export default function AddInvoice() {
     const customerOrders = (allSalesOrders as any[]).filter(
       (o) => String(o.customerId) === customerId
     );
-    
+
     // Attempt site-specific order match first
     const siteMatchingOrders = customerOrders.filter(
       (o) => o.siteAddress && (
-        o.siteAddress.toLowerCase().includes(siteName.toLowerCase()) || 
+        o.siteAddress.toLowerCase().includes(siteName.toLowerCase()) ||
         siteName.toLowerCase().includes(o.siteAddress.toLowerCase())
       )
     );
-    
+
     let rateFound = "";
     for (const order of siteMatchingOrders) {
       const match = (order.items || []).find((item: any) => item.grade === grade);
@@ -288,7 +288,7 @@ export default function AddInvoice() {
         break;
       }
     }
-    
+
     // Fallback to any order of the customer with this grade
     if (!rateFound) {
       for (const order of customerOrders) {
@@ -299,7 +299,7 @@ export default function AddInvoice() {
         }
       }
     }
-    
+
     setNetAmount(rateFound || "0");
   }, [customerId, siteName, grade, allSalesOrders]);
 
@@ -319,7 +319,7 @@ export default function AddInvoice() {
     const tax = cgstAmt + sgstAmt + igstAmt;
     const net = Math.round(gross + tax);
     const roundOff = net - (gross + tax);
-    
+
     const loadedQty = parseFloat(loadedQuantity) || 0;
     const balanceQty = Math.max(0, loadedQty - qty);
 
@@ -423,9 +423,9 @@ export default function AddInvoice() {
         throw new Error(errData.error || `Server error ${response.status}`);
       }
 
-      toast({ 
-        title: "Invoice Submitted Successfully!", 
-        description: `Invoice ${invoiceNumber} has been saved to the database.` 
+      toast({
+        title: "Invoice Submitted Successfully!",
+        description: `Invoice ${invoiceNumber} has been saved to the database.`
       });
       queryClient.invalidateQueries({ queryKey: getGetInvoicesQueryKey() });
       setLocation("/billing");
@@ -446,7 +446,7 @@ export default function AddInvoice() {
   return (
     <div className="pb-6">
       <form onSubmit={handleSubmit} className="max-w-[1500px] mx-auto bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
-        
+
         {/* Header Breadcrumb */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50/50">
           <div className="flex items-center gap-3">
@@ -467,7 +467,7 @@ export default function AddInvoice() {
 
         {/* Form Body Fields */}
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-5">
-          
+
           {/* Column 1 */}
           <div className="space-y-4">
             <div>
@@ -479,7 +479,7 @@ export default function AddInvoice() {
                 className={`${inputStyle} bg-slate-50 cursor-not-allowed select-none`}
               />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Customer <span className="text-red-500">*</span></Label>
               <Select value={customerId} onValueChange={setCustomerId}>
@@ -490,10 +490,10 @@ export default function AddInvoice() {
                   ) : (
                     <SelectItem value="_empty" disabled className="text-xs">No customers found</SelectItem>
                   )}
-                </SelectContent>
-              </Select>
-            </div>
-            
+                </SelectContent >
+              </Select >
+            </div >
+
             <div>
               <Label className={labelStyle}>Site Name <span className="text-red-500">*</span></Label>
               {availableSites.length > 0 ? (
@@ -516,7 +516,7 @@ export default function AddInvoice() {
                 />
               )}
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Grade <span className="text-red-500">*</span></Label>
               <Select value={customerGrades.includes(grade) ? grade : undefined} onValueChange={setGrade}>
@@ -531,8 +531,8 @@ export default function AddInvoice() {
                   )}
                 </SelectContent>
               </Select>
-            </div>
-            
+            </div >
+
             <div>
               <Label className={labelStyle}>Loaded Grade <span className="text-red-500">*</span></Label>
               <Select value={customerGrades.includes(loadedGrade) ? loadedGrade : undefined} onValueChange={setLoadedGrade}>
@@ -547,36 +547,36 @@ export default function AddInvoice() {
                   )}
                 </SelectContent>
               </Select>
-            </div>
-            
+            </div >
+
             <div>
               <Label className={labelStyle}>Quantity (m³) <span className="text-red-500">*</span></Label>
               <Input type="number" step="0.01" value={quantity} onChange={e => setQuantity(e.target.value)} className={inputStyle} />
             </div>
-          </div>
+          </div >
 
           {/* Column 2 */}
-          <div className="space-y-4">
+          < div className="space-y-4" >
             <div>
               <Label className={labelStyle}>Invoice Date <span className="text-red-500">*</span></Label>
               <Input type="date" value={invoiceDate} onChange={e => setInvoiceDate(e.target.value)} className={inputStyle} />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Invoice Time <span className="text-red-500">*</span></Label>
               <Input type="time" step="1" value={invoiceTime} onChange={e => setInvoiceTime(e.target.value)} className={inputStyle} />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Loaded Quantity <span className="text-red-500">*</span></Label>
               <Input type="number" step="0.01" value={loadedQuantity} onChange={e => setLoadedQuantity(e.target.value)} className={inputStyle} />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Remark / Notes</Label>
               <Input value={remark} onChange={e => setRemark(e.target.value)} className={inputStyle} placeholder="Enter description details..." />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Vehicle No <span className="text-red-500">*</span></Label>
               <Select value={vehicleId} onValueChange={setVehicleId}>
@@ -586,7 +586,7 @@ export default function AddInvoice() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Pump Type</Label>
               <Select value={pump} onValueChange={setPump}>
@@ -600,15 +600,15 @@ export default function AddInvoice() {
                 </SelectContent>
               </Select>
             </div>
-          </div>
+          </div >
 
           {/* Column 3 */}
-          <div className="space-y-4">
+          < div className="space-y-4" >
             <div>
               <Label className={labelStyle}>KM Reading</Label>
               <Input type="number" value={kmReading} onChange={e => setKmReading(e.target.value)} className={inputStyle} placeholder="Odometer reading" />
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Block (Optional)</Label>
               <Select value={block} onValueChange={setBlock}>
@@ -622,7 +622,7 @@ export default function AddInvoice() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <Label className={labelStyle}>Driver Name</Label>
               <Select value={driverName} onValueChange={setDriverName}>
@@ -638,29 +638,28 @@ export default function AddInvoice() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="pt-4">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setShowAdvance(!showAdvance)} 
-                className={`w-full text-xs h-9 px-4 font-black uppercase tracking-wider flex items-center justify-center gap-2 border shadow-sm transition-all ${
-                  showAdvance 
-                    ? "bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 hover:text-white" 
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAdvance(!showAdvance)}
+                className={`w-full text-xs h-9 px-4 font-black uppercase tracking-wider flex items-center justify-center gap-2 border shadow-sm transition-all ${showAdvance
+                    ? "bg-indigo-600 border-indigo-600 text-white hover:bg-indigo-700 hover:text-white"
                     : "bg-slate-100 border-gray-200 text-slate-700 hover:bg-slate-200"
-                }`}
+                  }`}
               >
-                <Settings2 className="w-4 h-4" /> 
+                <Settings2 className="w-4 h-4" />
                 {showAdvance ? "Hide Advanced Options" : "Show Advanced Options"}
               </Button>
             </div>
-          </div>
-        </div>
+          </div >
+        </div >
 
         {/* ADVANCED EXPANDABLE OPTIONS BLOCK (Files Upload & Advanced Settings) */}
-        <div className={`transition-all duration-300 ease-in-out border-t overflow-hidden ${
-          showAdvance ? "max-h-[1000px] opacity-100 bg-slate-50/40 p-6" : "max-h-0 opacity-0 p-0 border-transparent pointer-events-none"
-        }`}>
+        < div className={`transition-all duration-300 ease-in-out border-t overflow-hidden ${showAdvance ? "max-h-[1000px] opacity-100 bg-slate-50/40 p-6" : "max-h-0 opacity-0 p-0 border-transparent pointer-events-none"
+          }`
+        }>
           <div className="max-w-[1400px] mx-auto space-y-6">
             <h3 className="text-xs font-black text-[#4f46e5] uppercase tracking-widest flex items-center gap-2 mb-4 border-b border-gray-200 pb-2">
               <Settings2 className="w-4 h-4" /> Advanced Billing Configurations & Upload Attachments
@@ -670,24 +669,24 @@ export default function AddInvoice() {
               {/* Pump Charge */}
               <div className="space-y-1">
                 <Label className={labelStyle}>Pump Charge (₹)</Label>
-                <Input 
-                  type="number" 
-                  value={pumpCharge} 
-                  onChange={(e) => setPumpCharge(e.target.value)} 
-                  className={inputStyle} 
-                  placeholder="0" 
+                <Input
+                  type="number"
+                  value={pumpCharge}
+                  onChange={(e) => setPumpCharge(e.target.value)}
+                  className={inputStyle}
+                  placeholder="0"
                 />
               </div>
 
               {/* Transport Charge */}
               <div className="space-y-1">
                 <Label className={labelStyle}>Transport Charge (₹)</Label>
-                <Input 
-                  type="number" 
-                  value={transportCharge} 
-                  onChange={(e) => setTransportCharge(e.target.value)} 
-                  className={inputStyle} 
-                  placeholder="0" 
+                <Input
+                  type="number"
+                  value={transportCharge}
+                  onChange={(e) => setTransportCharge(e.target.value)}
+                  className={inputStyle}
+                  placeholder="0"
                 />
               </div>
 
@@ -709,12 +708,12 @@ export default function AddInvoice() {
 
             {/* Upload Attachment Fields */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-              
+
               {/* Delivery Challan File */}
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
                 <Label className={`${labelStyle} text-[#4f46e5]`}>Delivery Challan (DC) Document</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload copy of original signed DC paper</p>
-                
+
                 {dcFile ? (
                   <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
                     <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
@@ -727,8 +726,8 @@ export default function AddInvoice() {
                   </div>
                 ) : (
                   <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       accept=".pdf,.png,.jpg,.jpeg"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={(e) => {
@@ -750,7 +749,7 @@ export default function AddInvoice() {
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
                 <Label className={`${labelStyle} text-[#4f46e5]`}>Weighment Ticket Slip</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload authorized weighbridge receipts</p>
-                
+
                 {weighmentFile ? (
                   <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
                     <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
@@ -763,8 +762,8 @@ export default function AddInvoice() {
                   </div>
                 ) : (
                   <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       accept=".pdf,.png,.jpg,.jpeg"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={(e) => {
@@ -786,7 +785,7 @@ export default function AddInvoice() {
               <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm relative">
                 <Label className={`${labelStyle} text-[#4f46e5]`}>Annexure statement Document</Label>
                 <p className="text-[10px] text-slate-400 mb-3">Upload additional supporting calculations</p>
-                
+
                 {annexureFile ? (
                   <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-2.5 rounded-lg">
                     <div className="flex items-center gap-2 text-emerald-700 text-xs font-bold">
@@ -799,8 +798,8 @@ export default function AddInvoice() {
                   </div>
                 ) : (
                   <div className="relative group border-2 border-dashed border-gray-200 hover:border-indigo-400 rounded-lg p-4 text-center cursor-pointer transition-colors bg-slate-50/50">
-                    <input 
-                      type="file" 
+                    <input
+                      type="file"
                       accept=".pdf,.png,.jpg,.jpeg"
                       className="absolute inset-0 opacity-0 cursor-pointer"
                       onChange={(e) => {
@@ -820,15 +819,15 @@ export default function AddInvoice() {
 
             </div>
           </div>
-        </div>
+        </div >
 
         {/* Summary Section Redesign */}
-        <div className="mt-4 px-6 pb-6">
+        < div className="mt-4 px-6 pb-6" >
           <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2 border-gray-100">
-            <ReceiptText className="w-4 h-4 text-[#4f46e5]"/> Invoice Calculations & Preview
+            <ReceiptText className="w-4 h-4 text-[#4f46e5]" /> Invoice Calculations & Preview
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            
+
             {/* Customer & Site Details */}
             <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
               <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2 border-b border-gray-100 pb-2">
@@ -868,7 +867,7 @@ export default function AddInvoice() {
                 </div>
                 <div className="bg-gray-50 rounded-lg p-3">
                   <p className="text-[10px] text-gray-400 font-semibold uppercase mb-1">Rate / m³</p>
-                  <p className="text-sm font-bold text-gray-800">₹{totals.rate.toLocaleString("en-IN", {minimumFractionDigits: 2})}</p>
+                  <p className="text-sm font-bold text-gray-800">₹{totals.rate.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</p>
                 </div>
                 <div className="bg-orange-50 rounded-lg p-3 border border-orange-100">
                   <p className="text-[10px] text-orange-400 font-semibold uppercase mb-1">Balance Qty</p>
@@ -885,52 +884,52 @@ export default function AddInvoice() {
               <div className="space-y-2.5 text-xs">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 font-semibold">Gross Price</span>
-                  <span className="font-bold text-gray-800">₹{totals.gross.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  <span className="font-bold text-gray-800">₹{totals.gross.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
-                
+
                 {parseFloat(pumpCharge) > 0 && (
                   <div className="flex justify-between items-center text-[11px] text-indigo-600 font-semibold">
                     <span>Pump Charge (+)</span>
-                    <span>₹{parseFloat(pumpCharge).toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                    <span>₹{parseFloat(pumpCharge).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 )}
 
                 {parseFloat(transportCharge) > 0 && (
                   <div className="flex justify-between items-center text-[11px] text-indigo-600 font-semibold">
                     <span>Transport Charge (+)</span>
-                    <span>₹{parseFloat(transportCharge).toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                    <span>₹{parseFloat(transportCharge).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between items-center text-[11px]">
                   <span className="text-gray-500">CGST ({cgstRate}%)</span>
-                  <span className="font-medium text-gray-700">₹{totals.cgstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  <span className="font-medium text-gray-700">₹{totals.cgstAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between items-center text-[11px]">
                   <span className="text-gray-500">SGST ({sgstRate}%)</span>
-                  <span className="font-medium text-gray-700">₹{totals.sgstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                  <span className="font-medium text-gray-700">₹{totals.sgstAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                 </div>
                 {Number(igstRate) > 0 && (
                   <div className="flex justify-between items-center text-[11px]">
                     <span className="text-gray-500">IGST ({igstRate}%)</span>
-                    <span className="font-medium text-gray-700">₹{totals.igstAmt.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                    <span className="font-medium text-gray-700">₹{totals.igstAmt.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 )}
                 <div className="flex justify-between items-center text-[11px]">
                   <span className="text-gray-500">Round Off</span>
                   <span className="font-medium text-gray-700">{totals.roundOff > 0 ? "+" : ""}₹{totals.roundOff.toFixed(2)}</span>
                 </div>
-                
+
                 <div className="pt-3 mt-3 border-t border-dashed border-gray-300">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-extrabold text-gray-800">Net Price</span>
-                    <span className="text-xl font-black text-[#4f46e5]">₹{totals.net.toLocaleString("en-IN", {minimumFractionDigits: 2})}</span>
+                    <span className="text-xl font-black text-[#4f46e5]">₹{totals.net.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          
+
           {/* Amount In Words (Full Width) */}
           <div className="mt-5 bg-indigo-50/40 border border-indigo-100 rounded-xl p-4 flex items-center gap-4">
             <div className="p-2.5 bg-white rounded-full shadow-sm">
@@ -941,27 +940,35 @@ export default function AddInvoice() {
               <p className="text-sm font-black text-slate-800 capitalize leading-tight">{numberToWordsINR(totals.net)}</p>
             </div>
           </div>
-        </div>
+        </div >
 
         {/* Action Buttons Panel */}
-        <div className="p-6 flex justify-center gap-4 bg-slate-50 border-t border-gray-100">
-          <Button 
-            type="submit" 
-            className="bg-[#4f46e5] hover:bg-indigo-700 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md" 
+        < div className="p-6 flex justify-center gap-4 bg-slate-50 border-t border-gray-100" >
+          <Button
+            type="submit"
+            className="bg-[#4f46e5] hover:bg-indigo-700 text-white px-12 h-9 font-black text-[11px] rounded-lg uppercase tracking-wider gap-2 shadow-md"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Submitting..." : "Submit Invoice"}
           </Button>
+<<<<<<< HEAD
+          <Button
+            type="button"
+            variant="outline"
+            className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100"
+            onClick={handleClear}
+=======
           <Button 
             type="button" 
             variant="outline" 
             className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
             onClick={() => window.history.back()}
+>>>>>>> 03bc0953438cb311f7175a0d80d6bb8c2fb92a92
           >
             Cancel
           </Button>
-        </div>
-      </form>
-    </div>
+        </div >
+      </form >
+    </div >
   );
 }

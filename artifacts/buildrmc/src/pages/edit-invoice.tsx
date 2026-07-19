@@ -230,7 +230,7 @@ export default function EditInvoice() {
         );
       } else if (invoiceToEdit.vehicleNo && vehicles) {
         const v = vehicles.find((veh: any) => veh.registrationNo === invoiceToEdit.vehicleNo);
-        if (v) setVehicleId((v.id || v._id).toString());
+        if (v && (v.id || (v as any)._id)) setVehicleId((v.id || (v as any)._id).toString());
       }
       
       setPump(invoiceToEdit.pumpType || "");

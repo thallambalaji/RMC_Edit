@@ -69,12 +69,7 @@ export default function AddDC() {
   const { data: sites } = useGetMasters("site");
   const { data: plants } = useGetMasters("plant");
 
-  useMemo(() => {
-    if (plants && plants.length > 0) {
-      if (!plant) setPlant(String(plants[0].name || plants[0].id || ""));
-      if (!loadedPlant) setLoadedPlant(String(plants[0].name || plants[0].id || ""));
-    }
-  }, [plants, plant, loadedPlant]);
+
 
   const gradesList = useMemo(() => {
     if (grades && grades.length > 0) {
@@ -496,7 +491,7 @@ export default function AddDC() {
             <Button className="bg-[#ea580c] hover:bg-[#ea580c] text-white px-8 h-10 font-bold" onClick={handleSave} disabled={createDC.isPending}>
               {createDC.isPending ? "Saving..." : "Save DC"}
             </Button>
-            <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8 h-10 font-bold" onClick={() => window.history.back()}>Cancel</Button>
+            <Button className="bg-orange-400 hover:bg-orange-500 text-white px-8 h-10 font-bold" onClick={handleClear}>Clear</Button>
           </div>
         </div>
 

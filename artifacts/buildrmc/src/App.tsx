@@ -98,7 +98,14 @@ import Permissions from "@/pages/permissions";
 import ChangePassword from "@/pages/change-password";
 import { Layout } from "@/components/layout";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
+});
 
 function ProtectedRoute({ component: Component, ...rest }: any) {
   const { data: user, isLoading, isError } = useGetMe({

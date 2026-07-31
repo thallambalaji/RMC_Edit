@@ -404,7 +404,7 @@ export default function AddEnquiry() {
             type="button" 
             variant="ghost" 
             className="text-gray-500 hover:text-gray-700 font-bold h-10 px-6 uppercase text-[11px] tracking-wider"
-            onClick={() => window.history.back()}
+            onClick={handleCancel}
           >
             Cancel
           </Button>

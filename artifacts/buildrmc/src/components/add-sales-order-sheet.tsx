@@ -452,7 +452,10 @@ export function AddSalesOrderSheet({ isOpen, onClose }: AddSalesOrderSheetProps)
           <div className="flex w-full justify-end gap-3">
             <Button 
               type="button" 
-              onClick={() => window.history.back()} 
+              onClick={() => {
+                handleCancel();
+                onClose();
+              }} 
               variant="outline"
               size="sm"
               className="px-6 h-9 text-xs font-bold uppercase tracking-wider text-gray-500 border-gray-200"

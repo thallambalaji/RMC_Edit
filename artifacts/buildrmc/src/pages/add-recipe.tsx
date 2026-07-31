@@ -316,7 +316,9 @@ export default function AddRecipe() {
             <Button type="submit" className="bg-[#10b981] hover:bg-[#059669] text-white font-black px-6 h-10 text-[10px] uppercase tracking-widest shadow-lg shadow-emerald-500/20 transition-all active:scale-95">
               Save Recipe
             </Button>
-            <Button type="button" onClick={() => window.history.back()} className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-black px-6 h-10 text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95">Cancel</Button>
+            <Button type="button" onClick={handleClear} className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-black px-6 h-10 text-[10px] uppercase tracking-widest shadow-lg shadow-red-500/20 transition-all active:scale-95">
+              Clear
+            </Button>
             <Link href="/qc/recipe/list">
               <Button type="button" className="bg-[#0ea5e9] hover:bg-[#0284c7] text-white font-black px-6 h-10 text-[10px] uppercase tracking-widest shadow-lg shadow-sky-500/20 transition-all active:scale-95">
                 Recipe List

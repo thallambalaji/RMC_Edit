@@ -199,7 +199,7 @@ export default function AddVehicle() {
                 </Button>
                 <Button
                   type="button"
-                  onClick={() => window.history.back()}
+                  onClick={handleBack}
                   className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-black px-6 h-10 text-xs uppercase tracking-wider shadow-sm transition-all border border-slate-300"
                 >
                   Cancel

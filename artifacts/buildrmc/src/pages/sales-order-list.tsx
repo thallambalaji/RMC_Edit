@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { useGetSalesOrders, useGetCustomers, useDeleteSalesOrder, useUpdateSalesOrder } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,6 @@ import { isWithinInterval, parseISO, parse, format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function SalesOrderList() {
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showFilters, setShowFilters] = useState(true);
@@ -270,7 +269,7 @@ export default function SalesOrderList() {
           </nav>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => setLocation("/customer-po/sales-order/new")} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
+          <Button size="sm" onClick={() => setIsAddSheetOpen(true)} className="bg-[#ea580c] hover:bg-[#d97706] text-white font-black text-[9px] px-3 h-6 uppercase tracking-wider shadow-none border-0 flex items-center gap-1.5 cursor-pointer">
             <Plus className="h-3.5 w-3.5" /> Add Sales Order
           </Button>
           <Button

@@ -230,7 +230,7 @@ export default function EditInvoice() {
         );
       } else if (invoiceToEdit.vehicleNo && vehicles) {
         const v = vehicles.find((veh: any) => veh.registrationNo === invoiceToEdit.vehicleNo);
-        if (v && (v.id || (v as any)._id)) setVehicleId((v.id || (v as any)._id).toString());
+        if (v) setVehicleId((v.id || v._id).toString());
       }
       
       setPump(invoiceToEdit.pumpType || "");
@@ -1023,7 +1023,7 @@ export default function EditInvoice() {
             type="button" 
             variant="outline" 
             className="px-12 h-9 font-black text-[11px] border-gray-200 text-slate-600 rounded-lg uppercase tracking-wider hover:bg-slate-100" 
-            onClick={() => window.history.back()}
+            onClick={() => setLocation("/billing")}
           >
             Cancel
           </Button>

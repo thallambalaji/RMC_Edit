@@ -1,12 +1,15 @@
 [build]
-  command = "pnpm build"
+  base = "."
+  command = "pnpm --filter @workspace/buildrmc build"
   publish = "artifacts/buildrmc/dist/public"
-
-[build.environment]
-  NODE_VERSION = "20"
-  PNPM_FLAGS = "--no-frozen-lockfile"
 
 [[redirects]]
   from = "/api/*"
-  to = "https://rmc-production-4a71.up.railway.app/api/:splat"
+  to = "https://rmc-edit.onrender.com/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
   status = 200

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm -r --parallel --filter \"./artifacts/**\" run dev",
+    "dev": "pnpm -r --parallel --filter \"@workspace/api-server\" --filter \"@workspace/buildrmc\" run dev",
     "start": "pnpm run dev",
     "build": "pnpm -r --filter @workspace/buildrmc build",
     "typecheck:libs": "tsc --build",

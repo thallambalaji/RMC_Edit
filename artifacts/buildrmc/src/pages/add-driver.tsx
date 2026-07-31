@@ -208,7 +208,7 @@ export default function AddDriver() {
               </Button>
               <Button
                 type="button"
-                onClick={() => window.history.back()}
+                onClick={handleCancel}
                 className="bg-[#f1f5f9] hover:bg-[#e2e8f0] text-slate-700 font-extrabold text-xs h-9 px-6 rounded transition-all shadow-sm active:scale-95 uppercase border-0"
               >
                 Cancel

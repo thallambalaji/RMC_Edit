@@ -538,17 +538,17 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
       <div className="flex min-h-[calc(100vh-120px)] gap-4 bg-white main-screen">
 
       {/* Sidebar Navigation */}
-      <div className="w-60 bg-white border border-slate-100 rounded-2xl shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
-        <div className="p-4 bg-slate-50/50 border-b border-slate-100">
-          <h3 className="font-extrabold text-slate-800 text-xs uppercase tracking-wider">Billing Navigation</h3>
+      <div className="w-64 bg-white border rounded-lg shadow-sm flex flex-col overflow-hidden shrink-0 no-print">
+        <div className="p-4 bg-gray-50 border-b">
+          <h3 className="font-bold text-gray-800 text-sm">Billing Navigation</h3>
         </div>
         <div className="flex-1 overflow-auto p-2">
           <Accordion type="multiple" defaultValue={[]} className="w-full space-y-2">
-            <AccordionItem value="sales-invoice" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
+            <AccordionItem value="sales-invoice" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><Receipt className="h-4 w-4 text-[#ea580c]"/> Sales Invoice</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
+              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/billing/sales-document/new"><div className={linkClass("/billing/sales-document/new")}>Add Sales Document</div></Link>
                   <Link href="/billing/sales-document"><div className={linkClass("/billing/sales-document")}>Sales Document List</div></Link>
@@ -558,11 +558,11 @@ Amount: ₹${Number(inv.totalAmount).toLocaleString("en-IN", {minimumFractionDig
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="rmc-report" className="border-none rounded-xl bg-white border border-slate-100 shadow-sm overflow-hidden">
-              <AccordionTrigger className="hover:no-underline hover:bg-slate-50/50 px-3 py-2.5 text-xs font-extrabold text-slate-700 transition-colors uppercase tracking-wider">
+            <AccordionItem value="rmc-report" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
+              <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
                 <div className="flex items-center gap-2"><PieChart className="h-4 w-4 text-[#ea580c]"/> RMC Report</div>
               </AccordionTrigger>
-              <AccordionContent className="bg-slate-50/20 pb-2 border-t border-slate-50">
+              <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/billing/invoice-report"><div className={linkClass("/billing/invoice-report")}>Invoice Report</div></Link>
                   <Link href="/billing/consolidate-invoice-list"><div className={linkClass("/billing/consolidate-invoice-list")}>Consolidate Invoice List</div></Link>
@@ -1892,9 +1892,9 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
 
           const matCols = [
             { key: "mm20",   label: "20MM",   d: mats.mm20 },
-            { key: "mm12",   label: "10MM",   d: mats.mm12 },
+            { key: "mm12",   label: "12MM",   d: mats.mm12 },
             { key: "rsand",  label: "R SAND", d: mats.rsand },
-            { key: "sand",   label: "Aggregat",   d: mats.sand },
+            { key: "sand",   label: "SAND",   d: mats.sand },
             { key: "cem1",   label: "CEM1",   d: mats.cem1 },
             { key: "cem2",   label: "CEM2",   d: mats.cem2 },
             { key: "water",  label: "WATER",  d: mats.water },
@@ -1916,24 +1916,22 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
             };
           });
 
-          const cS: React.CSSProperties = {border: "1px solid #000", padding: "3px 0px", fontSize: "10px", fontFamily: "Arial, sans-serif"};
-          const hS: React.CSSProperties = {...cS, fontWeight: "normal", textAlign: "center"};
+          const cS: React.CSSProperties = {border: "1px solid #000", padding: "3px 4px", fontSize: "10px", fontFamily: "Arial, sans-serif"};
+          const hS: React.CSSProperties = {...cS, fontWeight: "bold", textAlign: "center"};
           
           return (
-            <div style={{padding: "10px 40px", background: "white", color: "black", fontFamily: "Tahoma, Verdana, sans-serif", pageBreakInside: "avoid", breakInside: "avoid"}}>
+            <div style={{padding: "10px", background: "white", color: "black", fontFamily: "Arial, sans-serif", pageBreakInside: "avoid", breakInside: "avoid"}}>
               {/* ── Title Header ── */}
-              <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "4px"}}>
+              <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px"}}>
                 {/* IDS Logo Image */}
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-start" }}>
-                  <img src={IDS_LOGO_B64} alt="IDS Logo" style={{ height: "55px", width: "auto", objectFit: "contain", marginLeft: "-20px", position: "relative", top: "-12px" }} />
-                </div>
+                <img src={IDS_LOGO_B64} alt="IDS Logo" style={{ height: "45px", width: "auto", objectFit: "contain" }} />
 
                 {/* Central Plant Details */}
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1 }}>
-                  <div style={{ fontSize: "12px", fontWeight: "bold", textTransform: "none", borderBottom: "1.5px solid #000", paddingBottom: "1px", width: "270px", textAlign: "center", letterSpacing: "0.5px" }}>
+                  <div style={{ fontSize: "14px", fontWeight: "bold", textTransform: "none", borderBottom: "1.5px solid #000", paddingBottom: "2px", width: "80%", textAlign: "center", letterSpacing: "0.5px" }}>
                     Technical Batch Data Report
                   </div>
-                  <table style={{ borderCollapse: "collapse", marginTop: "3px", fontSize: "12px", width: "300px", whiteSpace: "nowrap" }}>
+                  <table style={{ borderCollapse: "collapse", marginTop: "4px", fontSize: "10px", width: "80%" }}>
                     <tbody>
                       <tr>
                         <td style={{ fontWeight: "bold", width: "100px", padding: "1px 0" }}>Plant ID</td>
@@ -1944,7 +1942,7 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
                         <td style={{ padding: "1px 0" }}>FORTUNE RMC</td>
                       </tr>
                       <tr>
-                      <div style={{ fontWeight: "bold", padding: "1px 0" }}>Plant Address</div>
+                        <td style={{ fontWeight: "bold", padding: "1px 0" }}>Plant Address</td>
                         <td style={{ padding: "1px 0" }}>FORTUNE CONCRETE Hyderabad</td>
                       </tr>
                     </tbody>
@@ -1952,190 +1950,142 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
                 </div>
 
                 {/* ELSA Logo Image */}
-                <div style={{ flex: 1, display: "flex", justifyContent: "center", marginBottom: "4px" }}>
-                  <table style={{ borderCollapse: "collapse" }}>
-                    <tbody>
-                      <tr>
-                        <td style={{ width: "110px", paddingRight: "8px", textAlign: "right" }}>
-                          <img src={ELSA_LOGO_B64} alt="ELSA Logo" style={{ height: "44px", width: "auto", objectFit: "contain", position: "relative", left: "35px" }} />
-                        </td>
-                        <td style={{ padding: "2px 0", visibility: "hidden", fontSize: "9px" }}>: 0.000</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                <img src={ELSA_LOGO_B64} alt="ELSA Logo" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
               </div>
 
-              {/* ── Info Blocks (Nested Tables for Perfect Alignment) ── */}
-              <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "40px", marginBottom: "8px", fontSize: "9px" }}>
-                <tbody>
-                  {/* TOP SECTION */}
-                  <tr>
-                    {/* Col 1 Top */}
-                    <td style={{ width: "33%", verticalAlign: "top" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                          <tr>
-                            <td style={{ fontWeight: "bold", width: "70px", padding: "1px 0", verticalAlign: "top" }}>Docket No.</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.invoiceNumber}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top" }}>Docket Date :</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top" }}>Batch Start<br/>Time :</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.invoiceTime || "—"}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top" }}>Customer :</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.customerName || "—"}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
+              {/* ── Info Blocks ── */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", marginBottom: "8px", fontSize: "10px" }}>
+                {/* Column 1 */}
+                <table style={{ width: "32%", borderCollapse: "collapse" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ fontWeight: "bold", width: "90px", padding: "2px 0", verticalAlign: "top" }}>Docket No.</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{inv.invoiceNumber}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Docket Date :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString("en-IN") : "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>
+                        <div>Batch Start</div>
+                        <div>Time :</div>
+                      </td>
+                      <td style={{ padding: "2px 0", verticalAlign: "bottom" }}>{inv.invoiceTime || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Customer :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top", fontWeight: "bold" }}>{inv.customerName || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Site :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{inv.site || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Truck No. :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{inv.vehicleNo || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Driver :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{inv.driverName || ""}</td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                    {/* Col 2 Top */}
-                    <td style={{ width: "33%", verticalAlign: "top", paddingLeft: "30px" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                          <tr>
-                            <td style={{ fontWeight: "bold", width: "82px", padding: "1px 0", verticalAlign: "top", whiteSpace: "nowrap" }}>Mix Description</td>
-                            <td style={{ padding: "1px 0", paddingLeft: "6px", verticalAlign: "top", position: "relative", top: "-2px" }}>{batchMixDesign?.recipeCode || `${inv.grade} PROSPERA`}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top", whiteSpace: "nowrap" }}>Mix Code :</td>
-                            <td style={{ padding: "1px 0", paddingLeft: "6px", verticalAlign: "top", position: "relative", top: "-2px" }}>{batchMixDesign?.recipeName || inv.grade || "—"}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingTop: "4px", verticalAlign: "top", whiteSpace: "nowrap" }}>Strength:</td>
-                            <td style={{ padding: "1px 0", paddingTop: "4px", paddingLeft: "6px", verticalAlign: "top", position: "relative", top: "-2px" }}></td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top", whiteSpace: "nowrap" }}>Slump:</td>
-                            <td style={{ padding: "1px 0", paddingLeft: "6px", verticalAlign: "top", position: "relative", top: "-2px" }}></td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
+                {/* Column 2 */}
+                <table style={{ width: "32%", borderCollapse: "collapse" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ fontWeight: "bold", width: "95px", padding: "2px 0", verticalAlign: "top" }}>Mix Description</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{batchMixDesign?.recipeCode || `${inv.grade} PROSPERA`}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Mix Code :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>{batchMixDesign?.recipeName || inv.grade || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Strength:</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}></td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Slump:</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}></td>
+                    </tr>
+                    <tr style={{ height: "20px" }}><td colSpan={2}></td></tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>User :</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>OEM</td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                    {/* Col 3 Top */}
-                    <td style={{ width: "34%", verticalAlign: "top", paddingLeft: "20px" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", position: "relative", top: "-8px" }}>
-                        <tbody>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>Ordered Qty</td>
-                            <td style={{ width: "65px", padding: "1px 0", verticalAlign: "top", fontSize: "10.5px" }}>: {(loadQty * 10).toFixed(1)}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>Produced Qty</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", fontSize: "10.5px" }}>: {(producedQty - loadQty).toFixed(1)}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingTop: "4px", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>Returned Qty</td>
-                            <td style={{ padding: "1px 0", paddingTop: "4px", verticalAlign: "top", fontSize: "10.5px" }}>: {returnedQty.toFixed(3)}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>Set This Load</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", fontSize: "10.5px" }}>: {loadQty.toFixed(1)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-
-                  {/* BOTTOM SECTION */}
-                  <tr>
-                    {/* Col 1 Bottom */}
-                    <td style={{ width: "33%", verticalAlign: "top", paddingTop: "4px" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "6px 0 10px 0", verticalAlign: "top" }}>Site :</td>
-                            <td style={{ padding: "6px 0 10px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.site || "—"}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", width: "70px", padding: "1px 0", verticalAlign: "top" }}>Truck No. :</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.vehicleNo || "—"}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", verticalAlign: "top" }}>Driver :</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", position: "relative", top: "-2px" }}>{inv.driverName || "—"}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-
-                    {/* Col 2 Bottom */}
-                    <td style={{ width: "33%", verticalAlign: "top", paddingLeft: "30px", paddingTop: "4px" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                          <tr>
-                            <td colSpan={2} style={{ padding: "15px 0 1px 0", fontSize: "10.5px" }}>&nbsp;</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", width: "82px", padding: "1px 0", verticalAlign: "top", whiteSpace: "nowrap" }}>User :</td>
-                            <td style={{ padding: "1px 0", paddingLeft: "6px", verticalAlign: "top" }}>OEM</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-
-                    {/* Col 3 Bottom */}
-                    <td style={{ width: "34%", verticalAlign: "top", paddingLeft: "20px", paddingTop: "4px" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                        <tbody>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "15px 0 1px 0", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>First Batch Size</td>
-                            <td style={{ width: "65px", padding: "15px 0 1px 0", verticalAlign: "top", fontSize: "10.5px" }}>: {firstBatchSize.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style={{ fontWeight: "bold", padding: "1px 0", paddingRight: "8px", textAlign: "right", verticalAlign: "top", fontSize: "10.5px" }}>Other Batch Size</td>
-                            <td style={{ padding: "1px 0", verticalAlign: "top", fontSize: "10.5px" }}>: {firstBatchSize.toFixed(2)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
+                {/* Column 3 */}
+                <table style={{ width: "32%", borderCollapse: "collapse" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ fontWeight: "bold", width: "110px", padding: "2px 0", verticalAlign: "top" }}>Ordered Qty</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {(loadQty * 10).toFixed(1)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Produced Qty</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {(producedQty - loadQty).toFixed(1)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Returned Qty</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {returnedQty.toFixed(3)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Set This Load</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {loadQty.toFixed(1)}</td>
+                    </tr>
+                    <tr style={{ height: "8px" }}><td colSpan={2}></td></tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>First Batch Size</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {firstBatchSize.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td style={{ fontWeight: "bold", padding: "2px 0", verticalAlign: "top" }}>Other Batch Size</td>
+                      <td style={{ padding: "2px 0", verticalAlign: "top" }}>: {firstBatchSize.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
 
               {/* ── Main Batch Detail Table ── */}
-              <table style={{width: "90%", borderCollapse: "collapse", border: "1.5px solid #000", marginTop: "30px", marginBottom: "12px"}}>
+              <table style={{width: "100%", borderCollapse: "collapse", border: "1.5px solid #000", marginBottom: "8px"}}>
                 <thead>
                   <tr>
-                    <td style={{...cS}}></td>
-                    <td colSpan={9} style={{...cS, fontWeight: "bold", textAlign: "center"}}>Batch Detail</td>
+                    <th style={{...cS}}></th>
+                    <th colSpan={9} style={{...cS, fontWeight: "bold", textAlign: "center"}}>Batch Detail</th>
                   </tr>
                   <tr>
-                    <td style={{...hS, fontWeight: "normal", textAlign: "center", width: "1%", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Product Code</td>
-                    {matCols.map(c => <td key={c.key} style={{...hS, ...(c.label.includes("SAND") ? {width: "1%", whiteSpace: "nowrap", paddingLeft: "4px", paddingRight: "4px"} : c.label.includes("Aggregat") ? {width: "1%", whiteSpace: "nowrap"} : {})}}>{c.label}</td>)}
+                    <th style={{...hS, textAlign: "left", width: "115px"}}>Product Code</th>
+                    {matCols.map(c => <th key={c.key} style={hS}>{c.label}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Designed Quantity</td>
+                    <td style={{...cS, fontWeight: "bold"}}>Designed Quantity</td>
                     {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center"}}>{c.d.toFixed(2)}</td>)}
                   </tr>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Avg. Moisture</td>
+                    <td style={{...cS, fontWeight: "bold"}}>Avg. Moisture</td>
                     {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center"}}>0.00</td>)}
                   </tr>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>1st Batch Target</td>
+                    <td style={{...cS, fontWeight: "bold"}}>1st Batch Target</td>
                     {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center"}}>{c.target.toFixed(2)}</td>)}
                   </tr>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Subsequent Target</td>
+                    <td style={{...cS, fontWeight: "bold"}}>Subsequent Target</td>
                     {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center"}}>{c.target.toFixed(2)}</td>)}
                   </tr>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Load Target</td>
-                    {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center"}}>{c.loadTarget.toFixed(2)}</td>)}
+                    <td style={{...cS, fontWeight: "bold"}}>Load Target</td>
+                    {matCols.map(c => <td key={c.key} style={{...cS, textAlign: "center", fontWeight: "bold"}}>{c.loadTarget.toFixed(2)}</td>)}
                   </tr>
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Error Percentage</td>
+                    <td style={{...cS, fontWeight: "bold"}}>Error Percentage</td>
                     {matCols.map(c => {
                       const errorPct = c.loadTarget > 0 ? ((c.loadTarget - c.totalBatch) / c.loadTarget) * 100 : 0;
                       return <td key={c.key} style={{...cS, textAlign: "center"}}>{Math.abs(errorPct) < 0.01 ? "0.0" : errorPct.toFixed(2)}</td>;
@@ -2145,7 +2095,7 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
                     const batchNum = bn + 1;
                     return (
                       <tr key={batchNum}>
-                        <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Batch {batchNum}</td>
+                        <td style={{...cS, fontWeight: "bold"}}>Batch {batchNum}</td>
                         {matCols.map(c => {
                           const batchVal = c.batches[bn];
                           const fmtVal = ["mm20", "mm12", "rsand", "sand", "cem1", "cem2", "water"].includes(c.key)
@@ -2161,41 +2111,41 @@ const TransparentStamp = ({ src, alt, style }: { src: string, alt: string, style
                     );
                   })}
                   <tr>
-                    <td style={{...cS, fontWeight: "normal", textAlign: "center", whiteSpace: "nowrap", paddingLeft: "6px", paddingRight: "6px"}}>Total Batch</td>
+                    <td style={{...cS, fontWeight: "bold"}}>Total Batch</td>
                     {matCols.map(c => {
                       const fmtTotal = ["mm20", "mm12", "rsand", "sand", "cem1", "cem2", "water"].includes(c.key)
                         ? c.totalBatch.toString()
                         : c.totalBatch.toFixed(2);
-                      return <td key={c.key} style={{...cS, textAlign: "center"}}>{fmtTotal}</td>;
+                      return <td key={c.key} style={{...cS, textAlign: "center", fontWeight: "bold"}}>{fmtTotal}</td>;
                     })}
                   </tr>
                 </tbody>
               </table>
 
               {/* ── Summary Row (Below Table) ── */}
-              <div style={{ display: "flex", margin: "-5px 0 12px -10px", fontSize: "10px" }}>
-                <div style={{ width: "150px" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "0px" }}>Num Batches :</div>
-                  <div>{numBatches}</div>
-                </div>
-                <div style={{ width: "135px" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "0px" }}>With This Load :</div>
-                  <div>{Math.max(1, numBatches - 1)}</div>
-                </div>
-                <div style={{ width: "135px" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "0px" }}>This Load :</div>
-                  <div>{loadQty.toFixed(1)}</div>
+              <div style={{ display: "flex", justifyContent: "space-between", margin: "6px 40px 8px 40px", fontSize: "10px", textAlign: "center" }}>
+                <div>
+                  <div style={{ fontWeight: "bold" }}>Num Batches :</div>
+                  <div style={{ marginTop: "4px" }}>{numBatches}</div>
                 </div>
                 <div>
-                  <div style={{ fontWeight: "bold", marginBottom: "0px" }}>Batch End Time :</div>
-                  <div>{getEndTime(inv.invoiceTime)}</div>
+                  <div style={{ fontWeight: "bold" }}>With This Load :</div>
+                  <div style={{ marginTop: "4px" }}>{Math.max(1, numBatches - 1)}</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: "bold" }}>This Load :</div>
+                  <div style={{ marginTop: "4px" }}>{loadQty.toFixed(1)}</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: "bold" }}>Batch End Time :</div>
+                  <div style={{ marginTop: "4px" }}>{getEndTime(inv.invoiceTime)}</div>
                 </div>
               </div>
 
               {/* ── Attribution ── */}
-              <div style={{display: "flex", fontSize: "10px", color: "#000", margin: "24px 0 0 -20px"}}>
-                <div style={{ width: "130px" }}><span style={{fontWeight: "bold"}}>i-batch : by IDS</span></div>
-                <div><span style={{fontWeight: "bold"}}>Report Generated By :</span></div>
+              <div style={{display: "flex", justifyContent: "space-between", fontSize: "10px", color: "#000", marginTop: "8px", paddingTop: "0"}}>
+                <span style={{fontWeight: "bold"}}>i-batch : by IDS</span>
+                <span style={{fontWeight: "bold"}}>Report Generated By :</span>
               </div>
             </div>
           );

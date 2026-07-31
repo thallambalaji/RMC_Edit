@@ -1,59 +1,48 @@
-# See https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
 # Environment variables — NEVER commit these
 .env
-.env.local
-.env.production
 .env.*
-!.env.example
 
-# compiled output
-dist
-tmp
-out-tsc
+# Dependencies
+node_modules/
+
+# Build and compiled output
+dist/
+build/
+.next/
+out-tsc/
 *.tsbuildinfo
-.expo
-.expo-shared
 
-# dependencies
-node_modules
+# Cache & Coverage
+.cache/
+coverage/
+.local/
+.local_db/
 
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# Logs & Temporary Files
+*.log
+*.tmp
+tmp/
+tsc-output.txt
+stamp_b64.txt
+temp_crop/
+send-weight.ps1
+stream_weight.py
+stream_both.py
+read_serial.py
+send_test.ps1
+crop_logo.cjs
+remove_bg.cjs
+remove_bg_pngjs.cjs
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
+# OS / System Files
 .DS_Store
 Thumbs.db
 
-.cursor/rules/nx-rules.mdc
-.github/instructions/nx.instructions.md
+# IDEs and Editors
+.idea/
+.vscode/
 
-# Replit / local-only
-.cache/
-.local/
+# Project / Agent specific ignored files
 .agents/
 scratch/
 attached_assets/
@@ -65,4 +54,3 @@ start.bat
 start.ps1
 dev.ps1
 **/.replit-artifact/
-

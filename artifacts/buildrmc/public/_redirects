@@ -1,2 +1,2 @@
-/api/*  https://rmc-edit.onrender.com/api/:splat  200!
+/api/*  https://rmc-dev.up.railway.app/api/:splat  200!
 /*      /index.html                            200

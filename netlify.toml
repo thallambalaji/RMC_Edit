@@ -5,7 +5,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "https://rmc-edit.onrender.com/api/:splat"
+  to = "https://rmc-dev.up.railway.app/api/:splat"
   status = 200
   force = true
 

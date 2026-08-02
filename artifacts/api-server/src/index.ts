@@ -11,12 +11,7 @@ if (Number.isNaN(port) || port <= 0) {
 }
 const finalPort = Number.isNaN(port) || port <= 0 ? 5000 : port;
 
-app.listen(finalPort, async (err) => {
-  if (err) {
-    logger.error({ err }, "Error listening on port");
-    process.exit(1);
-  }
-
+app.listen(finalPort, "0.0.0.0", async () => {
   // Seed MongoDB on startup
   try {
     await seedMongo();
@@ -24,5 +19,5 @@ app.listen(finalPort, async (err) => {
     logger.error({ err: seedErr }, "Failed to seed MongoDB");
   }
 
-  logger.info({ port: finalPort }, "Server listening");
+  logger.info({ port: finalPort }, "Server listening on 0.0.0.0");
 });

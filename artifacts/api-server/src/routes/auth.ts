@@ -32,12 +32,22 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     return;
   }
 
-  res.cookie("userId", "1", { httpOnly: false, maxAge: 86400000 });
+  const isProd = process.env.NODE_ENV === "production";
+  res.cookie("userId", "1", {
+    httpOnly: false,
+    maxAge: 86400000,
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd
+  });
   res.json(LoginResponse.parse(adminUser));
 });
 
 router.post("/auth/logout", async (_req, res): Promise<void> => {
-  res.clearCookie("userId");
+  const isProd = process.env.NODE_ENV === "production";
+  res.clearCookie("userId", {
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd
+  });
   res.json({ success: true });
 });
 
@@ -63,8 +73,8 @@ router.get("/auth/me", async (req, res): Promise<void> => {
     res.json(GetMeResponse.parse({
       id: String(user._id),
       username: user.username,
-      fullName: user.username,
-      email: user.username + "@fortune.com",
+      fullName: user.fullName || user.username,
+      email: user.email || (user.username + "@fortune.com"),
       role: user.role,
     }));
   } catch (err) {
@@ -100,13 +110,14 @@ router.put("/auth/profile", async (req, res): Promise<void> => {
       res.status(404).json({ error: "User not found" });
       return;
     }
-    user.username = fullName; // We can map fullName to username, or store it
+    user.fullName = fullName;
+    user.email = email;
     await user.save();
     res.json(GetMeResponse.parse({
       id: String(user._id),
       username: user.username,
-      fullName: user.username,
-      email: email,
+      fullName: user.fullName,
+      email: user.email,
       role: user.role,
     }));
   } catch (err: any) {

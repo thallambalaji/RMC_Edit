@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { useGetMe, useLogout } from "@workspace/api-client-react";
+import { useGetMe, useLogout, useNotifications } from "@workspace/api-client-react";
 import {
   LayoutDashboard,
   Users,
@@ -77,27 +77,32 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const logout = useLogout();
   const { toast } = useToast();
 
+  const { data: liveNotifs = [] } = useNotifications();
+
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const [notifList, setNotifList] = useState<any[]>(() => {
-    const saved = localStorage.getItem("rmc_notifications");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        // fallback
-      }
-    }
-    return [
-      { id: 1, title: "New Quotation", desc: "Quotation #Q-2026-004 pending review", time: "10m ago", read: false, href: "/customer-po" },
-      { id: 2, title: "Cube Test Due", desc: "Grade M30 7-day testing is due today", time: "1h ago", read: false, href: "/qc" }
-    ];
+  const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem("rmc_dismissed_notifications");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [readIds, setReadIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem("rmc_read_notifications");
+    return saved ? JSON.parse(saved) : [];
   });
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem("rmc_notifications", JSON.stringify(notifList));
-  }, [notifList]);
+    localStorage.setItem("rmc_dismissed_notifications", JSON.stringify(dismissedIds));
+  }, [dismissedIds]);
+
+  useEffect(() => {
+    localStorage.setItem("rmc_read_notifications", JSON.stringify(readIds));
+  }, [readIds]);
+
+  // Filter live notifications
+  const notifList = liveNotifs
+    .filter((n) => !dismissedIds.includes(n.id))
+    .map((n) => ({ ...n, read: n.read || readIds.includes(n.id) }));
 
   const notifRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
@@ -117,14 +122,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const unread = notifList.filter((n) => !n.read).length;
 
-  const markRead = (id: number, href: string) => {
-    setNotifList((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  const markRead = (id: string, href: string) => {
+    setReadIds((prev) => [...prev, id]);
     setNotifOpen(false);
-    navigate(href);
+    if (href) navigate(href);
   };
 
   const dismissAll = () => {
-    setNotifList((prev) => prev.map((n) => ({ ...n, read: true })));
+    setDismissedIds((prev) => [...prev, ...notifList.map((n) => n.id)]);
     setNotifOpen(false);
   };
 
@@ -345,12 +350,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 onClick={() => { setUserOpen((o) => !o); setNotifOpen(false); }}
                 className="flex items-center gap-2.5 hover:bg-slate-50 p-1.5 pr-3 rounded-xl transition-all cursor-pointer border border-transparent hover:border-slate-100"
               >
-                <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white text-xs font-black">
-                  A
+                <div className="w-8 h-8 rounded-full bg-[#ea580c] flex items-center justify-center text-white text-xs font-black">
+                  {initials}
                 </div>
                 <div className="text-left hidden sm:block">
-                  <div className="text-xs font-black text-slate-800 leading-tight">Admin</div>
-                  <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide leading-none mt-0.5">Super Admin</div>
+                  <div className="text-xs font-black text-slate-800 leading-tight">{user?.fullName || user?.username || "Admin"}</div>
+                  <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide leading-none mt-0.5">{user?.role || "Super Admin"}</div>
                 </div>
                 <ChevronDown size={12} className={`text-slate-400 transition-transform ${userOpen ? "rotate-180" : ""}`} />
               </button>
@@ -364,7 +369,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white leading-tight">{user?.fullName || user?.username || "Admin"}</div>
-                      <div className="text-[9px] text-[#ea580c] font-black uppercase tracking-wider mt-0.5">● Super Admin</div>
+                      <div className="text-[9px] text-[#ea580c] font-black uppercase tracking-wider mt-0.5">● {user?.role || "Super Admin"}</div>
                     </div>
                   </div>
 

@@ -22,6 +22,7 @@ import enquiriesRouter from "./enquiries";
 import paymentFollowUpsRouter from "./paymentFollowUps";
 import quotationsRouter from "./quotations";
 import gstinRouter from "./gstin";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -48,5 +49,6 @@ router.use(enquiriesRouter);
 router.use(paymentFollowUpsRouter);
 router.use(quotationsRouter);
 router.use(gstinRouter);
+router.use(notificationsRouter);
 
 export default router;

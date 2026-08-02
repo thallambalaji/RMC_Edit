@@ -99,3 +99,26 @@ export const getDashboardStats = async (params?: DashboardFilter, options?: Requ
 export function useDashboardStats(params?: DashboardFilter, options?: any) {
   return useQuery<DashboardStatsType, ErrorType<unknown>>({ queryKey: ["/api/dashboard/stats", params], queryFn: () => getDashboardStats(params), ...options });
 }
+
+// 10. Notifications
+export interface NotificationItem {
+  id: string;
+  title: string;
+  desc: string;
+  time: string;
+  read: boolean;
+  href: string;
+}
+
+export const getNotifications = async (options?: RequestInit) => 
+  customFetch<NotificationItem[]>(`/api/notifications`, { ...options, method: "GET" });
+
+export function useNotifications(options?: any) {
+  return useQuery<NotificationItem[], ErrorType<unknown>>({ 
+    queryKey: ["/api/notifications"], 
+    queryFn: () => getNotifications(),
+    refetchInterval: 10000, // Poll every 10s for real-time notifications
+    ...options 
+  });
+}
+

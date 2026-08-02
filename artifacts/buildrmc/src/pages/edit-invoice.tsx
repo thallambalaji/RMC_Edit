@@ -225,12 +225,12 @@ export default function EditInvoice() {
       if (invoiceToEdit.vehicleId) {
         setVehicleId(
           typeof invoiceToEdit.vehicleId === 'object' && invoiceToEdit.vehicleId !== null
-            ? (invoiceToEdit.vehicleId.id || invoiceToEdit.vehicleId._id)?.toString() || ""
+            ? ((invoiceToEdit.vehicleId as any).id || (invoiceToEdit.vehicleId as any)._id)?.toString() || ""
             : invoiceToEdit.vehicleId.toString()
         );
       } else if (invoiceToEdit.vehicleNo && vehicles) {
         const v = vehicles.find((veh: any) => veh.registrationNo === invoiceToEdit.vehicleNo);
-        if (v) setVehicleId((v.id || v._id).toString());
+        if (v) setVehicleId(((v as any).id || (v as any)._id).toString());
       }
       
       setPump(invoiceToEdit.pumpType || "");

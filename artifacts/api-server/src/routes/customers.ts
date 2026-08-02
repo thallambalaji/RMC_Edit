@@ -25,7 +25,8 @@ router.get("/customers", async (_req, res): Promise<void> => {
 router.post("/customers", async (req, res): Promise<void> => {
   const parsed = CreateCustomerBody.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
+    const errorDetails = parsed.error.issues.map(i => `${i.path.join('.') || 'field'}: ${i.message}`).join("; ");
+    res.status(400).json({ error: "Validation Error", detail: errorDetails });
     return;
   }
   
@@ -37,7 +38,7 @@ router.post("/customers", async (req, res): Promise<void> => {
   } catch (error: any) {
     const msg = error?.message || String(error);
     console.error("Failed to save customer to MongoDB:", msg);
-    res.status(500).json({ error: "Internal Server Error", detail: msg });
+    res.status(500).json({ error: msg, detail: msg });
   }
 });
 

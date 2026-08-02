@@ -121,8 +121,12 @@ export const CreateCustomerBody = zod.object({
   contact: zod.string(),
   email: zod.string().nullish(),
   gstNumber: zod.string().nullish(),
+  panNo: zod.string().nullish(),
+  location: zod.string().nullish(),
+  pinCode: zod.string().nullish(),
   state: zod.string().nullish(),
   businessGroup: zod.string().nullish(),
+  businessType: zod.string().nullish(),
   marketingPerson: zod.string().nullish(),
   creditLimit: zod.number().nullish(),
   creditDays: zod.number().nullish(),
@@ -135,6 +139,8 @@ export const CreateCustomerBody = zod.object({
   siteName: zod.string().nullish(),
   siteAddress: zod.string().nullish(),
   creditTerms: zod.string().nullish(),
+  isTcsEnabled: zod.boolean().nullish(),
+  isTdsEnabled: zod.boolean().nullish(),
 });
 
 /**
@@ -152,8 +158,12 @@ export const GetCustomerResponse = zod.object({
   contact: zod.string(),
   email: zod.string().nullish(),
   gstNumber: zod.string().nullish(),
+  panNo: zod.string().nullish(),
+  location: zod.string().nullish(),
+  pinCode: zod.string().nullish(),
   state: zod.string().nullish(),
   businessGroup: zod.string().nullish(),
+  businessType: zod.string().nullish(),
   marketingPerson: zod.string().nullish(),
   creditLimit: zod.number().nullish(),
   creditDays: zod.number().nullish(),
@@ -166,6 +176,8 @@ export const GetCustomerResponse = zod.object({
   siteName: zod.string().nullish(),
   siteAddress: zod.string().nullish(),
   creditTerms: zod.string().nullish(),
+  isTcsEnabled: zod.boolean().nullish(),
+  isTdsEnabled: zod.boolean().nullish(),
   createdAt: zod.string(),
 });
 
@@ -183,8 +195,12 @@ export const UpdateCustomerBody = zod.object({
   contact: zod.string().optional(),
   email: zod.string().nullish(),
   gstNumber: zod.string().nullish(),
+  panNo: zod.string().nullish(),
+  location: zod.string().nullish(),
+  pinCode: zod.string().nullish(),
   state: zod.string().nullish(),
   businessGroup: zod.string().nullish(),
+  businessType: zod.string().nullish(),
   marketingPerson: zod.string().nullish(),
   creditLimit: zod.number().nullish(),
   creditDays: zod.number().nullish(),
@@ -197,6 +213,8 @@ export const UpdateCustomerBody = zod.object({
   siteName: zod.string().nullish(),
   siteAddress: zod.string().nullish(),
   creditTerms: zod.string().nullish(),
+  isTcsEnabled: zod.boolean().nullish(),
+  isTdsEnabled: zod.boolean().nullish(),
 });
 
 export const UpdateCustomerResponse = zod.object({

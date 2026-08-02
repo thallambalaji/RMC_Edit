@@ -109,9 +109,10 @@ export default function AddCustomer() {
         navigate("/customer-po/customer");
       },
       onError: (error: any) => {
+        const errorDetail = error.data?.detail || error.data?.error || error.message || "Unknown server error";
         toast({ 
           title: "Failed to save customer", 
-          description: error.data?.error || error.message || "Unknown schema error", 
+          description: errorDetail, 
           variant: "destructive" 
         });
       }
@@ -214,7 +215,6 @@ export default function AddCustomer() {
     const finalSiteNames = sites.map(s => s.name.trim()).filter(Boolean).join(" | ");
     const finalSiteAddresses = sites.map(s => `${s.address.trim()} (PIN: ${s.pinCode.trim()})`).filter(Boolean).join(" | ");
 
-    // Filter payload precisely to what CreateCustomerBody zod validator expects to avoid schema mismatch
     const payload = {
       name: formData.name.trim(),
       legalName: formData.legalName.trim() || undefined,
@@ -222,8 +222,12 @@ export default function AddCustomer() {
       email: formData.email.trim() || undefined,
       address: formData.address.trim(),
       gstNumber: formData.gstNumber.trim() || undefined,
+      panNo: formData.panNo.trim() || undefined,
+      location: formData.location.trim() || undefined,
+      pinCode: formData.pinCode.trim() || undefined,
       state: formData.state || undefined,
       businessGroup: formData.businessGroup || undefined,
+      businessType: formData.businessType || undefined,
       marketingPerson: formData.marketingPerson || undefined,
       creditLimit: formData.creditLimit ? parseFloat(formData.creditLimit) : undefined,
       creditDays: formData.creditDays ? parseInt(formData.creditDays) : undefined,
@@ -236,6 +240,8 @@ export default function AddCustomer() {
       siteName: finalSiteNames || undefined,
       siteAddress: finalSiteAddresses || undefined,
       creditTerms: formData.creditTerms || undefined,
+      isTcsEnabled: formData.isTcsEnabled,
+      isTdsEnabled: formData.isTdsEnabled,
     };
 
     createCustomer({ data: payload });

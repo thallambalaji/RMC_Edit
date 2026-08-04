@@ -165,14 +165,21 @@ export default function AddWeighment() {
       return;
     }
 
+    const selectedVehicleReg = availableVehicles.find((v: any) => v.id === vehicleNo)?.reg || vehicleNo;
+    const selectedCustomerName = selectedCustomerData?.name || customer;
+    const loadedKg = Math.round((Number(loadedWeight) || 0) * 1000);
+    const emptyKg = Math.round((Number(emptyWeight) || 0) * 1000);
+    const netKg = Math.round(net * 1000);
+
     try {
+      // 1. Save weighment ticket
       const response = await fetch("/api/weighment-tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ticketNo,
-          plant: plant || "Plant 1",
-          vehicleNo,
+          plant: plant || "FORTUNE CONCRETE",
+          vehicleNo: selectedVehicleReg,
           weightType: "Net Weight",
           weight: net,
           createdBy: "Super Admin"
@@ -183,11 +190,53 @@ export default function AddWeighment() {
         throw new Error("Failed to save weighment ticket to database");
       }
 
-      toast({ title: "Weighment Saved", description: `Record saved to MongoDB with Net Weight: ${net.toFixed(3)} Tons.` });
-      navigate("/dc/weighment/list");
+      // 2. Automatically save record to Store Inventory list
+      try {
+        await fetch("/api/store-inventories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            plant: plant || "FORTUNE CONCRETE",
+            inventoryNo: ticketNo || `IN1/2027/${Math.floor(1000 + Math.random() * 9000)}`,
+            supplierName: selectedCustomerName || "General Supplier",
+            itemName: selectedProductName || "Concrete Mix",
+            billNo: billNo || ticketNo,
+            amount: Number(amount) || 0,
+            inventoryDate: date || new Date().toISOString().split('T')[0],
+            inventoryTime: time || new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+            unit: "KG",
+            deliveryAddress: site || "Plant Site",
+            vehicleNo: selectedVehicleReg || "N/A",
+            loadedWeight: loadedKg,
+            emptyWeight: emptyKg,
+            netWeight: netKg,
+            supplierWeight: netKg,
+            weightDifference: 0,
+            createdBy: "Super Admin"
+          })
+        });
+      } catch (storeErr) {
+        console.warn("Failed to create store inventory entry:", storeErr);
+      }
+
+      toast({ title: "Weighment & Inventory Saved! 🎉", description: `Record saved to Weighment & Store Inventory List (${net.toFixed(3)} Tons).` });
+      setLiveScaleWeight(0);
+      setIsStable(false);
+      rawBytesRef.current = [];
+      serialBufferRef.current = "";
+      navigate("/store/inventory/list");
     } catch (err: any) {
       toast({ title: "Error Saving", description: err.message || "Could not save to database", variant: "destructive" });
     }
+  };
+
+  const handleResetScaleMeter = () => {
+    setLiveScaleWeight(0);
+    setIsStable(false);
+    rawBytesRef.current = [];
+    serialBufferRef.current = "";
+    setRawSerialText("Scale meter reset to 0.000 Tons.");
+    toast({ title: "⚖️ Scale Meter Reset", description: "Weighing meter has been reset to default (0.000 Tons)." });
   };
 
   const handleClear = () => {
@@ -203,7 +252,9 @@ export default function AddWeighment() {
     setLoadedWeight("");
     setLiveScaleWeight(0);
     setIsStable(false);
-    toast({ title: "Form Cleared", description: "All inputs have been reset." });
+    rawBytesRef.current = [];
+    serialBufferRef.current = "";
+    toast({ title: "Form Cleared", description: "All inputs and scale meter have been reset." });
   };
 
   // Capture scale reading for physical hardware or simulator
@@ -272,12 +323,12 @@ export default function AddWeighment() {
             const numbers = digitsOnly
               .split(/\s+/)
               .map((s) => parseInt(s, 10))
-              .filter((n) => !isNaN(n) && n > 50 && n < 200000 && n !== 2026 && n !== 2025 && n !== 2027);
+              .filter((n) => !isNaN(n) && n >= 0 && n < 200000 && n !== 2026 && n !== 2025 && n !== 2027);
 
             if (numbers.length > 0) {
               capturedWeight = numbers[0] / 10;
               setLiveScaleWeight(capturedWeight);
-              setIsStable(true);
+              setIsStable(capturedWeight > 0);
             }
           }
         } catch (err) {
@@ -329,7 +380,7 @@ export default function AddWeighment() {
     }, 120);
   };
 
-  const [baudRateSetting, setBaudRateSetting] = useState<number>(9600);
+  const [baudRateSetting, setBaudRateSetting] = useState<number>(2400);
   const [dataBitsSetting, setDataBitsSetting] = useState<number>(8);
   const [paritySetting, setParitySetting] = useState<string>("none");
   const [stopBitsSetting, setStopBitsSetting] = useState<number>(1);
@@ -465,7 +516,7 @@ export default function AddWeighment() {
                     // Non-digit byte acts as a delimiter, evaluate current sequence
                     if (currentDigitSequence.length >= 3 && currentDigitSequence.length <= 8) {
                       const w = parseInt(currentDigitSequence, 10);
-                      if (w >= 10 && w < 200000) {
+                      if (w >= 0 && w < 200000) {
                         foundWeight = w;
                       }
                     }
@@ -476,16 +527,16 @@ export default function AddWeighment() {
                 // Check if the buffer ends with a valid digit sequence
                 if (currentDigitSequence.length >= 3 && currentDigitSequence.length <= 8) {
                   const w = parseInt(currentDigitSequence, 10);
-                  if (w >= 10 && w < 200000) {
+                  if (w >= 0 && w < 200000) {
                     foundWeight = w;
                   }
                 }
 
-                if (foundWeight > 0) {
+                if (foundWeight >= 0) {
                   // Adjust for 10x scale factor multiplier
                   const adjustedWeight = foundWeight / 10;
                   setLiveScaleWeight(adjustedWeight);
-                  setIsStable(true);
+                  setIsStable(adjustedWeight > 0);
                 }
               }
             }
@@ -814,6 +865,15 @@ export default function AddWeighment() {
                   >
                     {isSimulating ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
                     {isScaleConnected && scaleMode === "HARDWARE_COM" ? "CAPTURE TARE WEIGHT FROM SCALE" : "SIMULATE EMPTY TRUCK (TARE)"}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={handleResetScaleMeter}
+                    className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] font-black uppercase tracking-wider h-8 shadow-md gap-1.5 w-full justify-center"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+                    ZERO / RESET SCALE METER
                   </Button>
                 </div>
               </div>

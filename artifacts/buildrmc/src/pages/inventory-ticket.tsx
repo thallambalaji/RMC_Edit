@@ -74,6 +74,55 @@ export default function InventoryTicketPage() {
     }
   }, [dbPlants, editingId, plant]);
 
+  // Auto-sync weight from Weighbridge station based on Weight Type selection
+  const syncWeightFromWeighbridge = (type: string) => {
+    try {
+      const raw = localStorage.getItem("rmc_latest_weighment");
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      
+      if (type === "Loaded Weight") {
+        if (data.loadedWeightKg) {
+          setWeight(String(data.loadedWeightKg));
+        } else if (data.loadedWeight) {
+          setWeight(String(Math.round(Number(data.loadedWeight) * 1000)));
+        } else {
+          setWeight("");
+        }
+      } else if (type === "Empty Weight") {
+        if (data.emptyWeightKg) {
+          setWeight(String(data.emptyWeightKg));
+        } else if (data.emptyWeight) {
+          setWeight(String(Math.round(Number(data.emptyWeight) * 1000)));
+        } else {
+          setWeight("");
+        }
+      }
+    } catch (e) {
+      console.warn("Failed syncing weighment data:", e);
+    }
+  };
+
+  useEffect(() => {
+    if (!editingId) {
+      syncWeightFromWeighbridge(weightType);
+    }
+  }, [weightType, vehicleNo, editingId]);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      if (!editingId) {
+        syncWeightFromWeighbridge(weightType);
+      }
+    };
+    window.addEventListener("rmc_weighment_update", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("rmc_weighment_update", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, [weightType, editingId]);
+
   const availableVehicles = useMemo(() => {
     if (!vehicles) return [];
     return vehicles

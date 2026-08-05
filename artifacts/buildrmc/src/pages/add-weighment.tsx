@@ -79,6 +79,134 @@ export default function AddWeighment() {
     return () => clearInterval(interval);
   }, []);
 
+  const broadcastWeighment = (vehNo: string, loaded: string, empty: string) => {
+    try {
+      const data = {
+        vehicleNo: vehNo,
+        loadedWeight: loaded,
+        emptyWeight: empty,
+        loadedWeightKg: loaded ? Math.round(Number(loaded) * 1000) : 0,
+        emptyWeightKg: empty ? Math.round(Number(empty) * 1000) : 0,
+        timestamp: Date.now()
+      };
+      localStorage.setItem("rmc_latest_weighment", JSON.stringify(data));
+      window.dispatchEvent(new CustomEvent("rmc_weighment_update", { detail: data }));
+    } catch (e) {
+      console.warn("Error broadcasting weighment:", e);
+    }
+  };
+
+  useEffect(() => {
+    if (loadedWeight || emptyWeight) {
+      broadcastWeighment(vehicleNo, loadedWeight, emptyWeight);
+    }
+  }, [loadedWeight, emptyWeight, vehicleNo]);
+
+  // Auto-capture weight when scale reading stabilizes (hands-free)
+  const lastCapturedWeightRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (liveScaleWeight < 200) {
+      lastCapturedWeightRef.current = null;
+      return;
+    }
+
+    if (isStable && liveScaleWeight >= 500) {
+      const tonsVal = (liveScaleWeight / 1000).toFixed(3);
+      if (lastCapturedWeightRef.current === liveScaleWeight) return;
+
+      if (!loadedWeight) {
+        setLoadedWeight(tonsVal);
+        lastCapturedWeightRef.current = liveScaleWeight;
+        toast({
+          title: "⚡ Loaded Weight Auto-Captured",
+          description: `Automatically recorded Loaded Weight: ${tonsVal} Tons`,
+        });
+      } else if (loadedWeight && !emptyWeight) {
+        if (Number(tonsVal) <= Number(loadedWeight)) {
+          setEmptyWeight(tonsVal);
+          lastCapturedWeightRef.current = liveScaleWeight;
+          toast({
+            title: "⚡ Empty Weight Auto-Captured",
+            description: `Automatically recorded Empty Weight: ${tonsVal} Tons`,
+          });
+        }
+      }
+    }
+  }, [liveScaleWeight, isStable, loadedWeight, emptyWeight]);
+
+  // Automated background scale engine (runs 100% hands-free without pressing any buttons)
+  useEffect(() => {
+    if (scaleMode !== "SIMULATOR" || !isScaleConnected) return;
+
+    let cleanupFn: (() => void) | undefined;
+
+    // Phase 1: Auto-generate & capture Loaded Weight (Gross)
+    if (!loadedWeight && !isSimulating) {
+      setIsSimulating(true);
+      setIsStable(false);
+      const targetWeight = 34500 + Math.floor(Math.random() * 600) - 300;
+      let stepCount = 0;
+      const totalSteps = 12;
+
+      const interval = setInterval(() => {
+        stepCount++;
+        const jitter = Math.floor((Math.random() - 0.5) * (totalSteps - stepCount) * 400);
+        setLiveScaleWeight(Math.max(0, targetWeight + jitter));
+
+        if (stepCount >= totalSteps) {
+          clearInterval(interval);
+          setLiveScaleWeight(targetWeight);
+          setIsSimulating(false);
+          setIsStable(true);
+          const tonsVal = (targetWeight / 1000).toFixed(3);
+          setLoadedWeight(tonsVal);
+          toast({
+            title: "⚡ Loaded Weight Auto-Captured",
+            description: `Automatically recorded Loaded Weight: ${tonsVal} Tons`,
+          });
+        }
+      }, 100);
+
+      cleanupFn = () => clearInterval(interval);
+    }
+    // Phase 2: Auto-generate & capture Empty Weight (Tare) after Loaded Weight is captured
+    else if (loadedWeight && !emptyWeight && !isSimulating) {
+      const timer = setTimeout(() => {
+        setIsSimulating(true);
+        setIsStable(false);
+        const targetWeight = 12800 + Math.floor(Math.random() * 400) - 200;
+        let stepCount = 0;
+        const totalSteps = 12;
+
+        const interval = setInterval(() => {
+          stepCount++;
+          const jitter = Math.floor((Math.random() - 0.5) * (totalSteps - stepCount) * 300);
+          setLiveScaleWeight(Math.max(0, targetWeight + jitter));
+
+          if (stepCount >= totalSteps) {
+            clearInterval(interval);
+            setLiveScaleWeight(targetWeight);
+            setIsSimulating(false);
+            setIsStable(true);
+            const tonsVal = (targetWeight / 1000).toFixed(3);
+            setEmptyWeight(tonsVal);
+            toast({
+              title: "⚡ Empty Weight Auto-Captured",
+              description: `Automatically recorded Empty Weight: ${tonsVal} Tons`,
+            });
+          }
+        }, 100);
+      }, 1500);
+
+      cleanupFn = () => clearTimeout(timer);
+    }
+
+    return () => {
+      if (cleanupFn) cleanupFn();
+    };
+  }, [scaleMode, loadedWeight, emptyWeight, isSimulating]);
+
   // Update site and mobile number when customer changes
   const selectedCustomerData = useMemo(() => {
     if (!customers || !customer) return null;
@@ -165,21 +293,14 @@ export default function AddWeighment() {
       return;
     }
 
-    const selectedVehicleReg = availableVehicles.find((v: any) => v.id === vehicleNo)?.reg || vehicleNo;
-    const selectedCustomerName = selectedCustomerData?.name || customer;
-    const loadedKg = Math.round((Number(loadedWeight) || 0) * 1000);
-    const emptyKg = Math.round((Number(emptyWeight) || 0) * 1000);
-    const netKg = Math.round(net * 1000);
-
     try {
-      // 1. Save weighment ticket
       const response = await fetch("/api/weighment-tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ticketNo,
-          plant: plant || "FORTUNE CONCRETE",
-          vehicleNo: selectedVehicleReg,
+          plant: plant || "Plant 1",
+          vehicleNo,
           weightType: "Net Weight",
           weight: net,
           createdBy: "Super Admin"
@@ -190,41 +311,12 @@ export default function AddWeighment() {
         throw new Error("Failed to save weighment ticket to database");
       }
 
-      // 2. Automatically save record to Store Inventory list
-      try {
-        await fetch("/api/store-inventories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            plant: plant || "FORTUNE CONCRETE",
-            inventoryNo: ticketNo || `IN1/2027/${Math.floor(1000 + Math.random() * 9000)}`,
-            supplierName: selectedCustomerName || "General Supplier",
-            itemName: selectedProductName || "Concrete Mix",
-            billNo: billNo || ticketNo,
-            amount: Number(amount) || 0,
-            inventoryDate: date || new Date().toISOString().split('T')[0],
-            inventoryTime: time || new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-            unit: "KG",
-            deliveryAddress: site || "Plant Site",
-            vehicleNo: selectedVehicleReg || "N/A",
-            loadedWeight: loadedKg,
-            emptyWeight: emptyKg,
-            netWeight: netKg,
-            supplierWeight: netKg,
-            weightDifference: 0,
-            createdBy: "Super Admin"
-          })
-        });
-      } catch (storeErr) {
-        console.warn("Failed to create store inventory entry:", storeErr);
-      }
-
-      toast({ title: "Weighment & Inventory Saved! 🎉", description: `Record saved to Weighment & Store Inventory List (${net.toFixed(3)} Tons).` });
+      toast({ title: "Weighment Saved", description: `Record saved to MongoDB with Net Weight: ${net.toFixed(3)} Tons.` });
       setLiveScaleWeight(0);
       setIsStable(false);
       rawBytesRef.current = [];
       serialBufferRef.current = "";
-      navigate("/store/inventory/list");
+      navigate("/dc/weighment/list");
     } catch (err: any) {
       toast({ title: "Error Saving", description: err.message || "Could not save to database", variant: "destructive" });
     }

@@ -6,7 +6,7 @@ const router: IRouter = Router();
 
 // Zod schema for validation
 const createStoreInventorySchema = z.object({
-  plant: z.string(),
+  plant: z.enum(["FORTUNE CONCRETE", "MARVAL RMC"]),
   inventoryNo: z.string(),
   supplierName: z.string(),
   itemName: z.string(),

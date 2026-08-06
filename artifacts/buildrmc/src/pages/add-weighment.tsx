@@ -47,13 +47,106 @@ export default function AddWeighment() {
   const [isScaleConnected, setIsScaleConnected] = useState<boolean>(false);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
   const [isStable, setIsStable] = useState<boolean>(false);
-  const [scaleMode, setScaleMode] = useState<"SIMULATOR" | "HARDWARE_COM">("SIMULATOR");
-  const activeSerialPortRef = useRef<any>(null);
-  const activeReaderRef = useRef<any>(null);
-  const serialBufferRef = useRef<string>("");
-  const rawBytesRef = useRef<number[]>([]);
-  const keepReadingRef = useRef<boolean>(true);
-  const [connectionType, setConnectionType] = useState<"COM_PORT" | "LOCAL_UTILITY">("COM_PORT");
+  const [scaleMode] = useState<"HARDWARE" | "SIMULATOR">("HARDWARE");
+  const [comPortSetting, setComPortSetting] = useState<string>("COM1");
+  const [baudRateSetting, setBaudRateSetting] = useState<number>(2400);
+  const [dataBitsSetting, setDataBitsSetting] = useState<number>(8);
+  const [paritySetting, setParitySetting] = useState<string>("none");
+  const [stopBitsSetting, setStopBitsSetting] = useState<number>(1);
+  const [availableComPorts, setAvailableComPorts] = useState<string[]>(["COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8"]);
+  const [rawSerialText, setRawSerialText] = useState<string>("");
+
+  // Fetch available COM ports and current scale config on mount
+  useEffect(() => {
+    fetch("/api/scale/ports")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.ports) && data.ports.length > 0) {
+          setAvailableComPorts(data.ports);
+        }
+      })
+      .catch((e) => console.warn("Failed fetching ports:", e));
+
+    fetch("/api/scale/status")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.state && data.state.config) {
+          const c = data.state.config;
+          if (c.comPort) setComPortSetting(c.comPort);
+          if (c.baudRate) setBaudRateSetting(c.baudRate);
+          if (c.dataBits) setDataBitsSetting(c.dataBits);
+          if (c.parity) setParitySetting(c.parity);
+          if (c.stopBits) setStopBitsSetting(c.stopBits);
+        }
+      })
+      .catch((e) => console.warn("Failed fetching initial scale status:", e));
+  }, []);
+
+  // Automatic Backend COM Port Stream Listener (SSE)
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    try {
+      eventSource = new EventSource("/api/scale/stream");
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data) {
+            setIsScaleConnected(Boolean(data.isConnected));
+            if (typeof data.liveWeight === "number") {
+              setLiveScaleWeight(data.liveWeight);
+            }
+            setIsStable(Boolean(data.isStable));
+            if (data.rawAscii) {
+              setRawSerialText(data.rawAscii);
+            } else if (data.rawHex) {
+              setRawSerialText(data.rawHex);
+            }
+            if (data.config) {
+              if (data.config.comPort) setComPortSetting(data.config.comPort);
+              if (data.config.baudRate) setBaudRateSetting(data.config.baudRate);
+              if (data.config.dataBits) setDataBitsSetting(data.config.dataBits);
+              if (data.config.parity) setParitySetting(data.config.parity);
+              if (data.config.stopBits) setStopBitsSetting(data.config.stopBits);
+            }
+          }
+        } catch (e) {
+          console.warn("Error parsing scale SSE event data:", e);
+        }
+      };
+
+      eventSource.onerror = () => {
+        setIsScaleConnected(false);
+      };
+    } catch (err) {
+      console.warn("EventSource setup error:", err);
+    }
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+    };
+  }, []);
+
+  const handleScaleConfigChange = async (updates: Partial<{ comPort: string; baudRate: number; dataBits: number; parity: string; stopBits: number }>) => {
+    try {
+      const res = await fetch("/api/scale/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      const data = await res.json();
+      if (data.success && data.config) {
+        toast({
+          title: "⚙️ Scale Settings Updated",
+          description: `COM Port reconnected using ${data.config.comPort} @ ${data.config.baudRate} Baud (${data.config.dataBits}-${data.config.parity.toUpperCase().charAt(0)}-${data.config.stopBits})`,
+        });
+      }
+    } catch (err) {
+      console.warn("Failed to update scale config:", err);
+    }
+  };
 
   // Live Data
   const { data: customers } = useGetCustomers();
@@ -472,12 +565,6 @@ export default function AddWeighment() {
     }, 120);
   };
 
-  const [baudRateSetting, setBaudRateSetting] = useState<number>(2400);
-  const [dataBitsSetting, setDataBitsSetting] = useState<number>(8);
-  const [paritySetting, setParitySetting] = useState<string>("none");
-  const [stopBitsSetting, setStopBitsSetting] = useState<number>(1);
-  const [rawSerialText, setRawSerialText] = useState<string>("");
-
   // Connect to Physical RS-232 COM Port via Web Serial API (when hardware is connected)
   const handleConnectHardwareCOM = async () => {
     if (!("serial" in navigator)) {
@@ -815,97 +902,97 @@ export default function AddWeighment() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-black text-xs tracking-wider uppercase text-slate-200">Digital Weighbridge Indicator</span>
-                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
-                        {isScaleConnected ? `CONNECTED (${scaleMode === 'SIMULATOR' ? '⚡ SIMULATOR' : '🔌 COM PORT'})` : '🔴 SCALE DISCONNECTED'}
+                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'}`}>
+                        {isScaleConnected ? `🟢 SCALE CONNECTED (${comPortSetting}, ${baudRateSetting} Baud)` : `🟡 SEARCHING SCALE (${comPortSetting})...`}
                       </span>
                     </div>
-                    <p className="text-[10px] text-slate-400">Live RS-232 / USB scale readout & automatic weight capture</p>
+                    <p className="text-[10px] text-slate-400">Automatic RS-232 / USB scale readout & hands-free weight capture</p>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  {/* Row 1: All dropdowns */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Select value={connectionType} onValueChange={(val) => { setConnectionType(val as any); handleDisconnectAll(); }}>
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-bold h-8 w-36">
-                        <SelectValue placeholder="Connection Mode" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                        <SelectItem value="COM_PORT">🔌 Direct COM Port</SelectItem>
-                        <SelectItem value="LOCAL_UTILITY">⚡ Local Utility (7171)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* COM Port & Serial Configuration Dropdowns */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* COM Port Dropdown */}
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-bold uppercase text-slate-400 mb-0.5">Port</span>
+                      <Select value={comPortSetting} onValueChange={(val) => { setComPortSetting(val); handleScaleConfigChange({ comPort: val }); }}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 text-[10px] font-mono font-bold h-8 w-24">
+                          <SelectValue placeholder="Port" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          {availableComPorts.map((port) => (
+                            <SelectItem key={port} value={port}>{port}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                    {connectionType === "COM_PORT" && (
-                      <>
-                        {/* Data Bits Dropdown */}
-                        <Select value={String(dataBitsSetting)} onValueChange={(val) => setDataBitsSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Data Bits" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="5">5 Bits</SelectItem>
-                            <SelectItem value="6">6 Bits</SelectItem>
-                            <SelectItem value="7">7 Bits</SelectItem>
-                            <SelectItem value="8">8 Bits</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    {/* Baud Rate Dropdown */}
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-bold uppercase text-slate-400 mb-0.5">Baud</span>
+                      <Select value={String(baudRateSetting)} onValueChange={(val) => { setBaudRateSetting(Number(val)); handleScaleConfigChange({ baudRate: Number(val) }); }}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 text-[10px] font-mono font-bold h-8 w-24">
+                          <SelectValue placeholder="Baud Rate" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="1200">1200</SelectItem>
+                          <SelectItem value="2400">2400</SelectItem>
+                          <SelectItem value="4800">4800</SelectItem>
+                          <SelectItem value="9600">9600</SelectItem>
+                          <SelectItem value="19200">19200</SelectItem>
+                          <SelectItem value="115200">115200</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                        {/* Parity Dropdown */}
-                        <Select value={paritySetting} onValueChange={(val) => setParitySetting(val)}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Parity" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="none">No Parity</SelectItem>
-                            <SelectItem value="even">Even</SelectItem>
-                            <SelectItem value="odd">Odd</SelectItem>
-                            <SelectItem value="mark">Mark</SelectItem>
-                            <SelectItem value="space">Space</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    {/* Data Bits Dropdown */}
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-bold uppercase text-slate-400 mb-0.5">Bits</span>
+                      <Select value={String(dataBitsSetting)} onValueChange={(val) => { setDataBitsSetting(Number(val)); handleScaleConfigChange({ dataBits: Number(val) }); }}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 text-[10px] font-mono font-bold h-8 w-20">
+                          <SelectValue placeholder="Bits" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="5">5 Bits</SelectItem>
+                          <SelectItem value="6">6 Bits</SelectItem>
+                          <SelectItem value="7">7 Bits</SelectItem>
+                          <SelectItem value="8">8 Bits</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                        {/* Stop Bits Dropdown */}
-                        <Select value={String(stopBitsSetting)} onValueChange={(val) => setStopBitsSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Stop Bits" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="1">1 Stop</SelectItem>
-                            <SelectItem value="1.5">1.5 Stop</SelectItem>
-                            <SelectItem value="2">2 Stop</SelectItem>
-                          </SelectContent>
-                        </Select>
+                    {/* Parity Dropdown */}
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-bold uppercase text-slate-400 mb-0.5">Parity</span>
+                      <Select value={paritySetting} onValueChange={(val) => { setParitySetting(val); handleScaleConfigChange({ parity: val }); }}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 text-[10px] font-mono font-bold h-8 w-22">
+                          <SelectValue placeholder="Parity" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="even">Even</SelectItem>
+                          <SelectItem value="odd">Odd</SelectItem>
+                          <SelectItem value="mark">Mark</SelectItem>
+                          <SelectItem value="space">Space</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                        {/* Baud Rate Dropdown */}
-                        <Select value={String(baudRateSetting)} onValueChange={(val) => setBaudRateSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-28">
-                            <SelectValue placeholder="Baud Rate" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="1200">1200 Baud</SelectItem>
-                            <SelectItem value="2400">2400 Baud</SelectItem>
-                            <SelectItem value="4800">4800 Baud</SelectItem>
-                            <SelectItem value="9600">9600 Baud</SelectItem>
-                            <SelectItem value="19200">19200 Baud</SelectItem>
-                            <SelectItem value="115200">115200 Baud</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Row 2: Connect button (always visible) */}
-                  <div className="flex justify-end">
-                    <Button 
-                      type="button" 
-                      onClick={handleToggleConnection}
-                      variant="outline" 
-                      className={`text-[10px] font-bold h-8 px-4 gap-1.5 ${isScaleConnected ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
-                    >
-                      <Radio className="h-3.5 w-3.5 text-emerald-400" />
-                      {isScaleConnected ? 'Disconnect' : (connectionType === 'COM_PORT' ? 'Connect COM Port' : 'Connect Utility')}
-                    </Button>
+                    {/* Stop Bits Dropdown */}
+                    <div className="flex flex-col">
+                      <span className="text-[8px] font-bold uppercase text-slate-400 mb-0.5">Stop</span>
+                      <Select value={String(stopBitsSetting)} onValueChange={(val) => { setStopBitsSetting(Number(val)); handleScaleConfigChange({ stopBits: Number(val) }); }}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-200 text-[10px] font-mono font-bold h-8 w-20">
+                          <SelectValue placeholder="Stop" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="1">1 Stop</SelectItem>
+                          <SelectItem value="1.5">1.5 Stop</SelectItem>
+                          <SelectItem value="2">2 Stop</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </div>

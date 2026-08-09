@@ -9,10 +9,15 @@ router.get("/scale/stream", (req: Request, res: Response): void => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
-  res.flushHeaders?.();
+  res.setHeader("X-Accel-Buffering", "no");
+  res.status(200);
 
   const sendEvent = (data: ScaleState) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
+    try {
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    } catch (_err) {
+      scaleService.removeClient(sendEvent);
+    }
   };
 
   scaleService.addClient(sendEvent);

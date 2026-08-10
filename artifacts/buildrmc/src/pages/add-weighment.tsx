@@ -53,7 +53,8 @@ export default function AddWeighment() {
   const serialBufferRef = useRef<string>("");
   const rawBytesRef = useRef<number[]>([]);
   const keepReadingRef = useRef<boolean>(true);
-  const [connectionType, setConnectionType] = useState<"COM_PORT" | "LOCAL_UTILITY">("COM_PORT");
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const [connectionType, setConnectionType] = useState<"SERVER_API" | "COM_PORT" | "LOCAL_UTILITY">("SERVER_API");
 
   // Live Data
   const { data: customers } = useGetCustomers();
@@ -355,7 +356,7 @@ export default function AddWeighment() {
     if (!isScaleConnected) {
       toast({
         title: "⚠️ Scale Disconnected",
-        description: "Please click 'Connect COM Port' to connect your COM port first before capturing weight.",
+        description: "Please click 'Connect Server COM' to connect your scale service first, or type weights manually below.",
         variant: "destructive"
       });
       return;
@@ -672,9 +673,15 @@ export default function AddWeighment() {
     }
   };
 
-  // Disconnect all serial and local utility loops
+  // Disconnect all serial, SSE streams, and local utility loops
   const handleDisconnectAll = async () => {
     keepReadingRef.current = false;
+    if (eventSourceRef.current) {
+      try {
+        eventSourceRef.current.close();
+      } catch (e) {}
+      eventSourceRef.current = null;
+    }
     if (activeReaderRef.current) {
       try {
         await activeReaderRef.current.cancel();
@@ -692,6 +699,47 @@ export default function AddWeighment() {
     setLiveScaleWeight(0);
     setRawSerialText("");
     setIsStable(false);
+  };
+
+  // Connect to Server-Side Scale Service (/api/scale/stream)
+  const handleConnectServerAPI = async () => {
+    try {
+      await handleDisconnectAll();
+
+      setIsScaleConnected(true);
+      setScaleMode("HARDWARE_COM");
+      setLiveScaleWeight(0);
+      setRawSerialText("Connecting to Server Scale stream (/api/scale/stream)...");
+      setIsStable(false);
+
+      const es = new EventSource("/api/scale/stream");
+      eventSourceRef.current = es;
+
+      es.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && data.liveWeight !== undefined) {
+            setLiveScaleWeight(data.liveWeight || 0);
+            setIsStable(Boolean(data.isStable));
+            setRawSerialText(data.rawAscii || data.rawHex || `Live Weight: ${data.liveWeight} KG`);
+          }
+        } catch (e) {
+          console.warn("SSE parse error:", e);
+        }
+      };
+
+      es.onerror = (_err) => {
+        setRawSerialText("Server scale stream reconnecting...");
+      };
+
+      toast({ title: "Server Scale Service Connected", description: "Listening to live weighbridge scale stream from backend server." });
+    } catch (err: any) {
+      toast({
+        title: "Server Scale Connection Error",
+        description: err.message || "Failed to connect to server scale service.",
+        variant: "destructive"
+      });
+    }
   };
 
   // Connect to Local Utility Bridge running on client's machine (Port 7171)
@@ -769,7 +817,9 @@ export default function AddWeighment() {
       await handleDisconnectAll();
       toast({ title: "Disconnected", description: "Scale connection closed." });
     } else {
-      if (connectionType === "COM_PORT") {
+      if (connectionType === "SERVER_API") {
+        await handleConnectServerAPI();
+      } else if (connectionType === "COM_PORT") {
         await handleConnectHardwareCOM();
       } else {
         await handleConnectLocalUtility();
@@ -827,11 +877,12 @@ export default function AddWeighment() {
                   {/* Row 1: All dropdowns */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <Select value={connectionType} onValueChange={(val) => { setConnectionType(val as any); handleDisconnectAll(); }}>
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-bold h-8 w-36">
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-bold h-8 w-44">
                         <SelectValue placeholder="Connection Mode" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                        <SelectItem value="COM_PORT">🔌 Direct COM Port</SelectItem>
+                        <SelectItem value="SERVER_API">🌐 Server COM Service (/api)</SelectItem>
+                        <SelectItem value="COM_PORT">🔌 Direct WebSerial (Browser)</SelectItem>
                         <SelectItem value="LOCAL_UTILITY">⚡ Local Utility (7171)</SelectItem>
                       </SelectContent>
                     </Select>
@@ -904,7 +955,7 @@ export default function AddWeighment() {
                       className={`text-[10px] font-bold h-8 px-4 gap-1.5 ${isScaleConnected ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
                     >
                       <Radio className="h-3.5 w-3.5 text-emerald-400" />
-                      {isScaleConnected ? 'Disconnect' : (connectionType === 'COM_PORT' ? 'Connect COM Port' : 'Connect Utility')}
+                      {isScaleConnected ? 'Disconnect' : (connectionType === 'SERVER_API' ? 'Connect Server COM' : connectionType === 'COM_PORT' ? 'Connect WebSerial' : 'Connect Utility')}
                     </Button>
                   </div>
                 </div>

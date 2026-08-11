@@ -7,7 +7,7 @@ export const CreateQuotationBody = zod.object({
   quotationNo: zod.string(),
   date: zod.string(),
   customerName: zod.string(),
-  customerPhone: zod.string(),
+  customerPhone: zod.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
   customerEmail: zod.string().optional().nullable(),
   customerGstin: zod.string().optional().nullable(),
   siteAddress: zod.string(),

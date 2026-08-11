@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/select";
 import { Plus, Sparkles, ChevronRight, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+import { useGetMasters } from "@workspace/api-client-react";
+
 
 /* ── Reusable compact field components ── */
 function Field({
@@ -100,6 +103,33 @@ export default function AddEnquiry() {
 
   useEffect(() => { setMounted(true); }, []);
 
+  // Dynamic Sales Setting Masters
+  const { data: dbLocality } = useGetMasters("locality");
+  const { data: dbSources } = useGetMasters("source");
+  const { data: dbMaterials } = useGetMasters("material");
+
+  const localityOptions = useMemo(() => {
+    if (dbLocality && dbLocality.length > 0) {
+      return dbLocality.map((m: any) => m.name || m.id);
+    }
+    return [];
+  }, [dbLocality]);
+
+  const sourceOptions = useMemo(() => {
+    if (dbSources && dbSources.length > 0) {
+      return dbSources.map((m: any) => m.name || m.id);
+    }
+    return [];
+  }, [dbSources]);
+
+  const materialOptions = useMemo(() => {
+    if (dbMaterials && dbMaterials.length > 0) {
+      return dbMaterials.map((m: any) => m.name || m.id);
+    }
+    return [];
+  }, [dbMaterials]);
+
+
   const addRequirement = () => {
     setRequirements(prev => [
       ...prev,
@@ -160,6 +190,17 @@ export default function AddEnquiry() {
       toast({ title: "Validation Error", description: "Please fill all required customer fields (*)", variant: "destructive" });
       return;
     }
+
+    if (!isValidPhone(mobile, true)) {
+      toast({ title: "Validation Error", description: "Mobile number must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
+    if (altNumber && !isValidPhone(altNumber, false)) {
+      toast({ title: "Validation Error", description: "Alternate phone number must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
 
     // Validate each requirement
     for (let i = 0; i < requirements.length; i++) {
@@ -244,10 +285,10 @@ export default function AddEnquiry() {
               <input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} placeholder="Full name" className={inputCls} />
             </Field>
             <Field label="Mobile" required>
-              <input value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="+91 XXXXX XXXXX" className={inputCls} />
+              <input value={mobile} onChange={(e) => setMobile(sanitizePhone(e.target.value))} placeholder="10-digit mobile no" className={inputCls} maxLength={10} />
             </Field>
             <Field label="Alternative Number">
-              <input value={altNumber} onChange={(e) => setAltNumber(e.target.value)} placeholder="Alternate phone" className={inputCls} />
+              <input value={altNumber} onChange={(e) => setAltNumber(sanitizePhone(e.target.value))} placeholder="10-digit alternate phone" className={inputCls} maxLength={10} />
             </Field>
             <Field label="Email">
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email@example.com" className={inputCls} />
@@ -308,27 +349,39 @@ export default function AddEnquiry() {
 
                   <Field label="Locality" required>
                     <Select value={req.locality} onValueChange={(v) => updateRequirement(req.id, "locality", v)}>
-                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select Locality" /></SelectTrigger>
                       <SelectContent>
-                        {["Locality 1", "Locality 2", "Locality 3", "Whitefield", "Marathahalli", "Yelahanka", "Electronic City", "Koramangala", "Indiranagar", "Jayanagar"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                        {localityOptions.length > 0 ? (
+                          localityOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)
+                        ) : (
+                          <SelectItem value="_empty" disabled className="text-xs">No localities configured in Sales Settings</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </Field>
 
                   <Field label="Source of Lead" required>
                     <Select value={req.sourceOfLead} onValueChange={(v) => updateRequirement(req.id, "sourceOfLead", v)}>
-                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select Lead Source" /></SelectTrigger>
                       <SelectContent>
-                        {["Online", "Referral", "Walk-in", "Exhibition", "Cold Call", "Newspaper"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                        {sourceOptions.length > 0 ? (
+                          sourceOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)
+                        ) : (
+                          <SelectItem value="_empty" disabled className="text-xs">No lead sources configured in Sales Settings</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </Field>
 
                   <Field label="Material Type" required>
                     <Select value={req.materialType} onValueChange={(v) => updateRequirement(req.id, "materialType", v)}>
-                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Select Material" /></SelectTrigger>
                       <SelectContent>
-                        {["RMC", "Sand", "Aggregate", "Cement", "Steel"].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                        {materialOptions.length > 0 ? (
+                          materialOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)
+                        ) : (
+                          <SelectItem value="_empty" disabled className="text-xs">No materials configured in Sales Settings</SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
                   </Field>

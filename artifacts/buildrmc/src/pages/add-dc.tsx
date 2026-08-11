@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -27,6 +27,7 @@ import {
   useCreateDC 
 } from "@workspace/api-client-react";
 import { useToast } from "../hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 export default function AddDC() {
   const [, setLocation] = useLocation();
@@ -49,6 +50,8 @@ export default function AddDC() {
   const [cementName, setCementName] = useState("");
   const [cementGrade, setCementGrade] = useState("OPC 43");
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isPoDialogOpen, setIsPoDialogOpen] = useState(false);
+  const [maxQty, setMaxQty] = useState<number | null>(null);
 
   // Advanced Fields
   const [slump, setSlump] = useState("");
@@ -64,7 +67,18 @@ export default function AddDC() {
   const { data: customers } = useGetCustomers();
   const { data: vehicles } = useGetVehicles();
   const { data: employees } = useGetEmployees();
-  const { data: pumps } = useGetMasters("pump");
+  const { data: pumps } = useQuery<any[]>({
+    queryKey: ["/api/pump-dgs"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/pump-dgs");
+        if (!res.ok) return [];
+        return await res.json();
+      } catch (err) {
+        return [];
+      }
+    }
+  });
   const { data: grades } = useGetMasters("grade");
   const { data: sites } = useGetMasters("site");
   const { data: plants } = useGetMasters("plant");
@@ -78,18 +92,120 @@ export default function AddDC() {
     return [];
   }, [grades]);
 
-  const drivers = useMemo(() => {
-    if (!employees) return [];
-    return (employees as any[]).filter(e => 
-      e.designation?.toLowerCase().includes("driver") || 
-      e.role?.toLowerCase().includes("driver") ||
-      true // Fallback to all employees if roles aren't defined strictly
-    );
-  }, [employees]);
+  const { data: transportDrivers } = useQuery<any[]>({
+    queryKey: ["/api/drivers"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/drivers");
+        if (!res.ok) return [];
+        return await res.json();
+      } catch (err) {
+        return [];
+      }
+    }
+  });
+
+  const driversList = useMemo(() => {
+    const list: { id: string; name: string }[] = [];
+    const seenNames = new Set<string>();
+
+    // 1. Transport drivers (/api/drivers)
+    if (transportDrivers && Array.isArray(transportDrivers)) {
+      transportDrivers.forEach((d: any) => {
+        const name = d.name || d.driverName || d.fullName;
+        if (name && !seenNames.has(name)) {
+          seenNames.add(name);
+          list.push({ id: String(d.id || d._id || name), name });
+        }
+      });
+    }
+
+    // 2. Employee drivers (/api/employees)
+    if (employees && Array.isArray(employees)) {
+      (employees as any[]).forEach((e: any) => {
+        const name = e.name || e.fullName;
+        if (name && !seenNames.has(name)) {
+          seenNames.add(name);
+          list.push({ id: String(e.id || e._id || name), name });
+        }
+      });
+    }
+
+    // 3. Drivers from vehicles
+    if (vehicles && Array.isArray(vehicles)) {
+      (vehicles as any[]).forEach((v: any) => {
+        const name = v.driverName;
+        if (name && !seenNames.has(name)) {
+          seenNames.add(name);
+          list.push({ id: name, name });
+        }
+      });
+    }
+
+    return list;
+  }, [transportDrivers, employees, vehicles]);
   const { data: allSalesOrders } = useGetSalesOrders();
 
-  const selectedCustomer = useMemo(() => customers?.find(c => String(c.id) === customerId), [customers, customerId]);
-  const selectedVehicle = useMemo(() => vehicles?.find(v => String(v.id) === vehicleId), [vehicles, vehicleId]);
+  const selectedCustomer = useMemo(() => customers?.find((c: any) => String(c.id) === customerId) as any, [customers, customerId]);
+  const selectedVehicle = useMemo(() => vehicles?.find((v: any) => String(v.id) === vehicleId) as any, [vehicles, vehicleId]);
+
+  // Parse sites from selected customer (siteName can be pipe-joined like "Site A|Site B"), customer's Sales Orders, and Master sites
+  const availableSites = useMemo(() => {
+    const list: { id: string; name: string }[] = [];
+    const seen = new Set<string>();
+
+    // 1. Sites from selected customer
+    if (selectedCustomer && typeof selectedCustomer.siteName === 'string') {
+      selectedCustomer.siteName.split("|").forEach((s: string) => {
+        const name = s.trim();
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          list.push({ id: name, name });
+        }
+      });
+    }
+
+    // 2. Sites from Sales Orders belonging to this customer
+    if (customerId && allSalesOrders && Array.isArray(allSalesOrders)) {
+      const orders = (allSalesOrders as any[]).filter(
+        (o) => String(o.customerId) === customerId
+      );
+      orders.forEach((o) => {
+        if (o.siteName && !seen.has(o.siteName.trim())) {
+          const name = o.siteName.trim();
+          seen.add(name);
+          list.push({ id: name, name });
+        }
+      });
+    }
+
+    // 3. Fallback to Master Sites
+    if (sites && Array.isArray(sites)) {
+      sites.forEach((s: any) => {
+        const name = s.name || s.siteName;
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          list.push({ id: String(s.id || name), name });
+        }
+      });
+    }
+
+    return list;
+  }, [selectedCustomer, customerId, allSalesOrders, sites]);
+
+  // Clear site when customer changes so the user can select manually
+  useEffect(() => {
+    setSiteId("");
+  }, [customerId]);
+
+  // Auto-select driver when vehicle changes
+  useEffect(() => {
+    if (selectedVehicle && selectedVehicle.driverName) {
+      setDriverName(selectedVehicle.driverName);
+    } else {
+      setDriverName("");
+    }
+  }, [selectedVehicle]);
 
   // Totals Calculation
   const totals = useMemo(() => {
@@ -128,7 +244,8 @@ export default function AddDC() {
       plant,
       customerid: customerId,
       vehicleid: vehicleId,
-      siteId: siteId || null,
+      siteId: (siteId && siteId.length === 24) ? siteId : null,
+      siteName: siteId || "",
       driverName,
       grade,
       quantity: parseFloat(qty),
@@ -167,6 +284,7 @@ export default function AddDC() {
     setLoadedQty("");
     setTransportCharge("");
     setPumpCharge("");
+    setMaxQty(null);
   };
 
   const infoPanel = [
@@ -285,7 +403,11 @@ export default function AddDC() {
               <Select value={siteId} onValueChange={setSiteId}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Site" /></SelectTrigger>
                 <SelectContent>
-                  {sites?.map(s => <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>)}
+                  {availableSites.length > 0 ? (
+                    availableSites.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)
+                  ) : (
+                    <SelectItem value="_empty" disabled>No sites available</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -294,9 +416,9 @@ export default function AddDC() {
               <Label className="text-sm font-semibold">Driver Name :</Label>
               <Select value={driverName} onValueChange={setDriverName}>
                 <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Driver" /></SelectTrigger>
-                <SelectContent className="max-h-[200px]">
-                  {drivers.length > 0 ? (
-                    drivers.map(d => (
+                 <SelectContent className="max-h-[200px]">
+                  {driversList.length > 0 ? (
+                    driversList.map(d => (
                       <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
                     ))
                   ) : (
@@ -329,7 +451,7 @@ export default function AddDC() {
             <div className="space-y-2">
               <Label className="text-sm font-semibold invisible">Actions</Label>
               <div className="flex gap-2 items-center">
-                <Dialog>
+                <Dialog open={isPoDialogOpen} onOpenChange={setIsPoDialogOpen}>
                   <DialogTrigger asChild>
                     <Button className="bg-sky-400 hover:bg-sky-500 text-white flex-1 h-10 text-xs font-semibold">Select By PO</Button>
                   </DialogTrigger>
@@ -342,8 +464,11 @@ export default function AddDC() {
                                if (order.items && order.items.length > 0) {
                                  setGrade(order.items[0].grade);
                                  setRate(String(order.items[0].rate));
+                                 const itemQty = order.items[0].remainingQty ?? order.items[0].quantity;
+                                 setMaxQty(itemQty);
                                }
                                toast({ title: "PO Selected", description: `Applied grade/rate from ${order.poNumber}` });
+                               setIsPoDialogOpen(false);
                              }}>
                           <div>
                             <p className="font-bold">{order.poNumber} ({order.poDate})</p>
@@ -364,7 +489,7 @@ export default function AddDC() {
                     <SelectTrigger className="bg-white h-10"><SelectValue placeholder="Choose Pump" /></SelectTrigger>
                     <SelectContent>
                       {pumps && pumps.length > 0 ? (
-                        pumps.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)
+                        pumps.map((p: any) => <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>)
                       ) : (
                         <SelectItem value="_empty" disabled>No pumps configured</SelectItem>
                       )}
@@ -375,11 +500,24 @@ export default function AddDC() {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">DC Quantity <span className="text-rose-500">*</span></Label>
+              <Label className="text-sm font-semibold">
+                DC Quantity <span className="text-rose-500">*</span>
+                {maxQty !== null && <span className="text-xs text-gray-400 ml-2">(Max: {maxQty})</span>}
+              </Label>
               <Input
                 placeholder="Enter DC Quantity Here..."
                 value={qty}
-                onChange={e => setQty(e.target.value)}
+                onChange={e => {
+                  let val = e.target.value;
+                  if (maxQty !== null && val !== "") {
+                    const parsed = parseFloat(val);
+                    if (parsed > maxQty) {
+                      toast({ title: "Quantity Exceeded", description: `Cannot exceed PO quantity (${maxQty}).`, variant: "destructive" });
+                      val = String(maxQty);
+                    }
+                  }
+                  setQty(val);
+                }}
                 type="number"
                 step="0.5"
                 className="bg-white h-10"

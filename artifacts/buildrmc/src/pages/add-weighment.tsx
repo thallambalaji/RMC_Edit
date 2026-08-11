@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { ChevronRight, ListPlus, Save, RotateCcw, Truck, Info, Settings, Scale, Zap, Radio, CheckCircle2, Play, RefreshCw, Cpu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 import { 
   useGetCustomers, 
   useGetVehicles, 
@@ -286,6 +288,10 @@ export default function AddWeighment() {
   const handleSave = async () => {
     if (!customer || !vehicleNo) {
       toast({ title: "Validation Error", description: "Please fill all required fields.", variant: "destructive" });
+      return;
+    }
+    if (mobileNo && !isValidPhone(mobileNo, false)) {
+      toast({ title: "Validation Error", description: "Mobile number must be exactly 10 digits.", variant: "destructive" });
       return;
     }
     const net = (Number(loadedWeight) || 0) - (Number(emptyWeight) || 0);
@@ -1065,7 +1071,7 @@ export default function AddWeighment() {
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Mobile No</Label>
-                <Input value={mobileNo} onChange={(e) => setMobileNo(e.target.value)} placeholder="Enter Mobile No" className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
+                <Input value={mobileNo} onChange={(e) => setMobileNo(sanitizePhone(e.target.value))} placeholder="Enter 10-digit Mobile No" maxLength={10} className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
               </div>
 
               <div className="hidden md:block"></div>

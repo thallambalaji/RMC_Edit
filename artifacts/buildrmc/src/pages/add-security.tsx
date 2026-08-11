@@ -21,13 +21,14 @@ export default function AddSecurityCheck() {
 
   const [plant, setPlant] = useState("");
   const [plants, setPlants] = useState<any[]>([]);
-  const [gatePassing, setGatePassing] = useState("Entry");
-  const [gateNo, setGateNo] = useState("1");
-  const [typeOfMovement, setTypeOfMovement] = useState("Sales");
+  const [gatePassing, setGatePassing] = useState("");
+  const [gateNo, setGateNo] = useState("");
+  const [typeOfMovement, setTypeOfMovement] = useState("");
   
   const [vehicles, setVehicles] = useState<VehicleData[]>([]);
   const [vehicleNo, setVehicleNo] = useState("");
   const [driverName, setDriverName] = useState("");
+  const [drivers, setDrivers] = useState<any[]>([]);
 
   const getLocalDateString = () => {
     const d = new Date();
@@ -56,10 +57,6 @@ export default function AddSecurityCheck() {
         if (res.ok) {
           const data = await res.json();
           setVehicles(data);
-          if (data.length > 0) {
-            setVehicleNo(data[0].registrationNo);
-            setDriverName(data[0].driverName || "");
-          }
         }
       } catch (err) {
         console.error(err);
@@ -67,15 +64,25 @@ export default function AddSecurityCheck() {
     };
     fetchVehicles();
 
+    const fetchDrivers = async () => {
+      try {
+        const res = await fetch("/api/drivers");
+        if (res.ok) {
+          const data = await res.json();
+          setDrivers(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDrivers();
+
     const fetchPlants = async () => {
       try {
         const res = await fetch("/api/masters?type=plant");
         if (res.ok) {
           const data = await res.json();
           setPlants(data);
-          if (data.length > 0) {
-            setPlant(data[0].name);
-          }
         }
       } catch (err) {
         console.error(err);
@@ -218,6 +225,7 @@ export default function AddSecurityCheck() {
                         onChange={(e) => handleVehicleChange(e.target.value)}
                         className="w-full h-10 rounded border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                       >
+                        <option value="">Select Vehicle</option>
                         {vehicles.map((v) => (
                           <option key={v.id || v._id} value={v.registrationNo}>
                             {v.registrationNo}
@@ -232,12 +240,18 @@ export default function AddSecurityCheck() {
                   <div className="space-y-1">
                     <Label className="text-xs font-black text-slate-700">Driver Name</Label>
                     <div className="relative flex items-center">
-                      <Input
+                      <select
                         value={driverName}
                         onChange={(e) => setDriverName(e.target.value)}
-                        placeholder="e.g. Suresh Kumar"
-                        className="pl-9 h-10 text-xs font-semibold border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
-                      />
+                        className="w-full h-10 rounded border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
+                      >
+                        <option value="">Select Driver (Optional)</option>
+                        {drivers.map((d: any) => (
+                          <option key={d._id || d.id} value={d.name}>
+                            {d.name}
+                          </option>
+                        ))}
+                      </select>
                       <User className="absolute left-3 h-4 w-4 text-slate-400 pointer-events-none" />
                     </div>
                   </div>
@@ -255,6 +269,7 @@ export default function AddSecurityCheck() {
                       onChange={(e) => setGatePassing(e.target.value)}
                       className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                     >
+                      <option value="" disabled>Select Gate Passing</option>
                       <option value="Entry">Entry</option>
                       <option value="Exit">Exit</option>
                     </select>
@@ -270,6 +285,7 @@ export default function AddSecurityCheck() {
                       onChange={(e) => setTypeOfMovement(e.target.value)}
                       className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c] transition-all"
                     >
+                      <option value="" disabled>Select Type of Movement</option>
                       <option value="Sales">Sales</option>
                       <option value="Purchase">Purchase</option>
                       <option value="Visitor">Visitor</option>

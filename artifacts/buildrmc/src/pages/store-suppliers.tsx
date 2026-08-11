@@ -9,6 +9,8 @@ import { StoreLayout } from "@/components/store-layout";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch, useGetMasters, useCreateMaster, useDeleteMaster } from "@workspace/api-client-react";
 import { Pencil, Trash2, Search } from "lucide-react";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 
 interface SupplierRecord {
   id: string;
@@ -82,6 +84,11 @@ export default function StoreSuppliers() {
   const handleSave = async () => {
     if (!name.trim() || !gstin.trim() || !phone.trim() || !address.trim() || !businessGroup.trim()) {
       toast({ title: "Missing required fields", description: "Please fill in all required supplier fields.", variant: "destructive" });
+      return;
+    }
+
+    if (!isValidPhone(phone, true)) {
+      toast({ title: "Validation Error", description: "Supplier Phone must be exactly 10 digits.", variant: "destructive" });
       return;
     }
 
@@ -207,7 +214,7 @@ export default function StoreSuppliers() {
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Supplier Phone *</Label>
-                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Enter Phone number" />
+                <Input value={phone} onChange={(e) => setPhone(sanitizePhone(e.target.value))} placeholder="Enter 10-digit phone number" maxLength={10} />
               </div>
               <div>
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Supplier Email</Label>

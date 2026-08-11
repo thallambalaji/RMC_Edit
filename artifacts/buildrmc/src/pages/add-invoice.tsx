@@ -230,18 +230,8 @@ export default function AddInvoice() {
       });
     }
     
-    // Always provide standard concrete grades as a baseline
-    ["M10", "M15", "M20", "M25", "M30", "M35", "M40", "M45", "M50"].forEach(g => gradeSet.add(g));
-    
-    // Also include any master grades from the database
-    if (dbGrades && dbGrades.length > 0) {
-      dbGrades.forEach((g: any) => {
-        gradeSet.add(g.name || g.id);
-      });
-    }
-    
     return Array.from(gradeSet).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-  }, [customerId, allSalesOrders, dbGrades]);
+  }, [customerId, allSalesOrders]);
 
   // When customer changes: auto-select first site, reset grade to first customer grade
   useEffect(() => {
@@ -398,7 +388,7 @@ export default function AddInvoice() {
         loadedGrade,
         loadedQuantity: parseFloat(loadedQuantity) || 0,
         quantity: parseFloat(quantity) || 0,
-        netAmount: parseFloat(netAmount),
+        netAmount: totals.gross,   // gross = qty × rate (taxable amount before GST)
         cgstRate: parseFloat(cgstRate),
         sgstRate: parseFloat(sgstRate),
         isBillReceived: false,

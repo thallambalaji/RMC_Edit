@@ -10,6 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 import { ExportDropdown } from "@/components/export-dropdown";
 import { PrintHeader } from "@/components/print-header";
 import {
@@ -293,6 +295,17 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
       return;
     }
 
+    if (!isValidPhone(editForm.contact, true)) {
+      toast({ title: "Validation Error", description: "Customer Phone must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
+    if (editForm.contactPersonPhone && !isValidPhone(editForm.contactPersonPhone, false)) {
+      toast({ title: "Validation Error", description: "Contact Person Phone must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
+
     const payload = {
       name: editForm.name.trim(),
       legalName: editForm.legalName.trim() || undefined,
@@ -339,7 +352,8 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
 
   const labelStyle = "text-[9px] font-extrabold text-slate-400 mb-0.5 block uppercase tracking-wider";
   const inputStyle = "h-7 text-[10px] border-slate-200 rounded-lg shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
-  const headerStyle = "bg-slate-50/50 text-slate-500 font-extrabold py-2 px-4 text-left text-[9.5px] border-b border-slate-100 uppercase tracking-wider";
+  const headerStyleLeft = "bg-slate-50/50 text-slate-500 font-extrabold py-2 px-4 text-left text-[9.5px] border-b border-slate-100 uppercase tracking-wider";
+  const headerStyleCenter = "bg-slate-50/50 text-slate-500 font-extrabold py-2 px-4 text-center text-[9.5px] border-b border-slate-100 uppercase tracking-wider";
 
   return (
     <>
@@ -523,13 +537,13 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
               <Table>
                 <TableHeader className="bg-slate-50/50">
                   <TableRow className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <TableHead className={headerStyle}>Customer Name</TableHead>
-                    <TableHead className={headerStyle}>Address</TableHead>
-                    <TableHead className={headerStyle}>Phone</TableHead>
-                    <TableHead className={headerStyle}>GSTIN No</TableHead>
-                    <TableHead className={headerStyle}>PAN No</TableHead>
-                    <TableHead className={headerStyle}>Sales Person</TableHead>
-                    <TableHead className={headerStyle}>Reg Date</TableHead>
+                    <TableHead className={headerStyleLeft}>Customer Name</TableHead>
+                    <TableHead className={headerStyleLeft}>Address</TableHead>
+                    <TableHead className={headerStyleCenter}>Phone</TableHead>
+                    <TableHead className={headerStyleCenter}>GSTIN No</TableHead>
+                    <TableHead className={headerStyleCenter}>PAN No</TableHead>
+                    <TableHead className={headerStyleCenter}>Sales Person</TableHead>
+                    <TableHead className={headerStyleCenter}>Reg Date</TableHead>
                     <TableHead className="bg-slate-50/50 text-slate-500 font-extrabold py-2 px-3 text-center text-[9.5px] border-b border-slate-100 uppercase tracking-wider w-[70px]">OPTIONS</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -702,8 +716,9 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                   <Label className={labelStyle}>Customer Phone *</Label>
                   <Input 
                     value={editForm.contact} 
-                    onChange={e => setEditForm({ ...editForm, contact: e.target.value })} 
+                    onChange={e => setEditForm({ ...editForm, contact: sanitizePhone(e.target.value) })} 
                     className={inputStyle}
+                    maxLength={10}
                   />
                 </div>
                 <div className="space-y-0.5">
@@ -862,8 +877,9 @@ Reg Date: ${c.createdAt ? format(new Date(c.createdAt), "dd/MM/yyyy") : "—"}`;
                   <Label className={labelStyle}>Contact Person Phone</Label>
                   <Input 
                     value={editForm.contactPersonPhone} 
-                    onChange={e => setEditForm({ ...editForm, contactPersonPhone: e.target.value })} 
+                    onChange={e => setEditForm({ ...editForm, contactPersonPhone: sanitizePhone(e.target.value) })} 
                     className={inputStyle}
+                    maxLength={10}
                   />
                 </div>
               </div>

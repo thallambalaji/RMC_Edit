@@ -229,6 +229,10 @@ router.get("/drivers", async (_req, res): Promise<void> => {
 
 router.post("/drivers", async (req, res): Promise<void> => {
   try {
+    if (req.body.phone && !/^\d{10}$/.test(req.body.phone)) {
+      res.status(400).json({ error: "Driver Phone must be exactly 10 digits" });
+      return;
+    }
     await connectMongo();
     const driver = new Driver(req.body);
     await driver.save();
@@ -254,10 +258,15 @@ router.get("/drivers/:id", async (req, res): Promise<void> => {
 
 router.put("/drivers/:id", async (req, res): Promise<void> => {
   try {
+    if (req.body.phone && !/^\d{10}$/.test(req.body.phone)) {
+      res.status(400).json({ error: "Driver Phone must be exactly 10 digits" });
+      return;
+    }
     await connectMongo();
     console.log("PUT /api/drivers/:id ID:", req.params.id);
     console.log("PUT /api/drivers/:id body:", req.body);
     const driver = await Driver.findByIdAndUpdate(req.params.id, req.body, { new: true });
+
     if (!driver) {
       console.log("Driver not found for ID:", req.params.id);
       res.status(404).json({ error: "Driver not found" });

@@ -77,11 +77,7 @@ export default function AddSalesOrder() {
     return [];
   }, [dbGrades]);
 
-  useEffect(() => {
-    if (plants && plants.length > 0 && !plant) {
-      setPlant(plants[0].name);
-    }
-  }, [plants, plant]);
+
 
   useEffect(() => {
     if (salesStaff.length > 0 && !marketingPerson) {
@@ -153,7 +149,7 @@ export default function AddSalesOrder() {
     setPoNumber("");
     setPoDate(new Date().toISOString().split('T')[0]);
     setValidity("");
-    setPlant(plants && plants.length > 0 ? plants[0].name : "");
+    setPlant("");
     setSiteName("");
     setSiteAddress("");
     setTaxInclude(true);
@@ -174,6 +170,10 @@ export default function AddSalesOrder() {
     }
     if (!poNumber) {
       toast({ title: "Validation Error", description: "Please enter a PO Number", variant: "destructive" });
+      return;
+    }
+    if (!plant || !plant.trim()) {
+      toast({ title: "Validation Error", description: "Please select a Plant", variant: "destructive" });
       return;
     }
 

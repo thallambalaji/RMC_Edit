@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { TransportLayout } from "@/components/transport-layout";
 import { useRoute, useLocation } from "wouter";
 import { Plus } from "lucide-react";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 
 export default function AddDriver() {
   const { toast } = useToast();
@@ -54,6 +56,14 @@ export default function AddDriver() {
       toast({
         title: "Validation Error",
         description: "Driver Phone is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!isValidPhone(phone, true)) {
+      toast({
+        title: "Validation Error",
+        description: "Driver Phone must be exactly 10 digits.",
         variant: "destructive",
       });
       return;
@@ -163,9 +173,10 @@ export default function AddDriver() {
               </Label>
               <Input
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(sanitizePhone(e.target.value))}
                 placeholder="Enter Driver Phone."
                 className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
+                maxLength={10}
                 required
               />
             </div>

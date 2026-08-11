@@ -367,7 +367,7 @@ export default function DCReport() {
           {/* Item / Grade */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold">
-              Item <span className="text-rose-500">*</span>
+              Item
             </Label>
             <Select value={selectedItem} onValueChange={setSelectedItem}>
               <SelectTrigger className="bg-white h-10 border-gray-300">
@@ -386,7 +386,7 @@ export default function DCReport() {
           {/* Plant */}
           <div className="space-y-2">
             <Label className="text-sm font-semibold">
-              Plant <span className="text-rose-500">*</span>
+              Plant
             </Label>
             <Select value={selectedPlant} onValueChange={setSelectedPlant}>
               <SelectTrigger className="bg-white h-10 border-gray-300">

@@ -131,6 +131,7 @@ export default function BatchList() {
   const [nCementName, setNCementName] = useState("");
   const [nSlump, setNSlump] = useState("100+/-20");
   const [nVehicle, setNVehicle] = useState("");
+  const [vehicles, setVehicles] = useState<any[]>([]);
   const [nBatchVol, setNBatchVol] = useState(6);
   const [nNoLoads, setNNoLoads] = useState(1);
   const [nDesigned, setNDesigned] = useState<Record<IngrKey, number>>(emptyIngr());
@@ -162,6 +163,15 @@ export default function BatchList() {
   useEffect(() => {
     fetch("/api/customers").then(r => r.json()).then(setCustomers).catch(() => {});
     fetch("/api/recipes").then(r => r.json()).then(setRecipes).catch(() => {});
+    fetch("/api/vehicles").then(r => r.json()).then(setVehicles).catch(() => {});
+  }, []);
+
+  const [masterGrades, setMasterGrades] = useState<string[]>([]);
+  useEffect(() => {
+    fetch("/api/masters?type=grade")
+      .then(r => r.ok ? r.json() : [])
+      .then((data: any[]) => setMasterGrades(data.map((g: any) => g.name).filter(Boolean)))
+      .catch(() => {});
   }, []);
 
   // ─── Customer sites ──────────────────────────────────────────────────────
@@ -169,6 +179,11 @@ export default function BatchList() {
     if (!nCustomer) return [];
     const cust = customers.find((c: any) => c.name === nCustomer || c.id === nCustomer);
     if (!cust) return [];
+    // siteName is stored as a pipe-separated string e.g. "velimela|site2"
+    if (cust.siteName && typeof cust.siteName === "string") {
+      return cust.siteName.split("|").map((s: string) => s.trim()).filter(Boolean);
+    }
+    // Fallback: legacy sites array
     const sites: string[] = [];
     (cust.sites || []).forEach((s: any) => {
       if (typeof s === "string") sites.push(s);
@@ -177,15 +192,16 @@ export default function BatchList() {
     return sites;
   }, [nCustomer, customers]);
 
-  // Grades available from recipe for selected customer/site
+  // Grades: merge master grades + grades from matching recipes
   const availableGrades = useMemo(() => {
     const filtered = recipes.filter((r: any) => {
       if (nCustomer && r.customer !== nCustomer) return false;
       if (nSite && r.siteName !== nSite) return false;
       return true;
     });
-    return [...new Set(filtered.map((r: any) => r.grade))];
-  }, [recipes, nCustomer, nSite]);
+    const recipeGrades = filtered.map((r: any) => r.grade).filter(Boolean);
+    return [...new Set([...masterGrades, ...recipeGrades])].sort();
+  }, [recipes, nCustomer, nSite, masterGrades]);
 
   // ─── Auto-fetch recipe when grade changes ────────────────────────────────
   useEffect(() => {
@@ -323,8 +339,12 @@ export default function BatchList() {
 
   // ─── Save new batch sheet ────────────────────────────────────────────────
   const handleSaveSheet = async () => {
-    if (!nCustomer || !nGrade || !nVehicle) {
-      toast({ title: "Required fields missing", description: "Please fill Customer, Grade and Vehicle No.", variant: "destructive" });
+    const missing: string[] = [];
+    if (!nCustomer) missing.push("Customer");
+    if (!nGrade) missing.push("Grade");
+    if (!nVehicle) missing.push("Vehicle No");
+    if (missing.length > 0) {
+      toast({ title: "Required fields missing", description: `Please fill: ${missing.join(", ")}.`, variant: "destructive" });
       return;
     }
     setSaving(true);
@@ -696,14 +716,23 @@ export default function BatchList() {
                   <SelectContent>
                     {availableGrades.length > 0
                       ? availableGrades.map(g => <SelectItem key={g} value={g} className="text-xs font-bold">{g}</SelectItem>)
-                      : <SelectItem value="_none" disabled className="text-xs text-slate-400">No recipes found</SelectItem>
+                      : <SelectItem value="_none" disabled className="text-xs text-slate-400">No grades found</SelectItem>
                     }
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] font-black uppercase text-slate-600">Vehicle No *</Label>
-                <Input value={nVehicle} onChange={e => setNVehicle(e.target.value)} placeholder="e.g. TS09EX1234" className="h-9 text-xs" />
+                <Select value={nVehicle} onValueChange={setNVehicle}>
+                  <SelectTrigger className="h-9 text-xs font-bold"><SelectValue placeholder="Select Vehicle" /></SelectTrigger>
+                  <SelectContent>
+                    {vehicles.filter((v: any) => v.registrationNo).map((v: any) => (
+                      <SelectItem key={v.id || v._id} value={v.registrationNo} className="text-xs font-bold">
+                        {v.registrationNo}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <Label className="text-[10px] font-black uppercase text-slate-600">Recipe Code</Label>

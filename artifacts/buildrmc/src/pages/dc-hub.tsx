@@ -269,9 +269,9 @@ export default function DCHub() {
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
-                  <Link href="/dc/weighment/tickets"><div className={linkClass("/dc/weighment/tickets")}>Weighment Ticket</div></Link>
                   <Link href="/dc/weighment/new"><div className={linkClass("/dc/weighment/new")}>Add Weighment</div></Link>
                   <Link href="/dc/weighment/list"><div className={linkClass("/dc/weighment/list")}>Weighment List</div></Link>
+                  <Link href="/dc/weighment/tickets"><div className={linkClass("/dc/weighment/tickets")}>Weighment Tickets</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>

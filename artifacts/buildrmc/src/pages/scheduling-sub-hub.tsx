@@ -49,7 +49,7 @@ export default function SchedulingSubHub() {
             
             <AccordionItem value="scheduling" className="border-none border rounded-lg bg-white shadow-sm overflow-hidden">
               <AccordionTrigger className="hover:no-underline hover:bg-gray-50 px-3 py-2.5 text-sm font-semibold transition-colors">
-                <div className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-purple-500"/> Scheduling</div>
+                <div className="flex items-center gap-2"><CalendarClock className="h-4 w-4 text-[#ea580c]"/> Scheduling</div>
               </AccordionTrigger>
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">

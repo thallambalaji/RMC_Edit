@@ -34,6 +34,12 @@ interface VehicleData {
   vehicleType?: string;
   vehicleCategory?: string;
   transporter?: string;
+  insuranceExp?: string;
+  rcExp?: string;
+  taxExp?: string;
+  pollutionExp?: string;
+  fitnessExp?: string;
+  documentRequired?: string;
 }
 
 export default function VehicleList() {
@@ -188,27 +194,6 @@ export default function VehicleList() {
       activePath="/transport/vehicle/list"
     >
       <div className="space-y-4 flex-1 flex flex-col min-h-0 overflow-auto hide-scrollbar">
-        {/* Orange Horizontal Document Status Header matching brand color theme */}
-        <div className="grid grid-cols-6 border border-orange-500 bg-[#ea580c] rounded-md shadow-sm shrink-0 overflow-hidden text-center divide-x divide-orange-600/35">
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest">Insurance Exp.</span>
-          </div>
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest">RC Exp.</span>
-          </div>
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest">Tax Exp.</span>
-          </div>
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest">Pollution Exp.</span>
-          </div>
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest">Fitness Exp.</span>
-          </div>
-          <div className="py-2.5 px-1 hover:bg-[#d97706] transition-colors cursor-pointer">
-            <span className="text-[10px] font-black uppercase text-white tracking-widest font-extrabold text-yellow-250">Document Required</span>
-          </div>
-        </div>
 
         {/* Filter Card Matching Customer & PO */}
         {showFilters && (
@@ -281,9 +266,13 @@ export default function VehicleList() {
                   <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-center">S/L No</TableHead>
                   <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle No</TableHead>
                   <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Name</TableHead>
-                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Transporter Name</TableHead>
                   <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Type</TableHead>
-                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Vehicle Category</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Insurance Exp.</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">RC Exp.</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Tax Exp.</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Pollution Exp.</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Fitness Exp.</TableHead>
+                  <TableHead className="bg-[#ea580c] text-white font-black text-[9px] uppercase tracking-tighter py-1.5 px-2 border-r border-white/10 text-left">Doc. Required</TableHead>
                   <TableHead className="bg-[#ea580c] text-white font-black py-1.5 px-3 text-center text-[9px] last:border-0 uppercase tracking-tighter w-[70px]">OPTIONS</TableHead>
                 </TableRow>
               </TableHeader>
@@ -309,16 +298,15 @@ export default function VehicleList() {
                         className="hover:bg-slate-50/80 transition-colors border-b border-slate-100"
                       >
                         <TableCell className="font-bold text-slate-600 text-xs py-3 px-4">{slNo}</TableCell>
-                        <TableCell className="font-extrabold text-[#ea580c] text-xs px-3">{item.registrationNo}</TableCell>
-                        
-                        {/* Exact matching design: Peach color background cell exactly like in the screenshot! */}
-                        <TableCell className="font-extrabold text-slate-800 text-xs px-3 bg-[#ffedd5]/70 border-x border-[#fed7aa]/35">
-                          {item.model}
-                        </TableCell>
-
-                        <TableCell className="font-medium text-slate-600 text-xs px-3">{item.transporter || "N/A"}</TableCell>
-                        <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleType || "own"}</TableCell>
-                        <TableCell className="font-semibold text-slate-700 text-xs px-3 lowercase">{item.vehicleCategory || "km"}</TableCell>
+                        <TableCell className="font-extrabold text-[#ea580c] text-xs px-3 whitespace-nowrap">{item.registrationNo}</TableCell>
+                        <TableCell className="font-extrabold text-slate-800 text-xs px-3 bg-[#ffedd5]/70 border-x border-[#fed7aa]/35 whitespace-nowrap">{item.model}</TableCell>
+                        <TableCell className="font-semibold text-slate-700 text-xs px-3">{item.vehicleType || "Own"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.insuranceExp ? new Date(item.insuranceExp).toLocaleDateString("en-IN") : "—"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.rcExp ? new Date(item.rcExp).toLocaleDateString("en-IN") : "—"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.taxExp ? new Date(item.taxExp).toLocaleDateString("en-IN") : "—"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.pollutionExp ? new Date(item.pollutionExp).toLocaleDateString("en-IN") : "—"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.fitnessExp ? new Date(item.fitnessExp).toLocaleDateString("en-IN") : "—"}</TableCell>
+                        <TableCell className="text-xs px-3 text-slate-600">{item.documentRequired || "—"}</TableCell>
                         <TableCell className="text-center py-1.5 px-3">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

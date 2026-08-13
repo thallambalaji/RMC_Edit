@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMasters } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -59,12 +59,25 @@ export default function AddMixDesign() {
   const [rows, setRows] = useState<IngredientRow[]>(INITIAL_ROWS);
 
   const { data: dbGrades } = useGetMasters("grade");
+  const [fetchedGrades, setFetchedGrades] = useState<string[]>([]);
+
+  // Direct fetch fallback to ensure grades always load
+  useEffect(() => {
+    fetch("/api/masters?type=grade")
+      .then(r => r.ok ? r.json() : [])
+      .then((data: any[]) => {
+        const names = data.map((g: any) => g.name).filter(Boolean);
+        setFetchedGrades(names);
+      })
+      .catch(() => {});
+  }, []);
+
   const gradesList = useMemo(() => {
-    if (dbGrades && dbGrades.length > 0) {
-      return dbGrades.map((g: any) => g.name);
-    }
-    return [];
-  }, [dbGrades]);
+    // Merge both sources, preferring direct fetch for reliability
+    const fromHook = (dbGrades || []).map((g: any) => g.name).filter(Boolean);
+    const merged = [...new Set([...fetchedGrades, ...fromHook])];
+    return merged.sort();
+  }, [dbGrades, fetchedGrades]);
 
   const totalDensity = useMemo(() => {
     return rows.reduce((acc, row) => {
@@ -154,6 +167,20 @@ export default function AddMixDesign() {
                   value={recipeCode}
                   onChange={e => setRecipeCode(e.target.value)}
                   placeholder="Enter Recipe Code"
+                  className="h-11 text-sm bg-slate-50/50 border-slate-300 focus:bg-white transition-all font-semibold"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="recipeName" className="text-xs font-black uppercase text-slate-700 flex items-center gap-1">
+                  Recipe Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="recipeName"
+                  value={recipeName}
+                  onChange={e => setRecipeName(e.target.value)}
+                  placeholder="Enter Recipe Name"
                   className="h-11 text-sm bg-slate-50/50 border-slate-300 focus:bg-white transition-all font-semibold"
                   required
                 />

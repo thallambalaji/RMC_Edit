@@ -44,8 +44,9 @@ export default function AddDiesel() {
   const [vehicleNo, setVehicleNo] = useState("");
   const [driverName, setDriverName] = useState("");
   const [litres, setLitres] = useState("");
-  const [takenFrom, setTakenFrom] = useState("From Plant Stock");
+  const [takenFrom, setTakenFrom] = useState("");
   const [dieselRate, setDieselRate] = useState("");
+  const [drivers, setDrivers] = useState<any[]>([]);
 
   // Engines list state
   const [engineRows, setEngineRows] = useState<EngineRow[]>([
@@ -59,7 +60,6 @@ export default function AddDiesel() {
         if (res.ok) {
           const data = await res.json();
           setVehicles(data);
-          if (data.length > 0 && !logId) setVehicleNo(data[0].registrationNo);
         }
       } catch (err) {
         console.error(err);
@@ -73,13 +73,25 @@ export default function AddDiesel() {
         if (res.ok) {
           const data = await res.json();
           setPlants(data);
-          if (data.length > 0 && !logId) setPlant(data[0].name);
         }
       } catch (err) {
         console.error(err);
       }
     };
     fetchPlants();
+
+    const fetchDrivers = async () => {
+      try {
+        const res = await fetch("/api/drivers");
+        if (res.ok) {
+          const data = await res.json();
+          setDrivers(data);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDrivers();
   }, [logId]);
 
   useEffect(() => {
@@ -94,7 +106,7 @@ export default function AddDiesel() {
             setVehicleNo(data.vehicleNo || "");
             setDriverName(data.driverName || "");
             setLitres(data.litres ? String(data.litres) : "");
-            setTakenFrom(data.takenFrom || "From Plant Stock");
+            setTakenFrom(data.takenFrom || "");
             setDieselRate(data.dieselRate ? String(data.dieselRate) : "");
             if (data.engines && data.engines.length > 0) {
               setEngineRows(
@@ -141,12 +153,12 @@ export default function AddDiesel() {
       setLocation(window.location.pathname);
       return;
     }
-    setPlant(plants.length > 0 ? plants[0].name : "");
+    setPlant("");
+    setVehicleNo("");
     setDate(new Date().toISOString().split("T")[0]);
-    setVehicleNo(vehicles.length > 0 ? vehicles[0].registrationNo : "");
     setDriverName("");
     setLitres("");
-    setTakenFrom("From Plant Stock");
+    setTakenFrom("");
     setDieselRate("");
     setEngineRows([
       { engineType: "Main Engine", calculationType: "km", opening: "", closing: "" }
@@ -223,10 +235,10 @@ export default function AddDiesel() {
     <TransportLayout
       breadcrumbs={[
         { label: "Diesel Consumption", href: "/transport/diesel/list" },
-        { label: logId ? "Edit Consumption" : "Log Consumption" }
+        { label: logId ? "Edit Consumption" : "Add Consumption" }
       ]}
-      title={logId ? "EDIT DIESEL CONSUMPTION" : "LOG DIESEL CONSUMPTION"}
-      activePath="/transport/diesel/list"
+      title={logId ? "EDIT DIESEL CONSUMPTION" : "ADD DIESEL CONSUMPTION"}
+      activePath={logId ? `/transport/diesel/edit/${logId}` : "/transport/diesel/new"}
     >
       <div className="w-full py-6 px-4 bg-white min-h-[calc(100vh-140px)] flex flex-col rounded-lg border shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -285,12 +297,18 @@ export default function AddDiesel() {
 
                 <div className="space-y-1">
                   <Label className="text-xs font-bold text-slate-700">Driver Name</Label>
-                  <Input
+                  <select
                     value={driverName}
                     onChange={(e) => setDriverName(e.target.value)}
-                    placeholder="Enter Driver Name"
-                    className="h-10 text-xs font-medium border-slate-200 focus:border-[#ea580c] focus:ring-[#ea580c] rounded"
-                  />
+                    className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                  >
+                    <option value="">Select Driver</option>
+                    {drivers.map((d: any) => (
+                      <option key={d._id || d.id} value={d.name}>
+                        {d.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -331,7 +349,9 @@ export default function AddDiesel() {
                   value={takenFrom}
                   onChange={(e) => setTakenFrom(e.target.value)}
                   className="w-full h-10 rounded border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#ea580c] focus:ring-1 focus:ring-[#ea580c]"
+                  required
                 >
+                  <option value="" disabled>Select Source</option>
                   <option value="From Plant Stock">From Plant Stock</option>
                   <option value="Petrol Bunk">Petrol Bunk</option>
                 </select>

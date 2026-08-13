@@ -15,6 +15,8 @@ import { ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateQuotation, useGetMasters, useGetEmployees } from "@workspace/api-client-react";
 import { format, parseISO } from "date-fns";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 
 interface GradeRow { id: number; grade: string; qty: string; rate: string; recipe: string; cement: string; }
 
@@ -102,8 +104,8 @@ export default function AddQuotation() {
       toast({ title: "Validation Error", description: "Please enter the customer name.", variant: "destructive" });
       return;
     }
-    if (!customerPhone.trim()) {
-      toast({ title: "Validation Error", description: "Please enter a valid phone number.", variant: "destructive" });
+    if (!customerPhone.trim() || !isValidPhone(customerPhone, true)) {
+      toast({ title: "Validation Error", description: "Phone number must be exactly 10 digits.", variant: "destructive" });
       return;
     }
     if (!siteAddress.trim()) {
@@ -193,7 +195,7 @@ export default function AddQuotation() {
              </div>
              <div>
                 <Label className={labelStyle}>Phone Number <span className="text-rose-500">*</span></Label>
-                <Input value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} placeholder="Contact No" autoComplete="off" className={inputStyle} />
+                <Input value={customerPhone} onChange={e => setCustomerPhone(sanitizePhone(e.target.value))} placeholder="10-digit contact no" autoComplete="off" className={inputStyle} maxLength={10} />
              </div>
              <div>
                 <Label className={labelStyle}>Date</Label>

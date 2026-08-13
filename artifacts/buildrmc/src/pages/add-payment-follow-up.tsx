@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function AddPaymentFollowUp() {
+  const [, navigate] = useLocation();
   const { toast } = useToast();
 
   const [mounted, setMounted] = useState(false);
@@ -116,14 +117,7 @@ export default function AddPaymentFollowUp() {
         description: `Follow-up for ${selectedCustomer?.name || "Customer"} successfully added!`,
       });
 
-      // Clear Form Fields on success (staying on page, no redirect!)
-      setCustomerId("");
-      setStatus("");
-      setFollowupDate(new Date().toISOString().split("T")[0]);
-      setFollowupTime(new Date().toTimeString().split(" ")[0]);
-      setNextDate("");
-      setNextTime("");
-      setDescription("");
+      navigate("/sales/payment-follow-up/list");
     } catch (err: any) {
       toast({
         title: "Submission Failed",
@@ -162,7 +156,7 @@ export default function AddPaymentFollowUp() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-200">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-[#ea580c] shadow-lg shadow-orange-200">
             <Wallet className="h-6 w-6 text-white" />
           </div>
           <div>
@@ -187,7 +181,7 @@ export default function AddPaymentFollowUp() {
             <span className="text-gray-700 font-medium">Payment Follow Up</span>
           </nav>
           <Link href="/sales/payment-follow-up/list">
-            <Button className="bg-gradient-to-r from-[#ea580c] to-[#d97706] hover:opacity-90 text-white gap-2 shadow-md shadow-cyan-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
+            <Button className="bg-gradient-to-r from-[#ea580c] to-[#d97706] hover:opacity-90 text-white gap-2 shadow-md shadow-orange-100 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 text-sm">
               <ListPlus className="h-4 w-4" />
               Payment Follow Up List
             </Button>
@@ -207,9 +201,9 @@ export default function AddPaymentFollowUp() {
             transition: "opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s",
           }}
         >
-          <div className="px-7 pt-5 pb-3 border-b border-gray-50 bg-gradient-to-r from-blue-50 to-white">
+          <div className="px-7 pt-5 pb-3 border-b border-gray-50 bg-gradient-to-r from-orange-50/60 to-white">
             <h3 className="text-sm font-bold text-gray-600 flex items-center gap-2 uppercase tracking-wider">
-              <span className="w-1 h-4 rounded-full bg-gradient-to-b from-blue-400 to-blue-600 inline-block" />
+              <span className="w-1 h-4 rounded-full bg-gradient-to-b from-orange-400 to-[#ea580c] inline-block" />
               Follow Up Details
             </h3>
           </div>
@@ -227,7 +221,7 @@ export default function AddPaymentFollowUp() {
                   </div>
                 ) : (
                   <Select value={customerId} onValueChange={setCustomerId}>
-                    <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200 bg-white">
+                    <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 transition-all duration-200 bg-white">
                       <SelectValue placeholder="Choose Customer" />
                     </SelectTrigger>
                     <SelectContent>
@@ -250,7 +244,7 @@ export default function AddPaymentFollowUp() {
                   type="date"
                   value={followupDate}
                   onChange={(e) => setFollowupDate(e.target.value)}
-                  className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-300 transition-all duration-200"
+                  className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/20 transition-all duration-200"
                 />
               </div>
 
@@ -264,7 +258,7 @@ export default function AddPaymentFollowUp() {
                   step={1}
                   value={followupTime}
                   onChange={(e) => setFollowupTime(e.target.value)}
-                  className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-300 transition-all duration-200"
+                  className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/20 transition-all duration-200"
                 />
               </div>
 
@@ -274,7 +268,7 @@ export default function AddPaymentFollowUp() {
                   FollowUp Status <span className="text-rose-500">*</span>
                 </Label>
                 <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus:ring-2 focus:ring-blue-300 transition-all duration-200 bg-white">
+                  <SelectTrigger className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus:ring-2 focus:ring-[#ea580c]/20 transition-all duration-200 bg-white">
                     <SelectValue placeholder="Choose Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -295,7 +289,7 @@ export default function AddPaymentFollowUp() {
                   type="date"
                   value={nextDate}
                   onChange={(e) => setNextDate(e.target.value)}
-                  className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-300 transition-all duration-200"
+                  className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/20 transition-all duration-200"
                 />
               </div>
 
@@ -309,7 +303,7 @@ export default function AddPaymentFollowUp() {
                   step={1}
                   value={nextTime}
                   onChange={(e) => setNextTime(e.target.value)}
-                  className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-300 transition-all duration-200"
+                  className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/20 transition-all duration-200"
                 />
               </div>
 
@@ -322,7 +316,7 @@ export default function AddPaymentFollowUp() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Add notes about this follow-up..."
-                  className="h-11 border-gray-200 rounded-lg hover:border-blue-300 focus-visible:ring-2 focus-visible:ring-blue-300 transition-all duration-200"
+                  className="h-11 border-gray-200 rounded-lg hover:border-[#ea580c] focus-visible:ring-2 focus-visible:ring-[#ea580c]/20 transition-all duration-200"
                 />
               </div>
             </div>
@@ -332,7 +326,7 @@ export default function AddPaymentFollowUp() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-10 h-11 font-bold rounded-xl shadow-md shadow-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                className="bg-gradient-to-r from-[#ea580c] to-[#d97706] hover:from-[#d97706] hover:to-[#ea580c] text-white px-10 h-11 font-bold rounded-xl shadow-md shadow-orange-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>
@@ -370,13 +364,13 @@ export default function AddPaymentFollowUp() {
           </Label>
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             {/* Colour band */}
-            <div className="h-2 bg-gradient-to-r from-[#ea580c] to-blue-500" />
+            <div className="h-2 bg-gradient-to-r from-[#ea580c] to-[#d97706]" />
 
             {selectedCustomer ? (
               <div className="p-5 space-y-4">
                 {[
                   { icon: User, label: "Customer Name", value: selectedCustomer.name, color: "text-[#ea580c]" },
-                  { icon: Phone, label: "Phone Number", value: selectedCustomer.phone || "No phone added", color: "text-emerald-500" },
+                  { icon: Phone, label: "Phone Number", value: selectedCustomer.contact || selectedCustomer.contactPersonPhone || selectedCustomer.phone || "No phone added", color: "text-emerald-500" },
                   { icon: Mail, label: "Email", value: selectedCustomer.email || "No email added", color: "text-orange-500" },
                   {
                     icon: AlertCircle,

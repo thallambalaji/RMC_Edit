@@ -29,6 +29,16 @@ router.post("/customers", async (req, res): Promise<void> => {
     res.status(400).json({ error: "Validation Error", detail: errorDetails });
     return;
   }
+
+  if (parsed.data.contact && !/^\d{10}$/.test(parsed.data.contact)) {
+    res.status(400).json({ error: "Validation Error", detail: "Customer Phone must be exactly 10 digits." });
+    return;
+  }
+  if (parsed.data.contactPersonPhone && !/^\d{10}$/.test(parsed.data.contactPersonPhone)) {
+    res.status(400).json({ error: "Validation Error", detail: "Contact Person Phone must be exactly 10 digits." });
+    return;
+  }
+
   
   try {
     await connectMongo();
@@ -62,6 +72,16 @@ router.put("/customers/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+
+  if (parsed.data.contact && !/^\d{10}$/.test(parsed.data.contact)) {
+    res.status(400).json({ error: "Validation Error", detail: "Customer Phone must be exactly 10 digits." });
+    return;
+  }
+  if (parsed.data.contactPersonPhone && !/^\d{10}$/.test(parsed.data.contactPersonPhone)) {
+    res.status(400).json({ error: "Validation Error", detail: "Contact Person Phone must be exactly 10 digits." });
+    return;
+  }
+
   
   try {
     await connectMongo();

@@ -261,8 +261,8 @@ export default function EnquiryList() {
   };
 
   return (
-    <div className="space-y-4 pb-4 print:p-0">
-      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 print:hidden">
+    <div className="flex-1 flex flex-col space-y-3 min-w-0 print:p-0">
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
         <div className="flex items-center gap-3">
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Sales Enquiry List</h2>
           <div className="h-4 w-px bg-gray-300" />
@@ -275,13 +275,13 @@ export default function EnquiryList() {
           </nav>
         </div>
         <Link href="/sales/enquiry/new">
-          <Button className="h-8 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md shadow-[#ea580c]/10">
-            <ListPlus className="h-4 w-4" /> Add Enquiry
+          <Button className="h-7 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[9px] tracking-wider px-3 gap-1.5 shadow-none border-0 rounded cursor-pointer">
+            <ListPlus className="h-3.5 w-3.5" /> Add Enquiry
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 print:border-none print:shadow-none">
+      <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden p-4 print:border-none print:shadow-none">
         {/* Printable Header (Only visible during print) */}
         <div className="hidden print:block mb-6">
           <PrintHeader />

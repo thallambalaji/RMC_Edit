@@ -42,6 +42,17 @@ router.post("/enquiries", async (req, res) => {
       return;
     }
 
+    if (!/^\d{10}$/.test(mobile)) {
+      res.status(400).json({ error: "Mobile number must be exactly 10 digits" });
+      return;
+    }
+
+    if (altNumber && !/^\d{10}$/.test(altNumber)) {
+      res.status(400).json({ error: "Alternate phone number must be exactly 10 digits" });
+      return;
+    }
+
+
     if (!requirements || !Array.isArray(requirements) || requirements.length === 0) {
       res.status(400).json({ error: "Add at least one requirement" });
       return;

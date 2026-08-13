@@ -21,6 +21,12 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ChevronRight, Plus, Clock, Trash2, RefreshCw, Printer, FileText, Sparkles, ReceiptText } from "lucide-react";
 
 
@@ -111,6 +117,7 @@ export default function AddSalesDocument() {
   }, [allDcs, customerId]);
 
   const [selectedDcIds, setSelectedDcIds] = useState<string[]>([]);
+  const [selectedViewDc, setSelectedViewDc] = useState<any>(null);
 
   // Line Items State
   const [items, setItems] = useState<any[]>([
@@ -178,7 +185,7 @@ export default function AddSalesDocument() {
       id: Date.now() + Math.random(),
       name: dc.grade || "RMC",
       qty: dc.quantity || 0,
-      rate: dc.rate || 0,
+      rate: (dc.netAmount && dc.quantity) ? (dc.netAmount / dc.quantity).toFixed(2) : 0,
       taxRate: 18,
       includeTax: false,
       dcNo: dc.dcNumber
@@ -658,8 +665,8 @@ export default function AddSalesDocument() {
                       <div className="w-18 px-1.5 border-r truncate">{dc.dcDate}</div>
                       <div className="flex-1 px-1.5 border-r truncate text-gray-500">{dc.grade || "RMC"}</div>
                       <div className="w-16 text-right px-1.5 border-r font-black text-[#ea580c]">{dc.quantity || 0}</div>
-                      <div className="w-16 text-right px-1.5 border-r">₹{dc.rate || 0}</div>
-                      <div className="w-20 text-right px-1.5 border-r">₹{(dc.quantity || 0) * (dc.rate || 0)}</div>
+                      <div className="w-16 text-right px-1.5 border-r">₹{(dc.netAmount && dc.quantity) ? (dc.netAmount / dc.quantity).toFixed(2) : 0}</div>
+                      <div className="w-20 text-right px-1.5 border-r">₹{dc.netAmount || 0}</div>
                       <div className="w-12 text-center">
                         <Checkbox 
                           checked={selectedDcIds.includes(dc.id)} 
@@ -687,7 +694,21 @@ export default function AddSalesDocument() {
                 >
                   Append DC
                 </Button>
-                <Button type="button" size="sm" className="bg-[#4FC3F7] hover:bg-[#3ba8d8] h-5.5 text-[8px] font-black px-4 uppercase tracking-wider rounded-md shadow-none text-white border-0">View DC Copy</Button>
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  onClick={() => {
+                    if (selectedDcIds.length !== 1) {
+                      toast({ title: "Select exactly one DC to view", variant: "destructive" });
+                      return;
+                    }
+                    const dc = filteredDcs.find(d => d.id === selectedDcIds[0]);
+                    if (dc) setSelectedViewDc(dc);
+                  }}
+                  className="bg-[#4FC3F7] hover:bg-[#3ba8d8] h-5.5 text-[8px] font-black px-4 uppercase tracking-wider rounded-md shadow-none text-white border-0"
+                >
+                  View DC Copy
+                </Button>
               </div>
             </div>
           </div>
@@ -828,6 +849,30 @@ export default function AddSalesDocument() {
           </div>
         </div>
       </form>
+      <Dialog open={!!selectedViewDc} onOpenChange={(open) => !open && setSelectedViewDc(null)}>
+        <DialogContent className="max-w-xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-black text-xl border-b border-slate-100 pb-2">DC Details - {selectedViewDc?.dcNumber}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2 text-sm">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Date:</span> <div className="font-medium text-slate-800">{selectedViewDc?.dcDate ? new Date(selectedViewDc.dcDate).toLocaleDateString("en-IN") : "-"} {selectedViewDc?.dcTime || ""}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Customer:</span> <div className="font-medium text-slate-800">{selectedViewDc?.customerName || selectedCustomer?.name || "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Site:</span> <div className="font-medium text-slate-800">{selectedViewDc?.siteName || selectedCustomer?.address || "-"}</div></div>
+              </div>
+              <div className="space-y-3">
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Vehicle No:</span> <div className="font-medium text-slate-800">{selectedViewDc?.vehicleReg || selectedViewDc?.vehicleNo || "-"}</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Grade & Qty:</span> <div className="font-medium text-slate-800">{selectedViewDc?.grade} - {selectedViewDc?.quantity} m³</div></div>
+                <div><span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Rate:</span> <div className="font-medium text-slate-800">₹{selectedViewDc?.netAmount && selectedViewDc?.quantity ? (selectedViewDc.netAmount / selectedViewDc.quantity).toFixed(2) : 0}</div></div>
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button onClick={() => setSelectedViewDc(null)} size="sm" className="bg-slate-800 hover:bg-slate-900 text-white shadow-md">Close</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

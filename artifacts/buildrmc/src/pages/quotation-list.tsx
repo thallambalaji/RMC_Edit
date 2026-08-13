@@ -387,10 +387,10 @@ export default function QuotationList() {
               <TableRow className="border-0 hover:bg-slate-100">
                 <TableHead className={headerStyle}>Quotation NO</TableHead>
                 <TableHead className={headerStyle}>Date</TableHead>
-                <TableHead className={headerStyle}>Customer</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Customer</TableHead>
                 <TableHead className={headerStyle}>Phone</TableHead>
-                <TableHead className={headerStyle}>Site Address</TableHead>
-                <TableHead className={headerStyle}>Email</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Site Address</TableHead>
+                <TableHead className={`${headerStyle} text-left`}>Email</TableHead>
                 <TableHead className={headerStyle}>Sales Person</TableHead>
                 <TableHead className={headerStyle}>Tax Inc?</TableHead>
                 <TableHead className={headerStyle}>Added By</TableHead>

@@ -13,13 +13,14 @@ router.get("/payment-follow-ups", async (req, res) => {
 
     res.json(results.map(r => {
       const obj = r.toObject();
+      const cust = obj.customerId || {};
       return {
         ...obj,
         id: String(r._id),
-        customerName: obj.customerId?.name || "Unknown Customer",
-        customerPhone: obj.customerId?.phone || "",
-        customerEmail: obj.customerId?.email || "",
-        customerBalance: obj.customerId?.creditLimit ? `₹ ${obj.customerId.creditLimit.toLocaleString()}` : "₹ 0"
+        customerName: cust.name || "Unknown Customer",
+        customerPhone: cust.contact || cust.contactPersonPhone || cust.phone || "—",
+        customerEmail: cust.email || "—",
+        customerBalance: cust.creditLimit ? `₹ ${cust.creditLimit.toLocaleString()}` : "₹ 0"
       };
     }));
   } catch (error) {

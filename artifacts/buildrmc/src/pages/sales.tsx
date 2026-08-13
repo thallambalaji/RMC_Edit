@@ -235,8 +235,7 @@ export default function Sales() {
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/enquiry/new"><div className={linkClass("/sales/enquiry/new")}>Add Enquiry</div></Link>
-                  <Link href="/sales/enquiry/list"><div className={linkClass("/sales/enquiry/list")}>Enquiry List</div></Link>
-                  <Link href="/sales/enquiry"><div className={linkClass("/sales/enquiry")}>Enquiry Hub</div></Link>
+                  <Link href="/sales/enquiry"><div className={linkClass("/sales/enquiry")}>Enquiry List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -248,8 +247,7 @@ export default function Sales() {
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/payment-follow-up/new"><div className={linkClass("/sales/payment-follow-up/new")}>Add Payment Follow Up</div></Link>
-                  <Link href="/sales/payment-follow-up/list"><div className={linkClass("/sales/payment-follow-up/list")}>Payment Follow Up List</div></Link>
-                  <Link href="/sales/payment-follow-up"><div className={linkClass("/sales/payment-follow-up")}>Follow Up Hub</div></Link>
+                  <Link href="/sales/payment-follow-up"><div className={linkClass("/sales/payment-follow-up")}>Payment Follow Up List</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -261,7 +259,6 @@ export default function Sales() {
               <AccordionContent className="bg-gray-50/50 pb-2 border-t">
                 <div className="flex flex-col space-y-1 mt-2 px-2">
                   <Link href="/sales/settings/master"><div className={linkClass("/sales/settings/master")}>Sales Master</div></Link>
-                  <Link href="/sales/settings"><div className={linkClass("/sales/settings")}>Settings Hub</div></Link>
                 </div>
               </AccordionContent>
             </AccordionItem>

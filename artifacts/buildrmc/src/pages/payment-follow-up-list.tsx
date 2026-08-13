@@ -212,9 +212,9 @@ export default function PaymentFollowUpList() {
   };
 
   return (
-    <div className="space-y-4 pb-4 print:p-0">
+    <div className="flex-1 flex flex-col space-y-3 min-w-0 print:p-0">
       {/* Breadcrumb Header */}
-      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 mb-4 print:hidden">
+      <div className="flex items-center justify-between bg-white p-2 px-3 rounded-lg border shadow-sm shrink-0 print:hidden">
         <div className="flex items-center gap-3">
           <h2 className="text-[12px] font-black text-gray-900 uppercase tracking-tight">Payment FollowUp List</h2>
           <div className="h-4 w-px bg-gray-300" />
@@ -227,13 +227,13 @@ export default function PaymentFollowUpList() {
           </nav>
         </div>
         <Link href="/sales/payment-follow-up/new">
-          <Button className="h-8 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[10px] tracking-wider gap-1.5 shadow-md">
-            <ListPlus className="h-4 w-4" /> Add Payment FollowUp
+          <Button className="h-7 bg-[#ea580c] hover:bg-[#d97706] text-white font-bold uppercase text-[9px] tracking-wider px-3 gap-1.5 shadow-none border-0 rounded cursor-pointer">
+            <ListPlus className="h-3.5 w-3.5" /> Add Payment FollowUp
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg p-5 shadow-sm border border-gray-100 print:border-none print:shadow-none">
+      <div className="bg-white rounded-lg border shadow-sm flex-1 flex flex-col overflow-hidden p-4 print:border-none print:shadow-none">
         {/* Printable Header */}
         <div className="hidden print:block mb-6">
           <PrintHeader />
@@ -451,17 +451,6 @@ export default function PaymentFollowUpList() {
               <div>
                 <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block">Customer Name:</span>
                 <div className="font-extrabold text-slate-800 text-sm">{selectedFollowup?.customerName}</div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                <div>
-                  <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block">Phone Number:</span>
-                  <div className="font-semibold text-slate-700">{selectedFollowup?.customerPhone || "N/A"}</div>
-                </div>
-                <div>
-                  <span className="text-slate-400 font-bold uppercase text-[9px] tracking-wider block">Email:</span>
-                  <div className="font-semibold text-slate-700">{selectedFollowup?.customerEmail || "N/A"}</div>
-                </div>
               </div>
 
               <div className="border-t border-slate-200/60 my-2 pt-2 grid grid-cols-2 gap-3">

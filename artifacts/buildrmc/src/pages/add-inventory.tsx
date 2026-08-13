@@ -30,7 +30,7 @@ export default function AddInventory() {
   const [inventoryTime, setInventoryTime] = useState("");
   const [gatepassNo, setGatepassNo] = useState("");
   const [royaltyNo, setRoyaltyNo] = useState("");
-  const [unit, setUnit] = useState("KG");
+  const [unit, setUnit] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState("");
   
   const [vehicleNo, setVehicleNo] = useState("");
@@ -53,15 +53,9 @@ export default function AddInventory() {
   const { data: suppliers } = useGetMasters("supplier");
   const { data: items } = useGetMasters("item");
 
-  useEffect(() => {
-    if (plants && plants.length > 0 && !plant) {
-      setPlant(String(plants[0].name || plants[0].id || ""));
-    }
-  }, [plants, plant]);
-
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Set default Date, Time & Inventory No, or load receipt for editing
+  // Set default Date, Time or load receipt for editing
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const editId = params.get("edit");
@@ -69,7 +63,6 @@ export default function AddInventory() {
       setEditingId(editId);
       fetchReceiptToEdit(editId);
     } else {
-      generateInventoryNo();
       const today = new Date();
       setInventoryDate(today.toISOString().split("T")[0]);
       setInventoryTime(today.toTimeString().split(" ")[0]);
@@ -90,7 +83,7 @@ export default function AddInventory() {
         setInventoryTime(data.inventoryTime);
         setGatepassNo(data.gatepassNo || "");
         setRoyaltyNo(data.royaltyNo || "");
-        setUnit(data.unit || "KG");
+        setUnit(data.unit || "");
         setDeliveryAddress(data.deliveryAddress || "");
         setVehicleNo(data.vehicleNo);
         setLoadedWeight(String(data.loadedWeight));
@@ -127,14 +120,14 @@ export default function AddInventory() {
   // Clear Form
   const handleClear = () => {
     setPlant("");
-    generateInventoryNo();
+    setInventoryNo("");
     setSupplierName("");
     setItemName("");
     setBillNo("");
     setAmount("");
     setGatepassNo("");
     setRoyaltyNo("");
-    setUnit("KG");
+    setUnit("");
     setDeliveryAddress("");
     setVehicleNo("");
     setLoadedWeight("");
@@ -378,7 +371,7 @@ export default function AddInventory() {
                 <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Unit *</Label>
                 <Select value={unit} onValueChange={setUnit}>
                   <SelectTrigger className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 shadow-sm focus:ring-[#ea580c] focus:border-[#ea580c]">
-                    <SelectValue />
+                    <SelectValue placeholder="Select Unit" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-slate-200 text-slate-700">
                     <SelectItem value="KG">KG</SelectItem>

@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronRight, Loader2, Save, UserPlus, SlidersHorizontal, Building2, UserCircle2, Tags, MapPin, CheckCircle2, XCircle, AlertTriangle, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { sanitizePhone, isValidPhone } from "@/lib/utils";
+
 
 type GstinStatus = "idle" | "loading" | "verified" | "invalid" | "unverified";
 
@@ -204,6 +206,16 @@ export default function AddCustomer() {
       return;
     }
 
+    if (!isValidPhone(formData.contact, true)) {
+      toast({ title: "Validation Error", description: "Customer Phone must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
+    if (formData.contactPersonPhone && !isValidPhone(formData.contactPersonPhone, false)) {
+      toast({ title: "Validation Error", description: "Contact Person Phone must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+
     // Validate that at least the first site is completed
     const firstSite = sites[0];
     if (!firstSite.name.trim() || !firstSite.address.trim() || !firstSite.pinCode.trim()) {
@@ -248,8 +260,13 @@ export default function AddCustomer() {
   };
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    let finalVal = value;
+    if (field === "contact" || field === "contactPersonPhone") {
+      finalVal = sanitizePhone(value);
+    }
+    setFormData(prev => ({ ...prev, [field]: finalVal }));
   };
+
 
   const labelStyle = "text-[9px] font-black text-gray-600 mb-0.5 block uppercase tracking-tighter";
   const inputStyle = "h-7 text-[10px] border-gray-200 rounded shadow-none focus:ring-[#ea580c] font-bold px-2 bg-white";
@@ -369,7 +386,7 @@ export default function AddCustomer() {
 
                 <div className="col-span-1">
                   <Label className={labelStyle}>Customer Phone <span className="text-rose-500">*</span></Label>
-                  <Input value={formData.contact} onChange={e => handleChange("contact", e.target.value)} placeholder="Phone" className={inputStyle} required />
+                  <Input value={formData.contact} onChange={e => handleChange("contact", e.target.value)} placeholder="Phone" className={inputStyle} maxLength={10} required />
                 </div>
                 <div className="col-span-1">
                   <Label className={labelStyle}>Customer Email</Label>
@@ -499,7 +516,7 @@ export default function AddCustomer() {
                    </div>
                    <div>
                       <Label className={labelStyle}>Contact Person Phone</Label>
-                      <Input value={formData.contactPersonPhone} onChange={e => handleChange("contactPersonPhone", e.target.value)} placeholder="Phone No" className={inputStyle} />
+                      <Input value={formData.contactPersonPhone} onChange={e => handleChange("contactPersonPhone", e.target.value)} placeholder="Phone No" className={inputStyle} maxLength={10} />
                    </div>
                 </div>
              </div>

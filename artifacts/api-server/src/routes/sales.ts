@@ -38,6 +38,12 @@ router.post("/sales-orders", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+
+  if (!parsed.data.plant || !parsed.data.plant.trim()) {
+    res.status(400).json({ error: "Plant is mandatory. Please select a plant." });
+    return;
+  }
+
   
   try {
     await connectMongo();

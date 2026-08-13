@@ -19,7 +19,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronRight, ListPlus, Loader2, CalendarClock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+
 
 export default function AddScheduling() {
   const [, navigate] = useLocation();
@@ -34,13 +35,43 @@ export default function AddScheduling() {
   const [pump2, setPump2] = useState("");
 
   const { data: plants } = useGetMasters("plant");
-  const { data: pumps } = useGetMasters("pump");
+  const { data: dbPumps } = useGetMasters("pump");
 
-  useMemo(() => {
-    if (plants && plants.length > 0 && !plant) {
-      setPlant(String(plants[0].name || plants[0].id || ""));
+  const { data: pumpDgs } = useQuery<any[]>({
+    queryKey: ["/api/pump-dgs"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/pump-dgs");
+        if (!res.ok) return [];
+        return await res.json();
+      } catch (err) {
+        return [];
+      }
     }
-  }, [plants, plant]);
+  });
+
+  const availablePumps = useMemo(() => {
+    const list: string[] = [];
+
+    // 1. From Transport Assets (/api/pump-dgs)
+    if (pumpDgs && Array.isArray(pumpDgs)) {
+      pumpDgs.forEach((p: any) => {
+        const pName = p.name || p.pumpName;
+        if (pName && !list.includes(pName)) list.push(pName);
+      });
+    }
+
+    // 2. From System Masters (/api/masters?type=pump)
+    if (dbPumps && Array.isArray(dbPumps)) {
+      dbPumps.forEach((p: any) => {
+        const pName = p.name || p.id;
+        if (pName && !list.includes(pName)) list.push(pName);
+      });
+    }
+
+    return list;
+  }, [dbPumps, pumpDgs]);
+
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [isStrict, setIsStrict] = useState(false);
@@ -236,12 +267,12 @@ export default function AddScheduling() {
                   <SelectValue placeholder="Choose Pump" />
                 </SelectTrigger>
                 <SelectContent>
-                  {pumps && pumps.length > 0 ? (
-                    pumps.map((p: any) => (
-                      <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>
+                  {availablePumps.length > 0 ? (
+                    availablePumps.map((pName) => (
+                      <SelectItem key={pName} value={pName}>{pName}</SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="_empty" disabled>No pumps configured</SelectItem>
+                    <SelectItem value="_empty" disabled>No registered pumps found</SelectItem>
                   )}
                 </SelectContent>
               </Select>
@@ -269,11 +300,9 @@ export default function AddScheduling() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
-                  {pumps && pumps.length > 0 && (
-                    pumps.map((p: any) => (
-                      <SelectItem key={p.id || p._id} value={p.name}>{p.name}</SelectItem>
-                    ))
-                  )}
+                  {availablePumps.map((pName) => (
+                    <SelectItem key={pName} value={pName}>{pName}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

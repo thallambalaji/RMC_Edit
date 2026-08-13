@@ -191,10 +191,10 @@ function Router() {
       <Route path="/permissions"><ProtectedRoute component={Permissions} /></Route>
       <Route path="/change-password"><ProtectedRoute component={ChangePassword} /></Route>
       <Route path="/sales/enquiry/new"><ProtectedRoute component={AddEnquiry} /></Route>
-      <Route path="/sales/enquiry/list"><ProtectedRoute component={EnquiryList} /></Route>
+      <Route path="/sales/enquiry/list"><ProtectedRoute component={() => <Redirect to="/sales/enquiry" />} /></Route>
       <Route path="/sales/enquiry"><ProtectedRoute component={SalesEnquiryHub} /></Route>
       <Route path="/sales/payment-follow-up/new"><ProtectedRoute component={AddPaymentFollowUp} /></Route>
-      <Route path="/sales/payment-follow-up/list"><ProtectedRoute component={PaymentFollowUpList} /></Route>
+      <Route path="/sales/payment-follow-up/list"><ProtectedRoute component={() => <Redirect to="/sales/payment-follow-up" />} /></Route>
       <Route path="/sales/payment-follow-up"><ProtectedRoute component={PaymentFollowUpHub} /></Route>
       <Route path="/sales/settings/master"><ProtectedRoute component={SalesMaster} /></Route>
       <Route path="/sales/settings"><ProtectedRoute component={SalesSettingsHub} /></Route>

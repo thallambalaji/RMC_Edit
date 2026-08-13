@@ -84,53 +84,92 @@ router.get("/verify-gstin/:gstin", async (req, res): Promise<void> => {
 
   // Step 3: Try official or custom GST API if configured
   const apiKey = process.env.GSTIN_API_KEY;
+  const apiSecret = process.env.GSTIN_API_SECRET;
+  const apiProvider = process.env.GSTIN_API_PROVIDER;
   const apiUrl = process.env.GSTIN_API_URL;
 
   if (apiKey || apiUrl) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
-      let requestUrl = "";
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      };
-
-      if (apiUrl) {
-        // Construct the URL for the new API format:
-        // GET https://domain-name/commonapi/v1.0/tpstatus?gstin={gstin}&action=TP
-        const base = apiUrl.trim();
-        const separator = base.includes("?") ? "&" : "?";
-        requestUrl = `${base}${separator}gstin=${gstinUpper}&action=TP`;
-
-        if (apiKey) {
-          headers["Authorization"] = `Bearer ${apiKey}`;
-          headers["x-api-key"] = apiKey;
-          headers["client-id"] = apiKey;
-          headers["clientid"] = apiKey;
-          headers["client_id"] = apiKey;
+      let response: Response | null = null;
+      let data: any = null;
+      
+      if (apiProvider === "sandbox.co.in") {
+        // Step A: Authenticate
+        const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
+          method: "POST",
+          headers: {
+            "x-api-key": apiKey || "",
+            "x-api-secret": apiSecret || "",
+            "x-api-version": "1.0",
+            "Content-Type": "application/json"
+          },
+          signal: controller.signal
+        });
+        
+        if (!authRes.ok) {
+           console.warn(`Sandbox auth failed with status ${authRes.status}`);
+           throw new Error("Sandbox Auth Failed");
         }
+        const authData = await authRes.json() as any;
+        const token = authData.access_token || authData.data?.access_token || authData.data;
+        
+        // Step B: Fetch GSTIN Details
+        const requestUrl = apiUrl || "https://api.sandbox.co.in/gst/compliance/public/gstin/search";
+        response = await fetch(requestUrl, {
+          method: "POST",
+          headers: {
+            "x-api-key": apiKey || "",
+            "authorization": token,
+            "x-api-version": "1.0",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ gstin: gstinUpper }),
+          signal: controller.signal
+        });
       } else {
-        // Default official GST API endpoint behavior
-        requestUrl = `${GST_API_BASE}/${gstinUpper}`;
-        if (apiKey) {
-          headers["Authorization"] = `Bearer ${apiKey}`;
-        }
-      }
+        let requestUrl = "";
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        };
 
-      const response = await fetch(requestUrl, {
-        method: "GET",
-        headers,
-        signal: controller.signal,
-      });
+        if (apiUrl) {
+          const base = apiUrl.trim();
+          const separator = base.includes("?") ? "&" : "?";
+          requestUrl = `${base}${separator}gstin=${gstinUpper}&action=TP`;
+
+          if (apiKey) {
+            headers["Authorization"] = `Bearer ${apiKey}`;
+            headers["x-api-key"] = apiKey;
+            headers["client-id"] = apiKey;
+            headers["clientid"] = apiKey;
+            headers["client_id"] = apiKey;
+          }
+        } else {
+          // Default official GST API endpoint behavior
+          requestUrl = `${GST_API_BASE}/${gstinUpper}`;
+          if (apiKey) {
+            headers["Authorization"] = `Bearer ${apiKey}`;
+          }
+        }
+
+        response = await fetch(requestUrl, {
+          method: "GET",
+          headers,
+          signal: controller.signal,
+        });
+      }
 
       clearTimeout(timeout);
 
-      if (response.ok) {
-        const data = await response.json() as any;
-        // Map GST API response fields to our standard format
+      if (response && response.ok) {
+        const rawData = await response.json() as any;
+        data = rawData.data || rawData; 
         const taxpayer = data?.taxpayerInfo || data?.data || data;
+        console.log("TAXPAYER DATA:", taxpayer);
 
         // Smart address builder if address is structured
         let address = "";
@@ -138,7 +177,7 @@ router.get("/verify-gstin/:gstin", async (req, res): Promise<void> => {
           if (typeof taxpayer.pradr === "string") {
             address = taxpayer.pradr;
           } else {
-            const adrObj = taxpayer.pradr.adr || taxpayer.pradr;
+            const adrObj = taxpayer.pradr.addr || taxpayer.pradr.adr || taxpayer.pradr;
             if (typeof adrObj === "string") {
               address = adrObj;
             } else if (typeof adrObj === "object") {
@@ -150,7 +189,7 @@ router.get("/verify-gstin/:gstin", async (req, res): Promise<void> => {
                 adrObj.loc,  // locality
                 adrObj.dst,  // district
                 adrObj.stcd, // state code
-                adrObj.pn,   // pincode
+                adrObj.pn || adrObj.pncd,   // pincode
               ].filter(Boolean);
               address = parts.join(", ");
             }

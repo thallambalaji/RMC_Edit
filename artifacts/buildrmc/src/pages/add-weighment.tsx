@@ -12,8 +12,6 @@ import {
 } from "@/components/ui/select";
 import { ChevronRight, ListPlus, Save, RotateCcw, Truck, Info, Settings, Scale, Zap, Radio, CheckCircle2, Play, RefreshCw, Cpu } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { sanitizePhone, isValidPhone } from "@/lib/utils";
-
 import { 
   useGetCustomers, 
   useGetVehicles, 
@@ -21,6 +19,8 @@ import {
   useGetEmployees,
   useGetMasters
 } from "@workspace/api-client-react";
+import { useScale } from "@/context/scale-context";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function AddWeighment() {
   const [, navigate] = useLocation();
@@ -32,6 +32,9 @@ export default function AddWeighment() {
   const [plant, setPlant] = useState("");
   const ticketNo = useMemo(() => "TKT-" + Math.floor(1000 + Math.random() * 9000), []);
   
+  // Weighment Settings Modal Popup State
+  const [showWeighmentSettings, setShowWeighmentSettings] = useState(false);
+
   // Form State
   const [mobileNo, setMobileNo] = useState("");
   const [customer, setCustomer] = useState("");
@@ -44,19 +47,112 @@ export default function AddWeighment() {
   const [emptyWeight, setEmptyWeight] = useState("");
   const [loadedWeight, setLoadedWeight] = useState("");
 
-  // Weighbridge Live & Simulator State
-  const [liveScaleWeight, setLiveScaleWeight] = useState<number>(0);
-  const [isScaleConnected, setIsScaleConnected] = useState<boolean>(false);
-  const [isSimulating, setIsSimulating] = useState<boolean>(false);
-  const [isStable, setIsStable] = useState<boolean>(false);
-  const [scaleMode, setScaleMode] = useState<"SIMULATOR" | "HARDWARE_COM">("SIMULATOR");
-  const activeSerialPortRef = useRef<any>(null);
-  const activeReaderRef = useRef<any>(null);
-  const serialBufferRef = useRef<string>("");
-  const rawBytesRef = useRef<number[]>([]);
-  const keepReadingRef = useRef<boolean>(true);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const [connectionType, setConnectionType] = useState<"SERVER_API" | "COM_PORT" | "LOCAL_UTILITY">("SERVER_API");
+  // Vehicle ticket lookup state — auto-populate weights from /dc/weighment/tickets
+  const [vehicleTicketsData, setVehicleTicketsData] = useState<{
+    tickets: any[];
+    latestEmpty: any;
+    latestLoaded: any;
+    emptyWeight: number;
+    loadedWeight: number;
+    netWeight: number;
+    isLoading: boolean;
+  }>({
+    tickets: [],
+    latestEmpty: null,
+    latestLoaded: null,
+    emptyWeight: 0,
+    loadedWeight: 0,
+    netWeight: 0,
+    isLoading: false,
+  });
+
+  // Fetch and continuously poll tickets for vehicle whenever vehicleNo changes
+  useEffect(() => {
+    if (!vehicleNo || vehicleNo.trim() === "" || vehicleNo === "_empty") {
+      setVehicleTicketsData({
+        tickets: [],
+        latestEmpty: null,
+        latestLoaded: null,
+        emptyWeight: 0,
+        loadedWeight: 0,
+        netWeight: 0,
+        isLoading: false,
+      });
+      return;
+    }
+
+    let isMounted = true;
+    let hasShownToast = false;
+
+    const lookupVehicleTickets = async () => {
+      try {
+        const res = await fetch(`/api/weighment-tickets/by-vehicle/${encodeURIComponent(vehicleNo.trim())}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!isMounted) return;
+
+        setVehicleTicketsData({
+          tickets: data.tickets || [],
+          latestEmpty: data.latestEmpty,
+          latestLoaded: data.latestLoaded,
+          emptyWeight: data.emptyWeight || 0,
+          loadedWeight: data.loadedWeight || 0,
+          netWeight: data.netWeight || 0,
+          isLoading: false,
+        });
+
+        if (data.latestEmpty && data.emptyWeight > 0) {
+          setEmptyWeight((data.emptyWeight / 1000).toFixed(3));
+        }
+
+        if (data.latestLoaded && data.loadedWeight > 0) {
+          setLoadedWeight((data.loadedWeight / 1000).toFixed(3));
+        }
+
+        if (!hasShownToast && (data.latestEmpty || data.latestLoaded)) {
+          hasShownToast = true;
+          toast({
+            title: `✨ Weights Auto-Loaded: ${vehicleNo}`,
+            description: `${data.latestEmpty ? `Empty: ${(data.emptyWeight/1000).toFixed(3)}T ` : ""}${data.latestLoaded ? `Loaded: ${(data.loadedWeight/1000).toFixed(3)}T` : ""}`,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch tickets for vehicle:", err);
+      }
+    };
+
+    lookupVehicleTickets();
+    // Poll every 2 seconds so updated indicator values refresh automatically
+    const pollInterval = setInterval(lookupVehicleTickets, 2000);
+
+    return () => { 
+      isMounted = false; 
+      clearInterval(pollInterval);
+    };
+  }, [vehicleNo]);
+
+
+  // Global Scale & COM Port State (persists across page transitions)
+  const {
+    liveScaleWeight,
+    isScaleConnected,
+    isSimulating,
+    isStable,
+    scaleMode,
+    connectionType,
+    baudRateSetting,
+    dataBitsSetting,
+    paritySetting,
+    stopBitsSetting,
+    rawSerialText,
+    setBaudRateSetting,
+    setDataBitsSetting,
+    setParitySetting,
+    setStopBitsSetting,
+    setConnectionType,
+    handleToggleConnection,
+    handleSimulateOrCapture,
+  } = useScale();
 
   // Live Data
   const { data: customers } = useGetCustomers();
@@ -81,134 +177,6 @@ export default function AddWeighment() {
     const interval = setInterval(updateTime, 60000); // update every minute
     return () => clearInterval(interval);
   }, []);
-
-  const broadcastWeighment = (vehNo: string, loaded: string, empty: string) => {
-    try {
-      const data = {
-        vehicleNo: vehNo,
-        loadedWeight: loaded,
-        emptyWeight: empty,
-        loadedWeightKg: loaded ? Math.round(Number(loaded) * 1000) : 0,
-        emptyWeightKg: empty ? Math.round(Number(empty) * 1000) : 0,
-        timestamp: Date.now()
-      };
-      localStorage.setItem("rmc_latest_weighment", JSON.stringify(data));
-      window.dispatchEvent(new CustomEvent("rmc_weighment_update", { detail: data }));
-    } catch (e) {
-      console.warn("Error broadcasting weighment:", e);
-    }
-  };
-
-  useEffect(() => {
-    if (loadedWeight || emptyWeight) {
-      broadcastWeighment(vehicleNo, loadedWeight, emptyWeight);
-    }
-  }, [loadedWeight, emptyWeight, vehicleNo]);
-
-  // Auto-capture weight when scale reading stabilizes (hands-free)
-  const lastCapturedWeightRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (liveScaleWeight < 200) {
-      lastCapturedWeightRef.current = null;
-      return;
-    }
-
-    if (isStable && liveScaleWeight >= 500) {
-      const tonsVal = (liveScaleWeight / 1000).toFixed(3);
-      if (lastCapturedWeightRef.current === liveScaleWeight) return;
-
-      if (!loadedWeight) {
-        setLoadedWeight(tonsVal);
-        lastCapturedWeightRef.current = liveScaleWeight;
-        toast({
-          title: "⚡ Loaded Weight Auto-Captured",
-          description: `Automatically recorded Loaded Weight: ${tonsVal} Tons`,
-        });
-      } else if (loadedWeight && !emptyWeight) {
-        if (Number(tonsVal) <= Number(loadedWeight)) {
-          setEmptyWeight(tonsVal);
-          lastCapturedWeightRef.current = liveScaleWeight;
-          toast({
-            title: "⚡ Empty Weight Auto-Captured",
-            description: `Automatically recorded Empty Weight: ${tonsVal} Tons`,
-          });
-        }
-      }
-    }
-  }, [liveScaleWeight, isStable, loadedWeight, emptyWeight]);
-
-  // Automated background scale engine (runs 100% hands-free without pressing any buttons)
-  useEffect(() => {
-    if (scaleMode !== "SIMULATOR" || !isScaleConnected) return;
-
-    let cleanupFn: (() => void) | undefined;
-
-    // Phase 1: Auto-generate & capture Loaded Weight (Gross)
-    if (!loadedWeight && !isSimulating) {
-      setIsSimulating(true);
-      setIsStable(false);
-      const targetWeight = 34500 + Math.floor(Math.random() * 600) - 300;
-      let stepCount = 0;
-      const totalSteps = 12;
-
-      const interval = setInterval(() => {
-        stepCount++;
-        const jitter = Math.floor((Math.random() - 0.5) * (totalSteps - stepCount) * 400);
-        setLiveScaleWeight(Math.max(0, targetWeight + jitter));
-
-        if (stepCount >= totalSteps) {
-          clearInterval(interval);
-          setLiveScaleWeight(targetWeight);
-          setIsSimulating(false);
-          setIsStable(true);
-          const tonsVal = (targetWeight / 1000).toFixed(3);
-          setLoadedWeight(tonsVal);
-          toast({
-            title: "⚡ Loaded Weight Auto-Captured",
-            description: `Automatically recorded Loaded Weight: ${tonsVal} Tons`,
-          });
-        }
-      }, 100);
-
-      cleanupFn = () => clearInterval(interval);
-    }
-    // Phase 2: Auto-generate & capture Empty Weight (Tare) after Loaded Weight is captured
-    else if (loadedWeight && !emptyWeight && !isSimulating) {
-      const timer = setTimeout(() => {
-        setIsSimulating(true);
-        setIsStable(false);
-        const targetWeight = 12800 + Math.floor(Math.random() * 400) - 200;
-        let stepCount = 0;
-        const totalSteps = 12;
-
-        const interval = setInterval(() => {
-          stepCount++;
-          const jitter = Math.floor((Math.random() - 0.5) * (totalSteps - stepCount) * 300);
-          setLiveScaleWeight(Math.max(0, targetWeight + jitter));
-
-          if (stepCount >= totalSteps) {
-            clearInterval(interval);
-            setLiveScaleWeight(targetWeight);
-            setIsSimulating(false);
-            setIsStable(true);
-            const tonsVal = (targetWeight / 1000).toFixed(3);
-            setEmptyWeight(tonsVal);
-            toast({
-              title: "⚡ Empty Weight Auto-Captured",
-              description: `Automatically recorded Empty Weight: ${tonsVal} Tons`,
-            });
-          }
-        }, 100);
-      }, 1500);
-
-      cleanupFn = () => clearTimeout(timer);
-    }
-
-    return () => {
-      if (cleanupFn) cleanupFn();
-    };
-  }, [scaleMode, loadedWeight, emptyWeight, isSimulating]);
 
   // Update site and mobile number when customer changes
   const selectedCustomerData = useMemo(() => {
@@ -287,55 +255,106 @@ export default function AddWeighment() {
 
   const handleSave = async () => {
     if (!customer || !vehicleNo) {
-      toast({ title: "Validation Error", description: "Please fill all required fields.", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Please choose customer and enter/select vehicle number.", variant: "destructive" });
       return;
     }
-    if (mobileNo && !isValidPhone(mobileNo, false)) {
-      toast({ title: "Validation Error", description: "Mobile number must be exactly 10 digits.", variant: "destructive" });
-      return;
-    }
-    const net = (Number(loadedWeight) || 0) - (Number(emptyWeight) || 0);
-    if (net < 0) {
-      toast({ title: "Validation Error", description: "Loaded weight cannot be less than empty weight.", variant: "destructive" });
+    const emptyNum = Number(emptyWeight) || 0;
+    const loadedNum = Number(loadedWeight) || 0;
+    const netNum = loadedNum - emptyNum;
+
+    if (netNum <= 0) {
+      toast({ title: "Validation Error", description: "Loaded weight must be greater than empty weight to calculate Net Weight.", variant: "destructive" });
       return;
     }
 
+    const matchedVehicle: any = (vehicles || []).find((v: any) => {
+      const reg = v.registrationNumber || v.registrationNo || v.vehicleReg || v.vehicleNumber || v.regNo || v.number || v.name;
+      return reg?.toLowerCase() === vehicleNo.toLowerCase();
+    });
+    const vehicleId = matchedVehicle ? (matchedVehicle._id || matchedVehicle.id) : ((vehicles?.[0] as any)?._id || vehicles?.[0]?.id);
+    const customerId = customer || ((customers?.[0] as any)?._id || customers?.[0]?.id);
+    const selectedSite = site || selectedCustomerData?.address || "Main Site";
+
+    const payload = {
+      dcNumber: deliveryNo,
+      dcDate: date || new Date().toISOString().split("T")[0],
+      dcTime: time || new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+      plant: plant || "FORTUNE CONCRETE",
+      customerid: customerId,
+      siteName: selectedSite,
+      vehicleid: vehicleId,
+      driverName: driver || "Authorized Driver",
+      grade: selectedProductName || grade || "M25",
+      quantity: Number(netNum.toFixed(3)),
+      netAmount: Number(amount) || 0,
+      tareWeight: Math.round(emptyNum * 1000),
+      loadedQuantity: Math.round(loadedNum * 1000),
+      netWeight: Math.round(netNum * 1000),
+      ticketNo: vehicleTicketsData.latestLoaded?.ticketNo || vehicleTicketsData.latestEmpty?.ticketNo || ticketNo,
+      status: "completed"
+    };
+
     try {
-      const response = await fetch("/api/weighment-tickets", {
+      // Step 1: Auto-save WeighmentTickets so they appear in /dc/weighment/tickets
+      const tktBase = `TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`;
+      const ticketSaves: Promise<any>[] = [];
+
+      if (emptyNum > 0 && !vehicleTicketsData.latestEmpty) {
+        ticketSaves.push(
+          fetch("/api/weighment-tickets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ticketNo: `${tktBase}-E`,
+              plant: plant || "FORTUNE CONCRETE",
+              vehicleNo,
+              weightType: "Empty Weight",
+              weight: Math.round(emptyNum * 1000),
+              createdBy: "Super Admin"
+            })
+          }).catch(e => console.warn("Empty ticket auto-save:", e))
+        );
+      }
+
+      if (loadedNum > 0 && !vehicleTicketsData.latestLoaded) {
+        ticketSaves.push(
+          fetch("/api/weighment-tickets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ticketNo: `${tktBase}-L`,
+              plant: plant || "FORTUNE CONCRETE",
+              vehicleNo,
+              weightType: "Loaded Weight",
+              weight: Math.round(loadedNum * 1000),
+              createdBy: "Super Admin"
+            })
+          }).catch(e => console.warn("Loaded ticket auto-save:", e))
+        );
+      }
+
+      if (ticketSaves.length > 0) await Promise.allSettled(ticketSaves);
+
+      // Step 2: Save the Delivery Challan record
+      const response = await fetch("/api/delivery-challans", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ticketNo,
-          plant: plant || "Plant 1",
-          vehicleNo,
-          weightType: "Net Weight",
-          weight: net,
-          createdBy: "Super Admin"
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save weighment ticket to database");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || "Failed to save delivery challan");
       }
 
-      toast({ title: "Weighment Saved", description: `Record saved to MongoDB with Net Weight: ${net.toFixed(3)} Tons.` });
-      setLiveScaleWeight(0);
-      setIsStable(false);
-      rawBytesRef.current = [];
-      serialBufferRef.current = "";
+      toast({ 
+        title: "✅ Weighment Saved Successfully", 
+        description: `Delivery Challan ${deliveryNo} recorded. Net Weight: ${netNum.toFixed(3)} T (${Math.round(netNum * 1000).toLocaleString()} KG). Tickets auto-synced.` 
+      });
       navigate("/dc/weighment/list");
     } catch (err: any) {
       toast({ title: "Error Saving", description: err.message || "Could not save to database", variant: "destructive" });
     }
-  };
-
-  const handleResetScaleMeter = () => {
-    setLiveScaleWeight(0);
-    setIsStable(false);
-    rawBytesRef.current = [];
-    serialBufferRef.current = "";
-    setRawSerialText("Scale meter reset to 0.000 Tons.");
-    toast({ title: "⚖️ Scale Meter Reset", description: "Weighing meter has been reset to default (0.000 Tons)." });
   };
 
   const handleClear = () => {
@@ -349,488 +368,17 @@ export default function AddWeighment() {
     setBillNo("");
     setEmptyWeight("");
     setLoadedWeight("");
-    setLiveScaleWeight(0);
-    setIsStable(false);
-    rawBytesRef.current = [];
-    serialBufferRef.current = "";
-    toast({ title: "Form Cleared", description: "All inputs and scale meter have been reset." });
+    toast({ title: "Form Cleared", description: "All inputs have been reset." });
   };
 
-  // Capture scale reading for physical hardware or simulator
   const handleSimulateTruckScale = async (type: "empty" | "loaded") => {
-    // REQUIRE REAL SCALE / COM PORT CONNECTION FIRST
-    if (!isScaleConnected) {
-      toast({
-        title: "⚠️ Scale Disconnected",
-        description: "Please click 'Connect Server COM' to connect your scale service first, or type weights manually below.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // If connected to physical hardware, send trigger and read response from COM port!
-    if (scaleMode === "HARDWARE_COM") {
-      let capturedWeight = liveScaleWeight;
-
-      if (activeSerialPortRef.current) {
-        try {
-          // Step 1: Send trigger command to scale indicator to request weight data
-          // Most Indian weighbridge indicators respond to ENQ (0x05), CR (\r), or 'P'
-          if (activeSerialPortRef.current.writable && !activeSerialPortRef.current.writable.locked) {
-            const writer = activeSerialPortRef.current.writable.getWriter();
-            try {
-              // Send multiple trigger types - ENQ + CR + LF
-              await writer.write(new Uint8Array([0x05])); // ENQ
-              await new Promise((r) => setTimeout(r, 100));
-              await writer.write(new Uint8Array([0x0D])); // CR
-            } catch (e) {
-              console.warn("Trigger write error:", e);
-            } finally {
-              writer.releaseLock();
-            }
-          }
-
-          // Step 2: Wait 800ms for scale indicator to respond with weight data
-          await new Promise((r) => setTimeout(r, 800));
-
-          // Step 3: Read the response from COM port
-          if (activeSerialPortRef.current.readable && !activeSerialPortRef.current.readable.locked) {
-            const reader = activeSerialPortRef.current.readable.getReader();
-            const decoder = new TextDecoder();
-            let allDecoded = "";
-
-            try {
-              const timeoutPromise = new Promise<void>((resolve) => setTimeout(resolve, 1500));
-              const readLoop = async () => {
-                while (true) {
-                  const res = await reader.read();
-                  if (res.done || !res.value) break;
-                  allDecoded += decoder.decode(res.value);
-                }
-              };
-              await Promise.race([readLoop(), timeoutPromise]);
-            } catch (e) {
-              console.warn("Read error:", e);
-            } finally {
-              try { reader.releaseLock(); } catch (e) {}
-            }
-
-            console.log("SCALE RESPONSE:", JSON.stringify(allDecoded));
-            setRawSerialText(allDecoded.trim() || allDecoded);
-
-            const digitsOnly = allDecoded.replace(/[^\d]/g, " ");
-            const numbers = digitsOnly
-              .split(/\s+/)
-              .map((s) => parseInt(s, 10))
-              .filter((n) => !isNaN(n) && n >= 0 && n < 200000 && n !== 2026 && n !== 2025 && n !== 2027);
-
-            if (numbers.length > 0) {
-              capturedWeight = numbers[0] / 10;
-              setLiveScaleWeight(capturedWeight);
-              setIsStable(capturedWeight > 0);
-            }
-          }
-        } catch (err) {
-          console.warn("On-demand scale capture error:", err);
-        }
-      }
-
-      const tonsVal = (capturedWeight / 1000).toFixed(3);
+    await handleSimulateOrCapture(type, (_weightKg, tonsVal) => {
       if (type === "empty") {
         setEmptyWeight(tonsVal);
-        toast({ title: "⚖️ Weight Captured from Scale", description: `Captured Empty Weight: ${tonsVal} Tons` });
       } else {
         setLoadedWeight(tonsVal);
-        toast({ title: "⚖️ Weight Captured from Scale", description: `Captured Loaded Weight: ${tonsVal} Tons` });
       }
-      return;
-    }
-
-    setIsSimulating(true);
-    setIsStable(false);
-    
-    // Target realistic weight range for simulator
-    const baseWeight = type === "empty" ? 12800 : 34500;
-    const randomOffset = Math.floor(Math.random() * 800) - 400;
-    const targetWeight = baseWeight + randomOffset;
-
-    let stepCount = 0;
-    const totalSteps = 15;
-    const interval = setInterval(() => {
-      stepCount++;
-      const jitter = Math.floor((Math.random() - 0.5) * (totalSteps - stepCount) * 400);
-      setLiveScaleWeight(Math.max(0, targetWeight + jitter));
-
-      if (stepCount >= totalSteps) {
-        clearInterval(interval);
-        setLiveScaleWeight(targetWeight);
-        setIsSimulating(false);
-        setIsStable(true);
-
-        const tonsVal = (targetWeight / 1000).toFixed(3);
-        if (type === "empty") {
-          setEmptyWeight(tonsVal);
-          toast({ title: "⚖️ Scale Weight Stabilized", description: `Captured Empty Weight: ${tonsVal} Tons` });
-        } else {
-          setLoadedWeight(tonsVal);
-          toast({ title: "⚖️ Scale Weight Stabilized", description: `Captured Loaded Weight: ${tonsVal} Tons` });
-        }
-      }
-    }, 120);
-  };
-
-  const [baudRateSetting, setBaudRateSetting] = useState<number>(2400);
-  const [dataBitsSetting, setDataBitsSetting] = useState<number>(8);
-  const [paritySetting, setParitySetting] = useState<string>("none");
-  const [stopBitsSetting, setStopBitsSetting] = useState<number>(1);
-  const [rawSerialText, setRawSerialText] = useState<string>("");
-
-  // Connect to Physical RS-232 COM Port via Web Serial API (when hardware is connected)
-  const handleConnectHardwareCOM = async () => {
-    if (!("serial" in navigator)) {
-      toast({
-        title: "Web Serial API Not Supported",
-        description: "Please use Google Chrome or Microsoft Edge to connect directly to physical COM ports.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      // 1. Signal any existing reader loops to stop immediately
-      keepReadingRef.current = false;
-
-      // 2. Close active reader if locking the port
-      if (activeReaderRef.current) {
-        try {
-          await activeReaderRef.current.cancel();
-          activeReaderRef.current.releaseLock();
-        } catch (err) {
-          console.warn("Error cancelling reader:", err);
-        }
-        activeReaderRef.current = null;
-      }
-
-      // 3. Close the port itself so we can reopen it at the new baud rate
-      if (activeSerialPortRef.current) {
-        try {
-          await activeSerialPortRef.current.close();
-        } catch (closeErr) {
-          console.warn("Error closing port:", closeErr);
-        }
-        activeSerialPortRef.current = null;
-      }
-
-      // 4. Always prompt Chrome's COM port selection popup dialog
-      const port = await (navigator as any).serial.requestPort();
-      activeSerialPortRef.current = port;
-
-      // 5. Open the port with selected baud rate and configuration
-      // We start reading now, so set the loop control flag to true
-      keepReadingRef.current = true;
-
-      try {
-        // Open port with user-selected baud rate, data bits, parity, and stop bits
-        await port.open({ baudRate: baudRateSetting, dataBits: dataBitsSetting, parity: paritySetting as any, stopBits: stopBitsSetting });
-      } catch (openErr: any) {
-        console.warn("Failed opening with 7O1, trying 8N1 fallback...", openErr);
-        // Fallback: Try 8N1 (no parity, 8 data bits)
-        try {
-          await port.open({ baudRate: baudRateSetting });
-        } catch (fallbackErr: any) {
-          if (!fallbackErr.message?.includes("already open")) {
-            if (typeof port.forget === "function") {
-              try { await port.forget(); } catch (forgetErr) {}
-            }
-            throw fallbackErr;
-          }
-        }
-      }
-
-      setIsScaleConnected(true);
-      setScaleMode("HARDWARE_COM");
-      setLiveScaleWeight(0);
-      setRawSerialText("Connected. Waiting for scale data...");
-      setIsStable(false);
-      toast({ title: "COM Port Connected", description: `Successfully connected at ${baudRateSetting} Baud.` });
-
-      // Reset buffers on new connection
-      serialBufferRef.current = "";
-      rawBytesRef.current = [];
-
-      const startReading = async (serialPort: any) => {
-        // Run loop while keepReadingRef is true
-        while (keepReadingRef.current) {
-          if (!serialPort.readable) {
-            await new Promise((r) => setTimeout(r, 100));
-            continue;
-          }
-          if (serialPort.readable.locked) {
-            await new Promise((r) => setTimeout(r, 100));
-            continue;
-          }
-
-          const reader = serialPort.readable.getReader();
-          activeReaderRef.current = reader;
-          const decoder = new TextDecoder("latin1");
-
-          try {
-            while (keepReadingRef.current) {
-              const { value, done } = await reader.read();
-              if (done) break;
-
-              if (value && keepReadingRef.current) {
-                // Accumulate raw byte values for PARSING
-                const newBytes = Array.from(value) as number[];
-                rawBytesRef.current = [...rawBytesRef.current, ...newBytes].slice(-300);
-
-                // Show hex display so we can see exact bytes from scale
-                const hexDisplay = rawBytesRef.current
-                  .map((b) => b.toString(16).padStart(2, "0"))
-                  .join(" ")
-                  .slice(-200);
-                setRawSerialText(hexDisplay);
-                console.log("RAW HEX:", hexDisplay);
-
-                // Parse weight from ACTUAL BYTE VALUES (not hex text)
-                // Recommended Parsing Logic: Ignore 0x02 (STX), 0x03 (ETX), 0x15 (NAK), 0x0D (CR), and 0x0A (LF).
-                // Extract only ASCII digits (0x30-0x39) to obtain the weight.
-                const buf = rawBytesRef.current;
-                
-                // Filter out the specified control bytes (both raw and parity-masked)
-                const filteredBytes = buf.filter((b) => {
-                  const masked = b & 0x7F;
-                  return masked !== 0x02 && masked !== 0x03 && masked !== 0x15 && masked !== 0x0D && masked !== 0x0A;
-                });
-
-                let foundWeight = -1;
-
-                // Find contiguous sequences of ASCII digits (0x30 - 0x39) after filtering
-                let currentDigitSequence: string = "";
-                for (let i = 0; i < filteredBytes.length; i++) {
-                  const charCode = filteredBytes[i] & 0x7F;
-                  if (charCode >= 0x30 && charCode <= 0x39) {
-                    currentDigitSequence += String.fromCharCode(charCode);
-                  } else {
-                    // Non-digit byte acts as a delimiter, evaluate current sequence
-                    if (currentDigitSequence.length >= 3 && currentDigitSequence.length <= 8) {
-                      const w = parseInt(currentDigitSequence, 10);
-                      if (w >= 0 && w < 200000) {
-                        foundWeight = w;
-                      }
-                    }
-                    currentDigitSequence = ""; // reset for next sequence
-                  }
-                }
-
-                // Check if the buffer ends with a valid digit sequence
-                if (currentDigitSequence.length >= 3 && currentDigitSequence.length <= 8) {
-                  const w = parseInt(currentDigitSequence, 10);
-                  if (w >= 0 && w < 200000) {
-                    foundWeight = w;
-                  }
-                }
-
-                if (foundWeight >= 0) {
-                  // Adjust for 10x scale factor multiplier
-                  const adjustedWeight = foundWeight / 10;
-                  setLiveScaleWeight(adjustedWeight);
-                  setIsStable(adjustedWeight > 0);
-                }
-              }
-            }
-          } catch (readErr: any) {
-            if (
-              readErr.name === "BreakError" ||
-              readErr.message?.includes("Break") ||
-              readErr.message?.includes("break")
-            ) {
-              console.warn("Serial break signal received, retrying read...");
-            } else {
-              console.warn("Serial read error:", readErr);
-              break;
-            }
-          } finally {
-            try { reader.releaseLock(); } catch (e) {}
-            activeReaderRef.current = null;
-          }
-
-          // Small delay before retrying the read loop if we got a break or exception
-          await new Promise((r) => setTimeout(r, 100));
-        }
-      };
-
-      startReading(port);
-
-    } catch (err: any) {
-      if (err.name !== "NotFoundError") {
-        let userFriendlyMsg = err.message || "Failed to open COM Port";
-        
-        if (err.message && (err.message.includes("Failed to open serial port") || err.message.includes("denied") || err.message.includes("locked"))) {
-          userFriendlyMsg = "Port Access Denied: If your scale is connected via a USB cable, please select 'USB Serial Device' (e.g. COM3 or COM4) from the Chrome popup list, or close any background app holding COM1.";
-        }
-
-        toast({ 
-          title: "COM Port Connection Error", 
-          description: userFriendlyMsg, 
-          variant: "destructive" 
-        });
-      }
-    }
-  };
-
-  // Disconnect all serial, SSE streams, and local utility loops
-  const handleDisconnectAll = async () => {
-    keepReadingRef.current = false;
-    if (eventSourceRef.current) {
-      try {
-        eventSourceRef.current.close();
-      } catch (e) {}
-      eventSourceRef.current = null;
-    }
-    if (activeReaderRef.current) {
-      try {
-        await activeReaderRef.current.cancel();
-        activeReaderRef.current.releaseLock();
-      } catch (err) {}
-      activeReaderRef.current = null;
-    }
-    if (activeSerialPortRef.current) {
-      try {
-        await activeSerialPortRef.current.close();
-      } catch (closeErr) {}
-      activeSerialPortRef.current = null;
-    }
-    setIsScaleConnected(false);
-    setLiveScaleWeight(0);
-    setRawSerialText("");
-    setIsStable(false);
-  };
-
-  // Connect to Server-Side Scale Service (/api/scale/stream)
-  const handleConnectServerAPI = async () => {
-    try {
-      await handleDisconnectAll();
-
-      setIsScaleConnected(true);
-      setScaleMode("HARDWARE_COM");
-      setLiveScaleWeight(0);
-      setRawSerialText("Connecting to Server Scale stream (/api/scale/stream)...");
-      setIsStable(false);
-
-      const es = new EventSource("/api/scale/stream");
-      eventSourceRef.current = es;
-
-      es.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data && data.liveWeight !== undefined) {
-            setLiveScaleWeight(data.liveWeight || 0);
-            setIsStable(Boolean(data.isStable));
-            setRawSerialText(data.rawAscii || data.rawHex || `Live Weight: ${data.liveWeight} KG`);
-          }
-        } catch (e) {
-          console.warn("SSE parse error:", e);
-        }
-      };
-
-      es.onerror = (_err) => {
-        setRawSerialText("Server scale stream reconnecting...");
-      };
-
-      toast({ title: "Server Scale Service Connected", description: "Listening to live weighbridge scale stream from backend server." });
-    } catch (err: any) {
-      toast({
-        title: "Server Scale Connection Error",
-        description: err.message || "Failed to connect to server scale service.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Connect to Local Utility Bridge running on client's machine (Port 7171)
-  const handleConnectLocalUtility = async () => {
-    try {
-      // 1. Clean up any existing connection first
-      await handleDisconnectAll();
-
-      setIsScaleConnected(true);
-      setScaleMode("HARDWARE_COM");
-      setLiveScaleWeight(0);
-      setRawSerialText("Connecting to Local Utility at http://localhost:7171/ ...");
-      setIsStable(false);
-
-      keepReadingRef.current = true;
-
-      const fetchLoop = async () => {
-        let failureCount = 0;
-        while (keepReadingRef.current) {
-          try {
-            const response = await fetch("http://localhost:7171/", {
-              method: "GET",
-              cache: "no-store",
-              headers: {
-                "Accept": "text/html",
-                "Cache-Control": "no-cache",
-                "Pragma": "no-cache"
-              }
-            });
-            if (response.ok) {
-              const text = await response.text();
-              const rawTrimmed = text.trim();
-              
-              // Robust parser: extract the first sequence of numbers (ignores surrounding text like 'Kg' or 'Wt:')
-              const match = rawTrimmed.match(/\d+/);
-              const weight = match ? parseInt(match[0], 10) : NaN;
-              
-              if (!isNaN(weight)) {
-                setLiveScaleWeight(weight);
-                setRawSerialText(`Raw: "${rawTrimmed}" | Parsed: ${weight} KG`);
-                setIsStable(true);
-                failureCount = 0;
-              } else {
-                setRawSerialText(`Raw: "${rawTrimmed}" | Could not parse weight`);
-              }
-            } else {
-              throw new Error(`HTTP Status ${response.status}`);
-            }
-          } catch (err: any) {
-            failureCount++;
-            setRawSerialText(`Polling local utility (http://localhost:7171/): ${err.message || err}`);
-            if (failureCount > 15) {
-              console.warn("Polling utility failing repeatedly:", err);
-            }
-          }
-          // Poll every 1.5 seconds matching their interval
-          await new Promise((r) => setTimeout(r, 1500));
-        }
-      };
-
-      fetchLoop();
-      toast({ title: "Local Utility Connected", description: "Successfully listening to http://localhost:7171/." });
-
-    } catch (err: any) {
-      toast({
-        title: "Utility Connection Error",
-        description: err.message || "Failed to start listening to local utility.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleToggleConnection = async () => {
-    if (isScaleConnected) {
-      await handleDisconnectAll();
-      toast({ title: "Disconnected", description: "Scale connection closed." });
-    } else {
-      if (connectionType === "SERVER_API") {
-        await handleConnectServerAPI();
-      } else if (connectionType === "COM_PORT") {
-        await handleConnectHardwareCOM();
-      } else {
-        await handleConnectLocalUtility();
-      }
-    }
+    });
   };
 
   return (
@@ -850,184 +398,45 @@ export default function AddWeighment() {
         </nav>
       </div>
 
-      <div className="flex justify-start">
-        <Link href="/dc/weighment/list" className="bg-[#ea580c] hover:bg-[#d97706] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-6 py-2 shadow-lg shadow-orange-500/20 transition-all active:scale-95">
+      {/* Action Bar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href="/dc/weighment/list" className="bg-[#ea580c] hover:bg-[#d97706] text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-5 py-2 shadow-lg shadow-orange-500/20 transition-all active:scale-95">
           <ListPlus className="h-4 w-4" />
           + WEIGHMENT LIST
         </Link>
+
+        <Button
+          type="button"
+          onClick={() => setShowWeighmentSettings(true)}
+          className="bg-slate-900 hover:bg-slate-800 text-white gap-2 inline-flex items-center justify-center rounded-md text-[10px] font-black uppercase tracking-widest h-10 px-5 py-2 shadow-lg shadow-slate-900/20 transition-all active:scale-95 border border-slate-700"
+        >
+          <Settings className="h-4 w-4 text-orange-400" />
+          <span>WEIGHMENT SETTINGS</span>
+          <span className={`ml-1 text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+            {isScaleConnected ? '🔌 CONNECTED' : '🔴 OFFLINE'}
+          </span>
+        </Button>
+
+        {/* Live scale readout shortcut badge */}
+        <div 
+          onClick={() => setShowWeighmentSettings(true)}
+          className="ml-auto flex items-center gap-2 bg-white/80 hover:bg-white border border-slate-200 px-3.5 py-2 rounded-lg shadow-sm cursor-pointer transition-all hover:border-orange-300 group"
+          title="Click to open Weighment Settings & Scale Readout"
+        >
+          <Scale className="h-4 w-4 text-orange-500 group-hover:scale-110 transition-transform" />
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Live Scale:</span>
+          <span className="font-mono text-sm font-extrabold text-emerald-600">
+            {(liveScaleWeight / 1000).toFixed(3)} <span className="text-slate-400 font-normal text-xs">Tons</span>
+            <span className="text-[10px] text-slate-400 font-normal ml-1">({liveScaleWeight} KG)</span>
+          </span>
+          {isStable && <span className="text-[8px] font-black bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">● STABLE</span>}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Form Section */}
         <div className="lg:col-span-8">
           <div className="glass-card p-6 h-full border-white/80 shadow-xl">
-            {/* Weighbridge Digital Indicator & Control Panel */}
-            <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white shadow-2xl border border-slate-700/80 relative overflow-hidden">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-700/60 pb-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                    <Scale className="h-5 w-5 animate-pulse" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-black text-xs tracking-wider uppercase text-slate-200">Digital Weighbridge Indicator</span>
-                      <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
-                        {isScaleConnected ? `CONNECTED (${scaleMode === 'SIMULATOR' ? '⚡ SIMULATOR' : '🔌 COM PORT'})` : '🔴 SCALE DISCONNECTED'}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-400">Live RS-232 / USB scale readout & automatic weight capture</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  {/* Row 1: All dropdowns */}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Select value={connectionType} onValueChange={(val) => { setConnectionType(val as any); handleDisconnectAll(); }}>
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-bold h-8 w-44">
-                        <SelectValue placeholder="Connection Mode" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                        <SelectItem value="SERVER_API">🌐 Server COM Service (/api)</SelectItem>
-                        <SelectItem value="COM_PORT">🔌 Direct WebSerial (Browser)</SelectItem>
-                        <SelectItem value="LOCAL_UTILITY">⚡ Local Utility (7171)</SelectItem>
-                      </SelectContent>
-                    </Select>
-
-                    {connectionType === "COM_PORT" && (
-                      <>
-                        {/* Data Bits Dropdown */}
-                        <Select value={String(dataBitsSetting)} onValueChange={(val) => setDataBitsSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Data Bits" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="5">5 Bits</SelectItem>
-                            <SelectItem value="6">6 Bits</SelectItem>
-                            <SelectItem value="7">7 Bits</SelectItem>
-                            <SelectItem value="8">8 Bits</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {/* Parity Dropdown */}
-                        <Select value={paritySetting} onValueChange={(val) => setParitySetting(val)}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Parity" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="none">No Parity</SelectItem>
-                            <SelectItem value="even">Even</SelectItem>
-                            <SelectItem value="odd">Odd</SelectItem>
-                            <SelectItem value="mark">Mark</SelectItem>
-                            <SelectItem value="space">Space</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {/* Stop Bits Dropdown */}
-                        <Select value={String(stopBitsSetting)} onValueChange={(val) => setStopBitsSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
-                            <SelectValue placeholder="Stop Bits" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="1">1 Stop</SelectItem>
-                            <SelectItem value="1.5">1.5 Stop</SelectItem>
-                            <SelectItem value="2">2 Stop</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {/* Baud Rate Dropdown */}
-                        <Select value={String(baudRateSetting)} onValueChange={(val) => setBaudRateSetting(Number(val))}>
-                          <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-28">
-                            <SelectValue placeholder="Baud Rate" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
-                            <SelectItem value="1200">1200 Baud</SelectItem>
-                            <SelectItem value="2400">2400 Baud</SelectItem>
-                            <SelectItem value="4800">4800 Baud</SelectItem>
-                            <SelectItem value="9600">9600 Baud</SelectItem>
-                            <SelectItem value="19200">19200 Baud</SelectItem>
-                            <SelectItem value="115200">115200 Baud</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Row 2: Connect button (always visible) */}
-                  <div className="flex justify-end">
-                    <Button 
-                      type="button" 
-                      onClick={handleToggleConnection}
-                      variant="outline" 
-                      className={`text-[10px] font-bold h-8 px-4 gap-1.5 ${isScaleConnected ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
-                    >
-                      <Radio className="h-3.5 w-3.5 text-emerald-400" />
-                      {isScaleConnected ? 'Disconnect' : (connectionType === 'SERVER_API' ? 'Connect Server COM' : connectionType === 'COM_PORT' ? 'Connect WebSerial' : 'Connect Utility')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Digital LED Screen Display */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                <div className="md:col-span-7 bg-black/70 rounded-xl p-4 border border-slate-800 flex items-center justify-between shadow-inner">
-                  <div>
-                    <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <span>SCALE WEIGHT</span>
-                      {isStable && <span className="text-emerald-400 text-[9px] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800 font-sans">● STABLE</span>}
-                      {isSimulating && <span className="text-amber-400 text-[9px] animate-bounce">MEASURING...</span>}
-                    </div>
-                    <div className="font-mono text-3xl sm:text-4xl font-extrabold tracking-wider text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)] mt-1">
-                      {(liveScaleWeight / 1000).toFixed(3)} <span className="text-lg text-slate-400 font-normal">Tons</span>
-                    </div>
-                    {isScaleConnected && scaleMode === "HARDWARE_COM" && (
-                      <div className="text-[10px] font-mono text-slate-400 mt-2 bg-slate-900/80 px-2 py-1 rounded border border-slate-800 flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap max-w-[280px]">
-                        <span className="text-emerald-400 shrink-0">RAW STREAM:</span>
-                        <span className="text-slate-300 truncate">{rawSerialText || "Waiting for data..."}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="text-right self-start">
-                    <div className="text-[9px] font-bold text-slate-500 uppercase">Status</div>
-                    <div className="text-xs font-mono font-bold text-orange-400">
-                      {isSimulating ? "SENSING..." : isStable ? "LOCKED" : "READY"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="md:col-span-5 flex flex-col sm:flex-row md:flex-col gap-2">
-                  <Button
-                    type="button"
-                    disabled={!isScaleConnected || isSimulating}
-                    onClick={() => handleSimulateTruckScale("loaded")}
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider h-9 shadow-md shadow-emerald-900/30 gap-2 w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {isSimulating ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
-                    {isScaleConnected && scaleMode === "HARDWARE_COM" ? "CAPTURE GROSS WEIGHT FROM SCALE" : "SIMULATE LOADED TRUCK (GROSS)"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    disabled={!isScaleConnected || isSimulating}
-                    onClick={() => handleSimulateTruckScale("empty")}
-                    className="bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider h-9 shadow-md shadow-amber-900/30 gap-2 w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {isSimulating ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-                    {isScaleConnected && scaleMode === "HARDWARE_COM" ? "CAPTURE TARE WEIGHT FROM SCALE" : "SIMULATE EMPTY TRUCK (TARE)"}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    onClick={handleResetScaleMeter}
-                    className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-[10px] font-black uppercase tracking-wider h-8 shadow-md gap-1.5 w-full justify-center"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
-                    ZERO / RESET SCALE METER
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             <div className="flex items-center gap-2 mb-8 border-b border-slate-100 pb-4">
               <div className="bg-[#ea580c]/10 p-2 rounded-lg">
                 <Truck className="h-5 w-5 text-[#ea580c]" />
@@ -1071,7 +480,7 @@ export default function AddWeighment() {
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Mobile No</Label>
-                <Input value={mobileNo} onChange={(e) => setMobileNo(sanitizePhone(e.target.value))} placeholder="Enter 10-digit Mobile No" maxLength={10} className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
+                <Input value={mobileNo} onChange={(e) => setMobileNo(e.target.value)} placeholder="Enter Mobile No" className="f-input bg-white border-slate-200 text-slate-700 font-semibold" />
               </div>
 
               <div className="hidden md:block"></div>
@@ -1136,22 +545,48 @@ export default function AddWeighment() {
               <div className="hidden md:block"></div>
 
               <div className="space-y-1.5">
-                <Label className="f-label text-slate-600">Vehicle No <span className="text-rose-500">*</span></Label>
-                <Select value={vehicleNo} onValueChange={setVehicleNo}>
-                  <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">
-                    <SelectValue placeholder="Choose Vehicle" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200 text-slate-700">
-                    {availableVehicles.length > 0 ? (
-                      availableVehicles.map(v => (
-                        <SelectItem key={v.id} value={v.reg}>{v.reg}</SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="_empty" disabled>No vehicles registered</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                <div className="flex justify-between items-center">
+                  <Label className="f-label text-slate-600">Vehicle No <span className="text-rose-500">*</span></Label>
+                  {vehicleTicketsData.tickets.length > 0 && (
+                    <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                      ✓ {vehicleTicketsData.tickets.length} TICKET(S) SYNCED
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-1">
+                  <Input
+                    value={vehicleNo}
+                    onChange={(e) => setVehicleNo(e.target.value)}
+                    placeholder="Enter or select Vehicle No"
+                    className="f-input bg-white border-slate-200 text-slate-700 font-semibold flex-1 uppercase font-mono"
+                  />
+                  <Select value={vehicleNo} onValueChange={setVehicleNo}>
+                    <SelectTrigger className="bg-white border-slate-200 text-slate-700 font-semibold h-10 w-10 shrink-0 px-1">
+                      <span className="text-[10px]">▼</span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-slate-200 text-slate-700 max-h-[250px]">
+                      {availableVehicles.length > 0 ? (
+                        availableVehicles.map(v => (
+                          <SelectItem key={v.id} value={v.reg}>{v.reg}</SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="_empty" disabled>No vehicles registered</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {vehicleTicketsData.tickets.length > 0 && (
+                  <div className="text-[9px] text-emerald-700 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200 flex items-center justify-between font-semibold">
+                    <span>
+                      {vehicleTicketsData.latestEmpty && `Tare: ${(vehicleTicketsData.emptyWeight / 1000).toFixed(3)} T `}
+                      {vehicleTicketsData.latestLoaded && `| Gross: ${(vehicleTicketsData.loadedWeight / 1000).toFixed(3)} T`}
+                      {vehicleTicketsData.netWeight > 0 && ` | Net: ${(vehicleTicketsData.netWeight / 1000).toFixed(3)} T`}
+                    </span>
+                    <span className="font-bold text-emerald-800 uppercase text-[8px] bg-emerald-200/60 px-1 rounded">Auto-Loaded</span>
+                  </div>
+                )}
               </div>
+
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-600">Driver Name</Label>
@@ -1176,27 +611,43 @@ export default function AddWeighment() {
                 <Input value={billNo} onChange={(e) => setBillNo(e.target.value)} placeholder="Enter Bill No" className="f-input bg-white border-slate-200 text-slate-700 font-mono" />
               </div>
 
+
               <div className="space-y-1.5">
-                <Label className="f-label text-amber-600">Empty Weight (Tons)</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="f-label text-amber-600">Empty Weight (Tons)</Label>
+                  {vehicleTicketsData.latestEmpty && (
+                    <span className="text-[8px] font-black uppercase text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200">
+                      ✓ Auto from Ticket
+                    </span>
+                  )}
+                </div>
                 <Input 
                   type="number"
                   value={emptyWeight} 
                   onChange={(e) => setEmptyWeight(e.target.value)}
-                  placeholder="Enter Empty Weight in Tons"
-                  className="f-input bg-amber-50 border-amber-200 text-amber-700 placeholder:text-amber-300 font-mono font-bold" 
+                  placeholder="Auto-fills on Vehicle select (or enter)"
+                  className="f-input bg-amber-50/40 border-amber-200 text-amber-800 placeholder:text-amber-300 font-mono font-bold" 
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="f-label text-emerald-600">Loaded Weight (Tons) <span className="text-rose-500">*</span></Label>
+                <div className="flex items-center justify-between">
+                  <Label className="f-label text-emerald-600">Loaded Weight (Tons) <span className="text-rose-500">*</span></Label>
+                  {vehicleTicketsData.latestLoaded && (
+                    <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-200">
+                      ✓ Auto from Ticket
+                    </span>
+                  )}
+                </div>
                 <Input 
                   type="number"
-                  value={loadedWeight}
+                  value={loadedWeight} 
                   onChange={(e) => setLoadedWeight(e.target.value)}
-                  placeholder="Enter Loaded Weight in Tons" 
+                  placeholder="Auto-fills on Vehicle select (or enter)" 
                   className="f-input bg-white border-emerald-200 text-emerald-700 placeholder:text-emerald-300 font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.05)]" 
                 />
               </div>
+
 
               <div className="space-y-1.5">
                 <Label className="f-label text-slate-400">Net Weight (Tons)</Label>
@@ -1247,6 +698,201 @@ export default function AddWeighment() {
           </div>
         </div>
       </div>
+
+      {/* Weighment Settings Modal Popup */}
+      <Dialog open={showWeighmentSettings} onOpenChange={setShowWeighmentSettings}>
+        <DialogContent className="max-w-4xl bg-gradient-to-br from-slate-950 via-slate-900 to-zinc-950 border-slate-800 text-white p-6 shadow-2xl rounded-2xl">
+          <DialogHeader className="border-b border-slate-800/80 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                <Scale className="h-5 w-5 animate-pulse" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-black tracking-tight text-white flex items-center gap-2">
+                  <span>Weighbridge Digital Indicator & Hardware Settings</span>
+                  <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+                    {isScaleConnected ? `CONNECTED (${scaleMode === 'SIMULATOR' ? '⚡ SIMULATOR' : '🔌 COM PORT'})` : '🔴 SCALE DISCONNECTED'}
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-slate-400 text-xs">
+                  Live RS-232 / USB scale readout, baud rate, framing bits, and automatic weight capture
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-5 pt-2">
+            {/* Settings Row */}
+            <div className="bg-slate-900/90 rounded-xl p-4 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-300">COM Port & Serial Configuration</span>
+                <Button 
+                  type="button" 
+                  onClick={handleToggleConnection}
+                  variant="outline" 
+                  className={`text-[10px] font-bold h-8 px-4 gap-1.5 ${isScaleConnected ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30' : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'}`}
+                >
+                  <Radio className="h-3.5 w-3.5 text-emerald-400" />
+                  {isScaleConnected ? 'Disconnect Scale' : (connectionType === 'COM_PORT' ? 'Connect COM Port' : 'Connect Utility')}
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap pt-1">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase">Mode</label>
+                  <Select value={connectionType} onValueChange={(val) => { setConnectionType(val as any); handleDisconnectAll(); }}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-bold h-8 w-36">
+                      <SelectValue placeholder="Connection Mode" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                      <SelectItem value="COM_PORT">🔌 Direct COM Port</SelectItem>
+                      <SelectItem value="LOCAL_UTILITY">⚡ Local Utility (7171)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {connectionType === "COM_PORT" && (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase">Data Bits</label>
+                      <Select value={String(dataBitsSetting)} onValueChange={(val) => setDataBitsSetting(Number(val))}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-24">
+                          <SelectValue placeholder="Data Bits" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="5">5 Bits</SelectItem>
+                          <SelectItem value="6">6 Bits</SelectItem>
+                          <SelectItem value="7">7 Bits</SelectItem>
+                          <SelectItem value="8">8 Bits</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase">Parity</label>
+                      <Select value={paritySetting} onValueChange={(val) => setParitySetting(val)}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-28">
+                          <SelectValue placeholder="Parity" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="none">No Parity</SelectItem>
+                          <SelectItem value="even">Even</SelectItem>
+                          <SelectItem value="odd">Odd</SelectItem>
+                          <SelectItem value="mark">Mark</SelectItem>
+                          <SelectItem value="space">Space</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase">Stop Bits</label>
+                      <Select value={String(stopBitsSetting)} onValueChange={(val) => setStopBitsSetting(Number(val))}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-28">
+                          <SelectValue placeholder="Stop Bits" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="1">1 Stop</SelectItem>
+                          <SelectItem value="1.5">1.5 Stop</SelectItem>
+                          <SelectItem value="2">2 Stop</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-bold text-slate-400 uppercase">Baud Rate</label>
+                      <Select value={String(baudRateSetting)} onValueChange={(val) => setBaudRateSetting(Number(val))}>
+                        <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-300 text-[10px] font-mono font-bold h-8 w-32">
+                          <SelectValue placeholder="Baud Rate" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-200">
+                          <SelectItem value="1200">1200 Baud</SelectItem>
+                          <SelectItem value="2400">2400 Baud</SelectItem>
+                          <SelectItem value="4800">4800 Baud</SelectItem>
+                          <SelectItem value="9600">9600 Baud</SelectItem>
+                          <SelectItem value="19200">19200 Baud</SelectItem>
+                          <SelectItem value="115200">115200 Baud</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Digital LED Screen Display */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+              <div className="md:col-span-7 bg-black/80 rounded-xl p-5 border border-slate-800 flex items-center justify-between shadow-inner">
+                <div>
+                  <div className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <span>SCALE WEIGHT</span>
+                    {isStable && <span className="text-emerald-400 text-[9px] bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800 font-sans">● STABLE</span>}
+                    {isSimulating && <span className="text-amber-400 text-[9px] animate-bounce">MEASURING...</span>}
+                  </div>
+                  <div className="font-mono text-4xl sm:text-5xl font-extrabold tracking-wider text-emerald-400 drop-shadow-[0_0_14px_rgba(52,211,153,0.5)] mt-1.5">
+                    {(liveScaleWeight / 1000).toFixed(3)} <span className="text-xl text-slate-400 font-normal">Tons</span>
+                  </div>
+                  <div className="text-xs font-mono text-slate-400 mt-1">
+                    = {liveScaleWeight} <span className="text-[10px]">KG</span>
+                  </div>
+                  {isScaleConnected && scaleMode === "HARDWARE_COM" && (
+                    <div className="text-[10px] font-mono text-slate-400 mt-2.5 bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap max-w-[320px]">
+                      <span className="text-emerald-400 shrink-0">RAW STREAM:</span>
+                      <span className="text-slate-300 truncate">{rawSerialText || "Waiting for data..."}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="text-right self-start">
+                  <div className="text-[9px] font-bold text-slate-500 uppercase">Status</div>
+                  <div className="text-xs font-mono font-bold text-orange-400 mt-0.5">
+                    {isSimulating ? "SENSING..." : isStable ? "LOCKED" : "READY"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons inside modal */}
+              <div className="md:col-span-5 flex flex-col gap-2.5">
+                <Button
+                  type="button"
+                  disabled={!isScaleConnected || isSimulating}
+                  onClick={() => {
+                    handleSimulateTruckScale("loaded");
+                    setShowWeighmentSettings(false);
+                  }}
+                  className="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider h-11 shadow-md shadow-emerald-900/30 gap-2 w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isSimulating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+                  CAPTURE GROSS (LOADED) & APPLY
+                </Button>
+
+                <Button
+                  type="button"
+                  disabled={!isScaleConnected || isSimulating}
+                  onClick={() => {
+                    handleSimulateTruckScale("empty");
+                    setShowWeighmentSettings(false);
+                  }}
+                  className="bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider h-11 shadow-md shadow-amber-900/30 gap-2 w-full justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isSimulating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                  CAPTURE TARE (EMPTY) & APPLY
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-slate-800">
+              <Button
+                type="button"
+                onClick={() => setShowWeighmentSettings(false)}
+                className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-6 h-9"
+              >
+                Close Settings
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

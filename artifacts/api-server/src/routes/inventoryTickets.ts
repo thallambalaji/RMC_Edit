@@ -14,6 +14,44 @@ const createTicketSchema = z.object({
   createdBy: z.string().optional(),
 });
 
+router.get("/inventory-tickets/by-vehicle/:vehicleNo", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const vehicleNoParam = decodeURIComponent(req.params.vehicleNo).trim();
+    const allTickets = await InventoryTicket.find().sort({ createdAt: -1 });
+    
+    const matchedTickets = allTickets.filter((t) => {
+      if (!t.vehicleNo) return false;
+      const cleanDb = t.vehicleNo.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      const cleanParam = vehicleNoParam.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      return cleanDb === cleanParam || t.vehicleNo.toLowerCase() === vehicleNoParam.toLowerCase();
+    });
+
+    const latestEmpty = matchedTickets.find(t => 
+      t.weightType?.toLowerCase().includes("empty") || t.weightType?.toLowerCase().includes("tare")
+    );
+    const latestLoaded = matchedTickets.find(t => 
+      t.weightType?.toLowerCase().includes("loaded") || t.weightType?.toLowerCase().includes("gross")
+    );
+
+    const emptyWeight = latestEmpty ? Number(latestEmpty.weight) || 0 : 0;
+    const loadedWeight = latestLoaded ? Number(latestLoaded.weight) || 0 : 0;
+    const netWeight = Math.max(0, loadedWeight - emptyWeight);
+
+    res.json({
+      tickets: matchedTickets,
+      latestEmpty,
+      latestLoaded,
+      emptyWeight,
+      loadedWeight,
+      netWeight
+    });
+  } catch (error: any) {
+    console.error("Failed to fetch inventory tickets by vehicle:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
 router.get("/inventory-tickets", async (_req, res): Promise<void> => {
   try {
     await connectMongo();
@@ -24,6 +62,7 @@ router.get("/inventory-tickets", async (_req, res): Promise<void> => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 router.post("/inventory-tickets", async (req, res): Promise<void> => {
   try {

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
+import { ScaleProvider } from "@/context/scale-context";
 
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
@@ -191,10 +192,10 @@ function Router() {
       <Route path="/permissions"><ProtectedRoute component={Permissions} /></Route>
       <Route path="/change-password"><ProtectedRoute component={ChangePassword} /></Route>
       <Route path="/sales/enquiry/new"><ProtectedRoute component={AddEnquiry} /></Route>
-      <Route path="/sales/enquiry/list"><ProtectedRoute component={() => <Redirect to="/sales/enquiry" />} /></Route>
+      <Route path="/sales/enquiry/list"><ProtectedRoute component={EnquiryList} /></Route>
       <Route path="/sales/enquiry"><ProtectedRoute component={SalesEnquiryHub} /></Route>
       <Route path="/sales/payment-follow-up/new"><ProtectedRoute component={AddPaymentFollowUp} /></Route>
-      <Route path="/sales/payment-follow-up/list"><ProtectedRoute component={() => <Redirect to="/sales/payment-follow-up" />} /></Route>
+      <Route path="/sales/payment-follow-up/list"><ProtectedRoute component={PaymentFollowUpList} /></Route>
       <Route path="/sales/payment-follow-up"><ProtectedRoute component={PaymentFollowUpHub} /></Route>
       <Route path="/sales/settings/master"><ProtectedRoute component={SalesMaster} /></Route>
       <Route path="/sales/settings"><ProtectedRoute component={SalesSettingsHub} /></Route>
@@ -250,13 +251,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
+        <ScaleProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </ScaleProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
 }
 
 export default App;
+

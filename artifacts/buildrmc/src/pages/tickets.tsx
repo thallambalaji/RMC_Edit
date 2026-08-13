@@ -18,10 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download } from "lucide-react";
+import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download, Scale, Zap, RefreshCw, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useScale } from "@/context/scale-context";
 
 export default function Tickets() {
   const [, navigate] = useLocation();
@@ -41,6 +42,17 @@ export default function Tickets() {
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [printTicket, setPrintTicket] = useState<any>(null);
 
+  // Global Scale Connection State (persists across all pages)
+  const {
+    liveScaleWeight,
+    isScaleConnected,
+    isSimulating,
+    isStable,
+    scaleMode,
+    handleToggleConnection,
+    handleSimulateOrCapture,
+  } = useScale();
+
   // Dynamic Data
   const { data: vehicles } = useGetVehicles();
   const { data: dbPlants } = useGetMasters("plant");
@@ -55,10 +67,20 @@ export default function Tickets() {
     return vehicles.map((v: any) => v.registrationNo || v.registrationNumber || v.vehicleNumber || v.regNo).filter(Boolean);
   }, [vehicles]);
 
-  // Generate a random ticket number for now
+  // Automatically fill Weight field from live scale in real-time whenever indicator changes
+  useEffect(() => {
+    if (isScaleConnected) {
+      setWeight(liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : "0");
+    }
+  }, [liveScaleWeight, isScaleConnected]);
+
+  // Generate a random ticket number and start polling
   useEffect(() => {
     setTicketNo(`TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`);
     fetchTickets();
+    // Auto-refresh every 10 seconds to pick up tickets created from /dc/weighment/new
+    const refreshInterval = setInterval(fetchTickets, 10000);
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const fetchTickets = async () => {
@@ -83,8 +105,9 @@ export default function Tickets() {
   }, [searchTerm, tickets]);
 
   const handleSave = async () => {
-    if (!vehicleNo || !weight) {
-      toast({ title: "Validation Error", description: "Please select a vehicle and enter weight.", variant: "destructive" });
+    const effectiveWeight = isScaleConnected && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight;
+    if (!vehicleNo || !effectiveWeight || Number(effectiveWeight) <= 0) {
+      toast({ title: "Validation Error", description: "Please select a vehicle and ensure weight is recorded.", variant: "destructive" });
       return;
     }
 
@@ -98,9 +121,10 @@ export default function Tickets() {
           plant,
           vehicleNo,
           weightType,
-          weight
+          weight: effectiveWeight
         })
       });
+
 
       toast({ title: "Ticket Saved", description: `Ticket ${ticketNo} has been stored in DB.` });
       
@@ -176,29 +200,93 @@ export default function Tickets() {
       <div className="flex items-center justify-between bg-white/40 p-4 rounded-xl backdrop-blur-md border border-white/60 shadow-sm">
         <div>
           <h2 className="text-2xl font-black tracking-tight text-slate-800">Weighment Tickets</h2>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Manage and generate vehicle weighment records</p>
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">Auto-synced · Tickets from Add Weighment appear here automatically</p>
         </div>
-        <nav className="text-[10px] font-bold text-slate-400 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-          <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">HOME</Link>
-          <ChevronRight className="h-3 w-3 opacity-30" />
-          <Link href="/dc" className="hover:text-[#ea580c] transition-colors">DC</Link>
-          <ChevronRight className="h-3 w-3 opacity-30" />
-          <span className="text-slate-800">TICKETS</span>
-        </nav>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchTickets}
+            className="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-[#ea580c] hover:border-[#ea580c] transition-all shadow-sm"
+            title="Refresh tickets"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
+          <Link href="/dc/weighment/new" className="bg-[#ea580c] hover:bg-[#d97706] text-white text-[10px] font-black uppercase tracking-wider px-4 py-2 rounded-lg shadow-md shadow-orange-500/20 flex items-center gap-1.5 transition-all">
+            <span>GO TO ADD WEIGHMENT</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <nav className="text-[10px] font-bold text-slate-400 flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+            <Link href="/dashboard" className="hover:text-[#ea580c] transition-colors">HOME</Link>
+            <ChevronRight className="h-3 w-3 opacity-30" />
+            <Link href="/dc" className="hover:text-[#ea580c] transition-colors">DC</Link>
+            <ChevronRight className="h-3 w-3 opacity-30" />
+            <span className="text-slate-800">TICKETS</span>
+          </nav>
+        </div>
+      </div>
+
+      {/* Sync Info Banner */}
+      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+        <div className="h-7 w-7 flex-shrink-0 bg-emerald-100 rounded-full flex items-center justify-center">
+          <Zap className="h-3.5 w-3.5 text-emerald-600" />
+        </div>
+        <div>
+          <p className="text-[11px] font-black text-emerald-800 uppercase tracking-wider">Auto-Sync Active</p>
+          <p className="text-[10px] text-emerald-600 font-semibold">
+            Tickets generated from <strong>Add Weighment</strong> (/dc/weighment/new) automatically appear here. You can also create manual tickets below. Refreshes every 10 seconds.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Generate Ticket Form */}
         <div className="lg:col-span-4 space-y-4">
           <div className="glass-card p-6 border-white/80 shadow-xl">
-            <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-              <div className="bg-[#ea580c]/10 p-2 rounded-lg">
-                <Ticket className="h-5 w-5 text-[#ea580c]" />
+            <div className="flex items-center justify-between gap-2 mb-4 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="bg-[#ea580c]/10 p-2 rounded-lg">
+                  <Ticket className="h-5 w-5 text-[#ea580c]" />
+                </div>
+                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Generate Ticket</h3>
               </div>
-              <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Generate Ticket</h3>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleToggleConnection}
+                className={`text-[9px] font-bold h-7 px-2.5 gap-1 ${isScaleConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-50 text-slate-600 border-slate-200'}`}
+              >
+                <Scale className="h-3 w-3 text-orange-500" />
+                {isScaleConnected ? '🔌 Scale Connected' : 'Connect Scale'}
+              </Button>
             </div>
 
-            <div className="space-y-5">
+            {/* Live Scale Mini Indicator */}
+            <div className="p-3.5 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white shadow-md border border-slate-700/80 mb-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <Scale className="h-3 w-3 text-orange-400" />
+                  <span>LIVE SCALE READOUT</span>
+                  {isStable && <span className="text-emerald-400 text-[8px] bg-emerald-950 px-1 rounded">● STABLE</span>}
+                </span>
+                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+                  {isScaleConnected ? '🔌 AUTO-FILLING' : 'OFFLINE'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="font-mono text-2xl font-black text-emerald-400">
+                  {liveScaleWeight} <span className="text-xs text-slate-400 font-normal">KG</span>
+                  <span className="text-[11px] text-slate-500 font-normal ml-2">({(liveScaleWeight / 1000).toFixed(3)} Tons)</span>
+                </div>
+                {isScaleConnected && (
+                  <div className="text-[9px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-1 rounded-md flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    Auto-Populating Weight
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="f-label">Ticket No</Label>
                 <Input value={ticketNo} readOnly className="f-input bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed font-mono" />
@@ -259,15 +347,25 @@ export default function Tickets() {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="f-label text-slate-600">Weight (KG) <span className="text-rose-500">*</span></Label>
+                <div className="flex items-center justify-between">
+                  <Label className="f-label text-slate-600">Weight (KG) <span className="text-rose-500">*</span></Label>
+                  {isScaleConnected && (
+                    <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      Live Sync ({liveScaleWeight} KG)
+                    </span>
+                  )}
+                </div>
                 <Input 
                   type="number"
-                  value={weight}
+                  value={isScaleConnected && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight}
                   onChange={(e) => setWeight(e.target.value)}
-                  placeholder="Enter weight in KG"
-                  className="f-input bg-white border-slate-200 text-slate-700 placeholder:text-slate-300 font-mono" 
+                  placeholder={isScaleConnected ? "Streaming live from scale..." : "Enter weight in KG"}
+                  className="f-input bg-white border-emerald-200 text-emerald-700 placeholder:text-slate-300 font-mono font-bold shadow-sm" 
                 />
               </div>
+
+
 
               <div className="flex gap-3 pt-4">
                 <Button onClick={handleSave} disabled={isSaving} className="flex-1 btn-primary h-11 gap-2 shadow-lg shadow-orange-500/20">

@@ -27,17 +27,27 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, 
-  Pencil, Copy, Printer, Download, Eye, Undo 
+  Pencil, Copy, Printer, Download, Eye, Undo, Scale 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { StoreLayout } from "@/components/store-layout";
+import { useScale } from "@/context/scale-context";
 
 export default function InventoryTicketPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const headerStyle = "bg-[#ea580c] text-white font-black py-1.5 px-2 text-center text-[9px] border-r border-white/10 last:border-0 uppercase tracking-tighter";
+
+  // Global Scale Connection State (persists across all pages)
+  const {
+    liveScaleWeight,
+    isScaleConnected,
+    isStable,
+    handleToggleConnection,
+  } = useScale();
+
 
   // Form & Editing States
   const [ticketNo, setTicketNo] = useState("");
@@ -74,55 +84,6 @@ export default function InventoryTicketPage() {
     }
   }, [dbPlants, editingId, plant]);
 
-  // Auto-sync weight from Weighbridge station based on Weight Type selection
-  const syncWeightFromWeighbridge = (type: string) => {
-    try {
-      const raw = localStorage.getItem("rmc_latest_weighment");
-      if (!raw) return;
-      const data = JSON.parse(raw);
-      
-      if (type === "Loaded Weight") {
-        if (data.loadedWeightKg) {
-          setWeight(String(data.loadedWeightKg));
-        } else if (data.loadedWeight) {
-          setWeight(String(Math.round(Number(data.loadedWeight) * 1000)));
-        } else {
-          setWeight("");
-        }
-      } else if (type === "Empty Weight") {
-        if (data.emptyWeightKg) {
-          setWeight(String(data.emptyWeightKg));
-        } else if (data.emptyWeight) {
-          setWeight(String(Math.round(Number(data.emptyWeight) * 1000)));
-        } else {
-          setWeight("");
-        }
-      }
-    } catch (e) {
-      console.warn("Failed syncing weighment data:", e);
-    }
-  };
-
-  useEffect(() => {
-    if (!editingId) {
-      syncWeightFromWeighbridge(weightType);
-    }
-  }, [weightType, vehicleNo, editingId]);
-
-  useEffect(() => {
-    const handleUpdate = () => {
-      if (!editingId) {
-        syncWeightFromWeighbridge(weightType);
-      }
-    };
-    window.addEventListener("rmc_weighment_update", handleUpdate);
-    window.addEventListener("storage", handleUpdate);
-    return () => {
-      window.removeEventListener("rmc_weighment_update", handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
-    };
-  }, [weightType, editingId]);
-
   const availableVehicles = useMemo(() => {
     if (!vehicles) return [];
     return vehicles
@@ -130,11 +91,19 @@ export default function InventoryTicketPage() {
       .filter(Boolean);
   }, [vehicles]);
 
+  // Automatically fill Weight field from live scale in real-time whenever indicator changes
+  useEffect(() => {
+    if (isScaleConnected && !editingId) {
+      setWeight(liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : "0");
+    }
+  }, [liveScaleWeight, isScaleConnected, editingId]);
+
   // Generate random ticket number & Load tickets on mount
   useEffect(() => {
     generateNewTicketNo();
     fetchTickets();
   }, []);
+
 
   const generateNewTicketNo = () => {
     setTicketNo(`TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`);
@@ -173,12 +142,13 @@ export default function InventoryTicketPage() {
 
   // Handle Save (Create or Update)
   const handleSave = async () => {
+    const effectiveWeight = isScaleConnected && !editingId && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight;
     if (!vehicleNo) {
       toast({ title: "Validation Error", description: "Please select a vehicle.", variant: "destructive" });
       return;
     }
-    if (!weight || Number(weight) <= 0) {
-      toast({ title: "Validation Error", description: "Please enter a valid weight.", variant: "destructive" });
+    if (!effectiveWeight || Number(effectiveWeight) <= 0) {
+      toast({ title: "Validation Error", description: "Please enter or record a valid weight.", variant: "destructive" });
       return;
     }
 
@@ -190,8 +160,9 @@ export default function InventoryTicketPage() {
         plant,
         vehicleNo,
         weightType,
-        weight: Number(weight)
+        weight: Number(effectiveWeight)
       };
+
 
       if (editingId) {
         // Update Ticket
@@ -344,13 +315,51 @@ export default function InventoryTicketPage() {
           {/* Left: Generate Ticket Form */}
           <div className="lg:col-span-4 space-y-4">
             <div className="bg-white p-6 rounded-xl border shadow-md">
-              <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                <div className="bg-emerald-500/10 p-2 rounded-lg">
-                  <Ticket className="h-5 w-5 text-emerald-600" />
+              <div className="flex items-center justify-between gap-2 mb-4 border-b border-slate-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="bg-emerald-500/10 p-2 rounded-lg">
+                    <Ticket className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">
+                    {editingId ? "Edit Ticket" : "Generate Ticket"}
+                  </h3>
                 </div>
-                <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">
-                  {editingId ? "Edit Ticket" : "Generate Ticket"}
-                </h3>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleToggleConnection}
+                  className={`text-[9px] font-bold h-7 px-2.5 gap-1 ${isScaleConnected ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-slate-50 text-slate-600 border-slate-200'}`}
+                >
+                  <Scale className="h-3 w-3 text-orange-500" />
+                  {isScaleConnected ? '🔌 Connected' : 'Connect Scale'}
+                </Button>
+              </div>
+
+              {/* Live Scale Mini Indicator */}
+              <div className="p-3.5 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white shadow-md border border-slate-700/80 mb-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Scale className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>LIVE SCALE READOUT</span>
+                    {isStable && <span className="text-emerald-400 text-[8px] bg-emerald-950 px-1 rounded">● STABLE</span>}
+                  </span>
+                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
+                    {isScaleConnected ? '🔌 AUTO-FILLING' : 'OFFLINE'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-2xl font-black text-emerald-400">
+                    {liveScaleWeight} <span className="text-xs text-slate-400 font-normal">KG</span>
+                    <span className="text-[11px] text-slate-500 font-normal ml-2">({(liveScaleWeight / 1000).toFixed(3)} Tons)</span>
+                  </div>
+                  {isScaleConnected && (
+                    <div className="text-[9px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-1 rounded-md flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      Live Sync
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-5">
@@ -424,15 +433,24 @@ export default function InventoryTicketPage() {
 
                 {/* Recorded Weight */}
                 <div className="space-y-1.5">
-                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Weight *</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Weight (KG) *</Label>
+                    {isScaleConnected && !editingId && (
+                      <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        Live Sync ({liveScaleWeight} KG)
+                      </span>
+                    )}
+                  </div>
                   <Input 
                     type="number"
-                    value={weight}
+                    value={isScaleConnected && !editingId && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight}
                     onChange={(e) => setWeight(e.target.value)}
-                    placeholder="Enter weight in KG"
-                    className="h-10 text-sm font-semibold bg-white border-slate-200 text-slate-700 placeholder:text-slate-300 font-mono shadow-sm focus:ring-emerald-500 focus:border-emerald-500" 
+                    placeholder={isScaleConnected ? "Streaming live from scale..." : "Enter weight in KG"}
+                    className="h-10 text-sm font-semibold bg-white border-emerald-200 text-emerald-700 placeholder:text-slate-300 font-mono font-bold shadow-sm focus:ring-emerald-500 focus:border-emerald-500" 
                   />
                 </div>
+
 
                 {/* Form Action Buttons */}
                 <div className="flex gap-3 pt-4">

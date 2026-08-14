@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "pnpm -r --parallel --filter \"@workspace/api-server\" --filter \"@workspace/buildrmc\" run dev",
     "start": "pnpm run dev",
-    "build": "pnpm -r --filter @workspace/buildrmc build",
+    "build": "pnpm -r --filter @workspace/buildrmc --filter @workspace/api-server build",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },

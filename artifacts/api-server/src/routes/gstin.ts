@@ -82,193 +82,202 @@ router.get("/verify-gstin/:gstin", async (req, res): Promise<void> => {
 
   const resolvedState = STATE_MAP[stateCode] || "UNKNOWN";
 
-  // Step 3: Try official or custom GST API if configured
-  const apiKey = process.env.GSTIN_API_KEY;
-  const apiUrl = process.env.GSTIN_API_URL;
-  const apiSecret = process.env.GSTIN_API_SECRET;
-  const apiProvider = process.env.GSTIN_API_PROVIDER;
+  // Step 3: Try Sandbox or custom/official GST API
+  const apiKey = process.env.GSTIN_API_KEY || "key_live_09ef3c30d54648c39649f3ed425cc3d9";
+  const apiSecret = process.env.GSTIN_API_SECRET || "secret_live_a4f3cc6b9b55410e82a923167f2e266e";
+  const apiUrl = process.env.GSTIN_API_URL || "https://api.sandbox.co.in/gst/compliance/public/gstin/search";
+  const apiProvider = process.env.GSTIN_API_PROVIDER || "sandbox.co.in";
 
   const isSandbox = apiProvider === "sandbox.co.in" || (apiUrl && apiUrl.includes("sandbox.co.in")) || Boolean(apiSecret);
 
   if (apiKey || apiUrl) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
       if (isSandbox && apiKey) {
         // --- Sandbox.co.in API Flow ---
-        const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
-          method: "POST",
-          headers: {
-            "x-api-key": apiKey,
-            "x-api-secret": apiSecret || "",
-            "x-api-version": "1.0",
-            "Accept": "application/json",
-          },
-          signal: controller.signal,
-        });
+        try {
+          const authRes = await fetch("https://api.sandbox.co.in/authenticate", {
+            method: "POST",
+            headers: {
+              "x-api-key": apiKey,
+              "x-api-secret": apiSecret || "",
+              "x-api-version": "1.0",
+              "Accept": "application/json",
+            },
+            signal: controller.signal,
+          });
 
-        if (authRes.ok) {
-          const authData = await authRes.json() as any;
-          const token = authData?.access_token || authData?.data?.access_token;
+          if (authRes.ok) {
+            const authData = await authRes.json() as any;
+            const token = authData?.access_token || authData?.data?.access_token;
 
-          if (token) {
-            const searchUrl = (apiUrl && apiUrl.includes("gstin"))
-              ? apiUrl.trim()
-              : "https://api.sandbox.co.in/gst/compliance/public/gstin/search";
+            if (token) {
+              const searchUrl = (apiUrl && apiUrl.includes("gstin"))
+                ? apiUrl.trim()
+                : "https://api.sandbox.co.in/gst/compliance/public/gstin/search";
 
-            const response = await fetch(searchUrl, {
-              method: "POST",
-              headers: {
-                "x-api-key": apiKey,
-                "authorization": token,
-                "x-api-version": "1.0",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ gstin: gstinUpper }),
-              signal: controller.signal,
-            });
+              const response = await fetch(searchUrl, {
+                method: "POST",
+                headers: {
+                  "x-api-key": apiKey,
+                  "authorization": token,
+                  "x-api-version": "1.0",
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ gstin: gstinUpper }),
+                signal: controller.signal,
+              });
 
-            clearTimeout(timeout);
+              clearTimeout(timeout);
 
-            const resJson = await response.json() as any;
+              const resJson = await response.json() as any;
 
-            if (response.ok) {
-              const innerData = resJson?.data;
-              if (innerData?.message === "No records found" || innerData?.error_cd === "FO8000") {
+              if (response.ok) {
+                const innerData = resJson?.data;
+                if (innerData?.message === "No records found" || innerData?.error_cd === "FO8000") {
+                  res.json({
+                    valid: false,
+                    verified: true,
+                    gstin: gstinUpper,
+                    error: "GSTIN not found in GST portal. This GSTIN is not registered.",
+                    source: "sandbox_co_in",
+                  });
+                  return;
+                }
+
+                const taxpayer = innerData?.data || innerData || resJson?.taxpayerInfo;
+                if (taxpayer && (taxpayer.lgnm || taxpayer.tradeNam || taxpayer.legalName)) {
+                  let address = "";
+                  if (taxpayer?.pradr?.addr) {
+                    const a = taxpayer.pradr.addr;
+                    const parts = [a.bno, a.bnm, a.flno, a.st, a.loc, a.dst, a.stcd, a.pncd].filter(Boolean);
+                    address = parts.join(", ");
+                  } else if (typeof taxpayer?.pradr === "string") {
+                    address = taxpayer.pradr;
+                  }
+
+                  res.json({
+                    valid: true,
+                    verified: true,
+                    gstin: gstinUpper,
+                    pan,
+                    state: resolvedState,
+                    legalName: taxpayer.lgnm || taxpayer.legalName || taxpayer.tradeNam || "",
+                    tradeName: taxpayer.tradeNam || taxpayer.tradeName || taxpayer.lgnm || "",
+                    status: taxpayer.sts || taxpayer.status || "ACTIVE",
+                    businessType: taxpayer.dty || taxpayer.ctb || taxpayer.constitutionOfBusiness || "",
+                    registrationDate: taxpayer.rgdt || taxpayer.registrationDate || "",
+                    address,
+                    source: "sandbox_co_in",
+                  });
+                  return;
+                }
+              } else if (response.status === 400 && resJson?.message === "Invalid GSTIN pattern") {
                 res.json({
                   valid: false,
                   verified: true,
                   gstin: gstinUpper,
-                  error: "GSTIN not found in GST portal. This GSTIN is not registered.",
+                  error: "Invalid GSTIN checksum or pattern according to government portal.",
                   source: "sandbox_co_in",
                 });
                 return;
               }
-
-              const taxpayer = innerData?.data || innerData || resJson?.taxpayerInfo;
-              if (taxpayer && (taxpayer.lgnm || taxpayer.tradeNam || taxpayer.legalName)) {
-                let address = "";
-                if (taxpayer?.pradr?.addr) {
-                  const a = taxpayer.pradr.addr;
-                  const parts = [a.bno, a.bnm, a.flno, a.st, a.loc, a.dst, a.stcd, a.pncd].filter(Boolean);
-                  address = parts.join(", ");
-                } else if (typeof taxpayer?.pradr === "string") {
-                  address = taxpayer.pradr;
-                }
-
-                res.json({
-                  valid: true,
-                  verified: true,
-                  gstin: gstinUpper,
-                  pan,
-                  state: resolvedState,
-                  legalName: taxpayer.lgnm || taxpayer.legalName || taxpayer.tradeNam || "",
-                  tradeName: taxpayer.tradeNam || taxpayer.tradeName || taxpayer.lgnm || "",
-                  status: taxpayer.sts || taxpayer.status || "ACTIVE",
-                  businessType: taxpayer.dty || taxpayer.ctb || taxpayer.constitutionOfBusiness || "",
-                  registrationDate: taxpayer.rgdt || taxpayer.registrationDate || "",
-                  address,
-                  source: "sandbox_co_in",
-                });
-                return;
-              }
-            } else if (response.status === 400 && resJson?.message === "Invalid GSTIN pattern") {
-              clearTimeout(timeout);
-              res.json({
-                valid: false,
-                verified: true,
-                gstin: gstinUpper,
-                error: "Invalid GSTIN checksum or pattern according to government portal.",
-                source: "sandbox_co_in",
-              });
-              return;
             }
-          }
-        }
-      }
-
-      // --- Generic / Standard Official GST API Flow ---
-      let requestUrl = "";
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-      };
-
-      if (apiUrl) {
-        const base = apiUrl.trim();
-        const separator = base.includes("?") ? "&" : "?";
-        requestUrl = `${base}${separator}gstin=${gstinUpper}&action=TP`;
-
-        if (apiKey) {
-          headers["Authorization"] = `Bearer ${apiKey}`;
-          headers["x-api-key"] = apiKey;
-        }
-      } else {
-        requestUrl = `${GST_API_BASE}/${gstinUpper}`;
-        if (apiKey) {
-          headers["Authorization"] = `Bearer ${apiKey}`;
-        }
-      }
-
-      const response = await fetch(requestUrl, {
-        method: "GET",
-        headers,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeout);
-
-      if (response.ok) {
-        const data = await response.json() as any;
-        const taxpayer = data?.taxpayerInfo || data?.data || data;
-
-        let address = "";
-        if (taxpayer?.pradr) {
-          if (typeof taxpayer.pradr === "string") {
-            address = taxpayer.pradr;
           } else {
-            const adrObj = taxpayer.pradr.adr || taxpayer.pradr;
-            if (typeof adrObj === "string") {
-              address = adrObj;
-            } else if (typeof adrObj === "object") {
-              const parts = [
-                adrObj.bno, adrObj.bnm, adrObj.st, adrObj.loc, adrObj.dst, adrObj.stcd, adrObj.pn,
-              ].filter(Boolean);
-              address = parts.join(", ");
-            }
+            console.error("Sandbox Auth failed with status:", authRes.status);
+          }
+        } catch (sbErr: any) {
+          clearTimeout(timeout);
+          console.error("Sandbox GST API error:", sbErr?.message);
+        }
+
+        // If Sandbox processing finishes without returning, end here rather than falling through to GET request
+        clearTimeout(timeout);
+      } else {
+        // --- Generic / Standard Official GST API Flow ---
+        let requestUrl = "";
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        };
+
+        if (apiUrl) {
+          const base = apiUrl.trim();
+          const separator = base.includes("?") ? "&" : "?";
+          requestUrl = `${base}${separator}gstin=${gstinUpper}&action=TP`;
+
+          if (apiKey) {
+            headers["Authorization"] = `Bearer ${apiKey}`;
+            headers["x-api-key"] = apiKey;
+          }
+        } else {
+          requestUrl = `${GST_API_BASE}/${gstinUpper}`;
+          if (apiKey) {
+            headers["Authorization"] = `Bearer ${apiKey}`;
           }
         }
 
-        res.json({
-          valid: true,
-          verified: true,
-          gstin: gstinUpper,
-          pan,
-          state: resolvedState,
-          legalName: taxpayer?.lgnm || taxpayer?.legalName || taxpayer?.legal_name || "",
-          tradeName: taxpayer?.tradeNam || taxpayer?.tradeName || taxpayer?.trade_name || "",
-          status: taxpayer?.sts || taxpayer?.status || "ACTIVE",
-          businessType: taxpayer?.dty || taxpayer?.constitutionOfBusiness || taxpayer?.ctb || "",
-          registrationDate: taxpayer?.rgdt || taxpayer?.registrationDate || "",
-          address: address || taxpayer?.address || "",
-          source: apiUrl ? "custom_gst_api" : "official_gst_api",
+        const response = await fetch(requestUrl, {
+          method: "GET",
+          headers,
+          signal: controller.signal,
         });
-        return;
-      }
 
-      if (response.status === 404) {
-        res.status(200).json({
-          valid: false,
-          verified: true,
-          gstin: gstinUpper,
-          error: "GSTIN not found in GST portal. This GSTIN is not registered.",
-          source: apiUrl ? "custom_gst_api" : "official_gst_api",
-        });
-        return;
-      }
+        clearTimeout(timeout);
 
-      console.warn(`GST API returned ${response.status} for GSTIN ${gstinUpper}`);
+        if (response.ok) {
+          const data = await response.json() as any;
+          const taxpayer = data?.taxpayerInfo || data?.data || data;
+
+          let address = "";
+          if (taxpayer?.pradr) {
+            if (typeof taxpayer.pradr === "string") {
+              address = taxpayer.pradr;
+            } else {
+              const adrObj = taxpayer.pradr.adr || taxpayer.pradr;
+              if (typeof adrObj === "string") {
+                address = adrObj;
+              } else if (typeof adrObj === "object") {
+                const parts = [
+                  adrObj.bno, adrObj.bnm, adrObj.st, adrObj.loc, adrObj.dst, adrObj.stcd, adrObj.pn,
+                ].filter(Boolean);
+                address = parts.join(", ");
+              }
+            }
+          }
+
+          res.json({
+            valid: true,
+            verified: true,
+            gstin: gstinUpper,
+            pan,
+            state: resolvedState,
+            legalName: taxpayer?.lgnm || taxpayer?.legalName || taxpayer?.legal_name || "",
+            tradeName: taxpayer?.tradeNam || taxpayer?.tradeName || taxpayer?.trade_name || "",
+            status: taxpayer?.sts || taxpayer?.status || "ACTIVE",
+            businessType: taxpayer?.dty || taxpayer?.constitutionOfBusiness || taxpayer?.ctb || "",
+            registrationDate: taxpayer?.rgdt || taxpayer?.registrationDate || "",
+            address: address || taxpayer?.address || "",
+            source: apiUrl ? "custom_gst_api" : "official_gst_api",
+          });
+          return;
+        }
+
+        if (response.status === 404) {
+          res.status(200).json({
+            valid: false,
+            verified: true,
+            gstin: gstinUpper,
+            error: "GSTIN not found in GST portal. This GSTIN is not registered.",
+            source: apiUrl ? "custom_gst_api" : "official_gst_api",
+          });
+          return;
+        }
+
+        console.warn(`GST API returned ${response.status} for GSTIN ${gstinUpper}`);
+      }
 
     } catch (err: any) {
       if (err?.name === "AbortError") {

@@ -6,10 +6,10 @@ const router: IRouter = Router();
 
 // Zod schema for validation
 const createTicketSchema = z.object({
-  ticketNo: z.string(),
-  plant: z.string(),
+  ticketNo: z.string().optional(),
+  plant: z.string().optional(),
   vehicleNo: z.string(),
-  weightType: z.string(),
+  weightType: z.string().optional().default("Loaded Weight"),
   weight: z.string().or(z.number()),
   createdBy: z.string().optional(),
 });
@@ -47,7 +47,7 @@ router.get("/inventory-tickets/by-vehicle/:vehicleNo", async (req, res): Promise
       netWeight
     });
   } catch (error: any) {
-    console.error("Failed to fetch inventory tickets by vehicle:", error);
+    console.error("Failed to fetch tickets by vehicle:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
@@ -73,8 +73,15 @@ router.post("/inventory-tickets", async (req, res): Promise<void> => {
     }
 
     await connectMongo();
+    const plantValue = (parsed.data.plant && parsed.data.plant.trim()) ? parsed.data.plant.trim() : "Main Plant";
+    const ticketNoValue = (parsed.data.ticketNo && parsed.data.ticketNo.trim()) 
+      ? parsed.data.ticketNo.trim() 
+      : `TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`;
+
     const ticket = new InventoryTicket({
       ...parsed.data,
+      ticketNo: ticketNoValue,
+      plant: plantValue,
       weight: Number(parsed.data.weight),
       createdBy: parsed.data.createdBy || "Super Admin",
     });

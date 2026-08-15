@@ -6,10 +6,10 @@ const router: IRouter = Router();
 
 // Zod schema for validation
 const createTicketSchema = z.object({
-  ticketNo: z.string(),
-  plant: z.string(),
+  ticketNo: z.string().optional(),
+  plant: z.string().optional(),
   vehicleNo: z.string(),
-  weightType: z.string(),
+  weightType: z.string().optional().default("Loaded Weight"),
   weight: z.string().or(z.number()),
   createdBy: z.string().optional(),
 });
@@ -63,7 +63,6 @@ router.get("/weighment-tickets", async (_req, res): Promise<void> => {
   }
 });
 
-
 router.post("/weighment-tickets", async (req, res): Promise<void> => {
   try {
     const parsed = createTicketSchema.safeParse(req.body);
@@ -73,8 +72,15 @@ router.post("/weighment-tickets", async (req, res): Promise<void> => {
     }
 
     await connectMongo();
+    const plantValue = (parsed.data.plant && parsed.data.plant.trim()) ? parsed.data.plant.trim() : "Main Plant";
+    const ticketNoValue = (parsed.data.ticketNo && parsed.data.ticketNo.trim()) 
+      ? parsed.data.ticketNo.trim() 
+      : `TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`;
+
     const ticket = new WeighmentTicket({
       ...parsed.data,
+      ticketNo: ticketNoValue,
+      plant: plantValue,
       weight: Number(parsed.data.weight),
       createdBy: parsed.data.createdBy || "Super Admin",
     });

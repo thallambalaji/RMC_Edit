@@ -336,31 +336,6 @@ export default function InventoryTicketPage() {
                 </Button>
               </div>
 
-              {/* Live Scale Mini Indicator */}
-              <div className="p-3.5 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white shadow-md border border-slate-700/80 mb-4 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Scale className="h-3.5 w-3.5 text-emerald-400" />
-                    <span>LIVE SCALE READOUT</span>
-                    {isStable && <span className="text-emerald-400 text-[8px] bg-emerald-950 px-1 rounded">● STABLE</span>}
-                  </span>
-                  <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
-                    {isScaleConnected ? '🔌 AUTO-FILLING' : 'OFFLINE'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="font-mono text-2xl font-black text-emerald-400">
-                    {liveScaleWeight} <span className="text-xs text-slate-400 font-normal">KG</span>
-                    <span className="text-[11px] text-slate-500 font-normal ml-2">({(liveScaleWeight / 1000).toFixed(3)} Tons)</span>
-                  </div>
-                  {isScaleConnected && (
-                    <div className="text-[9px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-1 rounded-md flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                      Live Sync
-                    </div>
-                  )}
-                </div>
-              </div>
 
               <div className="space-y-5">
                 {/* Ticket Number (ReadOnly) */}

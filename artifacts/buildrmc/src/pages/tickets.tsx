@@ -106,25 +106,29 @@ export default function Tickets() {
 
   const handleSave = async () => {
     const effectiveWeight = isScaleConnected && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight;
-    if (!vehicleNo || !effectiveWeight || Number(effectiveWeight) <= 0) {
-      toast({ title: "Validation Error", description: "Please select a vehicle and ensure weight is recorded.", variant: "destructive" });
+    if (!vehicleNo) {
+      toast({ title: "Validation Error", description: "Please select a vehicle number.", variant: "destructive" });
+      return;
+    }
+    if (!effectiveWeight || Number(effectiveWeight) <= 0) {
+      toast({ title: "Validation Error", description: "Please ensure weight is recorded (> 0 KG).", variant: "destructive" });
       return;
     }
 
     try {
       setIsSaving(true);
+      const effectivePlant = plant || (dbPlants && dbPlants.length > 0 ? (dbPlants[0].name || dbPlants[0].id) : "Main Plant");
       await customFetch("/api/weighment-tickets", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ticketNo,
-          plant,
+          plant: effectivePlant,
           vehicleNo,
-          weightType,
+          weightType: weightType || "Loaded Weight",
           weight: effectiveWeight
         })
       });
-
 
       toast({ title: "Ticket Saved", description: `Ticket ${ticketNo} has been stored in DB.` });
       
@@ -133,9 +137,9 @@ export default function Tickets() {
       setVehicleNo("");
       setWeight("");
       setTicketNo(`TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`);
-    } catch (err) {
-      console.error(err);
-      toast({ title: "Error", description: "Failed to store ticket in DB.", variant: "destructive" });
+    } catch (err: any) {
+      console.error("Save error:", err);
+      toast({ title: "Error", description: err?.message || "Failed to store ticket in DB.", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -224,18 +228,6 @@ export default function Tickets() {
         </div>
       </div>
 
-      {/* Sync Info Banner */}
-      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-        <div className="h-7 w-7 flex-shrink-0 bg-emerald-100 rounded-full flex items-center justify-center">
-          <Zap className="h-3.5 w-3.5 text-emerald-600" />
-        </div>
-        <div>
-          <p className="text-[11px] font-black text-emerald-800 uppercase tracking-wider">Auto-Sync Active</p>
-          <p className="text-[10px] text-emerald-600 font-semibold">
-            Tickets generated from <strong>Add Weighment</strong> (/dc/weighment/new) automatically appear here. You can also create manual tickets below. Refreshes every 10 seconds.
-          </p>
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Generate Ticket Form */}
@@ -260,31 +252,6 @@ export default function Tickets() {
               </Button>
             </div>
 
-            {/* Live Scale Mini Indicator */}
-            <div className="p-3.5 rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white shadow-md border border-slate-700/80 mb-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Scale className="h-3 w-3 text-orange-400" />
-                  <span>LIVE SCALE READOUT</span>
-                  {isStable && <span className="text-emerald-400 text-[8px] bg-emerald-950 px-1 rounded">● STABLE</span>}
-                </span>
-                <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${isScaleConnected ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'}`}>
-                  {isScaleConnected ? '🔌 AUTO-FILLING' : 'OFFLINE'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="font-mono text-2xl font-black text-emerald-400">
-                  {liveScaleWeight} <span className="text-xs text-slate-400 font-normal">KG</span>
-                  <span className="text-[11px] text-slate-500 font-normal ml-2">({(liveScaleWeight / 1000).toFixed(3)} Tons)</span>
-                </div>
-                {isScaleConnected && (
-                  <div className="text-[9px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-1 rounded-md flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    Auto-Populating Weight
-                  </div>
-                )}
-              </div>
-            </div>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
@@ -313,9 +280,9 @@ export default function Tickets() {
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center">
                   <Label className="f-label text-slate-600">Vehicle No <span className="text-rose-500">*</span></Label>
-                  <button className="text-[10px] text-[#ea580c] font-black hover:underline flex items-center gap-0.5">
+                  <Link href="/transport/vehicle/new" className="text-[10px] text-[#ea580c] font-black hover:underline flex items-center gap-0.5">
                     <Plus className="h-2.5 w-2.5" /> ADD NEW
-                  </button>
+                  </Link>
                 </div>
                 <Select value={vehicleNo} onValueChange={setVehicleNo}>
                   <SelectTrigger className="f-input bg-white border-slate-200 text-slate-700 font-semibold">

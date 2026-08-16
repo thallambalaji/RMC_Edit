@@ -11,6 +11,7 @@ const createTicketSchema = z.object({
   vehicleNo: z.string(),
   weightType: z.string().optional().default("Loaded Weight"),
   weight: z.string().or(z.number()),
+  status: z.enum(["OPEN", "CLOSED"]).optional().default("OPEN"),
   createdBy: z.string().optional(),
 });
 
@@ -27,24 +28,33 @@ router.get("/weighment-tickets/by-vehicle/:vehicleNo", async (req, res): Promise
       return cleanDb === cleanParam || t.vehicleNo.toLowerCase() === vehicleNoParam.toLowerCase();
     });
 
-    const latestEmpty = matchedTickets.find(t => 
-      t.weightType?.toLowerCase().includes("empty") || t.weightType?.toLowerCase().includes("tare")
-    );
-    const latestLoaded = matchedTickets.find(t => 
-      t.weightType?.toLowerCase().includes("loaded") || t.weightType?.toLowerCase().includes("gross")
-    );
+    // Find the single active OPEN ticket for this vehicle
+    const activeOpenTicket = matchedTickets.find(t => (t.status === "OPEN" || !t.status));
 
-    const emptyWeight = latestEmpty ? Number(latestEmpty.weight) || 0 : 0;
-    const loadedWeight = latestLoaded ? Number(latestLoaded.weight) || 0 : 0;
-    const netWeight = Math.max(0, loadedWeight - emptyWeight);
+    let latestEmpty = null;
+    let latestLoaded = null;
+    let emptyWeight = 0;
+    let loadedWeight = 0;
+
+    if (activeOpenTicket) {
+      const isTypeEmpty = activeOpenTicket.weightType?.toLowerCase().includes("empty") || activeOpenTicket.weightType?.toLowerCase().includes("tare");
+      if (isTypeEmpty) {
+        latestEmpty = activeOpenTicket;
+        emptyWeight = Number(activeOpenTicket.weight) || 0;
+      } else {
+        latestLoaded = activeOpenTicket;
+        loadedWeight = Number(activeOpenTicket.weight) || 0;
+      }
+    }
 
     res.json({
       tickets: matchedTickets,
+      activeTicket: activeOpenTicket || null,
       latestEmpty,
       latestLoaded,
       emptyWeight,
       loadedWeight,
-      netWeight
+      netWeight: 0
     });
   } catch (error: any) {
     console.error("Failed to fetch tickets by vehicle:", error);
@@ -72,6 +82,22 @@ router.post("/weighment-tickets", async (req, res): Promise<void> => {
     }
 
     await connectMongo();
+
+    // Check if vehicle already has an active OPEN ticket
+    const cleanReqVeh = parsed.data.vehicleNo.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    const existingTickets = await WeighmentTicket.find({ status: { $ne: "CLOSED" } });
+    const existingOpen = existingTickets.find(t => {
+      const cleanDbVeh = t.vehicleNo.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      return cleanDbVeh === cleanReqVeh;
+    });
+
+    if (existingOpen) {
+      res.status(400).json({ 
+        error: `Vehicle ${parsed.data.vehicleNo} already has an active OPEN ticket (${existingOpen.ticketNo} - ${existingOpen.weightType}: ${existingOpen.weight} KG). Please complete Add Weighment to close this ticket before raising a new one.` 
+      });
+      return;
+    }
+
     const plantValue = (parsed.data.plant && parsed.data.plant.trim()) ? parsed.data.plant.trim() : "Main Plant";
     const ticketNoValue = (parsed.data.ticketNo && parsed.data.ticketNo.trim()) 
       ? parsed.data.ticketNo.trim() 
@@ -81,18 +107,47 @@ router.post("/weighment-tickets", async (req, res): Promise<void> => {
       ...parsed.data,
       ticketNo: ticketNoValue,
       plant: plantValue,
+      status: "OPEN",
       weight: Number(parsed.data.weight),
       createdBy: parsed.data.createdBy || "Super Admin",
     });
 
     await ticket.save();
-    console.log("✅ Ticket saved successfully:", ticket._id);
+    console.log("✅ Ticket created with status OPEN:", ticket.ticketNo);
     res.status(201).json(ticket);
   } catch (error: any) {
-    console.error("❌ Failed to save ticket to MongoDB:");
-    console.error("Error Name:", error.name);
-    console.error("Error Message:", error.message);
-    if (error.errors) console.error("Validation Errors:", JSON.stringify(error.errors, null, 2));
+    console.error("❌ Failed to save ticket to MongoDB:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
+  }
+});
+
+// Close active ticket by vehicle number (called automatically when Add Weighment / Delivery Challan is recorded)
+router.post("/weighment-tickets/close-by-vehicle/:vehicleNo", async (req, res): Promise<void> => {
+  try {
+    await connectMongo();
+    const vehicleNoParam = decodeURIComponent(req.params.vehicleNo).trim();
+    const cleanParam = vehicleNoParam.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    
+    const openTickets = await WeighmentTicket.find({ status: { $ne: "CLOSED" } });
+    const ticketToClose = openTickets.find(t => {
+      const cleanDb = t.vehicleNo.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      return cleanDb === cleanParam;
+    });
+
+    if (ticketToClose) {
+      ticketToClose.status = "CLOSED";
+      ticketToClose.closedAt = new Date();
+      if (req.body?.deliveryNo) {
+        ticketToClose.closedByDeliveryNo = req.body.deliveryNo;
+      }
+      await ticketToClose.save();
+      console.log(`✅ Closed ticket ${ticketToClose.ticketNo} for vehicle ${vehicleNoParam}`);
+      res.json({ message: "Ticket closed successfully", ticket: ticketToClose });
+    } else {
+      res.json({ message: "No open ticket found for vehicle", vehicleNo: vehicleNoParam });
+    }
+  } catch (error: any) {
+    console.error("Failed to close ticket by vehicle:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
@@ -127,7 +182,6 @@ router.put("/weighment-tickets/:id", async (req, res): Promise<void> => {
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 });
-
 
 router.delete("/weighment-tickets/:id", async (req, res): Promise<void> => {
   try {

@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download, Scale, Zap, RefreshCw, ArrowRight } from "lucide-react";
+import { ChevronRight, Plus, Save, Search, Ticket, X, Loader2, Trash2, Pencil, Copy, Printer, Download, Scale, Zap, RefreshCw, ArrowRight, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { customFetch, useGetVehicles, useGetMasters } from "@workspace/api-client-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -39,7 +39,7 @@ export default function Tickets() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [selectedTicket, setSelectedTicket] = useState<any | null>(null);
   const [printTicket, setPrintTicket] = useState<any>(null);
 
   // Global Scale Connection State (persists across all pages)
@@ -67,6 +67,16 @@ export default function Tickets() {
     return vehicles.map((v: any) => v.registrationNo || v.registrationNumber || v.vehicleNumber || v.regNo).filter(Boolean);
   }, [vehicles]);
 
+  // Check if the selected vehicle currently has an active OPEN ticket
+  const activeOpenTicketForSelectedVehicle = useMemo(() => {
+    if (!vehicleNo) return null;
+    const cleanSel = vehicleNo.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    return tickets.find(t => {
+      const cleanDb = (t.vehicleNo || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      return cleanDb === cleanSel && (t.status === "OPEN" || !t.status);
+    });
+  }, [vehicleNo, tickets]);
+
   // Automatically fill Weight field from live scale in real-time whenever indicator changes
   useEffect(() => {
     if (isScaleConnected) {
@@ -74,13 +84,10 @@ export default function Tickets() {
     }
   }, [liveScaleWeight, isScaleConnected]);
 
-  // Generate a random ticket number and start polling
+  // Generate a random ticket number and load tickets on mount
   useEffect(() => {
     setTicketNo(`TKT1/2627/${Math.floor(1000 + Math.random() * 9000)}`);
     fetchTickets();
-    // Auto-refresh every 10 seconds to pick up tickets created from /dc/weighment/new
-    const refreshInterval = setInterval(fetchTickets, 10000);
-    return () => clearInterval(refreshInterval);
   }, []);
 
   const fetchTickets = async () => {
@@ -298,6 +305,17 @@ export default function Tickets() {
                     )}
                   </SelectContent>
                 </Select>
+                {activeOpenTicketForSelectedVehicle && (
+                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-300 text-amber-900 text-[11px] font-semibold flex items-start gap-2 animate-in fade-in">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-black text-amber-800 uppercase text-[9px] tracking-wider">Active OPEN Ticket Exists</p>
+                      <p className="text-[10px] leading-tight mt-0.5 text-amber-900">
+                        Vehicle <strong className="font-mono text-amber-950">{vehicleNo}</strong> already has active open ticket <strong className="font-mono text-[#ea580c]">{activeOpenTicketForSelectedVehicle.ticketNo}</strong> ({activeOpenTicketForSelectedVehicle.weightType}: {activeOpenTicketForSelectedVehicle.weight} KG). Please complete in <Link href="/dc/weighment/new" className="text-[#ea580c] underline font-black">Add Weighment</Link> to close it before generating a new ticket.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -314,15 +332,7 @@ export default function Tickets() {
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="f-label text-slate-600">Weight (KG) <span className="text-rose-500">*</span></Label>
-                  {isScaleConnected && (
-                    <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                      Live Sync ({liveScaleWeight} KG)
-                    </span>
-                  )}
-                </div>
+                <Label className="f-label text-slate-600">Weight (KG) <span className="text-rose-500">*</span></Label>
                 <Input 
                   type="number"
                   value={isScaleConnected && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight}
@@ -335,9 +345,13 @@ export default function Tickets() {
 
 
               <div className="flex gap-3 pt-4">
-                <Button onClick={handleSave} disabled={isSaving} className="flex-1 btn-primary h-11 gap-2 shadow-lg shadow-orange-500/20">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={isSaving || !!activeOpenTicketForSelectedVehicle} 
+                  className={`flex-1 h-11 gap-2 shadow-lg transition-all ${activeOpenTicketForSelectedVehicle ? 'bg-slate-200 text-slate-400 border border-slate-300 cursor-not-allowed' : 'btn-primary shadow-orange-500/20'}`}
+                >
                   {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} 
-                  SAVE TICKET
+                  {activeOpenTicketForSelectedVehicle ? "TICKET ALREADY OPEN" : "SAVE TICKET"}
                 </Button>
                 <Button onClick={handleCancel} variant="outline" className="flex-1 bg-white border-slate-200 text-slate-600 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 h-11 gap-2 transition-all font-bold text-[10px]">
                   <X className="h-4 w-4" /> CANCEL
@@ -351,24 +365,23 @@ export default function Tickets() {
         <div className="lg:col-span-8 flex flex-col">
           <div className="glass-card flex-1 flex flex-col overflow-hidden border-white/80 shadow-xl">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-md border border-slate-200 shadow-sm text-slate-400">
-                  <Search className="h-4 w-4" />
-                </div>
+              <div className="relative w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <Input 
-                  placeholder="Search by Ticket No, Vehicle..." 
-                  value={searchTerm}
+                  value={searchTerm} 
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="f-input w-64 bg-white border-slate-200 text-slate-700 placeholder:text-slate-300 shadow-sm" 
+                  placeholder="Search by Ticket No, Vehicle..." 
+                  className="pl-9 h-9 text-xs bg-white border-slate-200 rounded-lg shadow-sm"
                 />
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider font-black">Show</span>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Show</span>
                 <Select defaultValue="10">
-                  <SelectTrigger className="w-20 h-8 bg-white border-slate-200 text-slate-600 text-xs font-bold shadow-sm">
+                  <SelectTrigger className="h-8 w-16 text-xs bg-white border-slate-200 font-bold">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-white border-slate-200 text-slate-700">
+                  <SelectContent className="bg-white border-slate-200">
                     <SelectItem value="10">10</SelectItem>
                     <SelectItem value="25">25</SelectItem>
                     <SelectItem value="50">50</SelectItem>
@@ -383,6 +396,7 @@ export default function Tickets() {
                   <TableRow className="border-0 hover:bg-transparent">
                     <TableHead className={headerStyle}>Ticket NO</TableHead>
                     <TableHead className={headerStyle}>Vehicle No</TableHead>
+                    <TableHead className={headerStyle}>Status</TableHead>
                     <TableHead className={headerStyle}>Weight Type</TableHead>
                     <TableHead className={headerStyle}>Weight</TableHead>
                     <TableHead className={headerStyle}>Date & Time</TableHead>
@@ -393,7 +407,7 @@ export default function Tickets() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-20">
+                      <TableCell colSpan={8} className="text-center py-20">
                         <div className="flex flex-col items-center gap-2">
                           <Loader2 className="h-8 w-8 animate-spin text-[#ea580c]" />
                           <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">Loading Tickets...</p>
@@ -404,6 +418,18 @@ export default function Tickets() {
                     <TableRow key={idx} className="hover:bg-slate-50 border-b border-slate-100 transition-colors group">
                       <TableCell className="text-center py-3 text-[#ea580c] font-black text-xs">{row.ticketNo}</TableCell>
                       <TableCell className="text-center py-3 text-slate-700 font-bold text-xs">{row.vehicleNo}</TableCell>
+                      <TableCell className="text-center py-3">
+                        {row.status === "CLOSED" ? (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-slate-100 text-slate-500 border border-slate-200">
+                            CLOSED
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center justify-center gap-1 mx-auto w-fit">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            OPEN
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell className="text-center py-3">
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                           row.weightType === "Empty Weight" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-emerald-100 text-emerald-700 border border-emerald-200"

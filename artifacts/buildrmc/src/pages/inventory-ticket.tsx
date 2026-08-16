@@ -408,15 +408,7 @@ export default function InventoryTicketPage() {
 
                 {/* Recorded Weight */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Weight (KG) *</Label>
-                    {isScaleConnected && !editingId && (
-                      <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
-                        Live Sync ({liveScaleWeight} KG)
-                      </span>
-                    )}
-                  </div>
+                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Weight (KG) *</Label>
                   <Input 
                     type="number"
                     value={isScaleConnected && !editingId && liveScaleWeight > 0 ? String(Math.round(liveScaleWeight)) : weight}
@@ -474,13 +466,13 @@ export default function InventoryTicketPage() {
                 {/* Top-Right: Search Input */}
                 <div className="flex items-center gap-2">
                   <Label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Search:</Label>
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
+                  <div className="relative w-60">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
                     <Input 
                       placeholder="Type search terms..." 
                       value={searchTerm}
                       onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                      className="f-input w-56 pl-8 bg-white border-slate-200 text-slate-700 placeholder:text-slate-300 shadow-sm" 
+                      className="pl-9 h-9 text-xs bg-white border-slate-200 rounded-lg text-slate-700 placeholder:text-slate-400 shadow-sm" 
                     />
                   </div>
                 </div>

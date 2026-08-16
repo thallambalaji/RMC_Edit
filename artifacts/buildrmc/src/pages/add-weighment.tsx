@@ -50,6 +50,7 @@ export default function AddWeighment() {
   // Vehicle ticket lookup state — auto-populate weights from /dc/weighment/tickets
   const [vehicleTicketsData, setVehicleTicketsData] = useState<{
     tickets: any[];
+    activeTicket: any;
     latestEmpty: any;
     latestLoaded: any;
     emptyWeight: number;
@@ -58,6 +59,7 @@ export default function AddWeighment() {
     isLoading: boolean;
   }>({
     tickets: [],
+    activeTicket: null,
     latestEmpty: null,
     latestLoaded: null,
     emptyWeight: 0,
@@ -71,6 +73,7 @@ export default function AddWeighment() {
     if (!vehicleNo || vehicleNo.trim() === "" || vehicleNo === "_empty") {
       setVehicleTicketsData({
         tickets: [],
+        activeTicket: null,
         latestEmpty: null,
         latestLoaded: null,
         emptyWeight: 0,
@@ -93,6 +96,7 @@ export default function AddWeighment() {
 
         setVehicleTicketsData({
           tickets: data.tickets || [],
+          activeTicket: data.activeTicket || null,
           latestEmpty: data.latestEmpty,
           latestLoaded: data.latestLoaded,
           emptyWeight: data.emptyWeight || 0,
@@ -109,11 +113,11 @@ export default function AddWeighment() {
           setLoadedWeight((data.loadedWeight / 1000).toFixed(3));
         }
 
-        if (!hasShownToast && (data.latestEmpty || data.latestLoaded)) {
+        if (!hasShownToast && data.activeTicket) {
           hasShownToast = true;
           toast({
-            title: `✨ Weights Auto-Loaded: ${vehicleNo}`,
-            description: `${data.latestEmpty ? `Empty: ${(data.emptyWeight/1000).toFixed(3)}T ` : ""}${data.latestLoaded ? `Loaded: ${(data.loadedWeight/1000).toFixed(3)}T` : ""}`,
+            title: `🎫 Active Ticket Loaded: ${vehicleNo}`,
+            description: `${data.activeTicket.ticketNo} (${data.activeTicket.weightType}: ${(data.activeTicket.weight/1000).toFixed(3)} T)`,
           });
         }
       } catch (err) {
@@ -122,7 +126,6 @@ export default function AddWeighment() {
     };
 
     lookupVehicleTickets();
-    // Poll every 2 seconds so updated indicator values refresh automatically
     const pollInterval = setInterval(lookupVehicleTickets, 2000);
 
     return () => { 
@@ -153,6 +156,26 @@ export default function AddWeighment() {
     handleToggleConnection,
     handleSimulateOrCapture,
   } = useScale();
+
+  // Smart Live-Streaming: Auto-capture the second/missing weight from physical scale indicator
+  useEffect(() => {
+    if (!isScaleConnected) return;
+
+    const liveTons = (liveScaleWeight / 1000).toFixed(3);
+
+    // Scenario A: Ticket has Empty Weight -> Auto-stream live scale into Loaded Weight
+    if (vehicleTicketsData.latestEmpty && !vehicleTicketsData.latestLoaded) {
+      setLoadedWeight(liveTons);
+    }
+    // Scenario B: Ticket has Loaded Weight -> Auto-stream live scale into Empty Weight
+    else if (vehicleTicketsData.latestLoaded && !vehicleTicketsData.latestEmpty) {
+      setEmptyWeight(liveTons);
+    }
+    // Scenario C: Vehicle selected but no tickets -> Default live scale into Loaded Weight
+    else if (!vehicleTicketsData.latestEmpty && !vehicleTicketsData.latestLoaded && vehicleNo) {
+      setLoadedWeight(liveTons);
+    }
+  }, [liveScaleWeight, isScaleConnected, vehicleTicketsData.latestEmpty, vehicleTicketsData.latestLoaded, vehicleNo]);
 
   // Live Data
   const { data: customers } = useGetCustomers();
@@ -347,9 +370,16 @@ export default function AddWeighment() {
         throw new Error(errData.error || "Failed to save delivery challan");
       }
 
+      // Step 3: Automatically CLOSE the active open ticket for this vehicle
+      await fetch(`/api/weighment-tickets/close-by-vehicle/${encodeURIComponent(vehicleNo.trim())}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliveryNo })
+      }).catch(e => console.warn("Ticket close notice:", e));
+
       toast({ 
-        title: "✅ Weighment Saved Successfully", 
-        description: `Delivery Challan ${deliveryNo} recorded. Net Weight: ${netNum.toFixed(3)} T (${Math.round(netNum * 1000).toLocaleString()} KG). Tickets auto-synced.` 
+        title: "✅ Weighment Saved & Ticket Closed", 
+        description: `Delivery Challan ${deliveryNo} recorded. Active ticket for vehicle ${vehicleNo} is now CLOSED.` 
       });
       navigate("/dc/weighment/list");
     } catch (err: any) {
@@ -545,14 +575,7 @@ export default function AddWeighment() {
               <div className="hidden md:block"></div>
 
               <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <Label className="f-label text-slate-600">Vehicle No <span className="text-rose-500">*</span></Label>
-                  {vehicleTicketsData.tickets.length > 0 && (
-                    <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      ✓ {vehicleTicketsData.tickets.length} TICKET(S) SYNCED
-                    </span>
-                  )}
-                </div>
+                <Label className="f-label text-slate-600">Vehicle No <span className="text-rose-500">*</span></Label>
                 <div className="flex gap-1">
                   <Input
                     value={vehicleNo}
@@ -575,16 +598,6 @@ export default function AddWeighment() {
                     </SelectContent>
                   </Select>
                 </div>
-                {vehicleTicketsData.tickets.length > 0 && (
-                  <div className="text-[9px] text-emerald-700 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200 flex items-center justify-between font-semibold">
-                    <span>
-                      {vehicleTicketsData.latestEmpty && `Tare: ${(vehicleTicketsData.emptyWeight / 1000).toFixed(3)} T `}
-                      {vehicleTicketsData.latestLoaded && `| Gross: ${(vehicleTicketsData.loadedWeight / 1000).toFixed(3)} T`}
-                      {vehicleTicketsData.netWeight > 0 && ` | Net: ${(vehicleTicketsData.netWeight / 1000).toFixed(3)} T`}
-                    </span>
-                    <span className="font-bold text-emerald-800 uppercase text-[8px] bg-emerald-200/60 px-1 rounded">Auto-Loaded</span>
-                  </div>
-                )}
               </div>
 
 
@@ -613,14 +626,7 @@ export default function AddWeighment() {
 
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="f-label text-amber-600">Empty Weight (Tons)</Label>
-                  {vehicleTicketsData.latestEmpty && (
-                    <span className="text-[8px] font-black uppercase text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200">
-                      ✓ Auto from Ticket
-                    </span>
-                  )}
-                </div>
+                <Label className="f-label text-amber-600">Empty Weight (Tons)</Label>
                 <Input 
                   type="number"
                   value={emptyWeight} 
@@ -631,14 +637,7 @@ export default function AddWeighment() {
               </div>
 
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="f-label text-emerald-600">Loaded Weight (Tons) <span className="text-rose-500">*</span></Label>
-                  {vehicleTicketsData.latestLoaded && (
-                    <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-200">
-                      ✓ Auto from Ticket
-                    </span>
-                  )}
-                </div>
+                <Label className="f-label text-emerald-600">Loaded Weight (Tons) <span className="text-rose-500">*</span></Label>
                 <Input 
                   type="number"
                   value={loadedWeight} 

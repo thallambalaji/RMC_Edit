@@ -56,7 +56,6 @@ export default function AddInventory() {
     handleSimulateOrCapture,
   } = useScale();
 
-  
   // Form States
   const [plant, setPlant] = useState("");
   const [inventoryNo, setInventoryNo] = useState("");
@@ -137,19 +136,10 @@ export default function AddInventory() {
 
     const lookupVehicleTickets = async () => {
       try {
-        // Query store inventory tickets first, fallback to weighment tickets
-        let res = await fetch(`/api/inventory-tickets/by-vehicle/${encodeURIComponent(vehicleNo.trim())}`);
-        let data = res.ok ? await res.json() : null;
-        
-        if (!data || (!data.latestEmpty && !data.latestLoaded)) {
-          const dcRes = await fetch(`/api/weighment-tickets/by-vehicle/${encodeURIComponent(vehicleNo.trim())}`);
-          if (dcRes.ok) {
-            const dcData = await dcRes.json();
-            if (dcData && (dcData.latestEmpty || dcData.latestLoaded)) {
-              data = dcData;
-            }
-          }
-        }
+        // Query store inventory tickets exclusively (strictly isolated from DC weighment tickets)
+        const res = await fetch(`/api/inventory-tickets/by-vehicle/${encodeURIComponent(vehicleNo.trim())}`);
+        if (!res.ok) return;
+        const data = await res.json();
 
         if (!data || !isMounted) return;
 
@@ -191,6 +181,27 @@ export default function AddInventory() {
       clearInterval(pollInterval);
     };
   }, [vehicleNo, unit]);
+
+  // Smart Live-Streaming: Auto-capture the second/missing weight from physical scale indicator
+  useEffect(() => {
+    if (!isScaleConnected) return;
+
+    const isTon = unit === "TON";
+    const liveVal = isTon ? (liveScaleWeight / 1000).toFixed(3) : String(Math.round(liveScaleWeight));
+
+    // Scenario A: Ticket has Empty Weight -> Auto-stream live scale into Loaded Weight
+    if (vehicleTicketsData.latestEmpty && !vehicleTicketsData.latestLoaded) {
+      setLoadedWeight(liveVal);
+    }
+    // Scenario B: Ticket has Loaded Weight -> Auto-stream live scale into Empty Weight
+    else if (vehicleTicketsData.latestLoaded && !vehicleTicketsData.latestEmpty) {
+      setEmptyWeight(liveVal);
+    }
+    // Scenario C: Vehicle selected but no tickets -> Default live scale into Loaded Weight
+    else if (!vehicleTicketsData.latestEmpty && !vehicleTicketsData.latestLoaded && vehicleNo) {
+      setLoadedWeight(liveVal);
+    }
+  }, [liveScaleWeight, isScaleConnected, vehicleTicketsData.latestEmpty, vehicleTicketsData.latestLoaded, vehicleNo, unit]);
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -250,6 +261,9 @@ export default function AddInventory() {
   const netWeight = useMemo(() => {
     const loaded = Number(loadedWeight) || 0;
     const empty = Number(emptyWeight) || 0;
+    if (loaded > 0 && empty > 0) {
+      return Math.abs(loaded - empty);
+    }
     return Math.max(0, loaded - empty);
   }, [loadedWeight, emptyWeight]);
 
@@ -575,16 +589,9 @@ export default function AddInventory() {
             {/* COLUMN 3: Weighment & Vehicle Details */}
             <div className="space-y-4">
               
-              {/* Vehicle No with Dual Input + Dropdown + Ticket Sync Badge */}
+              {/* Vehicle No with Dual Input + Dropdown */}
               <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Vehicle No *</Label>
-                  {vehicleTicketsData.tickets.length > 0 && (
-                    <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                      ✓ {vehicleTicketsData.tickets.length} TICKET(S) SYNCED
-                    </span>
-                  )}
-                </div>
+                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Vehicle No *</Label>
                 <div className="flex gap-1">
                   <Input 
                     value={vehicleNo}
@@ -606,28 +613,11 @@ export default function AddInventory() {
                     </SelectContent>
                   </Select>
                 </div>
-                {vehicleTicketsData.tickets.length > 0 && (
-                  <div className="text-[9px] text-emerald-700 bg-emerald-50/90 px-2 py-1 rounded border border-emerald-200 flex items-center justify-between font-semibold">
-                    <span>
-                      {vehicleTicketsData.latestEmpty && `Tare: ${vehicleTicketsData.emptyWeight} KG `}
-                      {vehicleTicketsData.latestLoaded && `| Gross: ${vehicleTicketsData.loadedWeight} KG`}
-                      {vehicleTicketsData.netWeight > 0 && ` | Net: ${vehicleTicketsData.netWeight} KG`}
-                    </span>
-                    <span className="font-bold text-emerald-800 uppercase text-[8px] bg-emerald-200/60 px-1 rounded">Auto-Loaded</span>
-                  </div>
-                )}
               </div>
 
               {/* Loaded Weight */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">Loaded Weight ({unit}) *</Label>
-                  {vehicleTicketsData.latestLoaded && (
-                    <span className="text-[8px] font-black uppercase text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded border border-emerald-200">
-                      ✓ Auto from Ticket
-                    </span>
-                  )}
-                </div>
+                <Label className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">Loaded Weight ({unit}) *</Label>
                 <Input 
                   type="number"
                   value={loadedWeight}
@@ -639,14 +629,7 @@ export default function AddInventory() {
 
               {/* Empty Weight */}
               <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label className="text-[10px] font-black text-amber-600 uppercase tracking-wider">Empty Weight ({unit}) *</Label>
-                  {vehicleTicketsData.latestEmpty && (
-                    <span className="text-[8px] font-black uppercase text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded border border-amber-200">
-                      ✓ Auto from Ticket
-                    </span>
-                  )}
-                </div>
+                <Label className="text-[10px] font-black text-amber-600 uppercase tracking-wider">Empty Weight ({unit}) *</Label>
                 <Input 
                   type="number"
                   value={emptyWeight}

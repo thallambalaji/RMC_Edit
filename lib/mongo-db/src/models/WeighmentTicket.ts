@@ -6,6 +6,9 @@ export interface IWeighmentTicket extends Document {
   vehicleNo: string;
   weightType: string;
   weight: number;
+  status: "OPEN" | "CLOSED";
+  closedAt?: Date;
+  closedByDeliveryNo?: string;
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +21,9 @@ const WeighmentTicketSchema: Schema = new Schema(
     vehicleNo: { type: String, required: true },
     weightType: { type: String, required: true },
     weight: { type: Number, required: true },
+    status: { type: String, enum: ["OPEN", "CLOSED"], default: "OPEN" },
+    closedAt: { type: Date },
+    closedByDeliveryNo: { type: String },
     createdBy: { type: String, default: "Super Admin" },
   },
   { timestamps: true }
